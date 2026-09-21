@@ -432,16 +432,37 @@ function ProductEditor({
     status: initial.status || "DRAFT",
     featured: Boolean(initial.featured),
     displayOrder: initial.displayOrder || 0,
+    specHighlights: Array.isArray(initial.specHighlights) ? (initial.specHighlights as string[]).join("\n") : String(initial.specHighlights ?? ""),
     features: initial.features || [],
     specifications: initial.specifications || [],
     applications: initial.applications || [],
     images: initial.images || [],
+    benefits: initial.benefits || [],
+    components: initial.components || [],
+    configurations: initial.configurations || [],
+    storedMaterials: initial.storedMaterials || [],
+    stories: initial.stories || [],
+    workflows: initial.workflows || [],
     faqs: initial.faqs || [],
     relatedProductIds: initial.relatedProductIds || [],
     industryIds: initial.industryIds || [],
     projectIds: initial.projectIds || [],
+    robotsIndex: initial.robotsIndex ?? true,
+    technicalEnabled: Boolean(initial.technicalEnabled),
+    showGallery: initial.showGallery ?? true,
+    showFeatures: initial.showFeatures ?? true,
+    showSpecifications: initial.showSpecifications ?? true,
+    showConfigurations: initial.showConfigurations ?? true,
+    showApplications: initial.showApplications ?? true,
+    showStoredMaterials: initial.showStoredMaterials ?? true,
+    showStories: initial.showStories ?? true,
+    showWorkflow: initial.showWorkflow ?? true,
+    showBenefits: initial.showBenefits ?? true,
+    showComponents: initial.showComponents ?? true,
+    showFaq: initial.showFaq ?? true,
+    showRelated: initial.showRelated ?? true,
   });
-  const tabs = ["General", "Hero", "Features", "Specifications", "Applications", "Gallery", "Relationships", "FAQs", "SEO", "Publishing"];
+  const tabs = ["General", "Hero", "Highlights", "Specifications", "Applications", "Configurations", "Components", "Benefits", "Storage", "Story", "Workflow", "Gallery", "Relationships", "FAQs", "Technical", "Sections", "SEO", "Publishing"];
 
   function set(key: string, value: unknown) {
     setData((d) => ({ ...d, [key]: value }));
@@ -464,15 +485,41 @@ function ProductEditor({
       { key: "longDescription", label: "Long description", type: "textarea" },
     ],
     Hero: [
-      { key: "heroImage", label: "Hero image URL", type: "url", folder: "products" },
-      { key: "thumbnail", label: "Thumbnail URL", type: "url", folder: "products" },
+      { key: "heroImage", label: "Hero image URL", type: "url", folder: "products", publicIdKey: "heroImagePublicId" },
+      { key: "thumbnail", label: "Thumbnail URL", type: "url", folder: "products", publicIdKey: "thumbnailPublicId" },
+      { key: "heroTitle", label: "Positioning statement", help: "A short, premium positioning line shown above the product name on the detail page." },
+      { key: "heroDescription", label: "Hero description" },
+      { key: "specHighlights", label: "Specification highlights (one per line)", type: "lines", help: "Short hero chips such as load capacity, height range or finish." },
+    ],
+    Technical: [
+      { key: "technicalEnabled", label: "Show technical image block", type: "checkbox" },
+      { key: "technicalImage", label: "Technical / dimension image URL", type: "url", folder: "products", publicIdKey: "technicalImagePublicId", help: "Dimension drawing, structure diagram or component breakdown." },
+      { key: "technicalDescription", label: "Technical caption", type: "textarea" },
+    ],
+    Sections: [
+      { key: "showGallery", label: "Show gallery", type: "checkbox" },
+      { key: "showFeatures", label: "Show highlights", type: "checkbox" },
+      { key: "showSpecifications", label: "Show specifications", type: "checkbox" },
+      { key: "showConfigurations", label: "Show configurations", type: "checkbox" },
+      { key: "showApplications", label: "Show applications", type: "checkbox" },
+      { key: "showStoredMaterials", label: "Show what can be stored", type: "checkbox" },
+      { key: "showStories", label: "Show in-operation story", type: "checkbox" },
+      { key: "showWorkflow", label: "Show installation workflow", type: "checkbox" },
+      { key: "showBenefits", label: "Show benefits", type: "checkbox" },
+      { key: "showComponents", label: "Show components", type: "checkbox" },
+      { key: "showFaq", label: "Show FAQ", type: "checkbox" },
+      { key: "showRelated", label: "Show related products", type: "checkbox" },
     ],
     SEO: [
       { key: "metaTitle", label: "Meta title" },
       { key: "metaDescription", label: "Meta description", type: "textarea" },
       { key: "keywords", label: "Keywords" },
       { key: "focusKeyword", label: "Focus keyword" },
+      { key: "ogTitle", label: "Open Graph title" },
+      { key: "ogDescription", label: "Open Graph description", type: "textarea" },
+      { key: "ogImage", label: "Open Graph image URL", type: "url", folder: "products" },
       { key: "canonicalUrl", label: "Canonical URL" },
+      { key: "robotsIndex", label: "Allow search engines to index", type: "checkbox" },
     ],
     Publishing: [
       { key: "status", label: "Status", type: "select", options: STATUS_OPTIONS },
@@ -489,6 +536,29 @@ function ProductEditor({
   function arrayRemove(key: string, index: number) {
     set(key, ((data[key] as Data[]) || []).filter((_, i) => i !== index));
   }
+  const fieldGroupConfig: Record<string, { key: string; fields: Array<[string, string]>; previewField?: string }> = {
+    Highlights: { key: "features", fields: [["title", "Title"], ["description", "Description"]] },
+    Specifications: { key: "specifications", fields: [["specificationName", "Specification"], ["specificationValue", "Value"]] },
+    Applications: { key: "applications", fields: [["title", "Application"], ["description", "Description"], ["image", "Image URL (optional)"], ["altText", "Image alt text"]] },
+    Configurations: { key: "configurations", fields: [["title", "Title"], ["description", "Description"], ["image", "Image URL (optional)"], ["altText", "Image alt text"]], previewField: "image" },
+    Components: { key: "components", fields: [["title", "Component"], ["description", "Description"], ["image", "Image URL (optional)"], ["altText", "Image alt text"]], previewField: "image" },
+    Benefits: { key: "benefits", fields: [["title", "Benefit"], ["description", "Description"]] },
+    Storage: { key: "storedMaterials", fields: [["title", "Material"], ["description", "Description"], ["image", "Image URL (optional)"], ["altText", "Image alt text"]], previewField: "image" },
+    Story: { key: "stories", fields: [["title", "Caption"], ["description", "Description"], ["image", "Image URL (required)"], ["altText", "Image alt text"]], previewField: "image" },
+    Workflow: { key: "workflows", fields: [["title", "Step"], ["description", "Description"]] },
+    Gallery: { key: "images", fields: [["imageUrl", "Cloudinary image URL"], ["altText", "Alternative text"], ["caption", "Caption (optional)"]] },
+    FAQs: { key: "faqs", fields: [["question", "Question"], ["answer", "Answer"]] },
+  };
+  const arrayConfig = fieldGroupConfig[tab] ?? null;
+
+  const relationGroups = [
+    { key: "relatedProductIds", label: "Related products", rows: options.products.filter((item) => item.id !== Number(initial.id)) },
+    { key: "industryIds", label: "Relevant industries", rows: options.industries },
+    { key: "projectIds", label: "Related projects", rows: options.projects.map((item) => ({ id: item.id, name: item.title })) },
+  ];
+
+  const busy = saving || uploading;
+
   function arrayAdd(key: string) {
     const empty: Data =
       key === "features"
@@ -499,38 +569,29 @@ function ProductEditor({
             ? { imageUrl: "", altText: "", caption: "" }
             : key === "faqs"
               ? { question: "", answer: "" }
-              : { application: "" };
+              : key === "applications"
+                ? { title: "", description: "", image: "", altText: "" }
+                : key === "stories"
+                  ? { title: "", description: "", image: "", altText: "" }
+                  : key === "workflows"
+                    ? { title: "", description: "" }
+                    : { title: "", description: "", image: "", altText: "" };
     set(key, [...((data[key] as Data[]) || []), empty]);
   }
 
-  const arrayConfig =
-    tab === "Features"
-      ? { key: "features", fields: [["title", "Title"], ["description", "Description"]] }
-      : tab === "Specifications"
-        ? { key: "specifications", fields: [["specificationName", "Specification"], ["specificationValue", "Value"]] }
-        : tab === "Applications"
-          ? { key: "applications", fields: [["application", "Application"]] }
-          : tab === "Gallery"
-            ? { key: "images", fields: [["imageUrl", "Cloudinary image URL"], ["altText", "Alternative text"]] }
-            : tab === "FAQs"
-              ? { key: "faqs", fields: [["question", "Question"], ["answer", "Answer"]] }
-              : null;
+  function submit(event: React.FormEvent) {
+    event.preventDefault();
+    const payload: Data = { ...data };
+    if (typeof payload.specHighlights === "string") {
+      payload.specHighlights = (payload.specHighlights as string).split("\n").map((line) => line.trim()).filter(Boolean);
+    }
+    onSave(payload);
+  }
 
-  const relationGroups = [
-    { key: "relatedProductIds", label: "Related products", rows: options.products.filter((item) => item.id !== Number(initial.id)) },
-    { key: "industryIds", label: "Relevant industries", rows: options.industries },
-    { key: "projectIds", label: "Related projects", rows: options.projects.map((item) => ({ id: item.id, name: item.title })) },
-  ];
-
-  const busy = saving || uploading;
+  const isTextareaField = (key: string) => key === "description" || key === "answer";
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSave(data);
-      }}
-    >
+    <form onSubmit={submit}>
       <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-zinc-200 px-5 pt-3">
         {tabs.map((item) => (
           <button
@@ -561,15 +622,15 @@ function ProductEditor({
                 {arrayConfig.fields.map(([key, label]) => (
                   <div key={key}>
                     <label className="mb-1 block text-[.65rem] font-bold text-zinc-600">{label}</label>
-                    {key === "description" || key === "answer" ? (
+                    {isTextareaField(key) ? (
                       <textarea
                         value={String(row[key] || "")}
                         onChange={(e) => arrayUpdate(arrayConfig.key, i, key, e.target.value)}
                         className="admin-field min-h-20"
-                        required
+                        required={key === "description"}
                       />
                     ) : (
-                      <input value={String(row[key] || "")} onChange={(e) => arrayUpdate(arrayConfig.key, i, key, e.target.value)} className="admin-field" required />
+                      <input value={String(row[key] || "")} onChange={(e) => arrayUpdate(arrayConfig.key, i, key, e.target.value)} className="admin-field" required={key === "image" && arrayConfig.key === "stories"} />
                     )}
                   </div>
                 ))}
@@ -587,6 +648,7 @@ function ProductEditor({
             <button type="button" onClick={() => arrayAdd(arrayConfig.key)} className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-4 py-2 text-xs font-bold text-zinc-900 hover:bg-zinc-50">
               <Plus size={14} /> Add row
             </button>
+            <p className="text-[.68rem] leading-5 text-zinc-500">Rows save in the order shown. Run a product save after adding or reordering.</p>
           </div>
         ) : null}
         {tab === "Relationships" ? (

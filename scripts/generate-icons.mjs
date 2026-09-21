@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import { copyFileSync, mkdirSync } from "node:fs";
+import { copyFileSync, mkdirSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,7 +9,6 @@ const source = resolve(root, "src/Public/logo icon.png");
 mkdirSync(resolve(root, "public"), { recursive: true });
 
 const targets = [
-  { file: "public/logo.png", width: 547, height: 456, fit: "contain", background: null },
   { file: "src/app/icon.png", width: 32 },
   { file: "src/app/apple-icon.png", width: 180, background: "#ffffff" },
   { file: "public/icon-192.png", width: 192, background: "#ffffff" },
@@ -27,7 +26,8 @@ for (const target of targets) {
   await pipeline.toFile(resolve(root, target.file));
   const out = resolve(root, target.file);
   const meta = await sharp(out).metadata();
-  console.log(`${target.file}\t${meta.width}x${meta.height}\t${Math.round(meta.size / 1024)}KB`);
+  const bytes = statSync(out).size;
+  console.log(`${target.file}\t${meta.width}x${meta.height}\t${Math.round(bytes / 1024)}KB`);
 }
 
 copyFileSync(source, resolve(root, "public/logo.png"));

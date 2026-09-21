@@ -76,6 +76,25 @@ export const products = pgTable(
     heroImagePublicId: text("hero_image_public_id"),
     thumbnail: text("thumbnail"),
     thumbnailPublicId: text("thumbnail_public_id"),
+    heroTitle: text("hero_title"),
+    heroDescription: text("hero_description"),
+    specHighlights: jsonb("spec_highlights").$type<string[]>().default([]),
+    technicalImage: text("technical_image"),
+    technicalImagePublicId: text("technical_image_public_id"),
+    technicalDescription: text("technical_description"),
+    technicalEnabled: boolean("technical_enabled").default(false).notNull(),
+    showGallery: boolean("show_gallery").default(true).notNull(),
+    showFeatures: boolean("show_features").default(true).notNull(),
+    showSpecifications: boolean("show_specifications").default(true).notNull(),
+    showConfigurations: boolean("show_configurations").default(true).notNull(),
+    showApplications: boolean("show_applications").default(true).notNull(),
+    showStoredMaterials: boolean("show_stored_materials").default(true).notNull(),
+    showStories: boolean("show_stories").default(true).notNull(),
+    showWorkflow: boolean("show_workflow").default(true).notNull(),
+    showBenefits: boolean("show_benefits").default(true).notNull(),
+    showComponents: boolean("show_components").default(true).notNull(),
+    showFaq: boolean("show_faq").default(true).notNull(),
+    showRelated: boolean("show_related").default(true).notNull(),
     metaTitle: text("meta_title"),
     metaDescription: text("meta_description"),
     keywords: text("keywords"),
@@ -135,6 +154,71 @@ export const productApplications = pgTable("product_applications", {
   id: serial("id").primaryKey(),
   productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
   application: text("application").notNull(),
+  title: text("title"),
+  description: text("description"),
+  image: text("image"),
+  imagePublicId: text("image_public_id"),
+  altText: text("alt_text"),
+  displayOrder: integer("display_order").default(0).notNull(),
+});
+
+export const productBenefits = pgTable("product_benefits", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  displayOrder: integer("display_order").default(0).notNull(),
+});
+
+export const productComponents = pgTable("product_components", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  image: text("image"),
+  imagePublicId: text("image_public_id"),
+  altText: text("alt_text"),
+  displayOrder: integer("display_order").default(0).notNull(),
+});
+
+export const productConfigurations = pgTable("product_configurations", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  image: text("image"),
+  imagePublicId: text("image_public_id"),
+  altText: text("alt_text"),
+  displayOrder: integer("display_order").default(0).notNull(),
+});
+
+export const productStoredMaterials = pgTable("product_stored_materials", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  image: text("image"),
+  imagePublicId: text("image_public_id"),
+  altText: text("alt_text"),
+  displayOrder: integer("display_order").default(0).notNull(),
+});
+
+export const productStories = pgTable("product_stories", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+  title: text("title"),
+  description: text("description").notNull(),
+  image: text("image").notNull(),
+  imagePublicId: text("image_public_id"),
+  altText: text("alt_text").notNull(),
+  displayOrder: integer("display_order").default(0).notNull(),
+});
+
+export const productWorkflows = pgTable("product_workflows", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
   displayOrder: integer("display_order").default(0).notNull(),
 });
 

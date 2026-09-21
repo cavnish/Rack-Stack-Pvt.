@@ -2,8 +2,8 @@ import "server-only";
 import { db } from "@/db";
 import {
   activityLogs, blogPosts, clientLogos, clients, contactMessages, faqs, gallery, homeSliders, homepageSections, industries, inquiries,
-  media, pages, productApplications, productFeatures, productImages, productIndustries, productProjects,
-  productRelatedProducts, productSpecifications, products, projects, redirects, seoSettings,
+  media, pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productImages, productIndustries, productProjects,
+  productRelatedProducts, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projects, redirects, seoSettings,
   serviceFeatures, services, siteSettings, testimonials, users,
 } from "@/db/schema";
 import { hash } from "bcryptjs";
@@ -48,17 +48,23 @@ export async function getEntity(entity: AdminEntity, id: number) {
   if (entity === "products") {
     const item = (await db.select().from(products).where(eq(products.id, id)).limit(1))[0];
     if (!item) return null;
-    const [features, specifications, applications, images, relatedRows, industryRows, projectRows, productFaqs] = await Promise.all([
+    const [features, specifications, applications, images, benefits, components, configurations, storedMaterials, stories, workflows, relatedRows, industryRows, projectRows, productFaqs] = await Promise.all([
       db.select().from(productFeatures).where(eq(productFeatures.productId, id)).orderBy(asc(productFeatures.displayOrder)),
       db.select().from(productSpecifications).where(eq(productSpecifications.productId, id)).orderBy(asc(productSpecifications.displayOrder)),
       db.select().from(productApplications).where(eq(productApplications.productId, id)).orderBy(asc(productApplications.displayOrder)),
       db.select().from(productImages).where(eq(productImages.productId, id)).orderBy(asc(productImages.displayOrder)),
+      db.select().from(productBenefits).where(eq(productBenefits.productId, id)).orderBy(asc(productBenefits.displayOrder)),
+      db.select().from(productComponents).where(eq(productComponents.productId, id)).orderBy(asc(productComponents.displayOrder)),
+      db.select().from(productConfigurations).where(eq(productConfigurations.productId, id)).orderBy(asc(productConfigurations.displayOrder)),
+      db.select().from(productStoredMaterials).where(eq(productStoredMaterials.productId, id)).orderBy(asc(productStoredMaterials.displayOrder)),
+      db.select().from(productStories).where(eq(productStories.productId, id)).orderBy(asc(productStories.displayOrder)),
+      db.select().from(productWorkflows).where(eq(productWorkflows.productId, id)).orderBy(asc(productWorkflows.displayOrder)),
       db.select().from(productRelatedProducts).where(eq(productRelatedProducts.productId, id)).orderBy(asc(productRelatedProducts.displayOrder)),
       db.select().from(productIndustries).where(eq(productIndustries.productId, id)).orderBy(asc(productIndustries.displayOrder)),
       db.select().from(productProjects).where(eq(productProjects.productId, id)).orderBy(asc(productProjects.displayOrder)),
       db.select().from(faqs).where(and(eq(faqs.entityType, "PRODUCT"), eq(faqs.entityId, id))).orderBy(asc(faqs.displayOrder)),
     ]);
-    return { ...item, features, specifications, applications, images, relatedProductIds: relatedRows.map((row) => row.relatedProductId), industryIds: industryRows.map((row) => row.industryId), projectIds: projectRows.map((row) => row.projectId), faqs: productFaqs };
+    return { ...item, features, specifications, applications, images, benefits, components, configurations, storedMaterials, stories, workflows, relatedProductIds: relatedRows.map((row) => row.relatedProductId), industryIds: industryRows.map((row) => row.industryId), projectIds: projectRows.map((row) => row.projectId), faqs: productFaqs };
   }
   if (entity === "services") {
     const item = (await db.select().from(services).where(eq(services.id, id)).limit(1))[0];
@@ -72,17 +78,32 @@ export async function getEntity(entity: AdminEntity, id: number) {
 export async function createEntity(entity: AdminEntity, input: Record<string, unknown>, currentUserId: number) {
   if (entity === "products") {
     if (input.duplicateId) {
-      const source = await getEntity("products", num(input.duplicateId)) as Awaited<ReturnType<typeof getEntity>> & { name: string; slug: string; features: Array<{ title: string; description: string; icon: string | null }>; specifications: Array<{ specificationName: string; specificationValue: string }>; applications: Array<{ application: string }> };
+      const source = await getEntity("products", num(input.duplicateId)) as Awaited<ReturnType<typeof getEntity>> & { name: string; slug: string };
       if (!source) throw new Error("Product not found");
-      input = { ...source, name: `${source.name} (Copy)`, slug: `${source.slug}-copy-${Date.now().toString().slice(-5)}`, status: "DRAFT", features: source.features, specifications: source.specifications, applications: source.applications };
+      const { id: _id, createdAt: _c, updatedAt: _u, ...rest } = source as Record<string, unknown>;
+      input = { ...rest, name: `${source.name} (Copy)`, slug: `${source.slug}-copy-${Date.now().toString().slice(-5)}`, status: "DRAFT", featured: false, heroImage: null, thumbnail: null };
     }
     const data = productAdminSchema.parse(input);
     return db.transaction(async (tx) => {
-      const [item] = await tx.insert(products).values({ name: data.name, slug: data.slug, shortDescription: data.shortDescription, description: data.description, longDescription: data.longDescription, category: data.category, featured: data.featured, status: data.status, displayOrder: data.displayOrder, heroImage: data.heroImage || null, thumbnail: data.thumbnail || null, metaTitle: data.metaTitle, metaDescription: data.metaDescription, keywords: data.keywords, focusKeyword: data.focusKeyword, canonicalUrl: data.canonicalUrl }).returning();
-      if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId: item.id, title: x.title, description: x.description, icon: x.icon, displayOrder: i })));
-      if (data.specifications.length) await tx.insert(productSpecifications).values(data.specifications.map((x, i) => ({ productId: item.id, ...x, displayOrder: i })));
-      if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId: item.id, application: x.application, displayOrder: i })));
-      if (data.images.length) await tx.insert(productImages).values(data.images.map((x, i) => ({ productId: item.id, imageUrl: x.imageUrl, altText: x.altText, caption: x.caption, displayOrder: i })));
+      const [item] = await tx.insert(products).values({
+        name: data.name, slug: data.slug, shortDescription: data.shortDescription, description: data.description, longDescription: data.longDescription, category: data.category, featured: data.featured, status: data.status, displayOrder: data.displayOrder,
+        heroImage: data.heroImage || null, heroImagePublicId: data.heroImagePublicId || null, thumbnail: data.thumbnail || null, thumbnailPublicId: data.thumbnailPublicId || null,
+        heroTitle: data.heroTitle || null, heroDescription: data.heroDescription || null, specHighlights: data.specHighlights,
+        technicalImage: data.technicalImage || null, technicalImagePublicId: data.technicalImagePublicId || null, technicalDescription: data.technicalDescription || null, technicalEnabled: data.technicalEnabled,
+        showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated,
+        metaTitle: data.metaTitle || null, metaDescription: data.metaDescription || null, keywords: data.keywords || null, focusKeyword: data.focusKeyword || null, ogTitle: data.ogTitle || null, ogDescription: data.ogDescription || null, ogImage: data.ogImage || null, canonicalUrl: data.canonicalUrl || null, robotsIndex: data.robotsIndex,
+      }).returning();
+      const productId = item.id;
+      if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId, title: x.title, description: x.description, icon: x.icon || "CheckCircle2", displayOrder: i })));
+      if (data.specifications.length) await tx.insert(productSpecifications).values(data.specifications.map((x, i) => ({ productId, ...x, displayOrder: i })));
+      if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId, application: x.title, title: x.title || null, description: x.description || null, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.images.length) await tx.insert(productImages).values(data.images.map((x, i) => ({ productId, imageUrl: x.imageUrl, altText: x.altText, caption: x.caption || null, displayOrder: i })));
+      if (data.benefits.length) await tx.insert(productBenefits).values(data.benefits.map((x, i) => ({ productId, title: x.title, description: x.description, displayOrder: i })));
+      if (data.components.length) await tx.insert(productComponents).values(data.components.map((x, i) => ({ productId, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.configurations.length) await tx.insert(productConfigurations).values(data.configurations.map((x, i) => ({ productId, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.storedMaterials.length) await tx.insert(productStoredMaterials).values(data.storedMaterials.map((x, i) => ({ productId, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.stories.length) await tx.insert(productStories).values(data.stories.map((x, i) => ({ productId, title: x.title || null, description: x.description, image: x.image, imagePublicId: x.imagePublicId || null, altText: x.altText || `${item.name} in operation`, displayOrder: i })));
+      if (data.workflows.length) await tx.insert(productWorkflows).values(data.workflows.map((x, i) => ({ productId, title: x.title, description: x.description, displayOrder: i })));
       const relatedIds = Array.from(new Set(data.relatedProductIds)).filter((relatedId) => relatedId !== item.id);
       if (relatedIds.length) await tx.insert(productRelatedProducts).values(relatedIds.map((relatedProductId, displayOrder) => ({ productId: item.id, relatedProductId, displayOrder })));
       if (data.industryIds.length) await tx.insert(productIndustries).values(Array.from(new Set(data.industryIds)).map((industryId, displayOrder) => ({ productId: item.id, industryId, displayOrder })));
@@ -120,22 +141,41 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
     const data = productAdminSchema.parse(input);
     return db.transaction(async (tx) => {
       const previous = (await tx.select({ slug: products.slug }).from(products).where(eq(products.id, id)))[0];
-      const [item] = await tx.update(products).set({ name: data.name, slug: data.slug, shortDescription: data.shortDescription, description: data.description, longDescription: data.longDescription, category: data.category, featured: data.featured, status: data.status, displayOrder: data.displayOrder, heroImage: data.heroImage || null, thumbnail: data.thumbnail || null, metaTitle: data.metaTitle, metaDescription: data.metaDescription, keywords: data.keywords, focusKeyword: data.focusKeyword, canonicalUrl: data.canonicalUrl, updatedAt: new Date() }).where(eq(products.id, id)).returning();
+      const [item] = await tx.update(products).set({
+        name: data.name, slug: data.slug, shortDescription: data.shortDescription, description: data.description, longDescription: data.longDescription, category: data.category, featured: data.featured, status: data.status, displayOrder: data.displayOrder,
+        heroImage: data.heroImage || null, heroImagePublicId: data.heroImagePublicId || null, thumbnail: data.thumbnail || null, thumbnailPublicId: data.thumbnailPublicId || null,
+        heroTitle: data.heroTitle || null, heroDescription: data.heroDescription || null, specHighlights: data.specHighlights,
+        technicalImage: data.technicalImage || null, technicalImagePublicId: data.technicalImagePublicId || null, technicalDescription: data.technicalDescription || null, technicalEnabled: data.technicalEnabled,
+        showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated,
+        metaTitle: data.metaTitle || null, metaDescription: data.metaDescription || null, keywords: data.keywords || null, focusKeyword: data.focusKeyword || null, ogTitle: data.ogTitle || null, ogDescription: data.ogDescription || null, ogImage: data.ogImage || null, canonicalUrl: data.canonicalUrl || null, robotsIndex: data.robotsIndex, updatedAt: new Date(),
+      }).where(eq(products.id, id)).returning();
       if (!item) throw new Error("Product not found");
       await Promise.all([
         tx.delete(productFeatures).where(eq(productFeatures.productId, id)),
         tx.delete(productSpecifications).where(eq(productSpecifications.productId, id)),
         tx.delete(productApplications).where(eq(productApplications.productId, id)),
         tx.delete(productImages).where(eq(productImages.productId, id)),
+        tx.delete(productBenefits).where(eq(productBenefits.productId, id)),
+        tx.delete(productComponents).where(eq(productComponents.productId, id)),
+        tx.delete(productConfigurations).where(eq(productConfigurations.productId, id)),
+        tx.delete(productStoredMaterials).where(eq(productStoredMaterials.productId, id)),
+        tx.delete(productStories).where(eq(productStories.productId, id)),
+        tx.delete(productWorkflows).where(eq(productWorkflows.productId, id)),
         tx.delete(productRelatedProducts).where(eq(productRelatedProducts.productId, id)),
         tx.delete(productIndustries).where(eq(productIndustries.productId, id)),
         tx.delete(productProjects).where(eq(productProjects.productId, id)),
         tx.delete(faqs).where(and(eq(faqs.entityType, "PRODUCT"), eq(faqs.entityId, id))),
       ]);
-      if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId: id, title: x.title, description: x.description, icon: x.icon, displayOrder: i })));
+      if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId: id, title: x.title, description: x.description, icon: x.icon || "CheckCircle2", displayOrder: i })));
       if (data.specifications.length) await tx.insert(productSpecifications).values(data.specifications.map((x, i) => ({ productId: id, ...x, displayOrder: i })));
-      if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId: id, application: x.application, displayOrder: i })));
-      if (data.images.length) await tx.insert(productImages).values(data.images.map((x, i) => ({ productId: id, imageUrl: x.imageUrl, altText: x.altText, caption: x.caption, displayOrder: i })));
+      if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId: id, application: x.title, title: x.title || null, description: x.description || null, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.images.length) await tx.insert(productImages).values(data.images.map((x, i) => ({ productId: id, imageUrl: x.imageUrl, altText: x.altText, caption: x.caption || null, displayOrder: i })));
+      if (data.benefits.length) await tx.insert(productBenefits).values(data.benefits.map((x, i) => ({ productId: id, title: x.title, description: x.description, displayOrder: i })));
+      if (data.components.length) await tx.insert(productComponents).values(data.components.map((x, i) => ({ productId: id, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.configurations.length) await tx.insert(productConfigurations).values(data.configurations.map((x, i) => ({ productId: id, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.storedMaterials.length) await tx.insert(productStoredMaterials).values(data.storedMaterials.map((x, i) => ({ productId: id, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.stories.length) await tx.insert(productStories).values(data.stories.map((x, i) => ({ productId: id, title: x.title || null, description: x.description, image: x.image, imagePublicId: x.imagePublicId || null, altText: x.altText || `${data.name} in operation`, displayOrder: i })));
+      if (data.workflows.length) await tx.insert(productWorkflows).values(data.workflows.map((x, i) => ({ productId: id, title: x.title, description: x.description, displayOrder: i })));
       const relatedIds = Array.from(new Set(data.relatedProductIds)).filter((relatedId) => relatedId !== id);
       if (relatedIds.length) await tx.insert(productRelatedProducts).values(relatedIds.map((relatedProductId, displayOrder) => ({ productId: id, relatedProductId, displayOrder })));
       if (data.industryIds.length) await tx.insert(productIndustries).values(Array.from(new Set(data.industryIds)).map((industryId, displayOrder) => ({ productId: id, industryId, displayOrder })));

@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import {
   activityLogs, blogCategories, blogPosts, catalogDownloads, clientLogos, clients, contactMessages, faqs, gallery, homepageSections, industries, inquiries,
-  pages, productApplications, productFeatures, productImages, productIndustries, productProjects,
-  productRelatedProducts, productSpecifications, products, projectImages, projects, redirects,
+  pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productImages, productIndustries, productProjects,
+  productRelatedProducts, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projectImages, projects, redirects,
   seoSettings, serviceFeatures, serviceIndustries, serviceProjects, services, siteSettings, testimonials,
 } from "@/db/schema";
 import { and, asc, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
@@ -22,14 +22,50 @@ export async function getHomepageSections() {
 export async function getProducts(featuredOnly = false) {
   return db.select().from(products).where(and(eq(products.status, "PUBLISHED"), isNull(products.deletedAt), featuredOnly ? eq(products.featured, true) : undefined)).orderBy(asc(products.displayOrder));
 }
+export type CatalogueProduct = typeof products.$inferSelect & {
+  keySpec: { name: string; value: string } | null;
+  application: string | null;
+  applicationTitle: string | null;
+  imageCount: number;
+};
+export async function getProductCatalogue(): Promise<CatalogueProduct[]> {
+  const [rows, specs, apps, counts] = await Promise.all([
+    getProducts(),
+    db.select().from(productSpecifications).orderBy(asc(productSpecifications.displayOrder)),
+    db.select().from(productApplications).orderBy(asc(productApplications.displayOrder)),
+    db.select({ productId: productImages.productId, count: sql<number>`count(*)` }).from(productImages).groupBy(productImages.productId),
+  ]);
+  const specMap = new Map<number, { name: string; value: string }>();
+  for (const spec of specs) {
+    if (!specMap.has(spec.productId)) specMap.set(spec.productId, { name: spec.specificationName, value: spec.specificationValue });
+  }
+  const appMap = new Map<number, { title: string | null; application: string }>();
+  for (const app of apps) {
+    if (!appMap.has(app.productId)) appMap.set(app.productId, { title: app.title, application: app.application });
+  }
+  const countMap = new Map(counts.map((row) => [row.productId, Number(row.count)]));
+  return rows.map((row) => ({
+    ...row,
+    keySpec: specMap.get(row.id) ?? null,
+    application: appMap.get(row.id)?.application ?? null,
+    applicationTitle: appMap.get(row.id)?.title ?? null,
+    imageCount: countMap.get(row.id) ?? 0,
+  }));
+}
 export async function getProductBySlug(slug: string, preview = false) {
   const product = (await db.select().from(products).where(and(eq(products.slug, slug), isNull(products.deletedAt), preview ? undefined : eq(products.status, "PUBLISHED"))).limit(1))[0];
   if (!product) return null;
-  const [features, specifications, applications, images, allProducts, productFaqs, relatedRows, industryRows, projectRows] = await Promise.all([
+  const [features, specifications, applications, images, benefits, components, configurations, storedMaterials, stories, workflows, allProducts, productFaqs, relatedRows, industryRows, projectRows] = await Promise.all([
     db.select().from(productFeatures).where(eq(productFeatures.productId, product.id)).orderBy(asc(productFeatures.displayOrder)),
     db.select().from(productSpecifications).where(eq(productSpecifications.productId, product.id)).orderBy(asc(productSpecifications.displayOrder)),
     db.select().from(productApplications).where(eq(productApplications.productId, product.id)).orderBy(asc(productApplications.displayOrder)),
     db.select().from(productImages).where(eq(productImages.productId, product.id)).orderBy(asc(productImages.displayOrder)),
+    db.select().from(productBenefits).where(eq(productBenefits.productId, product.id)).orderBy(asc(productBenefits.displayOrder)),
+    db.select().from(productComponents).where(eq(productComponents.productId, product.id)).orderBy(asc(productComponents.displayOrder)),
+    db.select().from(productConfigurations).where(eq(productConfigurations.productId, product.id)).orderBy(asc(productConfigurations.displayOrder)),
+    db.select().from(productStoredMaterials).where(eq(productStoredMaterials.productId, product.id)).orderBy(asc(productStoredMaterials.displayOrder)),
+    db.select().from(productStories).where(eq(productStories.productId, product.id)).orderBy(asc(productStories.displayOrder)),
+    db.select().from(productWorkflows).where(eq(productWorkflows.productId, product.id)).orderBy(asc(productWorkflows.displayOrder)),
     getProducts(),
     db.select().from(faqs).where(and(eq(faqs.status, "PUBLISHED"), or(eq(faqs.entityType, "GLOBAL"), and(eq(faqs.entityType, "PRODUCT"), eq(faqs.entityId, product.id))))).orderBy(asc(faqs.displayOrder)),
     db.select({ item: products }).from(productRelatedProducts).innerJoin(products, eq(productRelatedProducts.relatedProductId, products.id)).where(and(eq(productRelatedProducts.productId, product.id), eq(products.status, "PUBLISHED"), isNull(products.deletedAt))).orderBy(asc(productRelatedProducts.displayOrder)),
@@ -37,7 +73,7 @@ export async function getProductBySlug(slug: string, preview = false) {
     db.select({ item: projects }).from(productProjects).innerJoin(projects, eq(productProjects.projectId, projects.id)).where(and(eq(productProjects.productId, product.id), eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt))).orderBy(asc(productProjects.displayOrder)),
   ]);
   const related = relatedRows.length ? relatedRows.map((row) => row.item) : allProducts.filter((item) => item.id !== product.id && item.category === product.category).slice(0, 3);
-  return { ...product, features, specifications, applications, images, faqs: productFaqs, related, industries: industryRows.map((row) => row.item), projects: projectRows.map((row) => row.item) };
+  return { ...product, features, specifications, applications, images, benefits, components, configurations, storedMaterials, stories, workflows, faqs: productFaqs, related, industries: industryRows.map((row) => row.item), projects: projectRows.map((row) => row.item) };
 }
 export async function getServices(featuredOnly = false) {
   return db.select().from(services).where(and(eq(services.status, "PUBLISHED"), isNull(services.deletedAt), featuredOnly ? eq(services.featured, true) : undefined)).orderBy(asc(services.displayOrder));

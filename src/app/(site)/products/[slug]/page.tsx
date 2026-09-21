@@ -1,23 +1,78 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowRight, CheckCircle2, MessageCircle, PhoneCall } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
-import { getIndustries,getProductBySlug,getProducts,getRedirectPath,getServices,getSiteSettings } from "@/lib/data";
-import { Breadcrumb,CTASection,JsonLd,ProductCard,SectionHeading } from "@/components/site/ui";
-import { SmartImage } from "@/components/site/smart-image";
-import { FAQ } from "@/components/site/faq";
-import { InquiryForm } from "@/components/site/inquiry-form";
+import { getClientLogos, getProductBySlug, getProducts, getRedirectPath, getServices, getSiteSettings } from "@/lib/data";
+import { JsonLd } from "@/components/site/ui";
+import { Reveal } from "@/components/site/reveal";
+import { MobileProductActions } from "@/components/site/product-experience";
 import { EventTracker } from "@/components/site/event-tracker";
-import { MobileProductActions, ProductGallery, SpecificationPanel } from "@/components/site/product-experience";
-export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;const item=await getProductBySlug(slug);if(!item)return{};return{title:item.metaTitle||item.name,description:item.metaDescription||item.shortDescription,alternates:{canonical:item.canonicalUrl||`/products/${item.slug}`},robots:{index:item.robotsIndex,follow:item.robotsIndex},openGraph:{title:item.ogTitle||item.metaTitle||item.name,description:item.ogDescription||item.metaDescription||item.shortDescription,images:item.ogImage||item.heroImage?[item.ogImage||item.heroImage||""]:[]}}}
-export default async function ProductPage({params,searchParams}:{params:Promise<{slug:string}>;searchParams:Promise<{preview?:string}>}){const [{slug},{preview}]=await Promise.all([params,searchParams]);const allowPreview=preview==="1"&&Boolean(await getCurrentUser());const product=await getProductBySlug(slug,allowPreview);if(!product){const target=await getRedirectPath(`/products/${slug}`);if(target)redirect(target);notFound();}const [allProducts,allServices,industryRows,settings]=await Promise.all([getProducts(),getServices(),getIndustries(),getSiteSettings()]);const relevantIndustries=product.industries.length?product.industries:industryRows.slice(0,4);const productSchema={"@context":"https://schema.org","@type":"Product",name:product.name,description:product.shortDescription,image:product.images.map(i=>i.imageUrl),brand:{"@type":"Brand",name:"Rack & Stack Storage Systems"}};const faqSchema={"@context":"https://schema.org","@type":"FAQPage",mainEntity:product.faqs.map(f=>({"@type":"Question",name:f.question,acceptedAnswer:{"@type":"Answer",text:f.answer}}))};return <main><EventTracker eventName="product_view" entityType="product" entityId={product.id}/><MobileProductActions slug={product.slug}/><JsonLd data={productSchema}/>{product.faqs.length>0&&<JsonLd data={faqSchema}/>}<section className="bg-zinc-950 text-white"><div className="container-shell grid min-h-[670px] items-stretch lg:grid-cols-2"><div className="flex flex-col justify-center py-16 lg:pr-16"><Breadcrumb items={[{label:"Products",href:"/products"},{label:product.name}]}/>{product.status!=="PUBLISHED"&&<span className="mt-6 w-fit bg-amber-300 px-3 py-1 text-xs font-bold text-black">Draft preview</span>}<p className="eyebrow mt-8 text-red-400">{product.category}</p><h1 className="heading-lg mt-5 text-balance">{product.name}</h1><p className="mt-6 max-w-xl text-lg leading-8 text-zinc-300">{product.shortDescription}</p><div className="mt-8 flex flex-wrap gap-3"><Link href={`/request-a-quote?product=${product.slug}`} className="btn-primary">Request Quote <ArrowRight size={16}/></Link><a className="btn-light" href={`tel:${settings?.primaryPhone.replace(/\s/g,"")}`}><PhoneCall size={16}/>Talk to Expert</a></div></div><div className="relative min-h-[440px] lg:min-h-full"><SmartImage src={product.heroImage||""} alt={product.name} fill priority className="object-cover" sizes="(max-width:1024px) 100vw,50vw"/><div className="absolute inset-y-0 left-0 hidden w-24 bg-gradient-to-r from-zinc-950 to-transparent lg:block"/></div></div></section>
-<section className="py-24"><div className="container-shell grid gap-14 lg:grid-cols-[.7fr_1.3fr]"><SectionHeading eyebrow="System overview" title="A considered response to space, load and access."/><div><p className="text-xl leading-9 text-zinc-700">{product.description}</p>{product.longDescription&&<p className="mt-6 leading-8 text-zinc-500">{product.longDescription}</p>}</div></div></section>
-{product.features.length>0&&<section className="surface-grid bg-[#f4f4f1] py-24"><div className="container-shell"><SectionHeading eyebrow="Key benefits" title="Configured for practical storage performance."/><div className="mt-12 grid gap-px bg-zinc-300 sm:grid-cols-2 lg:grid-cols-3">{product.features.map((feature,i)=><article key={feature.id} className="min-h-60 bg-white p-7"><span className="grid h-9 w-9 place-items-center bg-red-600 text-white"><CheckCircle2 size={18}/></span><p className="mt-9 text-xs font-bold text-red-600">0{i+1}</p><h3 className="mt-2 text-xl font-semibold">{feature.title}</h3><p className="mt-3 text-sm leading-6 text-zinc-500">{feature.description}</p></article>)}</div></div></section>}
-<section className="py-24"><div className="container-shell grid gap-14 lg:grid-cols-2">{product.specifications.length>0&&<div><SectionHeading eyebrow="Specifications" title="Project inputs define the final configuration."/><div className="mt-10"><SpecificationPanel specifications={product.specifications}/></div><p className="mt-4 text-xs leading-5 text-zinc-500">Website specifications are indicative. Final dimensions, loads and accessories are confirmed in the project proposal.</p></div>}{product.applications.length>0&&<div className="bg-zinc-950 p-8 text-white sm:p-12"><p className="eyebrow text-red-400">Applications</p><h2 className="heading-md mt-5">Where this system can fit.</h2><ul className="mt-9 space-y-0 divide-y divide-white/10">{product.applications.map(app=><li key={app.id} className="flex items-center justify-between py-4 text-sm"><span>{app.application}</span><ArrowRight size={14} className="text-red-400"/></li>)}</ul></div>}</div></section>
-<section className="bg-[#f4f4f1] py-24"><div className="container-shell"><SectionHeading eyebrow="Relevant industries" title="System choice depends on operating context."/><div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{relevantIndustries.slice(0,4).map(industry=><Link key={industry.id} href={`/industries/${industry.slug}`} className="group border border-zinc-300 bg-white p-6"><h3 className="font-semibold">{industry.name}</h3><p className="mt-3 text-sm leading-6 text-zinc-500">{industry.shortDescription}</p><ArrowRight size={16} className="mt-7 text-red-600 transition-transform group-hover:translate-x-1"/></Link>)}</div></div></section>
-{product.images.length>0&&<section className="py-24"><div className="container-shell"><SectionHeading eyebrow="Product gallery" title="See the storage environment in context."/><div className="mt-10"><ProductGallery images={product.images}/></div></div></section>}
-<section className="bg-zinc-950 py-24 text-white"><div className="container-shell grid gap-14 lg:grid-cols-2"><SectionHeading eyebrow="Planning & installation" title="From site information to coordinated implementation." description="A clear process helps protect layout intent and keeps key project interfaces visible." light/><ol className="grid gap-px bg-white/10 sm:grid-cols-2">{[["01","Requirement","Inventory, loads and access patterns"],["02","Survey","Space, clearances and constraints"],["03","Configuration","System, layout and agreed scope"],["04","Implementation","Supply and installation coordination"]].map(([n,t,d])=><li key={n} className="bg-zinc-950 p-7"><span className="text-xs font-bold text-red-500">{n}</span><h3 className="mt-8 text-lg font-semibold">{t}</h3><p className="mt-2 text-sm text-zinc-500">{d}</p></li>)}</ol></div></section>
-{product.projects.length>0&&<section className="surface-grid bg-[#f4f4f1] py-24"><div className="container-shell"><SectionHeading eyebrow="See it in action" title="Published projects using this system."/><div className="mt-10 grid gap-5 md:grid-cols-2">{product.projects.map((project)=><Link key={project.id} href={`/projects/${project.slug}`} className="group grid overflow-hidden bg-white sm:grid-cols-[220px_1fr]"><div className="relative min-h-56"><SmartImage src={project.coverImage||""} alt={project.title} fill className="object-cover transition duration-700 group-hover:scale-105" sizes="220px"/></div><div className="p-6"><p className="text-[.62rem] font-bold uppercase tracking-widest text-red-600">{project.industry||"Project"}</p><h3 className="mt-3 text-xl font-semibold">{project.title}</h3><p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-500">{project.description}</p></div></Link>)}</div></div></section>}{product.related.length>0&&<section className="py-24"><div className="container-shell"><SectionHeading eyebrow="Related products" title="Compare adjacent storage options."/><div className="mt-10 grid gap-5 md:grid-cols-3">{product.related.map((item,i)=><ProductCard key={item.id} product={item} index={i}/>)}</div></div></section>}
-{product.faqs.length>0&&<section className="bg-[#f4f4f1] py-24"><div className="container-shell grid gap-12 lg:grid-cols-[.7fr_1.3fr]"><SectionHeading eyebrow="Frequently asked" title="Questions before you specify."/><FAQ items={product.faqs}/></div></section>}
-<CTASection title={`Plan your ${product.name.toLowerCase()} requirement.`} product={product.slug}/><section className="py-24"><div className="container-shell grid gap-12 lg:grid-cols-[.7fr_1.3fr]"><div><p className="eyebrow">Get product specifications</p><h2 className="heading-md mt-5">Tell us what you need to store.</h2><p className="mt-4 text-sm leading-7 text-zinc-500">Share the available space, unit dimensions, maximum loads and handling method if known.</p><a className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-green-700" href={settings?`https://wa.me/${settings.whatsapp.replace(/\D/g,"")}`:"#"}><MessageCircle size={18}/>Continue on WhatsApp</a></div><InquiryForm products={allProducts} services={allServices} defaultProduct={product.id}/></div></section></main>}
+import {
+  ApplicationsSection, BenefitsSection, ClientRosterSection, ConfigurationsSection, FaqSection, FeaturesSection, FinalCtaSection, FinalEnquirySection,
+  OverviewSection, ProductHero, ProductShowcaseSection, RealWorldSection, RelatedSection,
+  TechnicalSpecificationsSection, WorkflowSection,
+} from "@/components/site/product-sections";
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const item = await getProductBySlug(slug);
+  if (!item) return {};
+  const ogImage = item.ogImage || item.heroImage || item.images[0]?.imageUrl || item.thumbnail || undefined;
+  const title = item.metaTitle || item.name;
+  const description = item.metaDescription || item.shortDescription;
+  return {
+    title,
+    description,
+    alternates: { canonical: item.canonicalUrl || `/products/${item.slug}` },
+    robots: { index: item.robotsIndex, follow: item.robotsIndex },
+    openGraph: { title: item.ogTitle || title, description: item.ogDescription || description, url: `/products/${item.slug}`, siteName: "Rack & Stack Storage Systems", type: "website", images: ogImage ? [ogImage] : [] },
+    twitter: { card: "summary_large_image", title: item.ogTitle || title, description: item.ogDescription || description, images: ogImage ? [ogImage] : [] },
+  };
+}
+export default async function ProductPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ preview?: string }> }) {
+  const [{ slug }, { preview }] = await Promise.all([params, searchParams]);
+  const allowPreview = preview === "1" && Boolean(await getCurrentUser());
+  const product = await getProductBySlug(slug, allowPreview);
+  if (!product) {
+    const target = await getRedirectPath(`/products/${slug}`);
+    if (target) redirect(target);
+    notFound();
+  }
+  const [allProducts, allServices, settings, clientLogos] = await Promise.all([getProducts(), getServices(), getSiteSettings(), getClientLogos()]);
+  const configProducts = product.configurations.length ? [] : allProducts.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 6);
+  const productSchema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.metaDescription || product.shortDescription,
+    image: [product.heroImage, product.thumbnail, ...product.images.map((i) => i.imageUrl)].filter(Boolean),
+    brand: { "@type": "Brand", name: "Rack & Stack Storage Systems" },
+  };
+  if (product.specifications.length) {
+    productSchema.additionalProperty = product.specifications.map((s) => ({ "@type": "PropertyValue", name: s.specificationName, value: s.specificationValue }));
+  }
+  const faqSchema: Record<string, unknown> = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: product.faqs.map((f) => ({ "@type": "Question", name: f.question, acceptedAnswer: { "@type": "Answer", text: f.answer } })) };
+  const breadcrumbSchema: Record<string, unknown> = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: "/" }, { "@type": "ListItem", position: 2, name: "Products", item: "/products" }, { "@type": "ListItem", position: 3, name: product.name }] };
+  return (
+    <main>
+      <EventTracker eventName="product_view" entityType="product" entityId={product.id} />
+      <MobileProductActions slug={product.slug} />
+      <JsonLd data={productSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      {product.faqs.length > 0 && <JsonLd data={faqSchema} />}
+      <ProductHero product={product} />
+      {product.showSpecifications && product.specifications.length > 0 && <Reveal><TechnicalSpecificationsSection product={product} /></Reveal>}
+      {product.showFeatures && <Reveal><FeaturesSection items={product.features} product={product} /></Reveal>}
+      {product.showGallery && !product.showFeatures && <Reveal><ProductShowcaseSection product={product} /></Reveal>}
+      <Reveal><OverviewSection product={product} /></Reveal>
+      {product.showApplications && <Reveal><ApplicationsSection items={product.applications} product={product} /></Reveal>}
+      <Reveal><ClientRosterSection logos={clientLogos} /></Reveal>
+      {product.showConfigurations && <Reveal><ConfigurationsSection items={product.configurations} fallbackProducts={configProducts} /></Reveal>}
+      {product.showBenefits && <Reveal><BenefitsSection items={product.benefits} /></Reveal>}
+      <Reveal><WorkflowSection /></Reveal>
+      {product.projects.length > 0 && <Reveal><RealWorldSection projects={product.projects} images={product.images} /></Reveal>}
+      {product.showFaq && <Reveal><FaqSection items={product.faqs} /></Reveal>}
+      {product.showRelated && <Reveal><RelatedSection items={product.related} /></Reveal>}
+      <Reveal><FinalCtaSection product={product} /></Reveal>
+      <FinalEnquirySection product={product} allProducts={allProducts} allServices={allServices} settings={settings} />
+    </main>
+  );
+}

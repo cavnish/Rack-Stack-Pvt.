@@ -1,0 +1,1 @@
+export default function AdminLoading(){return <div className="animate-pulse"><div className="h-8 w-52 rounded bg-zinc-200"/><div className="mt-6 grid gap-4 sm:grid-cols-3">{[1,2,3].map(x=><div className="h-36 rounded-xl bg-zinc-200" key={x}/>)}</div><div className="mt-6 h-96 rounded-xl bg-zinc-200"/></div>}

@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+:root { --ink:#151719; --graphite:#202326; --muted:#656b70; --line:#dfe2e3; --paper:#f4f4f1; --red:#d11f2f; --red-dark:#ad1220; --white:#fff; --font-sans:var(--font-geist),Arial,sans-serif; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:#fff; color:var(--ink); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
+a { color:inherit; text-decoration:none; }
+button,input,textarea,select { font:inherit; }
+button { cursor:pointer; }
+::selection { background:#d11f2f; color:white; }
+:focus-visible { outline:3px solid rgba(209,31,47,.35); outline-offset:3px; }
+.container-shell { width:min(100% - 2rem, 1280px); margin-inline:auto; }
+@media(min-width:768px){.container-shell{width:min(100% - 4rem,1280px)}}
+.eyebrow { display:flex; align-items:center; gap:.65rem; color:var(--red); font-size:.72rem; font-weight:750; text-transform:uppercase; letter-spacing:.18em; }
+.eyebrow::before { content:""; width:1.8rem; height:2px; background:currentColor; }
+.heading-xl { font-size:clamp(2.65rem,6vw,6.2rem); line-height:.91; letter-spacing:-.065em; font-weight:690; }
+.heading-lg { font-size:clamp(2rem,4.3vw,4.2rem); line-height:.98; letter-spacing:-.052em; font-weight:660; }
+.heading-md { font-size:clamp(1.6rem,2.6vw,2.65rem); line-height:1.05; letter-spacing:-.04em; font-weight:650; }
+.text-balance { text-wrap:balance; }
+.btn-primary,.btn-secondary,.btn-light { min-height:3.15rem; display:inline-flex; align-items:center; justify-content:center; gap:.7rem; padding:.8rem 1.15rem; font-size:.82rem; font-weight:700; letter-spacing:.02em; transition:all .22s ease; }
+.btn-primary { background:var(--red); color:white; border:1px solid var(--red); }
+.btn-primary:hover { background:var(--red-dark); border-color:var(--red-dark); transform:translateY(-2px); }
+.btn-secondary { border:1px solid #b8bcbe; color:var(--ink); background:transparent; }
+.btn-secondary:hover { border-color:var(--ink); background:var(--ink); color:white; }
+.btn-light { border:1px solid rgba(255,255,255,.48); color:white; }
+.btn-light:hover { background:white; color:var(--ink); }
+.surface-grid { background-image:linear-gradient(rgba(25,28,30,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(25,28,30,.055) 1px,transparent 1px); background-size:48px 48px; }
+.dark-grid { background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px); background-size:56px 56px; }
+.card-lift { transition:transform .3s ease,box-shadow .3s ease; }
+.card-lift:hover { transform:translateY(-6px); box-shadow:0 24px 55px rgba(17,20,22,.13); }
+.prose-copy p { margin:0 0 1.2rem; color:#565d61; line-height:1.85; }
+.prose-copy h2 { margin:2.5rem 0 1rem; font-size:1.6rem; font-weight:650; letter-spacing:-.03em; }
+.form-field { width:100%; min-height:3.25rem; border:1px solid #d5d8d9; background:white; padding:.78rem .9rem; color:#17191b; transition:border-color .2s,box-shadow .2s; }
+.form-field:focus { outline:none; border-color:#202326; box-shadow:0 0 0 3px rgba(32,35,38,.08); }
+.form-label { display:block; margin-bottom:.42rem; font-size:.75rem; font-weight:700; color:#4d5356; }
+.admin-field { width:100%; border:1px solid #d4d4d8; border-radius:.65rem; background:#fff; color:#18181b; padding:.72rem .8rem; font-size:.875rem; transition:border-color .2s,box-shadow .2s; }
+.admin-field::placeholder { color:#71717a; opacity:1; }
+.admin-field:focus { outline:none; border-color:#d11f2f; box-shadow:0 0 0 3px rgba(209,31,47,.08); }
+.admin-field:disabled { background:#f4f4f5; color:#52525b; cursor:not-allowed; }
+select.admin-field { color:#18181b; }
+textarea.admin-field { color:#18181b; }
+.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important;animation-iteration-count:1!important}}
+
+/* Client logo marquee — continuous LEFT → RIGHT, GPU-only transform */
+.marquee { position:relative; overflow:hidden; }
+.marquee::before,.marquee::after { content:""; position:absolute; top:0; bottom:0; z-index:1; width:clamp(32px,7vw,90px); pointer-events:none; }
+.marquee::before { left:0; background:linear-gradient(90deg,#fff 8%,rgba(255,255,255,0)); }
+.marquee::after { right:0; background:linear-gradient(270deg,#fff 8%,rgba(255,255,255,0)); }
+.marquee-track { display:flex; align-items:center; width:max-content; will-change:transform; animation:marquee-right 46s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state:paused; }
+.marquee-group { display:flex; flex:0 0 auto; align-items:center; justify-content:space-around; min-width:100%; }
+.marquee-item { display:flex; flex:0 0 auto; align-items:center; justify-content:center; height:2.75rem; padding-inline:1.5rem; }
+.marquee-item img { height:100%; width:auto; object-fit:contain; opacity:.82; transition:opacity .25s ease,transform .25s ease; }
+.marquee-item:hover img { opacity:1; transform:scale(1.05); }
+@keyframes marquee-right { from { transform:translateX(-50%); } to { transform:translateX(0); } }
+@media (min-width:768px){ .marquee-item{ height:3.5rem; padding-inline:2.5rem; } }
+@media (hover:none){ .marquee-item img{ opacity:.95; } }
+.marquee-monogram { display:flex; align-items:center; gap:.6rem; }
+.marquee-monogram-badge { display:grid; place-items:center; flex:0 0 auto; height:2.25rem; width:2.25rem; border-radius:9999px; background:#f4f4f5; font-size:.72rem; font-weight:800; letter-spacing:.02em; color:#3f3f46; }
+.marquee-monogram-name { white-space:nowrap; font-size:.9rem; font-weight:700; color:#3f3f46; }
+@media (min-width:768px){ .marquee-monogram-badge{ height:2.5rem; width:2.5rem; font-size:.78rem; } .marquee-monogram-name{ font-size:.98rem; } }
+.marquee-empty { border:1px dashed #d4d4d8; background:#fafafa; padding:2rem; text-align:center; font-size:.85rem; font-weight:600; color:#71717a; }
+@media (prefers-reduced-motion:reduce){
+  .marquee-track { animation:none!important; width:100%; }
+  .marquee-group { flex-wrap:wrap; justify-content:center; min-width:0; width:100%; row-gap:.5rem; }
+  .marquee-group[aria-hidden="true"] { display:none; }
+  .marquee-item { height:2.75rem; padding-inline:1.25rem; }
+  .marquee::before,.marquee::after { display:none; }
+}

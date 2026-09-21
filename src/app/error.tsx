@@ -1,0 +1,3 @@
+"use client";
+import { useEffect } from "react";
+export default function ErrorPage({error,reset}:{error:Error&{digest?:string};reset:()=>void}){useEffect(()=>console.error("Application error",error.digest),[error]);return <main className="grid min-h-screen place-items-center bg-zinc-950 p-6 text-white"><section className="max-w-xl text-center"><p className="eyebrow justify-center before:hidden text-red-400">Unexpected error</p><h1 className="heading-md mt-5">We could not complete that request.</h1><p className="mt-4 text-zinc-400">Please retry. If the issue continues, contact Rack &amp; Stack.</p><button onClick={reset} className="btn-primary mt-8">Try again</button></section></main>}

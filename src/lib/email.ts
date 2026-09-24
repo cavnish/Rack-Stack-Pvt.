@@ -5,6 +5,7 @@ import type { inquirySchema } from "./validation";
 
 type Inquiry = z.infer<typeof inquirySchema>;
 function clean(value: unknown) { return String(value ?? "—").replace(/[<>]/g, ""); }
+
 export async function sendInquiryEmails(inquiry: Inquiry, productName?: string, serviceName?: string) {
   if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) return { delivered: false, reason: "Resend not configured" };
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -14,5 +15,11 @@ export async function sendInquiryEmails(inquiry: Inquiry, productName?: string, 
     resend.emails.send({ from: process.env.RESEND_FROM_EMAIL, to: recipient, subject: `New requirement from ${clean(inquiry.company)}`, html: detail, replyTo: inquiry.email }),
     resend.emails.send({ from: process.env.RESEND_FROM_EMAIL, to: inquiry.email, subject: "Your requirement has been received | Rack & Stack", html: `<h2>Thank you, ${clean(inquiry.name)}.</h2><p>Our team has received your requirement and will review the information provided. We will contact you shortly to understand the next steps.</p><p>Rack & Stack Storage Systems Pvt. Ltd.</p>` }),
   ]);
+  const failed = [admin, customer].filter((result) => result.error);
+  if (failed.length) {
+    const error = new Error(`Resend delivery failed: ${failed.map((r) => r.error?.message ?? "unknown").join(" | ")}`);
+    error.cause = failed;
+    throw error;
+  }
   return { delivered: true, admin, customer };
 }

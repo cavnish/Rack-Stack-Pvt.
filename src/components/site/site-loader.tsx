@@ -226,7 +226,7 @@ export function SiteLoader() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            Engineered storage systems
+            Smart Storage Systems
           </motion.p>
         </div>
       </motion.div>

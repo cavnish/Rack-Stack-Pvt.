@@ -71,8 +71,8 @@ function iconFor(name?: string | null): LucideIcon {
 export function getProductCuratedImages(product: ProductDetail) {
   const defaultSlots = [
     { label: "Warehouse Installation", alt: `Warehouse installation of ${product.name}`, url: "https://images.pexels.com/photos/1797415/pexels-photo-1797415.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
-    { label: "Close-up View", alt: `Close-up view of ${product.name}`, url: "https://images.pexels.com/photos/36126305/pexels-photo-36126305.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
-    { label: "Multiple Configurations", alt: `Multiple configurations of ${product.name}`, url: "https://images.pexels.com/photos/4170172/pexels-photo-4170172.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
+    { label: "Close-Up View", alt: `Close-up view of ${product.name}`, url: "https://images.pexels.com/photos/36126305/pexels-photo-36126305.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
+    { label: "Many Configurations", alt: `Multiple configurations of ${product.name}`, url: "https://images.pexels.com/photos/4170172/pexels-photo-4170172.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
     { label: "Heavy Load Storage", alt: `Heavy load storage using ${product.name}`, url: "https://images.pexels.com/photos/4483610/pexels-photo-4483610.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
     { label: "Organized Storage", alt: `Organized warehouse storage with ${product.name}`, url: "https://images.pexels.com/photos/36126272/pexels-photo-36126272.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
     { label: "In Operation", alt: `${product.name} in operation inside warehouse`, url: "https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
@@ -110,33 +110,33 @@ export function getProductCuratedImages(product: ProductDetail) {
 export function getProductKeyFeatures(product: ProductDetail) {
   const defaultFeatures = [
     {
-      title: "High Load Capacity",
-      description: "Supports 300–1000 kg per shelf, ideal for heavy cartons, tools, spare parts and bulk materials.",
+      title: "Holds Heavy Loads",
+      description: "Each shelf holds 300–1000 kg — great for heavy cartons, tools, spare parts and bulk goods.",
       icon: ShoppingBag,
     },
     {
-      title: "Adjustable Shelf Levels",
-      description: "Flexible height adjustment in small increments for efficient storage of different size products.",
+      title: "Adjustable Shelves",
+      description: "Move shelves in small steps to fit products of different sizes.",
       icon: ArrowUpDown,
     },
     {
-      title: "Versatile Storage Solution",
-      description: "Suitable for warehouses, retail stores, workshops and distribution centers. Stores cartons, archives, tools and bulk goods.",
+      title: "Works Anywhere",
+      description: "Suits warehouses, retail stores, workshops and distribution centers. Stores cartons, archives, tools and bulk goods.",
       icon: LayoutGrid,
     },
     {
-      title: "Space Optimization",
-      description: "Maximizes vertical storage space while allowing easy manual access to stored inventory and goods.",
+      title: "Saves Space",
+      description: "Uses vertical space well while keeping everything easy to reach by hand.",
       icon: Layers,
     },
     {
-      title: "Quick Boltless Assembly",
-      description: "Bolt-free modular design ensures fast installation, easy bay expansion and simple reconfiguration.",
+      title: "Quick Assembly",
+      description: "No bolts needed — fast to install, easy to expand and simple to rearrange.",
       icon: Wrench,
     },
     {
-      title: "Durable Steel Construction",
-      description: "High-quality steel with corrosion-resistant industrial powder coating for long-lasting performance and minimal maintenance.",
+      title: "Strong Steel Build",
+      description: "Quality steel with a tough powder-coated finish for long life and low maintenance.",
       icon: ShieldCheck,
     },
   ];
@@ -167,33 +167,33 @@ export function ProductHero({ product }: { product: ProductDetail }) {
   const longDescription = product.longDescription || product.description;
   const curatedImages = getProductCuratedImages(product);
 
-  const defaultParagraph = `Rack & Stack Storage Systems is a well-established manufacturer and supplier of ${product.name} in India. These heavy-duty racks are designed to store bins, cartons, loose items, and bulk materials safely and efficiently. Built with strength, durability, and ease of use in mind, they fit perfectly in warehouses, workshops, and distribution centers of any size. Rack & Stack Storage Systems is committed to delivering quality storage solutions that help businesses organize better, work smarter, and run operations smoothly.`;
+  const defaultParagraph = `Rack & Stack Storage Systems is a trusted manufacturer and supplier of ${product.name} in India. These heavy-duty racks store bins, cartons, loose items and bulk materials safely and efficiently. Built for strength, durability and easy use, they suit warehouses, workshops and distribution centers of all sizes. We deliver quality storage that helps businesses stay organized and run smoothly.`;
 
   const isMezzanine = /mezz/i.test(product.slug) || /mezz/i.test(product.name);
   const isPallet = /pallet/i.test(product.slug) || /pallet/i.test(product.name);
 
-  let upsellTitle = "Need higher-density hand-picked storage?";
+  let upsellTitle = "Need Denser Hand-Picked Storage?";
   let upsellText = "Our";
   let upsellLinkText = "mezzanine floor";
   let upsellHref = "/products/mezzanine-floor";
-  let upsellSuffix = "systems can add a second storage level above your shelving.";
+  let upsellSuffix = "can add a second storage level above your shelving.";
 
   if (isMezzanine) {
-    upsellTitle = "Need heavy pallet or carton storage integration?";
+    upsellTitle = "Need Pallet Storage Too?";
     upsellLinkText = "heavy duty pallet racking";
     upsellHref = "/products/heavy-duty-pallet-racking";
-    upsellSuffix = "systems can be integrated directly with your mezzanine platform.";
+    upsellSuffix = "connects directly to your mezzanine platform.";
   } else if (isPallet) {
-    upsellTitle = "Need multi-level space optimization?";
+    upsellTitle = "Need More Storage Levels?";
     upsellLinkText = "mezzanine floor";
     upsellHref = "/products/mezzanine-floor";
-    upsellSuffix = "systems can convert clear warehouse height into multi-tier picking levels.";
+    upsellSuffix = "turns empty warehouse height into extra picking levels.";
   } else if (product.related.length > 0) {
     const rec = product.related[0];
-    upsellTitle = `Looking for expanded facility storage?`;
+    upsellTitle = `Need More Storage Space?`;
     upsellLinkText = rec.name.toLowerCase();
     upsellHref = `/products/${rec.slug}`;
-    upsellSuffix = `systems complement this setup to optimize your total floor layout.`;
+    upsellSuffix = `can work alongside this system to improve your full floor layout.`;
   }
 
   return (
@@ -213,20 +213,20 @@ export function ProductHero({ product }: { product: ProductDetail }) {
           ) : null}
 
           {/* Eyebrow with decorative dashes in theme red */}
-          <div className="mt-5 flex items-center gap-2 text-xs font-extrabold tracking-widest text-[#d11f2f] uppercase">
+          <div className="mt-5 flex items-center gap-2 eyebrow before:hidden text-[#d11f2f]">
             <span>—</span>
             <span>{product.category || product.name}</span>
             <span>—</span>
           </div>
 
           {/* Product Title */}
-          <h1 className="mt-3 text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-zinc-900 tracking-tight leading-[1.12] text-balance">
+          <h1 className="section-heading mt-3 text-balance text-zinc-900">
             {heroTitle}
           </h1>
 
           {/* Highlight Subtitle */}
           {heroDescription ? (
-            <p className="mt-4 text-base sm:text-lg font-medium leading-relaxed text-zinc-700">
+            <p className="hero-description mt-5 text-zinc-700">
               {heroDescription}
             </p>
           ) : null}
@@ -300,11 +300,11 @@ export function FeaturesSection({
       <div className="container-shell">
         {/* Header with dashed red eyebrow and title */}
         <div className="text-center">
-          <p className="text-xs font-bold tracking-widest text-[#d11f2f] uppercase">
+          <p className="eyebrow justify-center before:hidden text-[#d11f2f]">
             — KEY FEATURES —
           </p>
-          <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-zinc-900">
-            Smart Storage Solutions for Every Space
+          <h2 className="section-heading mt-4 text-balance">
+            Built to Make Storage Easier
           </h2>
         </div>
 
@@ -365,7 +365,7 @@ export function ProductShowcaseSection({ product }: { product: ProductDetail }) 
   return (
     <section className="py-24">
       <div className="container-shell">
-        <SectionHeading eyebrow="Product image showcase" title="See the System Up Close" description="Browse the system installed, loaded and in detail across different configurations." align="center" />
+        <SectionHeading eyebrow="Product photos" title="See the System Up Close" description="See the system installed, loaded and in detail." align="center" />
         <div className="mt-12">
           <ProductShowcase images={product.images} />
         </div>
@@ -383,9 +383,9 @@ export function OverviewSection({ product }: { product: ProductDetail }) {
       <div className="container-shell grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <div>
           <p className="eyebrow text-red-600">Product overview</p>
-          <h2 className="heading-md mt-4 text-balance">Built for Efficient Warehouse Storage</h2>
-          <p className="mt-6 text-lg leading-8 text-zinc-700">{body}</p>
-          <p className="mt-6 flex items-start gap-3 text-sm leading-7 text-zinc-500"><Ruler size={17} className="mt-0.5 shrink-0 text-red-600" />Final dimensions, loads and engineering are confirmed against your layout and project proposal.</p>
+          <h2 className="section-heading mt-4 text-balance">Built for Efficient Storage</h2>
+          <p className="section-description mt-5 text-zinc-700">{body}</p>
+          <p className="mt-6 flex items-start gap-3 text-sm leading-7 text-zinc-500"><Ruler size={17} className="mt-0.5 shrink-0 text-red-600" />Final sizes, loads and engineering are confirmed against your layout and project proposal.</p>
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-200">
           {overviewImage ? <SmartImage src={optimizeImage(overviewImage, 1300)} alt={product.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" /> : <div className="absolute inset-0 grid place-items-center bg-zinc-900 text-zinc-600"><Layers size={50} /></div>}
@@ -400,7 +400,7 @@ export function ConfigurationsSection({ items, fallbackProducts }: { items: Prod
   return (
     <section className="surface-grid bg-[#f4f4f1] border-y border-zinc-200 py-24">
       <div className="container-shell">
-        <SectionHeading compact eyebrow="Configurations" title="Find the Right Storage Configuration" description={items.length ? "Choose the system variant that matches your bay plan, unit size and load." : "Other systems in this category to consider alongside your shortlist."} />
+        <SectionHeading compact eyebrow="Configurations" title="Find the Right Storage Configuration" description={items.length ? "Pick the version that fits your bay plan, item size and load." : "Other systems in this category worth considering."} />
         {items.length ? (
           <div className="mt-12 grid gap-px bg-zinc-300 md:grid-cols-2 lg:grid-cols-4">
             {items.map((item, i) => {
@@ -411,7 +411,7 @@ export function ConfigurationsSection({ items, fallbackProducts }: { items: Prod
                     <span className="grid h-10 w-10 place-items-center bg-red-600 text-white"><Icon size={19} /></span>
                     <span className="text-xs font-bold text-zinc-300">0{i + 1}</span>
                   </div>
-                  <h3 className="mt-7 text-lg font-semibold">{item.title}</h3>
+                  <h3 className="card-title mt-7">{item.title}</h3>
                   {item.description && <p className="mt-3 text-sm leading-6 text-zinc-500">{item.description}</p>}
                   {item.image && <div className="relative mt-auto h-24 overflow-hidden rounded-lg pt-6"><SmartImage src={optimizeImage(item.image, 600)} alt={item.title} fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" /></div>}
                 </article>
@@ -423,7 +423,7 @@ export function ConfigurationsSection({ items, fallbackProducts }: { items: Prod
             {fallbackProducts.map((item, i) => <ProductCard key={item.id} product={item} index={i} />)}
           </div>
         )}
-        <p className="mt-8 text-sm text-zinc-500">Configuration guidance is indicative. The final bay layout and specification are confirmed in the project proposal.</p>
+        <p className="mt-8 text-sm text-zinc-500">These are general guidelines. The final layout and specification are confirmed in your project proposal.</p>
       </div>
     </section>
   );
@@ -438,13 +438,13 @@ export function TechnicalSpecificationsSection({ product }: { product: ProductDe
         {/* Header */}
         <div className="mb-10 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[.65rem] font-bold uppercase tracking-[.2em] text-[#d11f2f]">— Technical Specifications —</p>
-            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-zinc-900 sm:text-3xl lg:text-4xl whitespace-nowrap">
-              Find the Right Storage Configuration
+            <p className="eyebrow text-[#d11f2f]">— Technical Specifications —</p>
+            <h2 className="section-heading mt-4">
+              Specifications at a Glance
             </h2>
           </div>
           <p className="max-w-xs text-sm leading-6 text-zinc-500 sm:text-right">
-            Indicative values — confirmed against your load calculation in the project proposal.
+            Guide values. Final numbers are confirmed in your project proposal.
           </p>
         </div>
 
@@ -506,8 +506,8 @@ export function TechnicalSpecificationsSection({ product }: { product: ProductDe
             </div>
             {/* Footer note */}
             <div className="border-t border-zinc-100 bg-[#f8fafc] px-6 py-3">
-              <p className="text-[.68rem] text-zinc-400">
-                Values are indicative. Final specification confirmed in project proposal.
+              <p className="text-[.7rem] text-zinc-400">
+                Guide values only. Final specification is confirmed in your project proposal.
               </p>
             </div>
           </div>
@@ -544,12 +544,12 @@ export function ApplicationsSection({ items, product }: { items: ProductDetail["
     <section className="bg-[#f4f4f1] border-y border-zinc-200 py-16 lg:py-20">
       <div className="container-shell">
         <div className="text-center">
-          <p className="text-xs font-bold tracking-widest text-[#d11f2f] uppercase">— Applications —</p>
-          <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-zinc-900">
-            Where This System Gets to Work
+          <p className="eyebrow justify-center before:hidden text-[#d11f2f]">— Applications —</p>
+          <h2 className="section-heading mt-4 text-balance">
+            Where It&apos;s Used
           </h2>
-          <p className="mt-3 text-sm text-zinc-500 max-w-xl mx-auto leading-relaxed">
-            Common operating environments where this storage system is installed and relied on daily.
+          <p className="section-description mt-5 mx-auto text-zinc-500">
+            Common places where this storage system is installed and used every day.
           </p>
         </div>
         <div className="mt-10 sm:mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -589,7 +589,7 @@ export function BenefitsSection({ items }: { items: ProductDetail["benefits"] })
   return (
     <section className="py-24">
       <div className="container-shell">
-        <SectionHeading eyebrow="Benefits" title="Designed for Practical Warehouse Storage" description="The working advantages that make a difference to operators, supervisors and management." />
+        <SectionHeading eyebrow="Benefits" title="Practical Benefits for Your Team" description="Real advantages for operators, supervisors and managers." />
         <div className="mt-12 grid gap-px bg-zinc-300 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item, i) => {
             const Icon = iconFor(item.title);
@@ -599,7 +599,7 @@ export function BenefitsSection({ items }: { items: ProductDetail["benefits"] })
                   <span className="grid h-11 w-11 place-items-center bg-red-600 text-white"><Icon size={20} /></span>
                   <span className="text-xs font-bold text-zinc-300">0{i + 1}</span>
                 </div>
-                <h3 className="mt-6 text-xl font-semibold">{item.title}</h3>
+                <h3 className="card-title mt-6">{item.title}</h3>
                 {item.description && <p className="mt-3 text-sm leading-6 text-zinc-500">{item.description}</p>}
               </article>
             );
@@ -614,9 +614,9 @@ export function WorkflowSection() {
   return (
     <section className="dark-grid bg-zinc-950 py-24 text-white">
       <div className="container-shell">
-        <SectionHeading eyebrow="Engineering & installation" title="From Planning to Installation" description="Our process takes your storage system from a requirements conversation to a completed, handed-over installation." light align="center" />
+        <SectionHeading eyebrow="How we work" title="From Plan to Installation" description="We take your storage system from the first conversation to a finished, handed-over installation." light align="center" />
         <WorkflowSteps />
-        <p className="mt-8 text-sm text-zinc-500">Timeline and sequence are indicative and confirmed in the project proposal.</p>
+        <p className="mt-8 text-sm text-zinc-500">Timelines are a guide and confirmed in your project proposal.</p>
       </div>
     </section>
   );
@@ -627,7 +627,7 @@ export function RealWorldSection({ projects, images }: { projects: ProductDetail
   return (
     <section className="border-y border-zinc-200 py-24">
       <div className="container-shell">
-        <SectionHeading eyebrow="Real-world installations" title="Storage Solutions in Action" description="The system working inside actual storage environments." align="center" />
+        <SectionHeading eyebrow="See it in action" title="Storage in Real Workplaces" description="The system working in real storage environments." align="center" />
         {projects.length ? (
           <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
@@ -638,9 +638,9 @@ export function RealWorldSection({ projects, images }: { projects: ProductDetail
                   <span className="absolute left-4 top-4 bg-red-600 px-2.5 py-1 text-[.6rem] font-bold uppercase tracking-[.14em] text-white">{project.industry || "Project"}</span>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold transition-colors group-hover:text-red-600">{project.title}</h3>
+                  <h3 className="card-title transition-colors group-hover:text-red-600">{project.title}</h3>
                   {project.description && <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">{project.description}</p>}
-                  <p className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.14em] transition-colors group-hover:text-red-600">View installation <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></p>
+                  <p className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.14em] transition-colors group-hover:text-red-600">View Project <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></p>
                 </div>
               </Link>
             ))}
@@ -665,8 +665,8 @@ export function FaqSection({ items }: { items: ProductDetail["faqs"] }) {
     <section className="py-24">
       <div className="container-shell grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
         <div>
-          <SectionHeading compact eyebrow="Frequently asked" title="Questions before you specify." />
-          <p className="mt-6 text-sm leading-7 text-zinc-500">Anything not covered here is answered in the project proposal — or by our team directly.</p>
+          <SectionHeading compact eyebrow="FAQs" title="Questions We Hear Often" />
+          <p className="mt-6 text-sm leading-7 text-zinc-500">Anything not covered here will be answered in your proposal — or by our team.</p>
           <Link href="/contact" className="btn-secondary mt-8">Talk to Our Team <ArrowRight size={16} /></Link>
         </div>
         <FAQ items={items} />
@@ -680,7 +680,7 @@ export function RelatedSection({ items }: { items: ProductDetail["related"] }) {
   return (
     <section className="border-t border-zinc-200 bg-[#f4f4f1] py-24">
       <div className="container-shell">
-        <SectionHeading compact eyebrow="Related products" title="Explore Related Storage Solutions" description="Compare adjacent systems that could complement this one in the same facility." />
+        <SectionHeading compact eyebrow="You may also like" title="Related Storage Systems" description="Other systems that work well alongside this one." />
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           {items.map((item, i) => <ProductCard key={item.id} product={item as ProductCardProduct} index={i} />)}
         </div>
@@ -693,9 +693,9 @@ export function FinalCtaSection({ product }: { product: ProductDetail }) {
   return (
     <section className="dark-grid bg-zinc-950 py-24 text-white">
       <div className="container-shell flex flex-col items-center text-center">
-        <p className="eyebrow text-red-400">Ready to specify</p>
-        <h2 className="heading-md mt-5 max-w-2xl text-balance">Planning Your Warehouse Storage?</h2>
-        <p className="mt-5 max-w-xl text-zinc-300">Talk to Rack &amp; Stack about your storage requirements, configuration and project needs.</p>
+        <p className="eyebrow text-red-400">Ready when you are</p>
+        <h2 className="section-heading mt-5 text-balance">Planning Your Storage?</h2>
+        <p className="section-description mt-5 text-zinc-300">Talk to Rack &amp; Stack about your storage needs and project.</p>
         <div className="mt-9 flex flex-wrap justify-center gap-3">
           <Link href={`/request-a-quote?product=${encodeURIComponent(product.slug)}`} className="btn-primary">Get a Quote <ArrowRight size={17} /></Link>
           <Link href="/contact" className="btn-light">Talk to Our Team</Link>
@@ -710,9 +710,9 @@ export function FinalEnquirySection({ product, allProducts, allServices, setting
     <section className="surface-grid bg-[#f4f4f1] py-24">
       <div className="container-shell grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
         <div>
-          <p className="eyebrow">Get a quote</p>
-          <h2 className="heading-md mt-5">Tell us what you need to store.</h2>
-          <p className="mt-4 text-sm leading-7 text-zinc-500">Share the available space, unit dimensions, maximum loads and handling method if known — our team will come back with configuration options.</p>
+          <p className="eyebrow">Request a quote</p>
+          <h2 className="heading-md mt-5 text-balance">Tell Us What You Need to Store</h2>
+          <p className="mt-5 text-base leading-7 text-zinc-500">Share your space, item sizes, maximum loads and handling method if you know them — we&apos;ll come back with setup options.</p>
         </div>
         <InquiryForm products={allProducts} services={allServices} defaultProduct={product.id} />
       </div>
@@ -725,9 +725,9 @@ export function ClientRosterSection({ logos }: { logos: ClientLogo[] }) {
     <section className="border-y border-zinc-200 bg-white py-16">
       <div className="container-shell">
         <div className="flex flex-col items-center gap-2 text-center">
-          <p className="text-[.65rem] font-bold uppercase tracking-[.2em] text-zinc-400">Trusted by organizations across India</p>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-            Organizations Shown on Our Official Client Roster
+          <p className="eyebrow text-zinc-400">Trusted by businesses across India</p>
+          <h2 className="heading-md mt-4 text-balance">
+            Companies on Our Client List
           </h2>
         </div>
         <div className="mt-10">
@@ -744,18 +744,18 @@ export function CompactContactSection({ product, allProducts, allServices }: { p
       <div className="container-shell grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-16 items-center">
         {/* Left: copy */}
         <div>
-          <p className="text-[.65rem] font-bold uppercase tracking-[.22em] text-red-400">Quick Enquiry</p>
-          <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-white text-balance">
-            Have a Storage Requirement?
+          <p className="eyebrow text-red-400">Quick Enquiry</p>
+          <h2 className="section-heading mt-4 text-white text-balance">
+            Need Storage?
           </h2>
-          <p className="mt-4 text-sm leading-7 text-zinc-400">
-            Drop your details and our team will get back with a configuration proposal — usually within one business day.
+          <p className="section-description mt-5 text-zinc-400">
+            Leave your details and we&apos;ll get back with setup options — usually within one business day.
           </p>
           <ul className="mt-6 space-y-2">
             {[
               "Free site survey available",
-              "Custom dimensions & load ratings",
-              "Pan-India installation network",
+              "Custom sizes and load ratings",
+              "Installation across India",
             ].map((pt) => (
               <li key={pt} className="flex items-center gap-2.5 text-sm text-zinc-300">
                 <CheckCircle2 size={15} className="shrink-0 text-red-400" />

@@ -36,6 +36,20 @@
       "when": 1789978968948,
       "tag": "0004_product-catalogue-premium",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790254366816,
+      "tag": "0005_bored_sally_floyd",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790255246008,
+      "tag": "0006_neat_jackal",
+      "breakpoints": true
     }
   ]
 }

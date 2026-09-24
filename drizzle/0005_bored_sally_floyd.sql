@@ -1,0 +1,1 @@
+ALTER TABLE "home_sliders" ADD COLUMN "video_url" text;

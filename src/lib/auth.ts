@@ -24,8 +24,12 @@ export async function getCurrentUser() {
   if (!value) return null;
   const [id, token] = value.split(".");
   if (!id || !token) return null;
-  const row = (await db.select({ session: sessions, user: users }).from(sessions).innerJoin(users, eq(sessions.userId, users.id)).where(and(eq(sessions.id, id), eq(sessions.tokenHash, hashToken(token)), gt(sessions.expiresAt, new Date()), eq(users.isActive, true))).limit(1))[0];
-  return row?.user ?? null;
+  try {
+    const row = (await db.select({ session: sessions, user: users }).from(sessions).innerJoin(users, eq(sessions.userId, users.id)).where(and(eq(sessions.id, id), eq(sessions.tokenHash, hashToken(token)), gt(sessions.expiresAt, new Date()), eq(users.isActive, true))).limit(1))[0];
+    return row?.user ?? null;
+  } catch {
+    return null;
+  }
 }
 export async function requireUser(roles?: Array<"SUPER_ADMIN" | "ADMIN" | "EDITOR">) {
   const user = await getCurrentUser();

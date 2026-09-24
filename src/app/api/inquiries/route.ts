@@ -22,6 +22,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, id: inquiry.id }, { status: 201 });
   } catch (error) {
     logServer("warn", "inquiry.invalid", { error: error instanceof Error ? error.message : "unknown" });
-    return NextResponse.json({ error: "Please review the form and try again." }, { status: 400 });
+    return NextResponse.json({ error: "Please check the form and try again." }, { status: 400 });
   }
 }

@@ -20,7 +20,7 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
   const anim = !reduced;
   return (
     <motion.div
-      className={`${align === "center" ? "mx-auto text-center" : ""}${!compact ? " max-w-3xl" : ""}`}
+      className={`${align === "center" ? "mx-auto text-center" : ""}`}
       initial={anim ? "hidden" : false}
       whileInView={anim ? "show" : undefined}
       viewport={{ once: true, margin: "-60px" }}
@@ -33,7 +33,7 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
       ) : null}
       <motion.h2
         variants={anim ? fadeUp : undefined}
-        className={`mt-5 text-balance ${compact ? "text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl" : "heading-lg"} ${
+        className={`mt-5 text-balance ${compact ? "heading-md" : "section-heading"} ${
           light ? "text-white" : compact ? "text-zinc-900" : "text-zinc-950"
         }`}
       >
@@ -42,7 +42,7 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
       {description && (
         <motion.p
           variants={anim ? fadeUp : undefined}
-          className={`mt-5 max-w-2xl text-base leading-7 ${align === "center" ? "mx-auto" : ""} ${light ? "text-zinc-400" : "text-zinc-600"}`}
+          className={`section-description mt-5 ${align === "center" ? "mx-auto text-center" : ""} ${light ? "text-zinc-400" : "text-zinc-600"}`}
         >
           {description}
         </motion.p>
@@ -53,7 +53,7 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
 
 export function Breadcrumb({ items }: { items: Array<{ label: string; href?: string }> }) {
   return (
-    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-[.68rem] font-bold uppercase tracking-[.1em] text-zinc-500">
+    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-[.7rem] font-bold uppercase tracking-[.1em] text-zinc-500">
       <Link href="/">Home</Link>
       {items.map((item, i) => (
         <span className="flex items-center gap-2" key={`${item.label}-${i}`}>
@@ -100,7 +100,7 @@ export function PageHero({ eyebrow, title, description, image, breadcrumb }: { e
             initial={anim ? { opacity: 0, y: 20 } : false}
             animate={anim ? { opacity: 1, y: 0 } : undefined}
             transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
-            className="heading-lg mt-5 text-balance"
+            className="hero-heading mt-5 text-balance"
           >
             {title}
           </motion.h1>
@@ -109,7 +109,7 @@ export function PageHero({ eyebrow, title, description, image, breadcrumb }: { e
               initial={anim ? { opacity: 0, y: 20 } : false}
               animate={anim ? { opacity: 1, y: 0 } : undefined}
               transition={{ duration: 0.6, delay: 0.42, ease: EASE }}
-              className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300"
+              className="hero-description mt-5 text-zinc-300"
             >
               {description}
             </motion.p>
@@ -129,7 +129,7 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
       <div className="flex items-start gap-5">
         <span className="mt-1 text-xs font-bold text-red-600">{String(index + 1).padStart(2, "0")}</span>
         <div className="grow">
-          <h3 className="text-xl font-semibold tracking-tight">{service.name}</h3>
+          <h3 className="card-title">{service.name}</h3>
           <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-600 group-hover:text-zinc-400">{service.shortDescription}</p>
         </div>
         <ArrowRight className="mt-1 shrink-0 transition-transform group-hover:translate-x-1" size={19} />
@@ -138,7 +138,7 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
   );
 }
 
-export function CTASection({ title, description = "Share your space, inventory and handling requirements. Our team will help identify the right next step.", product }: { title: string; description?: string; product?: string }) {
+export function CTASection({ title, description = "Tell us about your space and storage needs. We'll help you decide the next step.", product }: { title: string; description?: string; product?: string }) {
   const reduced = useReducedMotion();
   const anim = !reduced;
   const viewport = { once: true, margin: "-60px" };
@@ -159,14 +159,14 @@ export function CTASection({ title, description = "Share your space, inventory a
             transition={{ delay: 0.1 }}
             className="eyebrow text-red-400"
           >
-            Start a conversation
+            Start a Conversation
           </motion.p>
           <motion.h2
             initial={anim ? { opacity: 0, y: 18 } : false}
             whileInView={anim ? { opacity: 1, y: 0 } : undefined}
             viewport={viewport}
             transition={{ delay: 0.18, duration: 0.6, ease: EASE }}
-            className="heading-lg mt-5 text-balance"
+            className="section-heading mt-5 text-balance"
           >
             {title}
           </motion.h2>
@@ -175,7 +175,7 @@ export function CTASection({ title, description = "Share your space, inventory a
             whileInView={anim ? { opacity: 1, y: 0 } : undefined}
             viewport={viewport}
             transition={{ delay: 0.28, duration: 0.6, ease: EASE }}
-            className="mt-5 max-w-2xl text-zinc-400"
+            className="section-description mt-5 text-zinc-400"
           >
             {description}
           </motion.p>

@@ -4,12 +4,12 @@ import { ClipboardCheck, FileBarChart2, DraftingCompass, Cog, Wrench, PartyPoppe
 import type { LucideIcon } from "lucide-react";
 
 const STEPS: Array<{ icon: LucideIcon; title: string; description: string }> = [
-  { icon: ClipboardCheck, title: "Requirement Assessment", description: "We discuss your space, unit dimensions, loads and handling method to define the storage problem precisely." },
-  { icon: FileBarChart2, title: "Storage Planning", description: "We prepare a bay-by-bay plan that fits your building, material flow and budget." },
-  { icon: DraftingCompass, title: "Engineering & Design", description: "Load calculations and structural drawings confirm member sizes, bracing and fixings before fabrication." },
-  { icon: Cog, title: "Manufacturing", description: "Components are fabricated from the approved design with controlled bending, welding and finishing." },
-  { icon: Wrench, title: "Installation", description: "Our teams erect, align and level the system on site to the layout and tolerance specified." },
-  { icon: PartyPopper, title: "Final Handover", description: "Every bay is checked, the completed installation is walked through and handed over with documentation." },
+  { icon: ClipboardCheck, title: "Requirement Assessment", description: "We discuss your space, item sizes, loads and handling method to understand exactly what you need." },
+  { icon: FileBarChart2, title: "Storage Planning", description: "We prepare a bay-by-bay plan that fits your building, stock flow and budget." },
+  { icon: DraftingCompass, title: "Engineering & Design", description: "Load calculations and drawings confirm sizes, bracing and fixings before we start building." },
+  { icon: Cog, title: "Manufacturing", description: "Parts are made from the approved design with careful bending, welding and finishing." },
+  { icon: Wrench, title: "Installation", description: "Our team sets up, aligns and levels the system on site to match the agreed layout." },
+  { icon: PartyPopper, title: "Final Handover", description: "We check every bay, walk you through the finished installation and hand over the documents." },
 ];
 
 const container = {

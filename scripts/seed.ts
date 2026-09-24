@@ -9,6 +9,7 @@ import {
   clients,
   faqs,
   gallery,
+  homeSliders,
   homepageSections,
   industries,
   pages,
@@ -43,15 +44,15 @@ const productSeed = [
     name: "Compactor Storage Systems",
     slug: "compactor-storage-systems",
     category: "Space Optimization",
-    shortDescription: "High-density movable storage engineered to recover floor area while keeping records and materials organized.",
-    description: "Compactor systems consolidate storage bays onto guided mobile bases, opening an access aisle only where it is needed. Layouts are configured around room dimensions, retrieval frequency and load profile.",
-    longDescription: "Suitable for records, files, components and controlled-access inventories, compactor storage helps use available floor area more deliberately. Rack & Stack plans the rail layout, bay configuration, safety features and enclosure options around your operating environment.",
+    shortDescription: "Space-saving movable storage that frees up floor space and keeps your records tidy.",
+    description: "Compactor systems place storage bays on movable bases, so an aisle opens only where you need it. We plan the layout around your room, how often you retrieve items and your load weight.",
+    longDescription: "Great for records, files, components and stock that needs controlled access. Rack & Stack plans the rails, bays, safety features and enclosures to fit your space.",
     image: images.shelving,
     features: [
-      ["Space utilization", "Movable bays reduce the number of permanently open aisles."],
-      ["Controlled access", "Locking and enclosure options help organize sensitive inventory."],
-      ["Configured layout", "Bay dimensions and internals are planned for the stored material."],
-      ["Guided movement", "Rail-guided bases support smooth, aligned operation."],
+      ["Saves Space", "Fewer open aisles means more room for storage."],
+      ["Secure Access", "Locks and enclosures help protect sensitive stock."],
+      ["Custom Layout", "Bays and shelves are planned around what you store."],
+      ["Smooth Movement", "Rail-guided bases make opening and closing easy."],
     ],
     specifications: [["System type", "Manual / mechanically assisted options"], ["Bay configuration", "Single or double-sided"], ["Shelving", "Adjustable to application"], ["Finish", "Application-specific powder coating options"]],
     applications: ["Archives and records", "Office files", "Libraries", "Healthcare records", "Component storage"],
@@ -60,11 +61,11 @@ const productSeed = [
     name: "Mobile Shelving Racks",
     slug: "mobile-shelving-racks",
     category: "Space Optimization",
-    shortDescription: "Mobile shelving layouts that increase storage density without compromising day-to-day access.",
-    description: "Shelving bays mounted on mobile carriages make better use of compact rooms and controlled storage zones. Each design responds to item dimensions, access patterns and available clearances.",
-    longDescription: "Mobile shelving can support records, boxed inventory, spare parts and lightweight materials. System geometry, operating method and aisle planning are selected after reviewing the room and workflow.",
+    shortDescription: "Store more in less space â€” without making daily access harder.",
+    description: "Shelving on mobile carriages makes better use of small rooms. Each design fits your item sizes, access needs and available space.",
+    longDescription: "Mobile shelving works well for records, boxed stock, spare parts and light materials. We choose the layout and operating method after reviewing your room and workflow.",
     image: images.racks,
-    features: [["Higher density", "Reduce fixed aisle requirements in compact storage rooms."], ["Direct retrieval", "Open the working aisle at the required bay."], ["Flexible internals", "Adjustable shelves accommodate changing storage needs."], ["Orderly operation", "Clearly structured bays improve location discipline."]],
+    features: [["Store More", "Needs fewer fixed aisles in small rooms."], ["Easy Access", "Open an aisle right where you need it."], ["Adjustable Shelves", "Move shelves up or down as your needs change."], ["Neat and Organized", "Clear bays make it easy to find things."]],
     specifications: [["Operation", "Manual mobile carriage"], ["Shelves", "Adjustable"], ["Access", "Single working aisle"], ["Layout", "Configured to room dimensions"]],
     applications: ["Records rooms", "Libraries", "Parts stores", "Back-office storage", "Institutional storage"],
   },
@@ -72,11 +73,11 @@ const productSeed = [
     name: "Heavy Duty Long Span Racks",
     slug: "heavy-duty-long-span-racks",
     category: "Industrial Racking",
-    shortDescription: "Versatile hand-loaded storage for cartons, bins, tools and bulky inventory across wide shelf spans.",
-    description: "Long span racking bridges the gap between light shelving and pallet racking. Beam levels and shelf media are selected around unit load, span and picking method.",
-    longDescription: "Designed for manually handled goods that need clear, accessible shelf space, long span racks can be configured as single bays, continuous runs or multi-level picking systems where engineering conditions permit.",
+    shortDescription: "Strong hand-loaded racks for cartons, bins, tools and bulky items.",
+    description: "Long span racking sits between light shelving and pallet racking. We choose beam levels and shelves based on your load, width and picking method.",
+    longDescription: "Made for items you pick by hand that need clear, easy shelf space. Long span racks can be set up as single bays, long runs or multi-level picking systems.",
     image: images.longspan,
-    features: [["Wide clear spans", "Store bulky cartons and irregular items with fewer uprights."], ["Adjustable levels", "Reconfigure beam elevations as inventory changes."], ["Manual picking", "Clear product visibility supports piece and carton picking."], ["Expandable runs", "Add compatible bays as operational demand develops."]],
+    features: [["Wide Spans", "Store big cartons and odd shapes with fewer uprights."], ["Adjustable Levels", "Change beam heights as your stock changes."], ["Easy Picking", "Clear shelves make items quick to find."], ["Easy to Expand", "Add more bays as your business grows."]],
     specifications: [["Loading", "Hand-loaded; project-specific capacity"], ["Levels", "Adjustable beam levels"], ["Shelf media", "Steel panels / application-specific decking"], ["Configuration", "Single or double-sided runs"]],
     applications: ["Spare parts", "Carton storage", "Tool rooms", "Distribution picking", "Maintenance stores"],
   },
@@ -84,11 +85,11 @@ const productSeed = [
     name: "Heavy Duty Pallet Racking",
     slug: "heavy-duty-pallet-racking",
     category: "Industrial Racking",
-    shortDescription: "Engineered pallet storage planned around load units, handling equipment and warehouse throughput.",
-    description: "Pallet racking provides direct access to palletized inventory and can be configured around aisle widths, lift heights, pallet geometry and operational selectivity.",
-    longDescription: "Every pallet rack layout should start with verified load and handling data. Rack & Stack reviews pallet dimensions, unit weights, building constraints, material flow and equipment interfaces before defining the system configuration.",
+    shortDescription: "Strong pallet racking planned around your loads, equipment and warehouse flow.",
+    description: "Pallet racking gives you direct access to every pallet. We plan aisle widths, lift heights and pallet sizes around your operation.",
+    longDescription: "Every pallet rack layout starts with real load and handling data. We check pallet sizes, weights, building limits, stock flow and equipment before deciding on the system.",
     image: images.hero,
-    features: [["Direct access", "Selective layouts provide clear access to stored pallets."], ["Vertical utilization", "Plan beam levels around available clear height and lift capability."], ["Operational fit", "Aisles and bays respond to the material handling workflow."], ["Future adaptability", "Adjustable beam elevations help accommodate inventory changes."], ["Defined load design", "Components are selected against declared loading conditions."], ["Safety integration", "Protection and load signage can be incorporated into the proposal."]],
+    features: [["Direct Access", "Every pallet is easy to reach."], ["Uses Height Well", "Beam levels use your available height and lift equipment."], ["Fits Your Workflow", "Aisles and bays match how your team moves goods."], ["Easy to Adjust", "Move beams as your inventory changes."], ["Built for Your Load", "Every part is chosen for your declared load weights."], ["Safety Built In", "Protection and load signs can be included."]],
     specifications: [["Unit load", "Designed from declared pallet weight and geometry"], ["Beam levels", "Project-specific and adjustable"], ["Aisle width", "Matched to handling equipment"], ["Accessories", "Protection, decking and guides as required"]],
     applications: ["Warehouse pallet storage", "Manufacturing buffer stock", "Distribution centers", "FMCG storage", "Automotive components"],
   },
@@ -96,11 +97,11 @@ const productSeed = [
     name: "Medium Duty Shelving Racks",
     slug: "medium-duty-shelving-racks",
     category: "Industrial Racking",
-    shortDescription: "Adjustable shelving for organized manual picking of cartons, bins, components and packaged goods.",
-    description: "Medium duty shelving provides structured, accessible locations for manually handled inventory. Shelf size, spacing and loading are configured around product dimensions and picking practice.",
-    longDescription: "The modular format supports storerooms, workshops and fulfillment environments where stock visibility and flexible shelf positions are important.",
+    shortDescription: "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
+    description: "Medium duty shelving gives your hand-picked stock a clear, organized home. Shelf size, spacing and loading fit your products and picking style.",
+    longDescription: "The flexible design suits storerooms, workshops and fulfillment areas where you need to see stock clearly and move shelves easily.",
     image: images.warehouse,
-    features: [["Accessible picking", "Open shelf faces support quick item identification."], ["Adjustable shelves", "Level spacing can evolve with the stored inventory."], ["Modular bays", "Create orderly runs suited to the available room."], ["Application-led design", "Shelf depth and loading reflect actual stock profiles."]],
+    features: [["Easy Picking", "Open shelves make items quick to spot."], ["Adjustable Shelves", "Change spacing as your stock changes."], ["Modular Design", "Build neat runs that fit your room."], ["Made for Your Stock", "Shelf depth and loading match what you store."]],
     specifications: [["Loading", "Manual handling; project-specific shelf load"], ["Levels", "Adjustable"], ["Access", "Single / double-sided"], ["Finish", "Powder-coated options"]],
     applications: ["Component storage", "Retail backrooms", "Workshop stores", "Carton picking", "E-commerce inventory"],
   },
@@ -108,11 +109,11 @@ const productSeed = [
     name: "Mezzanine Floor",
     slug: "mezzanine-floor",
     category: "Space Optimization",
-    shortDescription: "Engineered intermediate floors that convert usable clear height into additional operational space.",
-    description: "A mezzanine can create storage, working or support space within an existing building footprint. Column grid, access, loading and interfaces must be developed from site and structural inputs.",
-    longDescription: "Rack & Stack coordinates layout intent, intended use, access points and integration requirements. Final scope is developed against site measurements, declared loading and applicable project requirements.",
+    shortDescription: "Extra floors that turn empty height into usable space.",
+    description: "A mezzanine adds storage, workspace or support areas inside your existing building. We plan columns, access and loading around your site and structure.",
+    longDescription: "We plan the layout, intended use, access points and how everything fits together. The final scope is based on site measurements, declared loads and your project needs.",
     image: images.forklift,
-    features: [["Use available height", "Create an additional working level within suitable buildings."], ["Configured column grid", "Plan supports around ground-floor movement and storage."], ["Integrated access", "Stairs, gates and edge protection can be scoped with the platform."], ["Project-led engineering", "The structure responds to intended use and declared loads."]],
+    features: [["Use Your Height", "Add another working level in suitable buildings."], ["Smart Column Layout", "Supports are planned around ground-floor movement and storage."], ["Safe Access", "Stairs, gates and edge protection are included as needed."], ["Built for Your Use", "The structure is designed for your intended use and loads."]],
     specifications: [["Platform area", "Project-specific"], ["Design load", "Defined from intended use"], ["Access", "Stair and loading gate options"], ["Floor finish", "Application-specific options"]],
     applications: ["Additional storage", "Picking floors", "Production support areas", "Packing zones", "Maintenance stores"],
   },
@@ -120,11 +121,11 @@ const productSeed = [
     name: "Slotted Angle Racks",
     slug: "slotted-angle-racks",
     category: "Workplace Storage",
-    shortDescription: "Practical modular shelving for lightweight goods, records, spare parts and everyday stockrooms.",
-    description: "Slotted angle construction allows flexible bay dimensions and shelf positions for straightforward storage requirements.",
-    longDescription: "A dependable option for compact stockrooms and service areas, these systems can be planned as individual bays or connected runs with shelf spacing matched to the contents.",
+    shortDescription: "Simple, practical shelving for light items, records and everyday stockrooms.",
+    description: "Slotted angle design allows flexible bay sizes and shelf positions for simple storage needs.",
+    longDescription: "A reliable choice for small stockrooms and service areas. Set them up as single bays or connected runs, with shelf spacing to match your items.",
     image: images.aisle,
-    features: [["Simple modular format", "Adapt bay arrangements to practical storage rooms."], ["Adjustable spacing", "Set shelf elevations around varied item heights."], ["Easy organization", "Create clear locations for small and medium items."], ["Broad utility", "Suitable for commercial and industrial back-of-house use."]],
+    features: [["Simple Design", "Bays fit neatly into practical storage rooms."], ["Adjustable Shelves", "Set shelf heights for different item sizes."], ["Easy to Organize", "Clear spots for small and medium items."], ["Highly Versatile", "Works in commercial and industrial back rooms."]],
     specifications: [["Construction", "Slotted angle frame"], ["Shelves", "Adjustable steel panels"], ["Configuration", "Open or enclosed options"], ["Dimensions", "Project-specific"]],
     applications: ["General stores", "Records", "Spare parts", "Office supplies", "Workshop inventory"],
   },
@@ -132,40 +133,40 @@ const productSeed = [
     name: "Lockers",
     slug: "lockers",
     category: "Workplace Storage",
-    shortDescription: "Durable compartment storage configured for workplaces, institutions and staff facilities.",
-    description: "Locker banks provide secure, assigned storage for personal items, tools, uniforms or controlled materials. Compartment layouts and locking options are selected for the use case.",
-    longDescription: "From staff changing areas to equipment issue points, locker configurations can be adapted around compartment count, ventilation, identification and access control requirements.",
+    shortDescription: "Tough lockers for workplaces, staff areas and institutions.",
+    description: "Locker banks give each person a secure space for personal items, tools, uniforms or controlled materials. We choose the layout and locks to suit your needs.",
+    longDescription: "From staff changing rooms to equipment issue points, lockers can be adapted for compartment count, ventilation, labels and access control.",
     image: images.shelving,
-    features: [["Assigned storage", "Individual compartments keep personal or issued items organized."], ["Configuration choice", "Select door count and compartment proportions for the application."], ["Locking options", "Plan access control around workplace policy."], ["Durable finish", "Choose finishes appropriate to the operating environment."]],
+    features: [["Personal Space", "Individual compartments keep everyone's items organized."], ["Flexible Setup", "Choose door counts and compartment sizes for your use."], ["Locking Options", "Locks to match your workplace rules."], ["Tough Finish", "Finishes that suit your working environment."]],
     specifications: [["Compartments", "Single and multi-door options"], ["Locking", "Project-specific options"], ["Ventilation", "Available where required"], ["Finish", "Powder-coated options"]],
     applications: ["Staff facilities", "Factories", "Offices", "Institutions", "Tool control"],
   },
 ];
 
 const serviceSeed = [
-  ["Storage Planning", "storage-planning", "Turn operational requirements into a clear storage strategy before equipment is specified.", "We review inventory profiles, access frequency, growth needs and facility constraints to define an appropriate storage approach.", "ClipboardList"],
-  ["Site Survey", "site-survey", "Capture the dimensions, constraints and interfaces that shape a dependable storage layout.", "A site review helps establish usable space, access, columns, services and operational conditions relevant to system planning.", "ScanLine"],
-  ["Rack Design", "rack-design", "Configure storage geometry around declared loads, units and handling practices.", "The design process aligns bay dimensions, levels, accessories and protection with the intended storage operation.", "DraftingCompass"],
-  ["Warehouse Layout Planning", "warehouse-layout-planning", "Coordinate storage, aisles and workflows for clear, efficient material movement.", "Layout planning considers receiving, put-away, picking, replenishment and dispatch instead of treating racks in isolation.", "Workflow"],
-  ["Installation", "installation", "Structured on-site assembly and handover coordinated with the project environment.", "Installation planning covers sequencing, access, interfaces and basic handover information for the agreed system scope.", "HardHat"],
-  ["Warehouse Optimization", "warehouse-optimization", "Review existing space and storage practices to identify practical improvement opportunities.", "We examine capacity, accessibility and movement patterns to recommend system or layout changes aligned with operations.", "ChartNoAxesCombined"],
-  ["Customized Storage Solutions", "customized-storage-solutions", "Develop configurations for inventory or spaces that do not fit a standard catalogue answer.", "Custom work begins with dimensions, loads, retrieval needs and site conditions, followed by a considered system proposal.", "Settings2"],
-  ["After-Sales Support", "after-sales-support", "Practical support for questions and agreed follow-up requirements after handover.", "Support scope is coordinated around the supplied system and may include operational guidance or review of change requirements.", "Headset"],
+  ["Storage Planning", "storage-planning", "A clear storage plan before you buy anything.", "We look at your stock, space and growth plans, then suggest the right storage approach.", "ClipboardList"],
+  ["Site Survey", "site-survey", "Accurate site details for a layout that fits.", "We measure your space and note columns, doors and access so the layout works on site.", "ScanLine"],
+  ["Rack Design", "rack-design", "Rack designs made for your loads.", "We plan bay sizes, levels and accessories around your actual loads and handling method.", "DraftingCompass"],
+  ["Warehouse Layout Planning", "warehouse-layout-planning", "A warehouse layout that flows well.", "We plan receiving, storage, picking and dispatch so goods move smoothly through your warehouse.", "Workflow"],
+  ["Installation", "installation", "Clean, safe installation on site.", "Our team installs your system on schedule and hands it over ready to use.", "HardHat"],
+  ["Warehouse Optimization", "warehouse-optimization", "Get more from your current warehouse.", "We review your space and storage habits, then suggest practical ways to improve.", "ChartNoAxesCombined"],
+  ["Customized Storage Solutions", "customized-storage-solutions", "Custom storage for tricky spaces.", "If standard racks don't fit, we design a solution around your items, loads and site.", "Settings2"],
+  ["After-Sales Support", "after-sales-support", "Support even after setup.", "We stay available for questions, changes and follow-up needs after installation.", "Headset"],
 ] as const;
 
 const industrySeed = [
-  ["Warehousing", "warehousing", "Storage systems that coordinate pallet capacity, picking access and material movement."],
-  ["Manufacturing", "manufacturing", "Organized storage for raw materials, work-in-progress, tools and finished goods."],
-  ["Automotive", "automotive", "Flexible locations for components, assemblies, spares and line-side inventory."],
-  ["Pharmaceuticals", "pharmaceuticals", "Structured storage layouts supporting organized inventory handling and controlled workflows."],
-  ["E-commerce", "ecommerce", "Pick-facing storage for broad SKU ranges and changing order profiles."],
-  ["Retail", "retail", "Accessible back-of-house storage for cartons, replenishment stock and supplies."],
-  ["FMCG", "fmcg", "Pallet and carton storage planned around inventory movement and selectivity."],
-  ["Logistics", "logistics", "Adaptable storage layouts for receiving, staging, picking and dispatch operations."],
-  ["Engineering", "engineering", "Storage for tools, components, consumables and irregular industrial items."],
-  ["Office & Corporate", "office-corporate", "Compact records, locker and workplace storage systems."],
-  ["Archives & Records", "archives-records", "High-density, organized retrieval for files, documents and record boxes."],
-  ["Distribution Centers", "distribution-centers", "Coordinated pallet and picking systems for multi-stage fulfillment workflows."],
+  ["Warehousing", "warehousing", "Storage that balances pallet space, picking access and smooth movement."],
+  ["Manufacturing", "manufacturing", "Organized storage for raw materials, tools, work in progress and finished goods."],
+  ["Automotive", "automotive", "Flexible storage for parts, spares and stock kept near the line."],
+  ["Pharmaceuticals", "pharmaceuticals", "Well-organized storage that supports clean, controlled workflows."],
+  ["E-commerce", "ecommerce", "Easy picking storage for large product ranges and changing orders."],
+  ["Retail", "retail", "Easy back-of-house storage for cartons, restock items and supplies."],
+  ["FMCG", "fmcg", "Pallet and carton storage planned around fast stock movement."],
+  ["Logistics", "logistics", "Flexible storage for receiving, staging, picking and dispatch."],
+  ["Engineering", "engineering", "Storage for tools, parts, consumables and odd-sized items."],
+  ["Office & Corporate", "office-corporate", "Compact storage for records, lockers and office supplies."],
+  ["Archives & Records", "archives-records", "Dense, organized storage for files, documents and record boxes."],
+  ["Distribution Centers", "distribution-centers", "Pallet and picking systems that keep orders moving."],
 ] as const;
 
 async function seed() {
@@ -182,8 +183,8 @@ async function seed() {
       whatsapp: "+91 97692 67792",
       email: "info@rackandstack.in",
       address: "Sr. No. 94/1, Umar Compound, Sopara Phata, Vasai-Virar, Maharashtra 401208",
-      workingHours: "Monday–Friday, 9:00 AM–6:00 PM",
-      footerContent: "Engineered storage systems designed around space, load requirements and operational workflow.",
+      workingHours: "Mondayâ€“Friday, 9:00 AMâ€“6:00 PM",
+      footerContent: "Strong, reliable storage systems planned around your space, loads and the way you work.",
       copyright: "Rack & Stack Storage Systems Pvt. Ltd. All rights reserved.",
       socialLinks: {},
     });
@@ -192,7 +193,7 @@ async function seed() {
   if (Number((await db.select({ count: sql<number>`count(*)` }).from(seoSettings))[0].count) === 0) {
     await db.insert(seoSettings).values({
       siteTitle: "Rack & Stack Storage Systems",
-      defaultMetaDescription: "Industrial racking, shelving, mezzanine and customized storage systems planned around your facility and workflow.",
+      defaultMetaDescription: "Racking, shelving, mezzanine floors and custom storage systems planned around your space and workflow.",
       keywords: "industrial storage systems, warehouse racking, pallet racking, shelving systems, mezzanine floor",
       canonicalBaseUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
       organizationSchema: { "@type": "Organization", name: "Rack & Stack Storage Systems Pvt. Ltd." },
@@ -229,14 +230,14 @@ async function seed() {
       const [service] = await db.insert(services).values({
         name, slug, shortDescription, description, icon, heroImage: i % 2 ? images.installation : images.racks,
         featured: i < 6, status: "PUBLISHED", displayOrder: i,
-        process: [{ title: "Understand", description: "Capture the operating requirement and constraints." }, { title: "Develop", description: "Prepare the appropriate system or layout response." }, { title: "Coordinate", description: "Align scope, interfaces and implementation." }],
-        deliverables: ["Requirement review", "Recommended approach", "Defined project scope"],
+        process: [{ title: "Understand", description: "We learn your needs and limits." }, { title: "Develop", description: "We prepare the right system or layout." }, { title: "Coordinate", description: "We align the scope and plan the setup." }],
+        deliverables: ["Review of your requirements", "A recommended approach", "A clear project plan"],
         metaTitle: `${name} | Rack & Stack`, metaDescription: shortDescription,
       }).returning();
       await db.insert(serviceFeatures).values([
-        { serviceId: service.id, title: "Requirement-led", description: "The work starts with your operating context, not a preset answer.", displayOrder: 0 },
-        { serviceId: service.id, title: "Clear coordination", description: "Scope and important interfaces are defined before execution.", displayOrder: 1 },
-        { serviceId: service.id, title: "Practical outcome", description: "Recommendations are shaped around real space and workflow constraints.", displayOrder: 2 },
+        { serviceId: service.id, title: "Based on Your Needs", description: "We start with how you work â€” not a one-size-fits-all answer.", displayOrder: 0 },
+        { serviceId: service.id, title: "Clear Planning", description: "Everything is agreed before work begins.", displayOrder: 1 },
+        { serviceId: service.id, title: "Practical Results", description: "Our advice fits your real space and workflow.", displayOrder: 2 },
       ]);
     }
     serviceRows = await db.select().from(services);
@@ -244,9 +245,9 @@ async function seed() {
 
   if (Number((await db.select({ count: sql<number>`count(*)` }).from(industries))[0].count) === 0) {
     await db.insert(industries).values(industrySeed.map(([name, slug, shortDescription], displayOrder) => ({
-      name, slug, shortDescription, description: `${name} environments need storage decisions based on inventory profile, access frequency, material handling and available space. We develop appropriate configurations from these operational inputs.`,
-      challenges: ["Balancing capacity with accessibility", "Maintaining clear material flow", "Adapting to changing inventory profiles"],
-      benefits: ["Better organized locations", "More deliberate use of space", "Layouts aligned with handling workflows"],
+      name, slug, shortDescription, description: `${name} businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.`,
+      challenges: ["Getting enough storage without losing easy access", "Keeping stock moving smoothly", "Adjusting to changing inventory"],
+      benefits: ["Everything has its place", "Better use of your space", "Layouts that match how you work"],
       heroImage: displayOrder % 2 ? images.warehouse : images.hero, status: "PUBLISHED" as const, featured: displayOrder < 8, displayOrder,
       metaTitle: `Storage Solutions for ${name} | Rack & Stack`, metaDescription: shortDescription,
     })));
@@ -302,15 +303,23 @@ async function seed() {
   }
 
   const sections = [
-    { sectionKey: "hero", title: "SMART STORAGE. ENGINEERED FOR PERFORMANCE.", subtitle: "Designing and delivering intelligent storage systems that help businesses maximize space, improve workflow and scale efficiently.", displayOrder: 0, content: { eyebrow: "Industrial storage systems", highlight: "ENGINEERED FOR PERFORMANCE.", primaryCta: "Explore Solutions", secondaryCta: "Request a Quote", tertiaryCta: "Talk to an Expert", image: images.hero, badge: "Planned around your operation" } },
-    { sectionKey: "trust", title: "Capability, without unsupported claims", subtitle: "Every recommendation begins with the space, load and workflow information you provide.", displayOrder: 1, content: { metrics: [{ value: "Site-led", label: "Planning" }, { value: "Load-led", label: "Configuration" }, { value: "Workflow-led", label: "Layout" }, { value: "End-to-end", label: "Coordination" }] } },
-    { sectionKey: "about", title: "Storage is an operational system—not just steel.", subtitle: "Rack & Stack supports storage requirements from site review and layout planning through supply, installation coordination and after-sales support.", displayOrder: 2, content: { image: images.aisle, cta: "How we work" } },
-    { sectionKey: "why", title: "Designed around real constraints", subtitle: "A disciplined approach to space, load, access and implementation.", displayOrder: 4, content: { cards: [{ title: "Application-first", description: "We start with what is stored and how it moves." }, { title: "Space-aware", description: "Layouts respond to the building, services and handling clearances." }, { title: "Defined loading", description: "System selection is informed by declared load data." }, { title: "Coordinated execution", description: "Site interfaces and installation requirements are considered early." }] } },
-    { sectionKey: "process", title: "From requirement to working system", subtitle: "A clear path keeps decisions aligned from first conversation to handover.", displayOrder: 8, content: { steps: [{ number: "01", title: "Discover", description: "Requirement, inventory and workflow review" }, { number: "02", title: "Survey", description: "Site dimensions and constraints" }, { number: "03", title: "Design", description: "System selection and layout development" }, { number: "04", title: "Deliver", description: "Supply and installation coordination" }] } },
-    { sectionKey: "manufacturing", title: "Built for the specified application", subtitle: "Material selection, fabrication and finish are coordinated with the agreed system design and project scope.", displayOrder: 9, content: { image: images.installation, cta: "Discuss your requirement" } },
-    { sectionKey: "cta", title: "Planning a new warehouse or improving an existing one?", subtitle: "Share your space, inventory and handling requirements. Our team will help identify the right next step.", displayOrder: 14, content: { primaryCta: "Request a Quote", secondaryCta: "Call +91 97692 67792" } },
+    { sectionKey: "hero", title: "SMART STORAGE. BUILT TO LAST.", subtitle: "Smart storage systems that help you save space, work faster and grow with ease.", displayOrder: 0, content: { eyebrow: "Industrial storage systems", highlight: "BUILT TO LAST.", primaryCta: "View Our Products", secondaryCta: "Request a Quote", tertiaryCta: "Talk to Us", image: images.hero, badge: "Planned around your operation" } },
+    { sectionKey: "trust", title: "What You Can Count On", subtitle: "Every plan starts with your space, your loads and the way your team works.", displayOrder: 2, content: { metrics: [{ value: "Site-Based", label: "Planning" }, { value: "Load-Based", label: "Configuration" }, { value: "Workflow-Based", label: "Layout" }, { value: "End-to-End", label: "Support" }] } },
+    { sectionKey: "about", title: "About Rack & Stack", subtitle: "Rack & Stack designs and installs complete storage systems â€” industrial racking, shelving, mezzanine floors, material handling and workplace storage. We start from how you actually operate, then plan the space, the system and the setup as one connected solution.\n\nWe plan around what you store, how you access it and how your team moves it â€” so the result handles capacity, safety and growth without making daily work harder.", displayOrder: 1, content: { image: images.aisle, cta: "Explore Our Solutions" } },
+    { sectionKey: "why", title: "The Rack & Stack Difference", subtitle: "A simple, honest approach to space, load, access and setup.", displayOrder: 4, content: { cards: [{ title: "Built Around You", description: "We start with what you store and how you move it." }, { title: "Makes Best Use of Space", description: "We plan around your building, services and clearances." }, { title: "Right Load Capacity", description: "We design based on your actual load data." }, { title: "Smooth Execution", description: "We plan installation and site needs from day one." }] } },
+    { sectionKey: "process", title: "How We Work", subtitle: "A simple, clear process from the first call to final handover.", displayOrder: 8, content: { steps: [{ number: "01", title: "Discover", description: "We learn your needs, stock and workflow" }, { number: "02", title: "Survey", description: "We measure your site and note limits" }, { number: "03", title: "Design", description: "We pick the system and plan the layout" }, { number: "04", title: "Deliver", description: "We supply and coordinate installation" }] } },
+    { sectionKey: "manufacturing", title: "Built for Your Needs", subtitle: "Materials, build and finish all match the design we agree with you.", displayOrder: 9, content: { image: images.installation, cta: "Discuss Your Requirement" } },
+    { sectionKey: "cta", title: "Setting Up a New Warehouse or Improving an Old One?", subtitle: "Tell us about your space and storage needs. We'll help you take the next step.", displayOrder: 14, content: { primaryCta: "Request a Quote", secondaryCta: "Call +91 97692 67792" } },
   ];
   for (const section of sections) await db.insert(homepageSections).values(section).onConflictDoNothing();
+
+  if (Number((await db.select({ count: sql<number>`count(*)` }).from(homeSliders))[0].count) === 0) {
+    await db.insert(homeSliders).values([
+      { eyebrow: "Industrial storage systems", title: "Industrial Racking & Storage Systems for Manufacturing", highlightedText: "PLANNED. SUPPLIED. INSTALLED.", description: "Manufacturing-grade pallet racking, heavy duty shelving and mezzanine floors engineered for heavy loads, tight floorspace and continuous production output.", imageUrl: images.hero, mobileImageUrl: images.hero, imageAlt: "Modern warehouse pallet racking and storage aisle", primaryButtonText: "View Products", primaryButtonUrl: "/products", secondaryButtonText: "Request a Quote", secondaryButtonUrl: "/request-a-quote", tertiaryButtonText: "Talk to Us", tertiaryButtonUrl: "/contact", trustPoints: ["Site-based planning", "Load-based configuration", "Installation included"], overlayOpacity: 72, textAlignment: "left", autoplay: true, duration: 3500, sortOrder: 0, status: "PUBLISHED" },
+      { eyebrow: "Space optimization", title: "Maximize Manufacturing Floor Space with Vertical Storage", highlightedText: "FROM FLOOR TO FULL.", description: "Racking, mezzanines and material handling systems that turn wasted ceiling height and floor area into organised, high-density manufacturing storage.", imageUrl: images.warehouse, mobileImageUrl: images.warehouse, imageAlt: "Wide warehouse layout with organised industrial storage", primaryButtonText: "Explore Solutions", primaryButtonUrl: "/products", secondaryButtonText: "Request a Quote", secondaryButtonUrl: "/request-a-quote", tertiaryButtonText: "Talk to Us", tertiaryButtonUrl: "/contact", trustPoints: ["Custom layouts", "Mezzanine & racking experts", "End-to-end support"], overlayOpacity: 72, textAlignment: "left", autoplay: true, duration: 3500, sortOrder: 1, status: "PUBLISHED" },
+      { eyebrow: "Industrial racking & shelving", title: "Heavy Duty Racking Built for High-Output Manufacturing", highlightedText: "BUILT FOR YOUR OPERATION.", description: "Pallet racking, cantilever racks and reinforced shelving configured around your forklifts, loads and daily throughput for safe, efficient operation.", imageUrl: images.forklift, mobileImageUrl: images.forklift, imageAlt: "Forklift working alongside industrial pallet racking", primaryButtonText: "See Our Products", primaryButtonUrl: "/products", secondaryButtonText: "Request a Quote", secondaryButtonUrl: "/request-a-quote", tertiaryButtonText: "Talk to Us", tertiaryButtonUrl: "/contact", trustPoints: ["Engineered for your loads", "Fitted to your workflow", "Safety built in"], overlayOpacity: 72, textAlignment: "left", autoplay: true, duration: 3500, sortOrder: 2, status: "PUBLISHED" },
+    ]);
+  }
 
   if (Number((await db.select({ count: sql<number>`count(*)` }).from(gallery))[0].count) === 0) {
     await db.insert(gallery).values([
@@ -331,12 +340,12 @@ async function seed() {
     await db.insert(clientLogos).values(["Bank of America", "Knight Frank", "Jaslok Hospital", "Mumbai Metro", "Eaton", "IDBI Bank", "Allcargo Logistics", "Schindler"].map((name, index) => ({ name, imageUrl: "", altText: `${name} logo`, sortOrder: index + 1, isActive: true })));
   }
 
-  const aboutContent = "Rack & Stack Storage Systems works across industrial storage, shelving, mezzanine, material handling and workplace storage requirements. Our approach begins with the site, stored items, declared loads and operational workflow. From there, we coordinate an appropriate layout and system scope, followed by supply, installation coordination and after-sales support.\n\nWe believe storage performs best when capacity, accessibility, safety considerations and future change are considered together.";
+  const aboutContent = "Rack & Stack Storage Systems provides industrial racking, shelving, mezzanine floors, material handling and workplace storage solutions. We start with your site, your stock, your loads and the way your team works. From there, we plan the layout, supply the system, coordinate installation and support you afterwards.\n\nWe believe the best storage plans make room for capacity, easy access, safety and future growth â€” all at the same time.";
   const pageSeed = [
-    { title: "About Rack & Stack", slug: "about", heroTitle: "Storage expertise shaped around your operation.", heroDescription: "From site review to system implementation, we help translate storage requirements into practical solutions.", heroImage: images.racks, content: aboutContent, metaTitle: "About Rack & Stack Storage Systems", metaDescription: "Learn about Rack & Stack's requirement-led approach to industrial storage planning and implementation." },
-    { title: "Privacy Policy", slug: "privacy-policy", heroTitle: "Privacy Policy", heroDescription: "How information submitted through this website is handled.", content: "Information submitted through our forms is used to respond to enquiries, prepare requested communications and operate this website. We do not sell personal information. Contact us at info@rackandstack.in for privacy questions or requests.", metaTitle: "Privacy Policy | Rack & Stack", metaDescription: "Rack & Stack website privacy policy." },
-    { title: "Terms and Conditions", slug: "terms-and-conditions", heroTitle: "Terms and Conditions", heroDescription: "General terms governing use of this website.", content: "Website content is provided for general information. Product configuration, loading and project scope must be confirmed in a formal proposal. Images may be illustrative. Do not rely on website content as engineering approval for a specific installation.", metaTitle: "Terms and Conditions | Rack & Stack", metaDescription: "Terms governing use of the Rack & Stack website." },
-    { title: "Cookie Policy", slug: "cookie-policy", heroTitle: "Cookie Policy", heroDescription: "Information about essential and optional website storage.", content: "This website uses essential storage for secure sessions and preference storage. Optional analytics should only be enabled after consent where configured.", metaTitle: "Cookie Policy | Rack & Stack", metaDescription: "Rack & Stack website cookie policy." },
+    { title: "About Rack & Stack", slug: "about", heroTitle: "Storage Built Around Your Business", heroDescription: "From the first site visit to final setup, we turn your storage needs into practical solutions.", heroImage: images.racks, content: aboutContent, metaTitle: "About Rack & Stack Storage Systems", metaDescription: "Learn about Rack & Stack's practical approach to storage planning and setup." },
+    { title: "Privacy Policy", slug: "privacy-policy", heroTitle: "Privacy Policy", heroDescription: "How we handle information sent through this website.", content: "We use the information you send through our forms to reply to you, send what you requested and run this website. We never sell your personal information. For any privacy questions, email us at info@rackandstack.in.", metaTitle: "Privacy Policy | Rack & Stack", metaDescription: "Rack & Stack website privacy policy." },
+    { title: "Terms and Conditions", slug: "terms-and-conditions", heroTitle: "Terms and Conditions", heroDescription: "General terms for using this website.", content: "The content on this website is for general information only. Product details, loading and project scope are confirmed in a formal proposal. Images may be for illustration only. Please don't treat website content as engineering approval for a specific installation.", metaTitle: "Terms and Conditions | Rack & Stack", metaDescription: "Terms governing use of the Rack & Stack website." },
+    { title: "Cookie Policy", slug: "cookie-policy", heroTitle: "Cookie Policy", heroDescription: "Information about cookies on this website.", content: "This website uses essential cookies to keep the site working and remember your preferences. Optional analytics are only enabled if you allow them.", metaTitle: "Cookie Policy | Rack & Stack", metaDescription: "Rack & Stack website cookie policy." },
   ];
   for (const page of pageSeed) await db.insert(pages).values({ ...page, status: "PUBLISHED" }).onConflictDoNothing();
 
@@ -349,17 +358,17 @@ async function seed() {
       { name: "Industry Guides", slug: "industry-guides" },
     ]).returning();
     await db.insert(blogPosts).values([
-      { title: "What to prepare before requesting a pallet racking layout", slug: "prepare-for-pallet-racking-layout", excerpt: "The information that helps a storage partner develop a more relevant first proposal.", content: "A useful pallet racking brief starts with pallet dimensions, maximum unit weight, SKU and quantity data, handling equipment, building drawings and expected workflows. Clear inputs reduce assumptions and help the proposed layout reflect actual operations.\n\nAlso record sprinkler, lighting, column, door and service constraints. Final designs should be reviewed against the complete project context.", categoryId: cats[0].id, featuredImage: images.hero, status: "PUBLISHED", featured: true, publishedAt: new Date(), metaTitle: "Preparing for a Pallet Racking Layout", metaDescription: "Key information to gather before requesting a warehouse pallet racking layout." },
-      { title: "Storage density versus accessibility: finding the right balance", slug: "storage-density-versus-accessibility", excerpt: "Why the layout with the most positions is not automatically the best operational answer.", content: "Storage capacity matters, but so do selectivity, replenishment, travel distance and handling equipment. A high-density format may suit reserve stock while direct-access shelving may be better for fast-moving items.\n\nA sound plan segments inventory and chooses storage methods for each movement profile rather than forcing every item into one system.", categoryId: cats[1].id, featuredImage: images.aisle, status: "PUBLISHED", publishedAt: new Date(), metaTitle: "Storage Density vs Accessibility", metaDescription: "How to balance warehouse storage capacity with practical inventory access." },
+      { title: "Getting Ready for a Pallet Racking Layout", slug: "prepare-for-pallet-racking-layout", excerpt: "The details that help us create a better first plan for you.", content: "A good racking plan starts with a few key details: pallet size, maximum weight, what you store and how much, your handling equipment, building drawings and how your team works. The clearer these are, the better the layout will fit your operation.\n\nAlso note sprinklers, lighting, columns, doors and any other building limits. The final design should be checked against all of this.", categoryId: cats[0].id, featuredImage: images.hero, status: "PUBLISHED", featured: true, publishedAt: new Date(), metaTitle: "Getting Ready for a Pallet Racking Layout", metaDescription: "Key details to gather before requesting a pallet racking layout." },
+      { title: "Storage Density vs. Easy Access: Finding the Balance", slug: "storage-density-versus-accessibility", excerpt: "Why the layout with the most spaces isn't always the best one.", content: "More storage space is good â€” but so is easy access, short travel times and the right handling equipment. High-density storage works well for reserve stock, while direct-access shelving suits fast-moving items.\n\nA good plan sorts your inventory into groups and picks the right storage method for each â€” instead of forcing everything into one system.", categoryId: cats[1].id, featuredImage: images.aisle, status: "PUBLISHED", publishedAt: new Date(), metaTitle: "Storage Density vs Easy Access", metaDescription: "How to balance warehouse storage capacity with easy inventory access." },
     ]);
   }
 
   if (Number((await db.select({ count: sql<number>`count(*)` }).from(faqs))[0].count) === 0) {
     await db.insert(faqs).values([
-      { question: "What information is needed for a storage system proposal?", answer: "Share available dimensions, item or pallet sizes, maximum loads, quantities, access frequency, handling equipment and any building constraints. A site survey can help confirm important details.", entityType: "GLOBAL", displayOrder: 0 },
-      { question: "Can a system be configured for an existing warehouse?", answer: "Yes. Existing columns, clear height, doors, services, circulation and current operations are reviewed before a suitable layout is proposed.", entityType: "GLOBAL", displayOrder: 1 },
-      { question: "How is storage capacity determined?", answer: "Capacity depends on item geometry, declared load, system type, aisle requirements, handling equipment and the usable building envelope. It should be calculated from project-specific inputs.", entityType: "GLOBAL", displayOrder: 2 },
-      { question: "Do you support installation?", answer: "Installation coordination is available as part of the agreed project scope. Site readiness and interfaces are reviewed before scheduling.", entityType: "GLOBAL", displayOrder: 3 },
+      { question: "What do you need to prepare a quote?", answer: "Share any dimensions you have, item or pallet sizes, maximum loads, quantities, how often you access them, your handling equipment and any building limits. A site survey can help fill the gaps.", entityType: "GLOBAL", displayOrder: 0 },
+      { question: "Can you set up a system in an existing warehouse?", answer: "Yes. We review your columns, clear height, doors, services, movement paths and current operations before proposing a layout.", entityType: "GLOBAL", displayOrder: 1 },
+      { question: "How do you calculate storage capacity?", answer: "Capacity depends on item size, declared loads, system type, aisle space, handling equipment and the usable building area. We calculate it from your specific inputs.", entityType: "GLOBAL", displayOrder: 2 },
+      { question: "Do you handle installation?", answer: "Yes. Installation is included as part of the agreed project scope. We check site readiness before scheduling.", entityType: "GLOBAL", displayOrder: 3 },
     ]);
   }
 

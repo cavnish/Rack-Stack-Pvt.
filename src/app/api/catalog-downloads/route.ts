@@ -37,6 +37,6 @@ export async function POST(request: Request) {
     await logActivity("CATALOG_DOWNLOADED", "CATALOG", download.id);
     return NextResponse.json({ ok: true, reference: `CAT-${download.id}`, url: settings.brochureUrl });
   } catch {
-    return NextResponse.json({ error: "Please review the details and try again." }, { status: 400 });
+    return NextResponse.json({ error: "Please check the details and try again." }, { status: 400 });
   }
 }

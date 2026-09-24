@@ -34,7 +34,7 @@ export function ProductsCatalogue({ products }: { products: CatalogueProduct[] }
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by system, spec or application…"
+            placeholder="Search by product, spec or use…"
             aria-label="Search products"
             className="w-full border border-zinc-300 bg-white py-3 pl-11 pr-4 text-sm outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-900"
           />
@@ -82,15 +82,15 @@ export function ProductsCatalogue({ products }: { products: CatalogueProduct[] }
       </div>
       {filtered.length === 0 && (
         <div className="mt-8 border border-dashed border-zinc-300 bg-zinc-50 p-14 text-center">
-          <h2 className="text-lg font-semibold">No systems match that filter.</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-zinc-500">Try a different search term, or ask our team to recommend a configuration for your load and space.</p>
+          <h2 className="text-lg font-semibold">Nothing Matches Your Search</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-zinc-500">Try a different search term, or ask our team to recommend the right system for your load and space.</p>
         </div>
       )}
       <div className="mt-12 flex flex-col items-center justify-between gap-5 border-t border-zinc-200 pt-8 text-sm text-zinc-600 sm:flex-row">
         <p>
           Showing <strong className="text-zinc-900">{filtered.length}</strong> of {products.length} systems
         </p>
-        <p>Need a custom system? Our engineers configure racking to your loads and bay layouts.</p>
+        <p>Need a custom system? We&apos;ll design racking around your loads and bay layout.</p>
       </div>
     </>
   );

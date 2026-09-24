@@ -21,11 +21,11 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardProduc
         <span className="absolute left-4 top-4 bg-red-600 px-2.5 py-1 text-[.6rem] font-bold uppercase tracking-[.14em] text-white">{product.category}</span>
         <span className="absolute right-4 top-4 bg-zinc-950/80 px-2 py-1 text-[.6rem] font-bold text-white/80 backdrop-blur">{String(index + 1).padStart(2, "0")}</span>
         <span className="absolute inset-x-0 bottom-0 flex translate-y-2 items-center justify-center gap-2 py-5 text-xs font-bold uppercase tracking-[.16em] text-white opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-          View product <ArrowRight size={15} />
+          View Product <ArrowRight size={15} />
         </span>
       </Link>
       <div className="flex grow flex-col p-6">
-        <Link href={`/products/${product.slug}`} className="text-balance text-xl font-semibold tracking-tight transition-colors group-hover:text-red-600">
+        <Link href={`/products/${product.slug}`} className="card-title text-balance transition-colors group-hover:text-red-600">
           {product.name}
         </Link>
         <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-600">{product.shortDescription}</p>
@@ -47,10 +47,10 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardProduc
         )}
         <div className="mt-auto flex items-center justify-between border-t border-zinc-200 pt-5">
           <Link href={quoteHref} className="btn-primary px-4 py-2 text-[.68rem]">
-            Get a quote
+            Get a Quote
           </Link>
           <Link href={`/products/${product.slug}`} className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[.14em] transition-colors hover:text-red-600">
-            View product <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+            View Product <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>

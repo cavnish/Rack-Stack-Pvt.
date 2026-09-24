@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowDownUp, Copy, Edit3, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowDownUp, ArrowUp, Copy, Edit3, Plus, Search, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SmartImage } from "@/components/site/smart-image";
 
@@ -51,8 +51,11 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
             (status === "ALL" || row.status === status) &&
             (featured === "ALL" || String(Boolean(row.featured)) === featured),
         )
-        .sort((a, b) => (sortAsc ? 1 : -1) * display(a).localeCompare(display(b))),
-    [rows, query, status, featured, sortAsc],
+        .sort((a, b) => {
+          if (entity === "home-slider") return (Number(a.sortOrder ?? 0) - Number(b.sortOrder ?? 0)) * (sortAsc ? 1 : -1);
+          return (sortAsc ? 1 : -1) * display(a).localeCompare(display(b));
+        }),
+    [rows, query, status, featured, sortAsc, entity],
   );
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pages);
@@ -100,6 +103,51 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
       location.reload();
     } catch {
       setMessage("Network error while duplicating. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function move(id: number, direction: -1 | 1) {
+    const idx = rows.findIndex((row) => Number(row.id) === id);
+    const target = idx + direction;
+    if (idx < 0 || target < 0 || target >= rows.length) return;
+    const current = rows[idx];
+    const other = rows[target];
+    const a = Number(current.sortOrder ?? 0);
+    const b = Number(other.sortOrder ?? 0);
+    const swapA = a !== b ? b : a + direction;
+    const swapB = a !== b ? a : b;
+    if (swapA < 0 || swapB < 0) return;
+    setMessage("");
+    setPending(true);
+    try {
+      const results = await Promise.all([
+        fetch(`/api/admin/home-slider/${current.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...current, sortOrder: swapA }),
+        }),
+        fetch(`/api/admin/home-slider/${other.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...other, sortOrder: swapB }),
+        }),
+      ]);
+      if (results.some((response) => !response.ok)) {
+        setMessage("Unable to reorder. Please try again.");
+        return;
+      }
+      setRows((value) => {
+        const arr = [...value];
+        [arr[idx], arr[target]] = [arr[target], arr[idx]];
+        arr[idx] = { ...arr[idx], sortOrder: swapB };
+        arr[target] = { ...arr[target], sortOrder: swapA };
+        return arr;
+      });
+      router.refresh();
+    } catch {
+      setMessage("Network error while reordering. Please try again.");
     } finally {
       setPending(false);
     }
@@ -272,6 +320,26 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
                     </td>
                     <td className="p-4">
                       <div className="flex justify-end gap-1">
+                        {entity === "home-slider" ? (
+                          <span className="mr-1 flex items-center">
+                            <button
+                              title="Move up"
+                              onClick={() => move(Number(row.id), -1)}
+                              disabled={pending || Number(row.id) === Number(rows[0]?.id)}
+                              className="grid h-8 w-8 place-items-center rounded text-zinc-600 hover:bg-zinc-100 disabled:opacity-40"
+                            >
+                              <ArrowUp size={14} />
+                            </button>
+                            <button
+                              title="Move down"
+                              onClick={() => move(Number(row.id), 1)}
+                              disabled={pending || Number(row.id) === Number(rows[rows.length - 1]?.id)}
+                              className="grid h-8 w-8 place-items-center rounded text-zinc-600 hover:bg-zinc-100 disabled:opacity-40"
+                            >
+                              <ArrowDown size={14} />
+                            </button>
+                          </span>
+                        ) : null}
                         {entity === "products" ? (
                           <button
                             title="Duplicate"

@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-:root { --ink:#151719; --graphite:#202326; --muted:#656b70; --line:#dfe2e3; --paper:#f4f4f1; --red:#d11f2f; --red-dark:#ad1220; --white:#fff; --font-sans:var(--font-geist),Arial,sans-serif; }
+:root { --ink:#151719; --graphite:#202326; --muted:#656b70; --line:#dfe2e3; --paper:#f4f4f1; --red:#d11f2f; --red-dark:#ad1220; --white:#fff; }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; }
 body { margin:0; background:#fff; color:var(--ink); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
@@ -9,26 +9,67 @@ button,input,textarea,select { font:inherit; }
 button { cursor:pointer; }
 ::selection { background:#d11f2f; color:white; }
 :focus-visible { outline:3px solid rgba(209,31,47,.35); outline-offset:3px; }
+html,body { max-width:100%; overflow-x:clip; }
+img,video,svg { max-width:100%; }
 .container-shell { width:min(100% - 2rem, 1280px); margin-inline:auto; }
 @media(min-width:768px){.container-shell{width:min(100% - 4rem,1280px)}}
-.eyebrow { display:flex; align-items:center; gap:.65rem; color:var(--red); font-size:.72rem; font-weight:750; text-transform:uppercase; letter-spacing:.18em; }
-.eyebrow::before { content:""; width:1.8rem; height:2px; background:currentColor; }
-.heading-xl { font-size:clamp(2.65rem,6vw,6.2rem); line-height:.91; letter-spacing:-.065em; font-weight:690; }
-.heading-lg { font-size:clamp(2rem,4.3vw,4.2rem); line-height:.98; letter-spacing:-.052em; font-weight:660; }
-.heading-md { font-size:clamp(1.6rem,2.6vw,2.65rem); line-height:1.05; letter-spacing:-.04em; font-weight:650; }
+/* ============ CENTRALIZED TYPOGRAPHY SYSTEM ============
+   ONE premium modern sans-serif (Inter via --font-sans) site-wide.
+   Section H2: 52-58px desktop / 42-48px tablet / 32-38px mobile, wt 650-700, lh 1.1
+   Section desc: 20-22px desktop / 18-20px tablet / 16-18px mobile, wt 400-500, lh 1.5
+   Hero H1: 52-64px desktop, hero desc 18-20px. Eyebrow 11-13px uppercase semibold.
+   Do NOT force single-line headings; allow natural wrapping. No horizontal overflow. */
+.eyebrow { display:flex; align-items:center; gap:.65rem; color:var(--red); font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; line-height:1.4; }
+.eyebrow::before { content:""; width:1.8rem; height:2px; background:currentColor; flex-shrink:0; }
+/* Main section heading — THE global scale (56px desktop). Replaces old 46px heading-lg. */
+.heading-lg,.section-heading { font-family:var(--font-sans); font-size:clamp(2rem,1.25rem + 3.2vw,3.5rem); line-height:1.1; letter-spacing:-.02em; font-weight:700; text-wrap:balance; overflow-wrap:break-word; }
+/* Hero heading — 60px desktop, never as small as the old 46px scale. */
+.heading-xl,.hero-heading { font-family:var(--font-sans); font-size:clamp(2.25rem,1.4rem + 3.8vw,3.75rem); line-height:1.08; letter-spacing:-.02em; font-weight:700; text-wrap:balance; overflow-wrap:break-word; }
+/* Compact / nested section heading — still substantial (44px desktop), never tiny. */
+.heading-md { font-family:var(--font-sans); font-size:clamp(1.75rem,1.15rem + 2.6vw,2.75rem); line-height:1.12; letter-spacing:-.02em; font-weight:700; text-wrap:balance; overflow-wrap:break-word; }
+/* Section description — 21-22px desktop, comfortable lh, wide measure, 20px gap below heading. */
+.section-description { font-family:var(--font-sans); font-size:clamp(1rem,.9rem + .6vw,1.375rem); line-height:1.5; font-weight:500; letter-spacing:0; max-width:72rem; text-wrap:pretty; overflow-wrap:break-word; }
+/* Hero description — 18-20px desktop. */
+.hero-description { font-family:var(--font-sans); font-size:clamp(1.0625rem,1rem + .3vw,1.25rem); line-height:1.6; font-weight:400; letter-spacing:0; max-width:48rem; text-wrap:pretty; overflow-wrap:break-word; }
+/* Home hero — reduced, responsive scale so long industrial H1s stay one glanceable block. */
+.hero-heading-home { font-size:clamp(1.875rem,1.15rem + 2.6vw,2.9rem); line-height:1.12; }
+.hero-description-home { font-size:clamp(.9375rem,.875rem + .25vw,1.0625rem); line-height:1.55; max-width:42rem; }
+/* One-line highlighted accent (PLANNED. SUPPLIED. INSTALLED.) */
+.hero-accent { display:block; white-space:nowrap; font-size:.6em; letter-spacing:.16em; font-weight:800; }
 .text-balance { text-wrap:balance; }
-.btn-primary,.btn-secondary,.btn-light { min-height:3.15rem; display:inline-flex; align-items:center; justify-content:center; gap:.7rem; padding:.8rem 1.15rem; font-size:.82rem; font-weight:700; letter-spacing:.02em; transition:all .22s ease; }
+.card-title { font-size:clamp(1.25rem,1vw + 1.0625rem,1.5rem); line-height:1.3; letter-spacing:-.01em; font-weight:600; }
+.btn-primary,.btn-secondary,.btn-light { min-height:3.15rem; display:inline-flex; align-items:center; justify-content:center; gap:.7rem; padding:.8rem 1.15rem; font-size:.875rem; font-weight:650; letter-spacing:.02em; transition:all .22s ease; }
 .btn-primary { background:var(--red); color:white; border:1px solid var(--red); }
 .btn-primary:hover { background:var(--red-dark); border-color:var(--red-dark); transform:translateY(-2px); }
 .btn-secondary { border:1px solid #b8bcbe; color:var(--ink); background:transparent; }
 .btn-secondary:hover { border-color:var(--ink); background:var(--ink); color:white; }
 .btn-light { border:1px solid rgba(255,255,255,.48); color:white; }
 .btn-light:hover { background:white; color:var(--ink); }
-.surface-grid { background-image:linear-gradient(rgba(25,28,30,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(25,28,30,.055) 1px,transparent 1px); background-size:48px 48px; }
-.dark-grid { background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px); background-size:56px 56px; }
+/* Industrial grid sections: gridlines on top → readability scrim → subtle warehouse texture.
+   Texture is a tiny SVG (public/textures) shared site-wide; no layout impact. */
+.surface-grid {
+  background-image:
+    linear-gradient(rgba(25,28,30,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(25,28,30,.055) 1px,transparent 1px),
+    linear-gradient(rgba(244,244,241,.90),rgba(244,244,241,.90)),
+    url("/textures/industrial-warehouse.svg");
+  background-size:48px 48px,48px 48px,100% 100%,cover;
+  background-position:0 0,0 0,center,center;
+  background-repeat:repeat,repeat,no-repeat,no-repeat;
+}
+.dark-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px),
+    linear-gradient(rgba(9,9,11,.45),rgba(9,9,11,.45)),
+    url("/textures/industrial-warehouse.svg");
+  background-size:56px 56px,56px 56px,100% 100%,cover;
+  background-position:0 0,0 0,center,center;
+  background-repeat:repeat,repeat,no-repeat,no-repeat;
+}
 .card-lift { transition:transform .3s ease,box-shadow .3s ease; }
 .card-lift:hover { transform:translateY(-6px); box-shadow:0 24px 55px rgba(17,20,22,.13); }
-.prose-copy p { margin:0 0 1.2rem; color:#565d61; line-height:1.85; }
+.prose-copy p { margin:0 0 1.2rem; color:#565d61; line-height:1.7; }
 .prose-copy h2 { margin:2.5rem 0 1rem; font-size:1.6rem; font-weight:650; letter-spacing:-.03em; }
 .form-field { width:100%; min-height:3.25rem; border:1px solid #d5d8d9; background:white; padding:.78rem .9rem; color:#17191b; transition:border-color .2s,box-shadow .2s; }
 .form-field:focus { outline:none; border-color:#202326; box-shadow:0 0 0 3px rgba(32,35,38,.08); }
@@ -40,6 +81,7 @@ button { cursor:pointer; }
 select.admin-field { color:#18181b; }
 textarea.admin-field { color:#18181b; }
 .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}
+@keyframes hero-progress { from { transform:scaleX(0); } to { transform:scaleX(1); } }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important;animation-iteration-count:1!important}}
 
 /* Client logo marquee — continuous LEFT → RIGHT, GPU-only transform */

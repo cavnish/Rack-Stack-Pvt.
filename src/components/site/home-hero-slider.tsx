@@ -76,6 +76,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   const goPrev = () => setActive((active - 1 + count) % count);
   const goNext = () => setActive((active + 1) % count);
   const activeSlide = slides[active];
+  const heroImageUrl = activeSlide.imageUrl || activeSlide.mobileImageUrl;
 
   const slideFade: Variants = {
     enter: { opacity: 0, transition: { duration: isReduced ? 0 : 0.9, ease: EASE } },
@@ -115,7 +116,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
           exit="exit"
           className="absolute inset-0"
         >
-          {activeSlide.imageUrl ? (
+          {heroImageUrl ? (
             <motion.div
               initial={isReduced ? { scale: 1 } : { scale: 1.15 }}
               animate={{ scale: isReduced ? 1 : 1.02 }}
@@ -124,7 +125,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
             >
               <div className="absolute inset-0 hidden md:block">
                 <SmartImage
-                  src={activeSlide.imageUrl}
+                  src={heroImageUrl}
                   alt={activeSlide.imageAlt ?? activeSlide.title ?? "Storage system showcase"}
                   fill
                   priority
@@ -132,25 +133,24 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
                   sizes="100vw"
                 />
               </div>
-              {activeSlide.mobileImageUrl ? (
-                <div className="absolute inset-0 md:hidden">
-                  <SmartImage
-                    src={activeSlide.mobileImageUrl}
-                    alt={activeSlide.imageAlt ?? activeSlide.title ?? "Storage system showcase"}
-                    fill
-                    priority
-                    className="object-cover"
-                    sizes="100vw"
-                  />
-                </div>
-              ) : null}
+              <div className="absolute inset-0 md:hidden">
+                <SmartImage
+                  src={activeSlide.mobileImageUrl || heroImageUrl}
+                  alt={activeSlide.imageAlt ?? activeSlide.title ?? "Storage system showcase"}
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="100vw"
+                />
+              </div>
             </motion.div>
           ) : null}
           {activeSlide.videoUrl ? (
             <video
               className="absolute inset-0 h-full w-full object-cover"
               src={activeSlide.videoUrl}
-              poster={activeSlide.imageUrl ?? undefined}
+               poster={heroImageUrl ?? undefined}
+
               autoPlay
               muted
               loop

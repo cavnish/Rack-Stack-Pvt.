@@ -157,7 +157,8 @@ export function MediaManager({ initialItems, role, cloudinaryReady = true }: { i
         <div className="mt-3 flex items-center gap-3 rounded-lg border border-zinc-200 bg-white p-3">
           <span className="relative block h-14 w-14 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview} alt="Selected upload preview" className="h-full w-full object-cover" />
+             <img src={preview} alt="Selected upload preview" className="h-full w-full object-contain p-1" />
+
           </span>
           <p className="text-xs font-semibold text-zinc-700">Ready to upload: {folder}</p>
         </div>
@@ -174,7 +175,8 @@ export function MediaManager({ initialItems, role, cloudinaryReady = true }: { i
         {items.map((item) => (
           <article className="overflow-hidden rounded-xl border border-zinc-200 bg-white" key={item.id}>
             <div className="relative h-44 bg-zinc-100">
-              <SmartImage src={item.imageUrl} alt={item.altText} fill className="object-cover" sizes="300px" />
+               <SmartImage src={item.imageUrl} alt={item.altText} fill className="object-contain p-3" sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 300px" />
+
             </div>
             <div className="p-4">
               <p className="truncate text-xs font-bold text-zinc-900">{item.filename}</p>

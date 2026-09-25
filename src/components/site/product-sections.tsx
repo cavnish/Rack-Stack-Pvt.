@@ -32,14 +32,18 @@ import { FAQ } from "@/components/site/faq";
 import { ProductCard, type ProductCardProduct } from "@/components/site/product-card";
 import { InquiryForm } from "@/components/site/inquiry-form";
 import { Breadcrumb, SectionHeading } from "@/components/site/ui";
+import { MobileProductActions } from "@/components/site/product-experience";
+import { EventTracker } from "@/components/site/event-tracker";
 import { Reveal } from "@/components/site/reveal";
 import { WorkflowSteps } from "@/components/site/workflow-steps";
 import { ClientLogoMarquee } from "@/components/site/client-logo-marquee";
 import { optimizeImage } from "@/lib/image-utils";
 import type { ClientLogo } from "@/lib/data";
-import type { getProductBySlug, getServices, getSiteSettings } from "@/lib/data";
+import type { getServices } from "@/lib/data";
+import { getProductHref } from "@/lib/product-page";
+import type { ProductOption, ProductPageProduct } from "@/lib/product-page";
 
-export type ProductDetail = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
+export type ProductDetail = ProductPageProduct;
 
 const KEYWORD_ICONS: Array<[RegExp, LucideIcon]> = [
   [/load|weight|capacity/, ShoppingBag],
@@ -79,7 +83,7 @@ export function getProductCuratedImages(product: ProductDetail) {
   ];
 
   return defaultSlots.map((slot, idx) => {
-    if (product.images[idx]) {
+    if (product.images[idx]?.imageUrl.trim()) {
       return {
         id: product.images[idx].id,
         imageUrl: product.images[idx].imageUrl,
@@ -175,25 +179,25 @@ export function ProductHero({ product }: { product: ProductDetail }) {
   let upsellTitle = "Need Denser Hand-Picked Storage?";
   let upsellText = "Our";
   let upsellLinkText = "mezzanine floor";
-  let upsellHref = "/products/mezzanine-floor";
+  let upsellHref = getProductHref("mezzanine-floor");
   let upsellSuffix = "can add a second storage level above your shelving.";
 
   if (isMezzanine) {
     upsellTitle = "Need Pallet Storage Too?";
     upsellLinkText = "heavy duty pallet racking";
-    upsellHref = "/products/heavy-duty-pallet-racking";
+    upsellHref = getProductHref("heavy-duty-pallet-racking");
     upsellSuffix = "connects directly to your mezzanine platform.";
   } else if (isPallet) {
     upsellTitle = "Need More Storage Levels?";
     upsellLinkText = "mezzanine floor";
-    upsellHref = "/products/mezzanine-floor";
+    upsellHref = getProductHref("mezzanine-floor");
     upsellSuffix = "turns empty warehouse height into extra picking levels.";
   } else if (product.related.length > 0) {
     const rec = product.related[0];
-    upsellTitle = `Need More Storage Space?`;
+    upsellTitle = "Need More Storage Space?";
     upsellLinkText = rec.name.toLowerCase();
-    upsellHref = `/products/${rec.slug}`;
-    upsellSuffix = `can work alongside this system to improve your full floor layout.`;
+    upsellHref = rec.href;
+    upsellSuffix = "can work alongside this system to improve your full floor layout.";
   }
 
   return (
@@ -207,7 +211,7 @@ export function ProductHero({ product }: { product: ProductDetail }) {
         {/* Right Column: Product Information & Action Panel */}
         <div className="flex flex-col justify-center">
           <Breadcrumb items={[{ label: "Products", href: "/products" }, { label: product.name }]} />
-          
+
           {product.status !== "PUBLISHED" ? (
             <span className="mt-4 w-fit bg-amber-300 px-3 py-1 text-xs font-bold text-black rounded">Draft preview</span>
           ) : null}
@@ -344,8 +348,9 @@ export function FeaturesSection({
                   src={optimizeImage(photo.imageUrl, 600)}
                   alt={photo.altText || photo.label}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(min-width: 1024px) 16vw, 33vw"
+                  className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
+                   sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 16vw"
+
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                 <span className="absolute bottom-2.5 left-2.5 right-2.5 text-xs font-semibold text-white drop-shadow">
@@ -361,13 +366,14 @@ export function FeaturesSection({
 }
 
 export function ProductShowcaseSection({ product }: { product: ProductDetail }) {
-  if (!product.images.length) return null;
+  const showcaseImages = product.images.filter((image) => image.imageUrl.trim().length > 0);
+  if (!showcaseImages.length) return null;
   return (
     <section className="py-24">
       <div className="container-shell">
         <SectionHeading eyebrow="Product photos" title="See the System Up Close" description="See the system installed, loaded and in detail." align="center" />
         <div className="mt-12">
-          <ProductShowcase images={product.images} />
+          <ProductShowcase images={showcaseImages} />
         </div>
       </div>
     </section>
@@ -388,7 +394,7 @@ export function OverviewSection({ product }: { product: ProductDetail }) {
           <p className="mt-6 flex items-start gap-3 text-sm leading-7 text-zinc-500"><Ruler size={17} className="mt-0.5 shrink-0 text-red-600" />Final sizes, loads and engineering are confirmed against your layout and project proposal.</p>
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-200">
-          {overviewImage ? <SmartImage src={optimizeImage(overviewImage, 1300)} alt={product.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" /> : <div className="absolute inset-0 grid place-items-center bg-zinc-900 text-zinc-600"><Layers size={50} /></div>}
+          {overviewImage ? <SmartImage src={optimizeImage(overviewImage, 1300)} alt={product.name} fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" /> : <div className="absolute inset-0 grid place-items-center bg-zinc-900 text-zinc-600"><Layers size={50} /></div>}
         </div>
       </div>
     </section>
@@ -413,7 +419,7 @@ export function ConfigurationsSection({ items, fallbackProducts }: { items: Prod
                   </div>
                   <h3 className="card-title mt-7">{item.title}</h3>
                   {item.description && <p className="mt-3 text-sm leading-6 text-zinc-500">{item.description}</p>}
-                  {item.image && <div className="relative mt-auto h-24 overflow-hidden rounded-lg pt-6"><SmartImage src={optimizeImage(item.image, 600)} alt={item.title} fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" /></div>}
+                  {item.image && <div className="relative mt-auto h-24 overflow-hidden rounded-lg pt-6"><SmartImage src={optimizeImage(item.image, 600)} alt={item.title} fill className="object-cover object-center" sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 25vw" /></div>}
                 </article>
               );
             })}
@@ -457,8 +463,9 @@ export function TechnicalSpecificationsSection({ product }: { product: ProductDe
                 src={optimizeImage(productImage, 900)}
                 alt={product.name}
                 fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 42vw"
+                className="object-cover object-center"
+                 sizes="(max-width: 1023px) 100vw, 42vw"
+
               />
             ) : (
               <div className="absolute inset-0 grid place-items-center bg-zinc-100 text-zinc-300">
@@ -539,7 +546,7 @@ function appImageFor(title: string, description: string): string {
 }
 
 export function ApplicationsSection({ items, product }: { items: ProductDetail["applications"]; product?: ProductDetail }) {
-  if (!items.length) return null;
+  if (!items.length && !product?.industries.length) return null;
   return (
     <section className="bg-[#f4f4f1] border-y border-zinc-200 py-16 lg:py-20">
       <div className="container-shell">
@@ -552,33 +559,45 @@ export function ApplicationsSection({ items, product }: { items: ProductDetail["
             Common places where this storage system is installed and used every day.
           </p>
         </div>
-        <div className="mt-10 sm:mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((app) => {
-            const title = app.title || app.application;
-            const desc = app.description || "";
-            const imgSrc = app.image ? optimizeImage(app.image, 600) : appImageFor(title, desc);
-            return (
-              <article key={app.id} className="group overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-zinc-300">
-                <div className="relative h-44 overflow-hidden bg-zinc-200">
-                  <SmartImage
-                    src={imgSrc}
-                    alt={app.altText || title}
-                    fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/75 via-zinc-950/20 to-transparent" />
-                  <span className="absolute bottom-3 left-4 text-sm font-bold text-white drop-shadow-sm">{title}</span>
-                </div>
-                {desc && (
-                  <div className="p-5">
-                    <p className="text-sm leading-6 text-zinc-600">{desc}</p>
+        {items.length ? (
+          <div className="mt-10 sm:mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((app) => {
+              const title = app.title || app.application;
+              const desc = app.description || "";
+              const imgSrc = app.image ? optimizeImage(app.image, 600) : appImageFor(title, desc);
+              return (
+                <article key={app.id} className="group overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-zinc-300">
+                  <div className="relative h-44 overflow-hidden bg-zinc-200">
+                    <SmartImage
+                      src={imgSrc}
+                      alt={app.altText || title}
+                      fill
+                      className="object-cover object-center transition duration-500 group-hover:scale-105"
+                      sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/75 via-zinc-950/20 to-transparent" />
+                    <span className="absolute bottom-3 left-4 text-sm font-bold text-white drop-shadow-sm">{title}</span>
                   </div>
-                )}
-              </article>
-            );
-          })}
-        </div>
+                  {desc && (
+                    <div className="p-5">
+                      <p className="text-sm leading-6 text-zinc-600">{desc}</p>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        ) : null}
+        {product?.industries.length ? (
+          <div className="mt-12 border-t border-zinc-300 pt-8">
+            <h3 className="text-lg font-bold text-zinc-900">Industries Served</h3>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {product.industries.map((industry) => (
+                <span key={industry} className="border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-700">{industry}</span>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );
@@ -633,7 +652,8 @@ export function RealWorldSection({ projects, images }: { projects: ProductDetail
             {projects.map((project) => (
               <Link key={project.id} href={`/projects/${project.slug}`} className="group overflow-hidden rounded-2xl border border-zinc-200 bg-white">
                 <div className="relative aspect-[16/10] overflow-hidden bg-zinc-200">
-                  <SmartImage src={optimizeImage(project.coverImage || "", 900)} alt={project.title} fill className="object-cover transition duration-700 group-hover:scale-105" sizes="(max-width: 1024px) 50vw, 33vw" />
+                   <SmartImage src={optimizeImage(project.coverImage || "", 900)} alt={project.title} fill className="object-cover object-center transition duration-700 group-hover:scale-105" sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw" />
+
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/45 via-transparent to-transparent" />
                   <span className="absolute left-4 top-4 bg-red-600 px-2.5 py-1 text-[.6rem] font-bold uppercase tracking-[.14em] text-white">{project.industry || "Project"}</span>
                 </div>
@@ -646,10 +666,10 @@ export function RealWorldSection({ projects, images }: { projects: ProductDetail
             ))}
           </div>
         ) : (
-          <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 md:auto-rows-[200px]">
+          <div className="mt-12 grid auto-rows-[160px] grid-cols-2 gap-3 md:auto-rows-[200px] md:grid-cols-4">
             {images.slice(0, 8).map((image) => (
               <div key={image.id} className={`relative overflow-hidden rounded-lg bg-zinc-200 ${image === images[0] ? "col-span-2 row-span-2" : ""}`}>
-                <SmartImage src={optimizeImage(image.imageUrl, 700)} alt={image.altText} fill className="object-cover" sizes="25vw" />
+                <SmartImage src={optimizeImage(image.imageUrl, 700)} alt={image.altText} fill className="object-cover object-center" sizes={image === images[0] ? "(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 50vw" : "(max-width: 767px) 50vw, 25vw"} />
               </div>
             ))}
           </div>
@@ -705,7 +725,7 @@ export function FinalCtaSection({ product }: { product: ProductDetail }) {
   );
 }
 
-export function FinalEnquirySection({ product, allProducts, allServices, settings }: { product: ProductDetail; allProducts: ProductDetail["related"]; allServices: Awaited<ReturnType<typeof getServices>>; settings: NonNullable<Awaited<ReturnType<typeof getSiteSettings>>> }) {
+export function FinalEnquirySection({ product, allProducts, allServices }: { product: ProductDetail; allProducts: ProductOption[]; allServices: Awaited<ReturnType<typeof getServices>> }) {
   return (
     <section className="surface-grid bg-[#f4f4f1] py-24">
       <div className="container-shell grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
@@ -770,5 +790,44 @@ export function CompactContactSection({ product, allProducts, allServices }: { p
         </div>
       </div>
     </section>
+  );
+}
+
+export function ProductSectionsLayout({
+  product,
+  logos,
+  allProducts,
+  allServices,
+  configurationProducts,
+  entityType = "product",
+}: {
+  product: ProductDetail;
+  logos: ClientLogo[];
+  allProducts: ProductOption[];
+  allServices: Awaited<ReturnType<typeof getServices>>;
+  configurationProducts?: ProductCardProduct[];
+  entityType?: string;
+}) {
+  const configProducts = product.configurations.length ? [] : (configurationProducts ?? product.related).slice(0, 6);
+  return (
+    <>
+      <EventTracker eventName="product_view" entityType={entityType} entityId={product.id} />
+      <MobileProductActions slug={product.slug} />
+      <ProductHero product={product} />
+      {product.showSpecifications && product.specifications.length > 0 ? <Reveal><TechnicalSpecificationsSection product={product} /></Reveal> : null}
+      {product.showFeatures ? <Reveal><FeaturesSection items={product.features} product={product} /></Reveal> : null}
+      {product.showGallery && !product.showFeatures ? <Reveal><ProductShowcaseSection product={product} /></Reveal> : null}
+      <Reveal><OverviewSection product={product} /></Reveal>
+      {product.showApplications ? <Reveal><ApplicationsSection items={product.applications} product={product} /></Reveal> : null}
+      <Reveal><ClientRosterSection logos={logos} /></Reveal>
+      {product.showConfigurations ? <Reveal><ConfigurationsSection items={product.configurations} fallbackProducts={configProducts} /></Reveal> : null}
+      {product.showBenefits ? <Reveal><BenefitsSection items={product.benefits} /></Reveal> : null}
+      <Reveal><WorkflowSection /></Reveal>
+      {product.projects.length > 0 ? <Reveal><RealWorldSection projects={product.projects} images={product.images} /></Reveal> : null}
+      {product.showFaq ? <Reveal><FaqSection items={product.faqs} /></Reveal> : null}
+      {product.showRelated ? <Reveal><RelatedSection items={product.related} /></Reveal> : null}
+      <Reveal><FinalCtaSection product={product} /></Reveal>
+      <FinalEnquirySection product={product} allProducts={allProducts} allServices={allServices} />
+    </>
   );
 }

@@ -1,7 +1,48 @@
 import type { Metadata } from "next";
 import { CheckCircle2 } from "lucide-react";
-import { getProducts,getServices } from "@/lib/data";
+import { getProducts, getServices } from "@/lib/data";
+import { catalogueProducts, getCatalogueProductBySlug } from "@/lib/catalogue";
 import { InquiryForm } from "@/components/site/inquiry-form";
-import { Reveal,Stagger,StaggerItem } from "@/components/site/reveal";
-export const metadata:Metadata={title:"Request a Quote",description:"Share your storage, racking, shelving or mezzanine requirement with Rack & Stack."};
-export default async function QuotePage({searchParams}:{searchParams:Promise<{product?:string;service?:string}>}){const [query,products,services]=await Promise.all([searchParams,getProducts(),getServices()]);const defaultProduct=products.find(p=>p.slug===query.product)?.id;const defaultService=services.find(s=>s.slug===query.service)?.id;return <main className="bg-[#f4f4f1] py-16 lg:py-24"><div className="container-shell grid gap-12 lg:grid-cols-[.65fr_1.35fr]"><div><p className="eyebrow">Request a quote</p><h1 className="section-heading mt-5">Let&apos;s Plan Your Requirement</h1><p className="section-description mt-5 text-zinc-600">Tell us what you know today. We&apos;ll help fill in any missing sizes, load details or site information before we prepare a quote.</p><Stagger className="mt-9 space-y-4">{["Your details are stored securely","Your selected product or service is added automatically","You'll get a confirmation once email is set up","No obligation — sending the form is free"].map(x=><StaggerItem key={x}><p className="flex gap-3 text-sm"><CheckCircle2 size={18} className="shrink-0 text-red-600"/>{x}</p></StaggerItem>)}</Stagger></div><Reveal><div className="bg-white p-6 shadow-[0_24px_70px_rgba(0,0,0,.08)] sm:p-10"><h2 className="heading-md">Requirement Details</h2><p className="mt-2 text-sm text-zinc-500">Fields marked * are required.</p><div className="mt-8"><InquiryForm products={products} services={services} defaultProduct={defaultProduct} defaultService={defaultService}/></div></div></Reveal></div></main>}
+import { Reveal, Stagger, StaggerItem } from "@/components/site/reveal";
+
+export const metadata: Metadata = {
+  title: "Request a Quote",
+  description: "Share your storage, racking, shelving or mezzanine requirement with Rack & Stack.",
+};
+
+export default async function QuotePage({ searchParams }: { searchParams: Promise<{ product?: string; service?: string }> }) {
+  const [query, products, services] = await Promise.all([searchParams, getProducts(), getServices()]);
+  const catalogueProduct = query.product ? getCatalogueProductBySlug(query.product) : undefined;
+  const legacyProduct = query.product ? products.find((product) => product.slug === query.product) : undefined;
+  const defaultProduct = catalogueProduct?.id ?? legacyProduct?.id;
+  const defaultService = query.service ? services.find((service) => service.slug === query.service)?.id : undefined;
+  const productOptions = [...catalogueProducts, ...products].filter((product, index, allProducts) => allProducts.findIndex((candidate) => candidate.slug === product.slug) === index);
+
+  return (
+    <main className="bg-[#f4f4f1] py-16 lg:py-24">
+      <div className="container-shell grid gap-12 lg:grid-cols-[.65fr_1.35fr]">
+        <div>
+          <p className="eyebrow">Request a quote</p>
+          <h1 className="section-heading mt-5">Let&apos;s Plan Your Requirement</h1>
+          <p className="section-description mt-5 text-zinc-600">Tell us what you know today. We&apos;ll help fill in any missing sizes, load details or site information before we prepare a quote.</p>
+          <Stagger className="mt-9 space-y-4">
+            {["Your details are stored securely", "Your selected product or service is added automatically", "You'll get a confirmation once email is set up", "No obligation — sending the form is free"].map((item) => (
+              <StaggerItem key={item}>
+                <p className="flex gap-3 text-sm"><CheckCircle2 size={18} className="shrink-0 text-red-600" />{item}</p>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </div>
+        <Reveal>
+          <div className="bg-white p-6 shadow-[0_24px_70px_rgba(0,0,0,.08)] sm:p-10">
+            <h2 className="heading-md">Requirement Details</h2>
+            <p className="mt-2 text-sm text-zinc-500">Fields marked * are required.</p>
+            <div className="mt-8">
+              <InquiryForm products={productOptions} services={services} defaultProduct={defaultProduct} defaultService={defaultService} />
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </main>
+  );
+}

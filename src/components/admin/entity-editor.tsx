@@ -294,7 +294,8 @@ function ImageUpload({
       <div className="flex flex-wrap items-center gap-3">
         {value ? (
           <span className="relative block h-14 w-14 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
-            <SmartImage src={value} alt="Selected image preview" fill className="object-cover" sizes="56px" />
+             <SmartImage src={value} alt="Selected image preview" fill className="object-contain p-1" sizes="56px" />
+
           </span>
         ) : null}
         <label

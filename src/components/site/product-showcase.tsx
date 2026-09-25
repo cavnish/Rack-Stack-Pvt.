@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { SmartImage } from "./smart-image";
 import { optimizeImage } from "@/lib/image-utils";
 
-type ShowcaseImage = { id: number; imageUrl: string; altText: string; caption: string | null };
+type ShowcaseImage = { id: number | string; imageUrl: string; altText: string; caption: string | null };
 
 export function ProductShowcase({ images }: { images: ShowcaseImage[] }) {
   const [active, setActive] = useState<number | null>(null);
@@ -36,7 +36,7 @@ export function ProductShowcase({ images }: { images: ShowcaseImage[] }) {
               count === 1 ? "col-span-2 aspect-[16/9] md:col-span-4 md:aspect-auto md:row-span-2" : i === 0 ? "col-span-2 aspect-[16/9] md:col-span-2 md:aspect-auto md:row-span-2" : "aspect-[4/3] md:aspect-auto"
             }`}
           >
-            <SmartImage src={optimizeImage(image.imageUrl, 900)} alt={image.altText} fill className="object-cover transition duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" />
+            <SmartImage src={optimizeImage(image.imageUrl, 900)} alt={image.altText} fill className="object-cover object-center transition duration-700 group-hover:scale-[1.02]" sizes={count === 1 ? "(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 100vw" : i === 0 ? "(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 50vw" : "(max-width: 767px) 50vw, 25vw"} />
             <div className="absolute inset-0 bg-zinc-950/0 transition-colors duration-500 group-hover:bg-zinc-950/30" />
             <span className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-lg bg-white/90 text-zinc-900 opacity-0 transition-opacity duration-500 group-hover:opacity-100"><Maximize2 size={15} /></span>
             {image.caption ? <span className="absolute inset-x-0 bottom-0 bg-black/60 p-3 text-xs text-white">{image.caption}</span> : null}
@@ -53,7 +53,7 @@ export function ProductShowcase({ images }: { images: ShowcaseImage[] }) {
             </>
           ) : null}
           <div className="relative h-[86vh] w-full max-w-7xl" onClick={(event) => event.stopPropagation()}>
-            <SmartImage src={optimizeImage(current.imageUrl, 2000)} alt={current.altText} fill className="object-contain" sizes="100vw" />
+            <SmartImage src={optimizeImage(current.imageUrl, 2000)} alt={current.altText} fill className="object-cover object-center" sizes="100vw" />
           </div>
           <span className="absolute bottom-4 text-xs font-bold uppercase tracking-[.2em] text-white/60">{active + 1} / {count}</span>
         </div>

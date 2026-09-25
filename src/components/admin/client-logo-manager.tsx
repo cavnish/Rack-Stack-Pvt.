@@ -259,9 +259,11 @@ export function ClientLogoManager({ initialItems, role }: { initialItems: LogoIt
           <ul className="divide-y divide-zinc-100">
             {items.map((item, index) => (
               <li key={item.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-                <div className="relative h-16 w-full shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 sm:w-40">
+                 <div className="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 sm:w-32">
+
                   {item.imageUrl ? (
-                    <SmartImage src={item.imageUrl} alt={item.altText} fill className="object-contain p-2" sizes="160px" />
+                     <SmartImage src={item.imageUrl} alt={item.altText} fill className="object-contain p-2" sizes="(max-width: 639px) 100vw, 128px" />
+
                   ) : (
                     <span className="grid h-full w-full place-items-center text-[.6rem] font-bold uppercase tracking-widest text-zinc-500">No image</span>
                   )}

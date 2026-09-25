@@ -6,6 +6,23 @@ import { SiteLoader } from "@/components/site/site-loader";
 import { CookieConsent } from "@/components/site/cookie-consent";
 import { FloatingActions } from "@/components/site/floating-actions";
 import { OrganizationSchema } from "@/components/site/organization-schema";
-import { getProducts,getSiteSettings } from "@/lib/data";
-export const dynamic="force-dynamic";
-export default async function SiteLayout({children}:{children:ReactNode}){const [settings,products]=await Promise.all([getSiteSettings(),getProducts()]);if(!settings)notFound();return <><SiteLoader/><OrganizationSchema settings={settings}/><Header products={products} phone={settings.primaryPhone} whatsapp={settings.whatsapp}/>{children}<Footer settings={settings}/><CookieConsent/><FloatingActions phone={settings.primaryPhone} whatsapp={settings.whatsapp}/></>}
+import { getSiteSettings } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
+
+export default async function SiteLayout({ children }: { children: ReactNode }) {
+  const settings = await getSiteSettings();
+  if (!settings) notFound();
+
+  return (
+    <>
+      <SiteLoader />
+      <OrganizationSchema settings={settings} />
+      <Header phone={settings.primaryPhone} whatsapp={settings.whatsapp} />
+      {children}
+      <Footer settings={settings} />
+      <CookieConsent />
+      <FloatingActions phone={settings.primaryPhone} whatsapp={settings.whatsapp} />
+    </>
+  );
+}

@@ -1,21 +1,74 @@
 import Link from "next/link";
 import { ArrowDown, ArrowRight, CheckCircle2, Factory, MoveUpRight } from "lucide-react";
 import { SmartImage } from "@/components/site/smart-image";
+import { HomeProductCard, type HomeProductCardProduct } from "@/components/site/home-product-card";
+import { getCatalogueProductBySlug } from "@/lib/catalogue";
+import { getProductHref } from "@/lib/product-page";
+import { getProductFolderImages } from "@/lib/product-image-assets";
 import { HomeHeroSlider } from "@/components/site/home-hero-slider";
-import { ClientLogoMarquee } from "@/components/site/client-logo-marquee";
-import { ProductCard, SectionHeading } from "@/components/site/ui";
+import { HomeClientLogoSlider } from "@/components/site/home-client-logo-slider";
+import { SectionHeading } from "@/components/site/ui";
 import { Reveal,Stagger,StaggerItem } from "@/components/site/reveal";
-import { getBlogPosts, getClientLogos, getGallery, getHomepageSections, getHomeSliders, getIndustries, getProducts, getServices, getTestimonials } from "@/lib/data";
+import { getBlogPosts, getGallery, getHomepageSections, getHomeSliders, getIndustries, getProducts, getServices, getTestimonials } from "@/lib/data";
+import { getPublicClientLogos } from "@/lib/client-assets";
 export const dynamic="force-dynamic";
 type Dict=Record<string,unknown>;
 const dict=(value:unknown):Dict=>value&&typeof value==="object"?value as Dict:{};
 const list=<T,>(value:unknown):T[]=>Array.isArray(value)?value as T[]:[];
-export default async function HomePage(){const [sections,products,services,industries,clientLogos,testimonials,gallery,posts,slides]=await Promise.all([getHomepageSections(),getProducts(true),getServices(true),getIndustries(),getClientLogos(),getTestimonials(),getGallery(),getBlogPosts(),getHomeSliders()]);const hero=sections.hero;const hc=dict(hero?.content);const trust=sections.trust;const tc=dict(trust?.content);const about=sections.about;const ac=dict(about?.content);const why=sections.why;const wc=dict(why?.content);const manufacturing=sections.manufacturing;const mc=dict(manufacturing?.content);const cta=sections.cta;return <main>
-{slides.length>0?<HomeHeroSlider slides={slides} />:<section className="relative isolate min-h-[calc(100svh-72px)] overflow-hidden bg-zinc-950 text-white"><div className="absolute inset-0 -z-20"><SmartImage src={String(hc.image||"")} alt="Modern warehouse pallet racking and storage aisle" fill priority className="object-cover" sizes="100vw"/></div><div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(10,11,12,.94)_0%,rgba(10,11,12,.73)_50%,rgba(10,11,12,.16)_100%)]"/><div className="container-shell flex min-h-[calc(100svh-72px)] flex-col justify-center py-20"><div className="max-w-5xl"><p className="eyebrow text-red-400">{String(hc.eyebrow||"")}</p><h1 className="hero-heading mt-7 text-balance">SMART STORAGE.<br/><span className="text-red-500">{String(hc.highlight||"BUILT TO LAST.")}</span></h1><p className="hero-description mt-5 text-zinc-300">{hero?.subtitle}</p><div className="mt-9 flex flex-wrap gap-3"><Link href="/products" className="btn-primary">{String(hc.primaryCta||"View Our Products")} <ArrowRight size={17}/></Link><Link href="/request-a-quote" className="btn-light">{String(hc.secondaryCta||"Request a Quote")}</Link><Link href="/contact" className="inline-flex items-center px-3 text-xs font-bold text-zinc-300 hover:text-white">{String(hc.tertiaryCta||"Talk to Us")} <MoveUpRight className="ml-2" size={15}/></Link></div></div><a href="#capabilities" aria-label="Scroll to capabilities" className="absolute bottom-7 right-6 hidden items-center gap-3 text-[.62rem] font-bold uppercase tracking-[.16em] text-zinc-400 md:flex">Discover <span className="grid h-10 w-10 place-items-center rounded-full border border-white/25"><ArrowDown size={15}/></span></a></div></section>}
-{clientLogos.some((logo)=>logo.imageUrl)?<section className="border-b border-zinc-200 bg-white py-9"><div className="container-shell"><div className="flex items-center justify-between gap-4"><p className="text-[.68rem] font-bold uppercase tracking-[.18em] text-zinc-500">Trusted by Leading Businesses</p><Link className="text-[.68rem] font-bold text-zinc-500 transition-colors hover:text-red-700" href="/clients">See Our Clients →</Link></div><div className="mt-6"><ClientLogoMarquee logos={clientLogos}/></div></div></section>:null}
+const homeProductDefinitions = [
+  { name: "Heavy Duty Long Span Racks", slug: "heavy-duty-long-span-racks", category: "Industrial Racking" },
+  { name: "Heavy Duty Pallet Racking", slug: "heavy-duty-pallet-racking", category: "Industrial Racking" },
+  { name: "Lockers", slug: "lockers", category: "Workplace Storage" },
+  { name: "Medium Duty Shelving Racks", slug: "medium-duty-shelving-racks", category: "Industrial Racking" },
+  { name: "Mezzanine Floor", slug: "mezzanine-floor", category: "Space Optimization" },
+  { name: "Mobile Compactor Storage System", slug: "mobile-compactor-storage-system", category: "Space Optimization" },
+  { name: "Mobile Shelving Racks", slug: "mobile-shelving-racks", category: "Space Optimization" },
+  { name: "Slotted Angle Racks", slug: "slotted-angle-racks", category: "Workplace Storage" },
+] as const;
+export default async function HomePage() {
+  const [sections, services, industries, clientLogos, testimonials, gallery, posts, slides, databaseProducts] = await Promise.all([
+    getHomepageSections(),
+    getServices(true),
+    getIndustries(),
+    getPublicClientLogos(),
+    getTestimonials(),
+    getGallery(),
+    getBlogPosts(),
+    getHomeSliders(),
+    getProducts(),
+  ]);
+  const homeProducts: HomeProductCardProduct[] = await Promise.all(
+    homeProductDefinitions.map(async (definition) => {
+      const databaseProduct = databaseProducts.find((item) => item.slug === definition.slug);
+      const catalogueProduct = getCatalogueProductBySlug(definition.slug);
+      const source = databaseProduct ?? catalogueProduct;
+      const folderImages = await getProductFolderImages(definition.slug, definition.name);
+      const fallbackImage = databaseProduct?.thumbnail || databaseProduct?.heroImage || catalogueProduct?.images.find((image) => image.url)?.url || "";
+      return {
+        name: definition.name,
+        slug: definition.slug,
+        href: getProductHref(definition.slug),
+        category: definition.category,
+        shortDescription: source?.shortDescription,
+        image: folderImages[0]?.imageUrl ?? fallbackImage,
+      };
+    }),
+  );
+  const hero=sections.hero;
+  const hc=dict(hero?.content);
+  const about=sections.about;
+  const ac=dict(about?.content);
+  const why=sections.why;
+  const wc=dict(why?.content);
+  const manufacturing=sections.manufacturing;
+  const mc=dict(manufacturing?.content);
+  const cta=sections.cta;
+  return <main>
+{slides.length>0?<HomeHeroSlider slides={slides} />:<section className="relative isolate min-h-[calc(100svh-72px)] overflow-hidden bg-zinc-950 text-white"><div className="absolute inset-0 -z-20"><SmartImage src={String(hc.image||"")} alt="Modern warehouse pallet racking and storage aisle" fill priority className="object-cover" sizes="100vw"/></div><div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(10,11,12,.94)_0%,rgba(10,11,12,.73)_50%,rgba(10,11,12,.16)_100%)]"/><div className="container-shell flex min-h-[calc(100svh-72px)] flex-col justify-center py-20"><div className="max-w-5xl"><p className="eyebrow text-red-400">{String(hc.eyebrow||"")}</p><h1 className="hero-heading mt-7 text-balance">SMART STORAGE.<br/><span className="text-red-500">{String(hc.highlight||"BUILT TO LAST.")}</span></h1><p className="hero-description mt-5 text-zinc-300">{hero?.subtitle}</p><div className="mt-9 flex flex-wrap gap-3"><Link href="/products" className="btn-primary">{String(hc.primaryCta||"View Our Products")} <ArrowRight size={17}/></Link><Link href="/request-a-quote" className="btn-light">{String(hc.secondaryCta||"Request a Quote")}</Link><Link href="/contact" className="inline-flex items-center px-3 text-xs font-bold text-zinc-300 hover:text-white">{String(hc.tertiaryCta||"Talk to Us")} <MoveUpRight className="ml-2" size={15}/></Link></div></div><a href="#home-about" aria-label="Scroll to about" className="absolute bottom-7 right-6 hidden items-center gap-3 text-[.62rem] font-bold uppercase tracking-[.16em] text-zinc-400 md:flex">Discover <span className="grid h-10 w-10 place-items-center rounded-full border border-white/25"><ArrowDown size={15}/></span></a></div></section>}
+{clientLogos.some((logo)=>logo.imageUrl)?<section aria-labelledby="trusted-clients-heading" className="border-b border-zinc-200 bg-white py-6"><div className="container-shell"><div className="flex items-center justify-between gap-4"><h2 id="trusted-clients-heading" className="text-lg font-bold tracking-tight text-zinc-900">Trusted Clients</h2><Link className="text-[.68rem] font-bold text-zinc-500 transition-colors hover:text-red-700" href="/clients">See Our Clients →</Link></div><div className="mt-3"><HomeClientLogoSlider logos={clientLogos}/></div></div></section>:null}
 {about&&<section id="home-about" className="overflow-hidden py-24"><div className="container-shell grid items-center gap-14 lg:grid-cols-2"><Reveal><div className="relative min-h-[520px]"><SmartImage src={String(ac.image||"")} alt="Organized industrial storage aisle" fill className="object-cover" sizes="(max-width:1024px) 100vw,50vw"/><div className="absolute -bottom-1 -right-1 w-52 bg-red-600 p-6 text-white"><Factory size={25}/><p className="mt-4 text-sm font-semibold leading-6">We plan your space, system and workflow together.</p></div></div></Reveal><Reveal delay={.08}><h2 className="mt-5 text-balance section-heading text-zinc-900">{about.title}</h2>{String(about.subtitle||"").split(/\n\s*\n/).filter(Boolean).slice(0,3).map((paragraph,index)=><p key={index} className="mt-5 text-zinc-600 first:mt-5 section-description">{paragraph}</p>)}<div className="mt-8 grid gap-4 border-y border-zinc-200 py-6 sm:grid-cols-2"><p className="flex gap-3 text-sm"><CheckCircle2 className="shrink-0 text-red-600" size={19}/>Plans made for your needs</p><p className="flex gap-3 text-sm"><CheckCircle2 className="shrink-0 text-red-600" size={19}/>Smooth, well-managed setup</p></div><Link href="/products" className="btn-secondary mt-8">{String(ac.cta||"Explore Our Solutions")} <ArrowRight size={16}/></Link></Reveal></div></section>}
-{trust&&<section id="capabilities" className="border-b border-zinc-200 bg-white"><div className="container-shell grid lg:grid-cols-[1.4fr_3fr]"><div className="border-b border-zinc-200 py-8 lg:border-b-0 lg:border-r lg:pr-10"><p className="text-sm font-semibold">{trust.title}</p><p className="mt-2 text-xs leading-5 text-zinc-500">{trust.subtitle}</p></div><Stagger className="grid grid-cols-2 lg:grid-cols-4">{list<{value:string;label:string}>(tc.metrics).map((metric,i)=><StaggerItem key={metric.label} className="h-full"><div className={`py-8 pl-5 lg:pl-8 ${i%2?"border-l":""} border-zinc-200`}><strong className="block text-xl tracking-tight">{metric.value}</strong><span className="mt-1 block text-[.62rem] font-bold uppercase tracking-[.14em] text-zinc-400">{metric.label}</span></div></StaggerItem>)}</Stagger></div></section>}
-<section className="surface-grid bg-[#f4f4f1] py-24"><div className="container-shell"><div className="flex flex-col justify-between gap-7 md:flex-row md:items-end"><SectionHeading title="What We Offer" description="We offer great service at a very competitive price and never compromise on quality."/><Link href="/products" className="btn-secondary shrink-0">View All Systems <ArrowRight size={16}/></Link></div><div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{products.slice(0,6).map((product,i)=><Reveal delay={(i%3)*.05} key={product.id}><ProductCard product={product} index={i}/></Reveal>)}</div></div></section>
+
+<section className="surface-grid bg-[#f4f4f1] py-24"><div className="container-shell"><div className="flex flex-col justify-between gap-7 md:flex-row md:items-end"><SectionHeading title="What We Offer" description="We offer great service at a very competitive price and never compromise on quality."/><Link href="/products" className="btn-secondary shrink-0">View All Systems <ArrowRight size={16}/></Link></div><div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">{homeProducts.map((product)=> <HomeProductCard key={product.slug} product={product} />)}</div></div></section>
 {why&&<section className="bg-zinc-950 py-24 text-white"><div className="container-shell"><SectionHeading title={why.title||""} description={why.subtitle} light compact/><Stagger className="mt-14 grid gap-px bg-white/10 md:grid-cols-2 lg:grid-cols-4">{list<{title:string;description:string}>(wc.cards).map((card,i)=><StaggerItem key={card.title} className="h-full"><div className="h-full bg-zinc-950 p-7 hover:bg-zinc-900"><span className="text-xs font-bold text-red-500">0{i+1}</span><h3 className="mt-10 text-xl font-semibold">{card.title}</h3><p className="mt-3 text-sm leading-6 text-zinc-400">{card.description}</p></div></StaggerItem>)}</Stagger></div></section>}
 <section className="py-24"><div className="container-shell grid gap-14 lg:grid-cols-[.85fr_1.15fr]"><div className="lg:sticky lg:top-32 lg:self-start"><SectionHeading compact title="Good Storage Starts With a Plan" description="We help you plan, survey and coordinate everything before you buy."/><Link href="/services" className="btn-primary mt-8">Explore Services <ArrowRight size={16}/></Link></div><Stagger>{services.map((service,i)=><StaggerItem key={service.id}><Link href={`/services/${service.slug}`} className="group flex items-start gap-5 border-t border-zinc-300 py-7 transition-colors hover:bg-zinc-950 hover:px-6 hover:text-white"><span className="mt-1 text-xs font-bold text-red-600">{String(i+1).padStart(2,"0")}</span><div className="grow"><h3 className="text-xl font-semibold tracking-tight">{service.name}</h3><p className="mt-2 max-w-lg text-sm leading-6 text-zinc-600 group-hover:text-zinc-400">{service.shortDescription}</p></div><ArrowRight className="mt-1 shrink-0 transition-transform group-hover:translate-x-1" size={19}/></Link></StaggerItem>)}</Stagger></div></section>
 <section className="overflow-hidden bg-[#ececea] py-24"><div className="container-shell"><SectionHeading compact title="Storage for Every Industry" description="We plan around what you store, how you access it and how your team moves it."/><div className="mt-12 flex snap-x gap-4 overflow-x-auto pb-5 no-scrollbar">{industries.map((industry,i)=><Link href={`/industries/${industry.slug}`} key={industry.id} className="group relative h-[390px] min-w-[82vw] snap-start overflow-hidden bg-zinc-900 text-white sm:min-w-[360px]"><SmartImage src={industry.heroImage||""} alt={`${industry.name} storage environment`} fill className="object-cover opacity-55 transition duration-700 group-hover:scale-105" sizes="360px"/><div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"/><div className="absolute inset-x-0 bottom-0 p-6"><span className="text-xs font-bold text-red-400">{String(i+1).padStart(2,"0")}</span><h3 className="card-title mt-3">{industry.name}</h3><p className="mt-2 line-clamp-2 text-sm text-zinc-300">{industry.shortDescription}</p></div></Link>)}</div></div></section>

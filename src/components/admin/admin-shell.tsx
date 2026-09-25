@@ -56,7 +56,7 @@ export function AdminShell({ children, user }: { children: React.ReactNode; user
   const sidebar = (
     <>
       <div className="flex h-[72px] items-center justify-between border-b border-white/10 px-5">
-        <Logo light compact={collapsed} />
+        <Logo light compact={collapsed} iconBackground="bg-zinc-950" />
         <button className="text-zinc-300 hover:text-white lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu">
           <X />
         </button>

@@ -7,6 +7,7 @@ import {
 } from "@/db/schema";
 import { and, asc, desc, eq, gte, ilike, isNull, lte, or, sql } from "drizzle-orm";
 import { logServer } from "@/lib/logger";
+import { catalogueProducts, getCatalogueProductHref, getCatalogueSearchText } from "@/lib/catalogue";
 
 async function safe<T>(run: () => Promise<T>, fallback: T, event: string): Promise<T> {
   try {
@@ -192,6 +193,7 @@ export async function getBlogPost(slug: string, preview = false) {
 export async function searchSite(query: string) {
   return safe(async () => {
     const term = `%${query.trim()}%`;
+    const normalizedQuery = query.trim().toLowerCase();
     if (query.trim().length < 2) return [];
     const [productRows, serviceRows, projectRows, blogRows, pageRows] = await Promise.all([
       db.select({ title: products.name, slug: products.slug, description: products.shortDescription }).from(products).where(and(eq(products.status, "PUBLISHED"), isNull(products.deletedAt), or(ilike(products.name, term), ilike(products.shortDescription, term)))).limit(8),
@@ -200,7 +202,9 @@ export async function searchSite(query: string) {
       db.select({ title: blogPosts.title, slug: blogPosts.slug, description: blogPosts.excerpt }).from(blogPosts).where(and(eq(blogPosts.status, "PUBLISHED"), isNull(blogPosts.deletedAt), or(ilike(blogPosts.title, term), ilike(blogPosts.excerpt, term)))).limit(8),
       db.select({ title: pages.title, slug: pages.slug, description: pages.heroDescription }).from(pages).where(and(eq(pages.status, "PUBLISHED"), isNull(pages.deletedAt), or(ilike(pages.title, term), ilike(pages.content, term)))).limit(8),
     ]);
+    const staticProductRows = catalogueProducts.filter((product) => getCatalogueSearchText(product).includes(normalizedQuery)).slice(0, 8).map((product) => ({ title: product.name, slug: product.slug, description: product.shortDescription, type: "Product", href: getCatalogueProductHref(product) }));
     return [
+      ...staticProductRows,
       ...productRows.map((x) => ({ ...x, type: "Product", href: `/products/${x.slug}` })),
       ...serviceRows.map((x) => ({ ...x, type: "Service", href: `/services/${x.slug}` })),
       ...projectRows.map((x) => ({ ...x, type: "Project", href: `/projects/${x.slug}` })),

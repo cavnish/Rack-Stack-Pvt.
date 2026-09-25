@@ -12,7 +12,7 @@ export default async function AdminLoginPage() {
   return (
     <main className="dark-grid grid min-h-screen lg:grid-cols-2">
       <section className="flex flex-col bg-zinc-950 p-6 text-white sm:p-12">
-        <Logo light />
+        <Logo light iconBackground="bg-zinc-950" />
         <div className="my-auto max-w-xl py-16">
           <p className="eyebrow text-red-400">Secure content management</p>
           <h1 className="heading-lg mt-6">Operate the website from one protected workspace.</h1>

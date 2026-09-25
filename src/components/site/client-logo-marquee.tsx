@@ -1,16 +1,10 @@
 import { SmartImage } from "@/components/site/smart-image";
+import type { PublicClientLogo } from "@/lib/client-assets";
 
-export type ClientLogo = {
-  id: number;
-  name: string;
-  imageUrl: string;
-  altText: string;
-  width: number | null;
-  height: number | null;
-};
+export type ClientLogo = PublicClientLogo;
 
-export function ClientLogoMarquee({ logos }: { logos: ClientLogo[] }) {
-  const items = logos.filter((logo) => logo.imageUrl).slice(0, 5);
+export function ClientLogoMarquee({ logos, showNames = false }: { logos: ClientLogo[]; showNames?: boolean }) {
+  const items = logos.filter((logo) => logo.imageUrl);
   if (items.length === 0) {
     return (
       <p className="text-xs text-zinc-500" role="status">
@@ -20,26 +14,28 @@ export function ClientLogoMarquee({ logos }: { logos: ClientLogo[] }) {
   }
   return (
     <div
-      className="grid grid-cols-2 items-center gap-x-6 gap-y-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+      className={`grid grid-cols-2 gap-3 sm:grid-cols-4 ${showNames ? "lg:grid-cols-5" : "lg:grid-cols-8"}`}
       role="list"
       aria-label="Client logos"
     >
       {items.map((logo) => (
         <div
-          key={logo.id}
+          key={`${logo.id}-${logo.imageUrl}`}
           role="listitem"
           title={logo.name}
-          className="flex items-center justify-center opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0"
+          className={`group flex flex-col items-center justify-center border border-zinc-200 bg-white text-center transition duration-300 hover:-translate-y-1 hover:border-zinc-400 hover:shadow-lg hover:shadow-zinc-950/5 ${showNames ? "p-4" : ""}`}
         >
-          <SmartImage
-            src={logo.imageUrl}
-            alt={logo.altText || `${logo.name} logo`}
-            width={logo.width ?? 480}
-            height={logo.height ?? 192}
-            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 16vw"
-            loading="lazy"
-            className="h-8 w-auto object-contain sm:h-10"
-          />
+          <div className="relative flex aspect-[2/1] w-full items-center justify-center">
+            <SmartImage
+              src={logo.imageUrl}
+              alt={logo.altText || `${logo.name} logo`}
+              fill
+              sizes={showNames ? "(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 20vw" : "(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 18vw"}
+              loading="lazy"
+              className="object-contain p-2 transition duration-300 group-hover:scale-[1.04]"
+            />
+          </div>
+          {showNames ? <p className="mt-3 line-clamp-1 text-[.65rem] font-bold uppercase tracking-[.12em] text-zinc-500">{logo.name}</p> : null}
         </div>
       ))}
     </div>

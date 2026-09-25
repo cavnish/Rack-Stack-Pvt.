@@ -5,10 +5,12 @@ export function Logo({
   href = "/",
   light = false,
   compact = false,
+  iconBackground = "bg-white",
 }: {
   href?: string;
   light?: boolean;
   compact?: boolean;
+  iconBackground?: string;
 }) {
   return (
     <Link
@@ -25,7 +27,7 @@ export function Logo({
         aria-hidden="true"
       >
         {light && (
-          <span className="absolute inset-0 bg-white" />
+          <span className={`absolute inset-0 ${iconBackground}`} />
         )}
 
         <Image

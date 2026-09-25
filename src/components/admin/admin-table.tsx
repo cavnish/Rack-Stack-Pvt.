@@ -284,7 +284,8 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
                       <div className="flex items-center gap-3">
                         {image ? (
                           <span className="relative block h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
-                            <SmartImage src={image} alt="" fill className="object-cover" sizes="40px" />
+                             <SmartImage src={image} alt="" fill className="object-contain p-1" sizes="40px" />
+
                           </span>
                         ) : null}
                         <div className="min-w-0">

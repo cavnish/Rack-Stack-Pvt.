@@ -5,8 +5,8 @@ export const loginSchema = z.object({ email: z.email().transform((v) => v.toLowe
 export const inquirySchema = z.object({
   name: z.string().trim().min(2).max(100), company: z.string().trim().min(2).max(150), email: z.email(), phone,
   whatsapp: z.string().trim().max(30).optional().or(z.literal("")), city: z.string().trim().max(100).optional(), state: z.string().trim().max(100).optional(),
-  productId: z.coerce.number().int().positive().optional().or(z.literal("").transform(() => undefined)), serviceId: z.coerce.number().int().positive().optional().or(z.literal("").transform(() => undefined)),
-  requirement: z.string().trim().min(3).max(200), warehouseSize: z.string().trim().max(100).optional(), loadRequirement: z.string().trim().max(200).optional(),
+  productId: z.coerce.number().int().positive().optional().or(z.literal("").transform(() => undefined)), productSlug: z.string().trim().max(160).optional(), productName: z.string().trim().max(200).optional(), serviceId: z.coerce.number().int().positive().optional().or(z.literal("").transform(() => undefined)),
+  quantity: z.string().trim().max(80).optional(), location: z.string().trim().max(160).optional(), requirement: z.string().trim().min(3).max(200), warehouseSize: z.string().trim().max(100).optional(), loadRequirement: z.string().trim().max(200).optional(),
   message: z.string().trim().max(3000).optional(), sourcePage: z.string().trim().max(300).optional(), website: z.string().max(0).optional(),
 });
 export const contactSchema = z.object({ name: z.string().trim().min(2).max(100), email: z.email(), phone: z.string().trim().max(30).optional(), company: z.string().trim().max(150).optional(), subject: z.string().trim().min(3).max(200), message: z.string().trim().min(10).max(3000), website: z.string().max(0).optional() });

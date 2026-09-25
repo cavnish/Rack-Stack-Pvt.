@@ -6,8 +6,8 @@ import { ChevronLeft, ChevronRight, Download, Maximize2, X } from "lucide-react"
 import { SmartImage } from "./smart-image";
 import { optimizeImage } from "@/lib/image-utils";
 
-type GalleryImage = { id: number; imageUrl: string; altText: string; caption: string | null };
-type Specification = { id: number; specificationName: string; specificationValue: string };
+type GalleryImage = { id: number | string; imageUrl: string; altText: string; caption: string | null };
+type Specification = { id: number | string; specificationName: string; specificationValue: string };
 
 export function ProductGallery({ images, productTitle }: { images: GalleryImage[]; productTitle?: string }) {
   const reduced = useReducedMotion();
@@ -64,8 +64,8 @@ export function ProductGallery({ images, productTitle }: { images: GalleryImage[
                 alt={image.altText || productTitle || "Product image"}
                 fill
                 priority={activeIndex === 0}
-                className="object-cover transition duration-700 group-hover:scale-[1.02]"
-                sizes="(min-width: 1024px) 52vw, 100vw"
+                className="object-cover object-center transition duration-700 group-hover:scale-[1.02]"
+                sizes="(max-width: 1023px) 100vw, 52vw"
               />
             </motion.div>
           </AnimatePresence>
@@ -140,8 +140,8 @@ export function ProductGallery({ images, productTitle }: { images: GalleryImage[
                   alt=""
                   fill
                   loading="lazy"
-                  className="object-cover"
-                  sizes="(min-width: 1024px) 10vw, 16vw"
+                  className="object-cover object-center"
+                  sizes="(max-width: 767px) 16vw, (max-width: 1023px) 20vw, 10vw"
                 />
               </button>
             );
@@ -200,7 +200,7 @@ export function ProductGallery({ images, productTitle }: { images: GalleryImage[
                   src={optimizeImage(image.imageUrl, 2000)}
                   alt={image.altText || productTitle || "Product fullscreen"}
                   fill
-                  className="object-contain"
+                  className="object-cover object-center"
                   sizes="100vw"
                 />
               </motion.div>

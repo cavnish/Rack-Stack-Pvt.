@@ -74,7 +74,7 @@ export function AdminShell({ children, user }: { children: React.ReactNode; user
                 key={href}
                 aria-current={active ? "page" : undefined}
                 className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-[.78rem] font-semibold transition ${
-                  active ? "bg-red-600 text-white shadow-sm" : "text-white hover:bg-white/10 hover:text-white"
+                  active ? "bg-red-600 text-white shadow-sm" : "text-zinc-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <Icon size={17} className="shrink-0" />

@@ -149,8 +149,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
             <video
               className="absolute inset-0 h-full w-full object-cover"
               src={activeSlide.videoUrl}
-               poster={heroImageUrl ?? undefined}
-
+              poster={heroImageUrl ?? undefined}
               autoPlay
               muted
               loop

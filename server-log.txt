@@ -1,5 +1,0 @@
-
-> start
-> node server.mjs
-
-Rack & Stack production server ready on http://0.0.0.0:3000

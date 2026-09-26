@@ -11,8 +11,7 @@ export type PublicClientLogo = {
 };
 
 const imageExtensions = new Set([".avif", ".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"]);
-const canonicalAssetDirectory = join(process.cwd(), "public", "rack-and-stack-clients");
-const legacyAssetDirectory = join(process.cwd(), "public", "rack-and-stack-clients)");
+const assetDirectory = join(process.cwd(), "public", "rack-and-stack-clients");
 const clientNames: Record<string, string> = {
   "165766_dsv_385705.png": "DSV",
   "2017_Eaton_logo.png": "Eaton",
@@ -74,9 +73,7 @@ function isSupportedAsset(entry: { isFile(): boolean; name: string }) {
 }
 
 export async function getPublicClientLogos(): Promise<PublicClientLogo[]> {
-  const canonicalEntries = await readdir(canonicalAssetDirectory, { withFileTypes: true }).catch(() => []);
-  const legacyEntries = await readdir(legacyAssetDirectory, { withFileTypes: true }).catch(() => []);
-  const entries = canonicalEntries.some(isSupportedAsset) ? canonicalEntries : legacyEntries;
+  const entries = await readdir(assetDirectory, { withFileTypes: true }).catch(() => []);
   return entries
     .filter(isSupportedAsset)
     .map((entry) => entry.name)

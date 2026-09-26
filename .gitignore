@@ -7,3 +7,5 @@
 .env.production
 .env*.local
 *.tsbuildinfo
+*.log
+server-log.txt

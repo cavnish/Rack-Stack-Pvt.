@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1,
+    "siteTitle": "Rack & Stack Storage Systems",
+    "defaultMetaDescription": "Racking, shelving, mezzanine floors and custom storage systems planned around your space and workflow.",
+    "keywords": "industrial storage systems, warehouse racking, pallet racking, shelving systems, mezzanine floor",
+    "ogImage": null,
+    "twitterImage": null,
+    "robotsSettings": "index,follow",
+    "googleVerification": null,
+    "canonicalBaseUrl": "http://localhost:3000",
+    "organizationSchema": {
+      "name": "Rack & Stack Storage Systems Pvt. Ltd.",
+      "@type": "Organization"
+    },
+    "socialLinks": {},
+    "updatedAt": "2026-09-19T06:51:25.501Z"
+  }
+]

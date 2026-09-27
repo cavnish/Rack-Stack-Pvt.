@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "name": "Warehouse Optimization",
+    "slug": "warehouse-optimization"
+  },
+  {
+    "id": 2,
+    "name": "Storage Systems",
+    "slug": "storage-systems"
+  },
+  {
+    "id": 3,
+    "name": "Safety",
+    "slug": "safety"
+  },
+  {
+    "id": 4,
+    "name": "Space Planning",
+    "slug": "space-planning"
+  },
+  {
+    "id": 5,
+    "name": "Industry Guides",
+    "slug": "industry-guides"
+  }
+]

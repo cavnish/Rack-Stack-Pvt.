@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { getProductBySlug, getProducts, getRedirectPath, getServices } from "@/lib/data";
+import { getProductBySlug, getProductCatalogue, getProductReelVideos, getProducts, getRedirectPath, getServices } from "@/lib/data";
 import { getPublicClientLogos } from "@/lib/client-assets";
 import { JsonLd } from "@/components/site/ui";
 import { ProductSectionsLayout } from "@/components/site/product-sections";
 import { adaptDatabaseProduct, adaptDatabaseRelated, getProductOptions } from "@/lib/product-page";
 import { getProductFolderImages } from "@/lib/product-image-assets";
 import { getCatalogueProductBySlug, getCatalogueProductHref } from "@/lib/catalogue";
+import { slugifySegment } from "@/lib/publish/media";
+
+export async function generateStaticParams() {
+  const [products, categories] = await Promise.all([getProducts(), getProductCatalogue()]);
+  const slugs = new Set(products.map((product) => product.slug));
+  for (const category of categories) slugs.add(slugifySegment(category.category));
+  return [...slugs].map((slug) => ({ category: slug }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category: slug } = await params;
@@ -37,12 +45,14 @@ export default async function LegacyProductPage({ params, searchParams }: { para
     if (target) redirect(target);
     notFound();
   }
-  const [databaseProducts, allServices, clientLogos] = await Promise.all([getProducts(), getServices(), getPublicClientLogos()]);
+  const [databaseProducts, allServices, clientLogos, reels] = await Promise.all([
+    getProducts(),
+    getServices(),
+    getPublicClientLogos(),
+    getProductReelVideos(product.slug, 6),
+  ]);
   const folderImages = await getProductFolderImages(product.slug, product.name);
   const pageProduct = adaptDatabaseProduct(product, folderImages);
-  const configurationProducts = product.configurations.length
-    ? []
-    : databaseProducts.filter((item) => item.id !== product.id && item.category === product.category).slice(0, 6).map(adaptDatabaseRelated);
   const productSchema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -66,7 +76,7 @@ export default async function LegacyProductPage({ params, searchParams }: { para
         logos={clientLogos}
         allProducts={getProductOptions(databaseProducts)}
         allServices={allServices}
-        configurationProducts={configurationProducts}
+        reels={reels}
       />
     </main>
   );

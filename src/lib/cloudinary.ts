@@ -17,3 +17,11 @@ export function transformCloudinaryUrl(url: string, width = 1200) {
 }
 export const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 export const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+
+/**
+ * Reels are streamed rather than downloaded, so the video allow-list is kept
+ * narrow and MP4-first: those are the only containers every target browser can
+ * play back, and an H.264/AAC MP4 is what phones record in the first place.
+ */
+export const allowedVideoTypes = new Set(["video/mp4", "video/quicktime", "video/webm"]);
+export const MAX_VIDEO_SIZE = 100 * 1024 * 1024;

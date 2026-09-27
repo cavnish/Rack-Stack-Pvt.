@@ -5,7 +5,25 @@ import { db } from "@/db";
 import { media } from "@/db/schema";
 import { hasValidOrigin, rateLimit, requestKey } from "@/lib/rate-limit";
 import { logActivity } from "@/lib/logger";
+import { cacheImage, flushMediaManifest, type AssetGroup } from "@/lib/publish/media";
 export const runtime = "nodejs";
+
+const FOLDER_GROUPS: Array<[RegExp, AssetGroup]> = [
+  [/hero|banner|slider/i, "hero"],
+  [/product|catalog/i, "products"],
+  [/service|install/i, "services"],
+  [/project/i, "projects"],
+  [/client|logo/i, "clients"],
+  [/industr/i, "industries"],
+  [/gallery/i, "gallery"],
+  [/blog|resource/i, "blog"],
+  [/about/i, "about"],
+];
+
+function groupForFolder(folder: string): AssetGroup {
+  for (const [pattern, group] of FOLDER_GROUPS) if (pattern.test(folder)) return group;
+  return "misc";
+}
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -34,6 +52,13 @@ export async function POST(request: Request) {
       stream.end(buffer);
     });
     const fallbackAlt = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || "Uploaded image";
+    // Cache the upload into the local asset library right away, so the image is
+    // available as a local WebP even before it is attached to a record.
+    const localAsset = await cacheImage(result.secure_url, {
+      group: groupForFolder(folder),
+      name: `${folder.split("/").filter(Boolean).pop() ?? "media"}-${item_slug(result.public_id)}`,
+      alt: altText || fallbackAlt,
+    });
     const [item] = await db
       .insert(media)
       .values({
@@ -43,15 +68,20 @@ export async function POST(request: Request) {
         altText: altText || fallbackAlt,
         folder,
         mimeType: file.type,
-        width: result.width,
-        height: result.height,
+        width: localAsset?.width ?? result.width,
+        height: localAsset?.height ?? result.height,
         fileSize: result.bytes,
         uploadedBy: user.id,
       })
       .returning();
+    await flushMediaManifest();
     await logActivity("IMAGE_UPLOADED", "MEDIA", item.id, user.id, { folder });
-    return NextResponse.json(item, { status: 201 });
+    return NextResponse.json({ ...item, localUrl: localAsset?.url ?? null }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Upload failed" }, { status: 400 });
   }
+}
+
+function item_slug(publicId: string) {
+  return publicId.split("/").filter(Boolean).pop() ?? "asset";
 }

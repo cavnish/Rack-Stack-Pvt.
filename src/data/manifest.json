@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-27T10:05:00.429Z",
+  "collections": {
+    "blogPosts": {
+      "hash": "f7962b263360d09a",
+      "generatedAt": "2026-09-27T06:50:46.695Z",
+      "count": 2
+    },
+    "blogCategories": {
+      "hash": "ec8a73d45d9fef73",
+      "generatedAt": "2026-09-27T06:50:46.716Z",
+      "count": 5
+    },
+    "routes": {
+      "hash": "92b430e33ebffcb0",
+      "generatedAt": "2026-09-27T10:05:00.429Z",
+      "count": 1
+    },
+    "site": {
+      "hash": "c68dbefd86cd8d7d",
+      "generatedAt": "2026-09-27T06:50:59.545Z",
+      "count": 1
+    },
+    "homepage": {
+      "hash": "956beeb1f69abf5e",
+      "generatedAt": "2026-09-27T06:51:01.309Z",
+      "count": 7
+    },
+    "services": {
+      "hash": "0d8913bfbf80829e",
+      "generatedAt": "2026-09-27T07:28:55.928Z",
+      "count": 8
+    },
+    "products": {
+      "hash": "9666f44d904a9980",
+      "generatedAt": "2026-09-27T07:28:55.911Z",
+      "count": 8
+    },
+    "industries": {
+      "hash": "2b47000cbd249d24",
+      "generatedAt": "2026-09-27T07:28:55.958Z",
+      "count": 12
+    },
+    "sliders": {
+      "hash": "581c5aff94ee19e3",
+      "generatedAt": "2026-09-27T08:00:31.261Z",
+      "count": 3
+    },
+    "pages": {
+      "hash": "5ae872a2daa9bee2",
+      "generatedAt": "2026-09-27T06:53:05.990Z",
+      "count": 4
+    },
+    "seo": {
+      "hash": "c87360085be383af",
+      "generatedAt": "2026-09-27T06:56:32.758Z",
+      "count": 1
+    },
+    "clients": {
+      "hash": "eea5d5069683430c",
+      "generatedAt": "2026-09-27T07:52:51.567Z",
+      "count": 8
+    },
+    "clientLogos": {
+      "hash": "4981e24a341bb2d9",
+      "generatedAt": "2026-09-27T08:01:26.801Z",
+      "count": 8
+    },
+    "gallery": {
+      "hash": "a362e365d76ce920",
+      "generatedAt": "2026-09-27T06:56:33.815Z",
+      "count": 6
+    },
+    "faqs": {
+      "hash": "d519727df1ade3ba",
+      "generatedAt": "2026-09-27T06:56:33.832Z",
+      "count": 4
+    },
+    "videos": {
+      "hash": "91073b0d3eb3a1c2",
+      "generatedAt": "2026-09-27T10:05:00.422Z",
+      "count": 2
+    }
+  },
+  "records": {}
+}

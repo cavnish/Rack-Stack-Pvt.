@@ -1,13 +1,60 @@
 import { z } from "zod";
+import { isValidPhone } from "./contact-format";
 
-const phone = z.string().trim().min(7, "Enter a valid phone number").max(30);
+/**
+ * A failure whose message was written for the person filling in the admin form.
+ *
+ * The admin API returns these verbatim and collapses every other error into a
+ * generic one, so a thrown message is only ever safe to surface when the type
+ * says so. Keep internal detail — column names, stack context, driver output —
+ * out of it.
+ */
+export class UserFacingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UserFacingError";
+  }
+}
+
+/**
+ * Phone number rules.
+ *
+ * The shape and digit-count checks are imported from `contact-format` so the
+ * browser form and this schema cannot disagree. Shape and digit count are
+ * combined in a single `refine` on purpose: split across a `regex` and a
+ * `refine`, Zod runs both when the first fails and reports the same message
+ * twice, so the API returned `["Enter a valid phone number", "Enter a valid
+ * phone number"]` for a single mistake.
+ */
+const phone = z
+  .string()
+  .trim()
+  .min(1, "Enter your phone number")
+  .max(40, "Phone number is too long")
+  .refine(
+    (value) => {
+      // An empty value is already reported by `min(1)`. Zod keeps running later
+      // checks after an earlier one fails, so short-circuiting here is what
+      // stops an empty phone field reporting "Enter a valid phone number" too.
+      return value.length === 0 || isValidPhone(value);
+    },
+    "Enter a valid phone number",
+  );
+
 export const loginSchema = z.object({ email: z.email().transform((v) => v.toLowerCase()), password: z.string().min(8).max(128) });
 export const inquirySchema = z.object({
-  name: z.string().trim().min(2).max(100), company: z.string().trim().min(2).max(150), email: z.email(), phone,
+  name: z.string().trim().min(2, "Enter at least 2 characters").max(100, "Enter at most 100 characters"), company: z.string().trim().min(2, "Enter at least 2 characters").max(150), email: z.email("Enter a valid email address"), phone,
   whatsapp: z.string().trim().max(30).optional().or(z.literal("")), city: z.string().trim().max(100).optional(), state: z.string().trim().max(100).optional(),
   productId: z.coerce.number().int().positive().optional().or(z.literal("").transform(() => undefined)), productSlug: z.string().trim().max(160).optional(), productName: z.string().trim().max(200).optional(), serviceId: z.coerce.number().int().positive().optional().or(z.literal("").transform(() => undefined)),
-  quantity: z.string().trim().max(80).optional(), location: z.string().trim().max(160).optional(), requirement: z.string().trim().min(3).max(200), warehouseSize: z.string().trim().max(100).optional(), loadRequirement: z.string().trim().max(200).optional(),
-  message: z.string().trim().max(3000).optional(), sourcePage: z.string().trim().max(300).optional(), website: z.string().max(0).optional(),
+  quantity: z.string().trim().max(80).optional(), location: z.string().trim().max(160).optional(),
+  /**
+   * `requirement` is the short admin-facing summary and `message` is the
+   * visitor's own words. Both arrive from the form, but `requirement` stays
+   * optional so a caller that only sends `message` is not rejected with a raw
+   * Zod "expected string, received undefined" — the route derives it instead.
+   */
+  requirement: z.string().trim().max(200).optional(), warehouseSize: z.string().trim().max(100).optional(), loadRequirement: z.string().trim().max(200).optional(),
+  message: z.string().trim().min(3, "Tell us about your requirement").max(3000), sourcePage: z.string().trim().max(300).optional(), website: z.string().max(0).optional(),
 });
 export const contactSchema = z.object({ name: z.string().trim().min(2).max(100), email: z.email(), phone: z.string().trim().max(30).optional(), company: z.string().trim().max(150).optional(), subject: z.string().trim().min(3).max(200), message: z.string().trim().min(10).max(3000), website: z.string().max(0).optional() });
 export const newsletterSchema = z.object({ email: z.email(), website: z.string().max(0).optional() });

@@ -1,0 +1,157 @@
+[
+  {
+    "id": 1,
+    "sectionKey": "hero",
+    "title": "SMART STORAGE. BUILT TO LAST.",
+    "subtitle": "Smart storage systems that help you save space, work faster and grow with ease.",
+    "content": {
+      "badge": "Planned around your operation",
+      "image": "/Hero.jpeg",
+      "eyebrow": "Industrial storage systems",
+      "highlight": "BUILT TO LAST.",
+      "primaryCta": "View Our Products",
+      "tertiaryCta": "Talk to Us",
+      "secondaryCta": "Request a Quote"
+    },
+    "enabled": true,
+    "displayOrder": 0,
+    "createdAt": "2026-09-19T06:51:25.713Z",
+    "updatedAt": "2026-09-19T06:51:25.713Z"
+  },
+  {
+    "id": 3,
+    "sectionKey": "about",
+    "title": "About Rack & Stack",
+    "subtitle": "Rack & Stack designs and installs complete storage systems — industrial racking, shelving, mezzanine floors, material handling and workplace storage. We start from how you actually operate, then plan the space, the system and the setup as one connected solution.\n\nWe plan around what you store, how you access it and how your team moves it — so the result handles capacity, safety and growth without making daily work harder.",
+    "content": {
+      "cta": "Explore Our Solutions",
+      "image": "/assets/images/about/organised-storage-aisle-b1f2342d4e.webp"
+    },
+    "enabled": true,
+    "displayOrder": 1,
+    "createdAt": "2026-09-19T06:51:25.715Z",
+    "updatedAt": "2026-09-24T13:21:21.995Z"
+  },
+  {
+    "id": 2,
+    "sectionKey": "trust",
+    "title": "What You Can Count On",
+    "subtitle": "Every plan starts with your space, your loads and the way your team works.",
+    "content": {
+      "metrics": [
+        {
+          "label": "Planning",
+          "value": "Site-Based"
+        },
+        {
+          "label": "Configuration",
+          "value": "Load-Based"
+        },
+        {
+          "label": "Layout",
+          "value": "Workflow-Based"
+        },
+        {
+          "label": "Support",
+          "value": "End-to-End"
+        }
+      ]
+    },
+    "enabled": true,
+    "displayOrder": 2,
+    "createdAt": "2026-09-19T06:51:25.715Z",
+    "updatedAt": "2026-09-19T06:51:25.715Z"
+  },
+  {
+    "id": 4,
+    "sectionKey": "why",
+    "title": "The Rack & Stack Difference",
+    "subtitle": "A simple, honest approach to space, load, access and setup.",
+    "content": {
+      "cards": [
+        {
+          "title": "Built Around You",
+          "description": "We start with what you store and how you move it."
+        },
+        {
+          "title": "Makes Best Use of Space",
+          "description": "We plan around your building, services and clearances."
+        },
+        {
+          "title": "Right Load Capacity",
+          "description": "We design based on your actual load data."
+        },
+        {
+          "title": "Smooth Execution",
+          "description": "We plan installation and site needs from day one."
+        }
+      ]
+    },
+    "enabled": true,
+    "displayOrder": 4,
+    "createdAt": "2026-09-19T06:51:25.716Z",
+    "updatedAt": "2026-09-19T06:51:25.716Z"
+  },
+  {
+    "id": 5,
+    "sectionKey": "process",
+    "title": "How We Work",
+    "subtitle": "A simple, clear process from the first call to final handover.",
+    "content": {
+      "steps": [
+        {
+          "title": "Discover",
+          "number": "01",
+          "description": "We learn your needs, stock and workflow"
+        },
+        {
+          "title": "Survey",
+          "number": "02",
+          "description": "We measure your site and note limits"
+        },
+        {
+          "title": "Design",
+          "number": "03",
+          "description": "We pick the system and plan the layout"
+        },
+        {
+          "title": "Deliver",
+          "number": "04",
+          "description": "We supply and coordinate installation"
+        }
+      ]
+    },
+    "enabled": true,
+    "displayOrder": 8,
+    "createdAt": "2026-09-19T06:51:25.716Z",
+    "updatedAt": "2026-09-19T06:51:25.716Z"
+  },
+  {
+    "id": 6,
+    "sectionKey": "manufacturing",
+    "title": "Built for Your Needs",
+    "subtitle": "Materials, build and finish all match the design we agree with you.",
+    "content": {
+      "cta": "Discuss Your Requirement",
+      "image": "/assets/images/services/storage-system-installation-a175992610.webp"
+    },
+    "enabled": true,
+    "displayOrder": 9,
+    "createdAt": "2026-09-19T06:51:25.717Z",
+    "updatedAt": "2026-09-19T06:51:25.717Z"
+  },
+  {
+    "id": 7,
+    "sectionKey": "cta",
+    "title": "Setting Up a New Warehouse or Improving an Old One?",
+    "subtitle": "Tell us about your space and storage needs. We'll help you take the next step.",
+    "content": {
+      "primaryCta": "Request a Quote",
+      "secondaryCta": "Call +91 97692 67792"
+    },
+    "enabled": true,
+    "displayOrder": 14,
+    "createdAt": "2026-09-19T06:51:25.717Z",
+    "updatedAt": "2026-09-19T06:51:25.717Z"
+  }
+]

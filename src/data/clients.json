@@ -1,0 +1,98 @@
+[
+  {
+    "id": 1,
+    "name": "Bank of America",
+    "logo": null,
+    "cloudinaryPublicId": null,
+    "website": null,
+    "industry": null,
+    "featured": true,
+    "displayOrder": 0,
+    "createdAt": "2026-09-19T06:51:25.722Z",
+    "deletedAt": null
+  },
+  {
+    "id": 2,
+    "name": "Knight Frank",
+    "logo": null,
+    "cloudinaryPublicId": null,
+    "website": null,
+    "industry": null,
+    "featured": true,
+    "displayOrder": 1,
+    "createdAt": "2026-09-19T06:51:25.722Z",
+    "deletedAt": null
+  },
+  {
+    "id": 3,
+    "name": "Jaslok Hospital",
+    "logo": null,
+    "cloudinaryPublicId": null,
+    "website": null,
+    "industry": null,
+    "featured": true,
+    "displayOrder": 2,
+    "createdAt": "2026-09-19T06:51:25.722Z",
+    "deletedAt": null
+  },
+  {
+    "id": 4,
+    "name": "Mumbai Metro",
+    "logo": null,
+    "cloudinaryPublicId": null,
+    "website": null,
+    "industry": null,
+    "featured": true,
+    "displayOrder": 3,
+    "createdAt": "2026-09-19T06:51:25.722Z",
+    "deletedAt": null
+  },
+  {
+    "id": 5,
+    "name": "Eaton",
+    "logo": null,
+    "cloudinaryPublicId": null,
+    "website": null,
+    "industry": null,
+    "featured": true,
+    "displayOrder": 4,
+    "createdAt": "2026-09-19T06:51:25.722Z",
+    "deletedAt": null
+  },
+  {
+    "id": 6,
+    "name": "IDBI Bank",
+    "logo": null,
+    "cloudinaryPublicId": null,
+    "website": null,
+    "industry": null,
+    "featured": true,
+    "displayOrder": 5,
+    "createdAt": "2026-09-19T06:51:25.722Z",
+    "deletedAt": null
+  },
+  {
+    "id": 7,
+    "name": "Allcargo Logistics",
+    "logo": null,
+    "cloudinaryPublicId": null,
+    "website": null,
+    "industry": null,
+    "featured": true,
+    "displayOrder": 6,
+    "createdAt": "2026-09-19T06:51:25.722Z",
+    "deletedAt": null
+  },
+  {
+    "id": 8,
+    "name": "Schindler",
+    "logo": null,
+    "cloudinaryPublicId": null,
+    "website": null,
+    "industry": null,
+    "featured": true,
+    "displayOrder": 7,
+    "createdAt": "2026-09-19T06:51:25.722Z",
+    "deletedAt": null
+  }
+]

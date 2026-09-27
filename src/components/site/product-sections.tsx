@@ -26,7 +26,7 @@ import {
   Zap,
 } from "lucide-react";
 import { SmartImage } from "@/components/site/smart-image";
-import { ProductGallery, SpecificationPanel } from "@/components/site/product-experience";
+import { ProductGallery } from "@/components/site/product-experience";
 import { ProductShowcase } from "@/components/site/product-showcase";
 import { FAQ } from "@/components/site/faq";
 import { ProductCard, type ProductCardProduct } from "@/components/site/product-card";
@@ -37,9 +37,12 @@ import { EventTracker } from "@/components/site/event-tracker";
 import { Reveal } from "@/components/site/reveal";
 import { WorkflowSteps } from "@/components/site/workflow-steps";
 import { ClientLogoMarquee } from "@/components/site/client-logo-marquee";
+import { ReelShowcase } from "@/components/media/reel-showcase";
 import { optimizeImage } from "@/lib/image-utils";
+import { localAssetFor } from "@/lib/local-assets";
 import type { ClientLogo } from "@/lib/data";
 import type { getServices } from "@/lib/data";
+import type { ReelVideoItem } from "@/lib/reel-video";
 import { getProductHref } from "@/lib/product-page";
 import type { ProductOption, ProductPageProduct } from "@/lib/product-page";
 
@@ -103,7 +106,7 @@ export function getProductCuratedImages(product: ProductDetail) {
     }
     return {
       id: 1000 + idx,
-      imageUrl: slot.url,
+      imageUrl: localAssetFor(slot.url, "products") ?? slot.url,
       altText: slot.alt,
       caption: slot.label,
       label: slot.label,
@@ -401,40 +404,6 @@ export function OverviewSection({ product }: { product: ProductDetail }) {
   );
 }
 
-export function ConfigurationsSection({ items, fallbackProducts }: { items: ProductDetail["configurations"]; fallbackProducts: ProductCardProduct[] }) {
-  if (!items.length && !fallbackProducts.length) return null;
-  return (
-    <section className="surface-grid bg-[#f4f4f1] border-y border-zinc-200 py-24">
-      <div className="container-shell">
-        <SectionHeading compact eyebrow="Configurations" title="Find the Right Storage Configuration" description={items.length ? "Pick the version that fits your bay plan, item size and load." : "Other systems in this category worth considering."} />
-        {items.length ? (
-          <div className="mt-12 grid gap-px bg-zinc-300 md:grid-cols-2 lg:grid-cols-4">
-            {items.map((item, i) => {
-              const Icon = iconFor(item.title);
-              return (
-                <article key={item.id} className="flex min-h-80 flex-col bg-white p-7">
-                  <div className="flex items-center justify-between">
-                    <span className="grid h-10 w-10 place-items-center bg-red-600 text-white"><Icon size={19} /></span>
-                    <span className="text-xs font-bold text-zinc-300">0{i + 1}</span>
-                  </div>
-                  <h3 className="card-title mt-7">{item.title}</h3>
-                  {item.description && <p className="mt-3 text-sm leading-6 text-zinc-500">{item.description}</p>}
-                  {item.image && <div className="relative mt-auto h-24 overflow-hidden rounded-lg pt-6"><SmartImage src={optimizeImage(item.image, 600)} alt={item.title} fill className="object-cover object-center" sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 25vw" /></div>}
-                </article>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {fallbackProducts.map((item, i) => <ProductCard key={item.id} product={item} index={i} />)}
-          </div>
-        )}
-        <p className="mt-8 text-sm text-zinc-500">These are general guidelines. The final layout and specification are confirmed in your project proposal.</p>
-      </div>
-    </section>
-  );
-}
-
 export function TechnicalSpecificationsSection({ product }: { product: ProductDetail }) {
   if (!product.specifications.length) return null;
   const productImage = product.heroImage || product.thumbnail || product.images[0]?.imageUrl || "";
@@ -524,12 +493,13 @@ export function TechnicalSpecificationsSection({ product }: { product: ProductDe
   );
 }
 
-// Application image fallbacks by keyword
+// Application image fallbacks by keyword, resolved to local copies when the
+// asset sync has cached them (see scripts/sync-assets.ts).
 const APPLICATION_IMAGES: Array<[RegExp, string]> = [
   [/warehouse|storage|distribution|logistic/, "https://images.pexels.com/photos/1797415/pexels-photo-1797415.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900"],
   [/manufactur|factory|industrial|plant|production/, "https://images.pexels.com/photos/236705/pexels-photo-236705.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900"],
   [/retail|shop|store|supermarket|showroom/, "https://images.pexels.com/photos/1005638/pexels-photo-1005638.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900"],
-  [/pharma|hospital|medical|lab|health/, "https://images.pexels.com/photos/3912363/pexels-photo-3912363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900"],
+  [/pharma|hospital|medical|lab|health/, "https://images.pexels.com/photos/35285858/pexels-photo-35285858.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900"],
   [/cold|chill|frozen|food|beverage/, "https://images.pexels.com/photos/4483610/pexels-photo-4483610.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900"],
   [/ecommerce|e-commerce|fulfilment|fulfillment|pick/, "https://images.pexels.com/photos/4393426/pexels-photo-4393426.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900"],
   [/auto|car|vehicle|automotive|garage/, "https://images.pexels.com/photos/3807386/pexels-photo-3807386.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900"],
@@ -539,10 +509,16 @@ const APPLICATION_IMAGES: Array<[RegExp, string]> = [
   [/tool|hardware|spare|part|machine|workshop/, "https://images.pexels.com/photos/4489749/pexels-photo-4489749.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900"],
 ];
 
+const APPLICATION_IMAGE_FALLBACK =
+  "https://images.pexels.com/photos/4483610/pexels-photo-4483610.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900";
+
 function appImageFor(title: string, description: string): string {
   const text = `${title} ${description}`.toLowerCase();
-  for (const [re, url] of APPLICATION_IMAGES) if (re.test(text)) return url;
-  return "https://images.pexels.com/photos/4483610/pexels-photo-4483610.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900";
+  for (const [re, url] of APPLICATION_IMAGES) {
+    if (!re.test(text)) continue;
+    return localAssetFor(url, "applications") ?? url;
+  }
+  return localAssetFor(APPLICATION_IMAGE_FALLBACK, "applications") ?? APPLICATION_IMAGE_FALLBACK;
 }
 
 export function ApplicationsSection({ items, product }: { items: ProductDetail["applications"]; product?: ProductDetail }) {
@@ -631,11 +607,13 @@ export function BenefitsSection({ items }: { items: ProductDetail["benefits"] })
 
 export function WorkflowSection() {
   return (
-    <section className="dark-grid bg-zinc-950 py-24 text-white">
+    // Padding and heading scale both dropped so this band sits between its
+    // neighbours without dominating them. Background and content are unchanged.
+    <section className="dark-grid bg-zinc-950 py-14 text-white lg:py-16">
       <div className="container-shell">
-        <SectionHeading eyebrow="How we work" title="From Plan to Installation" description="We take your storage system from the first conversation to a finished, handed-over installation." light align="center" />
+        <SectionHeading eyebrow="How we work" title="From Plan to Installation" description="We take your storage system from the first conversation to a finished, handed-over installation." light align="center" size="sm" />
         <WorkflowSteps />
-        <p className="mt-8 text-sm text-zinc-500">Timelines are a guide and confirmed in your project proposal.</p>
+        <p className="mt-6 text-xs text-zinc-500">Timelines are a guide and confirmed in your project proposal.</p>
       </div>
     </section>
   );
@@ -709,16 +687,60 @@ export function RelatedSection({ items }: { items: ProductDetail["related"] }) {
   );
 }
 
+/**
+ * Closing call to action on every product page.
+ *
+ * The single source for this band: both product routes render
+ * `ProductSectionsLayout`, so editing this component updates all of them at
+ * once. Nothing product-specific is hard-coded here beyond the quote link, so
+ * the section stays correct when the catalogue grows.
+ */
 export function FinalCtaSection({ product }: { product: ProductDetail }) {
   return (
-    <section className="dark-grid bg-zinc-950 py-24 text-white">
+    <section className="relative isolate overflow-hidden bg-zinc-950 py-20 text-white sm:py-24 lg:py-28">
+      {/*
+        The same warehouse image the homepage closing band uses, so the two
+        read as one brand asset. `bg-zinc-950` on the section is the fallback
+        colour: if the image is ever missing, the white text still has full
+        contrast instead of dropping onto a white page.
+      */}
+      <div aria-hidden className="absolute inset-0 -z-20">
+        <SmartImage
+          src="/Footer%20imagesbg.png"
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+      </div>
+      {/*
+        A flat scrim plus a light vertical wash. Flat so centred text sits on an
+        even value at every viewport, vertical to keep the racking detail toward
+        the middle of the band where the copy actually sits.
+      */}
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,11,.62)_0%,rgba(9,9,11,.78)_55%,rgba(9,9,11,.7)_100%)]" />
+
       <div className="container-shell flex flex-col items-center text-center">
-        <p className="eyebrow text-red-400">Ready when you are</p>
-        <h2 className="section-heading mt-5 text-balance">Planning Your Storage?</h2>
-        <p className="section-description mt-5 text-zinc-300">Talk to Rack &amp; Stack about your storage needs and project.</p>
-        <div className="mt-9 flex flex-wrap justify-center gap-3">
-          <Link href={`/request-a-quote?product=${encodeURIComponent(product.slug)}`} className="btn-primary">Get a Quote <ArrowRight size={17} /></Link>
-          <Link href="/contact" className="btn-light">Talk to Our Team</Link>
+        <h2 className="section-heading max-w-3xl text-balance">Planning Your Storage?</h2>
+        <p className="section-description mt-5 max-w-2xl text-zinc-300">
+          Talk to Rack &amp; Stack about your storage needs and project.
+        </p>
+        {/*
+          Full-width buttons on the smallest screens so the tap targets are
+          comfortable, then a centred row from `sm` up. `flex-col` on a
+          `w-full` parent cannot overflow: the children are stretched, not
+          sized to their own content.
+        */}
+        <div className="mt-9 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-center">
+          <Link
+            href={`/request-a-quote?product=${encodeURIComponent(product.slug)}`}
+            className="btn-primary w-full sm:w-auto"
+          >
+            Get a Quote <ArrowRight size={17} />
+          </Link>
+          <Link href="/contact" className="btn-light w-full sm:w-auto">
+            Talk to Our Team
+          </Link>
         </div>
       </div>
     </section>
@@ -727,14 +749,18 @@ export function FinalCtaSection({ product }: { product: ProductDetail }) {
 
 export function FinalEnquirySection({ product, allProducts, allServices }: { product: ProductDetail; allProducts: ProductOption[]; allServices: Awaited<ReturnType<typeof getServices>> }) {
   return (
-    <section className="surface-grid bg-[#f4f4f1] py-24">
-      <div className="container-shell grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
-        <div>
-          <p className="eyebrow">Request a quote</p>
-          <h2 className="heading-md mt-5 text-balance">Tell Us What You Need to Store</h2>
-          <p className="mt-5 text-base leading-7 text-zinc-500">Share your space, item sizes, maximum loads and handling method if you know them — we&apos;ll come back with setup options.</p>
+    <section className="surface-grid bg-[#f4f4f1] py-20">
+      <div className="container-shell">
+        {/* Capped and centred for the same reason as the standalone quote page:
+            the form is a working area, not a full-bleed panel. */}
+        <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[.7fr_1.3fr] lg:gap-12">
+          <div>
+            <p className="eyebrow">Request a quote</p>
+            <h2 className="heading-md mt-5 text-balance">Tell Us What You Need to Store</h2>
+            <p className="mt-4 text-sm leading-6 text-zinc-500">Share your space, item sizes, maximum loads and handling method if you know them — we&apos;ll come back with setup options.</p>
+          </div>
+          <InquiryForm products={allProducts} services={allServices} defaultProduct={product.id} />
         </div>
-        <InquiryForm products={allProducts} services={allServices} defaultProduct={product.id} />
       </div>
     </section>
   );
@@ -798,17 +824,20 @@ export function ProductSectionsLayout({
   logos,
   allProducts,
   allServices,
-  configurationProducts,
   entityType = "product",
+  reels = [],
 }: {
   product: ProductDetail;
   logos: ClientLogo[];
   allProducts: ProductOption[];
   allServices: Awaited<ReturnType<typeof getServices>>;
-  configurationProducts?: ProductCardProduct[];
   entityType?: string;
+  /** Reels linked to this product in the CMS. The section hides itself when empty. */
+  reels?: ReelVideoItem[];
 }) {
-  const configProducts = product.configurations.length ? [] : (configurationProducts ?? product.related).slice(0, 6);
+  // Only used to describe the reels as VideoObjects; the product's own metadata
+  // already owns the canonical URL.
+  const productUrl = `${process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? ""}/products/${product.slug}`;
   return (
     <>
       <EventTracker eventName="product_view" entityType={entityType} entityId={product.id} />
@@ -819,8 +848,21 @@ export function ProductSectionsLayout({
       {product.showGallery && !product.showFeatures ? <Reveal><ProductShowcaseSection product={product} /></Reveal> : null}
       <Reveal><OverviewSection product={product} /></Reveal>
       {product.showApplications ? <Reveal><ApplicationsSection items={product.applications} product={product} /></Reveal> : null}
+      {/*
+        The Reel section hides itself when this product has no Reels of its own,
+        so a product without video never shows an empty heading.
+      */}
+      {reels.length > 0 ? (
+        <ReelShowcase
+          videos={reels}
+          eyebrow="WATCH IT IN ACTION"
+          title={`${product.name}, Working.`}
+          subtitle="Short clips of this system installed, loaded and in daily use."
+          cta={{ label: "Request a quote", href: `/request-a-quote?product=${product.slug}` }}
+          pageUrl={productUrl}
+        />
+      ) : null}
       <Reveal><ClientRosterSection logos={logos} /></Reveal>
-      {product.showConfigurations ? <Reveal><ConfigurationsSection items={product.configurations} fallbackProducts={configProducts} /></Reveal> : null}
       {product.showBenefits ? <Reveal><BenefitsSection items={product.benefits} /></Reveal> : null}
       <Reveal><WorkflowSection /></Reveal>
       {product.projects.length > 0 ? <Reveal><RealWorldSection projects={product.projects} images={product.images} /></Reveal> : null}

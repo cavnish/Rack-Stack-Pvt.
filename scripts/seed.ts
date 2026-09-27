@@ -21,12 +21,25 @@ import {
   productSpecifications,
   products,
   seoSettings,
+  videos,
   serviceFeatures,
   serviceIndustries,
   services,
   siteSettings,
   users,
 } from "../src/db/schema";
+import { requireInstagramUrl } from "../src/lib/instagram";
+
+/**
+ * The Reels shown on the homepage out of the box. Order is the display order.
+ *
+ * Both are official Instagram embeds: the site never downloads or rehosts this
+ * footage, it only embeds the Reel and links back to it.
+ */
+const instagramReelSeed: Array<{ url: string; title: string }> = [
+  { url: "https://www.instagram.com/reel/DdddS0npcgW/", title: "Rack & Stack on Instagram" },
+  { url: "https://www.instagram.com/reel/DdY02GHp5R7/", title: "Rack & Stack on Instagram" },
+];
 
 const images = {
   hero: "https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000",
@@ -371,6 +384,54 @@ async function seed() {
       { question: "How do you calculate storage capacity?", answer: "Capacity depends on item size, declared loads, system type, aisle space, handling equipment and the usable building area. We calculate it from your specific inputs.", entityType: "GLOBAL", displayOrder: 2 },
       { question: "Do you handle installation?", answer: "Yes. Installation is included as part of the agreed project scope. We check site readiness before scheduling.", entityType: "GLOBAL", displayOrder: 3 },
     ]);
+  }
+
+  /*
+   * Instagram Reels.
+   *
+   * These are official embeds, so the "video" is a permalink rather than a file:
+   * `videoUrl` carries the same canonical link to satisfy the not-null column,
+   * and there is deliberately no poster, duration or playback switch, because
+   * Instagram's own player owns all of that.
+   *
+   * Titles are neutral on purpose. The Reel's own caption and audio are the real
+   * content and Instagram renders them inside the embed, so nothing about what
+   * the footage shows is guessed here.
+   */
+  for (const [index, reel] of instagramReelSeed.entries()) {
+    const permalink = requireInstagramUrl(reel.url);
+    const displayOrder = index + 1;
+    const values = {
+      source: "INSTAGRAM" as const,
+      title: reel.title,
+      category: "WAREHOUSE",
+      description: null,
+      instagramUrl: permalink,
+      videoUrl: permalink,
+      ctaText: "View on Instagram",
+      ctaUrl: permalink,
+      autoplay: true,
+      muted: true,
+      loop: false,
+      showOnHome: true,
+      showOnProducts: false,
+      showOnServices: false,
+      isActive: true,
+      displayOrder,
+      status: "PUBLISHED" as const,
+    };
+    // Converge rather than skip, so re-seeding corrects a hand-edited record
+    // instead of leaving the homepage order wrong.
+    const [existing] = await db
+      .select({ id: videos.id })
+      .from(videos)
+      .where(eq(videos.instagramUrl, permalink))
+      .limit(1);
+    if (existing) {
+      await db.update(videos).set(values).where(eq(videos.id, existing.id));
+      continue;
+    }
+    await db.insert(videos).values(values);
   }
 
   console.log(`Seed complete. Admin email: ${adminEmail}${process.env.ADMIN_PASSWORD ? "" : " (development password fallback was used)"}`);

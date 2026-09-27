@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getProducts, getServices } from "@/lib/data";
+import { getProductReelVideos, getProducts, getServices } from "@/lib/data";
 import { getPublicClientLogos } from "@/lib/client-assets";
 import { JsonLd } from "@/components/site/ui";
 import { ProductSectionsLayout } from "@/components/site/product-sections";
@@ -13,7 +13,12 @@ type CatalogueProductDetailProps = {
 };
 
 export async function CatalogueProductDetail({ product, relatedProducts }: CatalogueProductDetailProps) {
-  const [databaseProducts, allServices, logos] = await Promise.all([getProducts(), getServices(), getPublicClientLogos()]);
+  const [databaseProducts, allServices, logos, reels] = await Promise.all([
+    getProducts(),
+    getServices(),
+    getPublicClientLogos(),
+    getProductReelVideos(product.slug, 6),
+  ]);
   const folderImages = await getProductFolderImages(product.slug, product.name);
   const pageProduct = adaptCatalogueProduct(product, relatedProducts, folderImages);
   const productHref = getCatalogueProductHref(product);
@@ -57,6 +62,7 @@ export async function CatalogueProductDetail({ product, relatedProducts }: Catal
         allProducts={getProductOptions(databaseProducts)}
         allServices={allServices}
         entityType="catalogue_product"
+        reels={reels}
       />
     </main>
   );

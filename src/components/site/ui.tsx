@@ -15,9 +15,20 @@ const staggerParent = {
   show: { transition: { staggerChildren: 0.09, delayChildren: 0.06 } },
 };
 
-export function SectionHeading({ eyebrow, title, description, light = false, align = "left", compact = false }: { eyebrow?: string; title: string; description?: string | null; light?: boolean; align?: "left" | "center"; compact?: boolean }) {
+/**
+ * The shared section header.
+ *
+ * `size` selects the heading scale. It defaults to the site's main section
+ * scale so existing call sites are unchanged; `sm` is for dense bands that sit
+ * between taller neighbours and would otherwise out-shout them.
+ */
+export function SectionHeading({ eyebrow, title, description, light = false, align = "left", compact = false, size }: { eyebrow?: string; title: string; description?: string | null; light?: boolean; align?: "left" | "center"; compact?: boolean; size?: "sm" }) {
   const reduced = useReducedMotion();
   const anim = !reduced;
+  const scale = size === "sm" ? "sm" : compact ? "md" : "lg";
+  const headingClass = scale === "sm" ? "heading-sm" : scale === "md" ? "heading-md" : "section-heading";
+  const descriptionClass = scale === "sm" ? "section-description-sm" : "section-description";
+  const gap = scale === "sm" ? "mt-3.5" : "mt-5";
   return (
     <motion.div
       className={`${align === "center" ? "mx-auto text-center" : ""}`}
@@ -33,7 +44,7 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
       ) : null}
       <motion.h2
         variants={anim ? fadeUp : undefined}
-        className={`mt-5 text-balance ${compact ? "heading-md" : "section-heading"} ${
+        className={`${gap} text-balance ${headingClass} ${
           light ? "text-white" : compact ? "text-zinc-900" : "text-zinc-950"
         }`}
       >
@@ -42,7 +53,7 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
       {description && (
         <motion.p
           variants={anim ? fadeUp : undefined}
-          className={`section-description mt-5 ${align === "center" ? "mx-auto text-center" : ""} ${light ? "text-zinc-400" : "text-zinc-600"}`}
+          className={`${descriptionClass} ${gap} ${align === "center" ? "mx-auto text-center" : ""} ${light ? "text-zinc-400" : "text-zinc-600"}`}
         >
           {description}
         </motion.p>

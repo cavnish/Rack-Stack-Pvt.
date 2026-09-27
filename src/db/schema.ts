@@ -13,6 +13,9 @@ import {
 
 export const userRoleEnum = pgEnum("user_role", ["SUPER_ADMIN", "ADMIN", "EDITOR"]);
 export const contentStatusEnum = pgEnum("content_status", ["DRAFT", "PUBLISHED", "ARCHIVED"]);
+
+/** Where a reel's playable content lives. See the `videos.source` column. */
+export const videoSourceEnum = pgEnum("video_source", ["CLOUDINARY", "INSTAGRAM"]);
 export const inquiryStatusEnum = pgEnum("inquiry_status", [
   "NEW",
   "CONTACTED",
@@ -563,6 +566,98 @@ export const media = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [uniqueIndex("media_public_id_unique").on(table.cloudinaryPublicId), index("media_folder_idx").on(table.folder)],
+);
+
+/**
+ * Vertical, short-form product/service video. Kept separate from `media` because
+ * that table is image-only (single still, alt text, dimensions) and videos need
+ * duration, poster frames, autoplay placement flags and many-to-many relations.
+ */
+export const videos = pgTable(
+  "videos",
+  {
+    id: serial("id").primaryKey(),
+    /**
+     * Where the playable content comes from.
+     *
+     * `CLOUDINARY` is a file we host and can therefore poster, autoplay and
+     * pause ourselves. `INSTAGRAM` is an official embed: Instagram owns the
+     * player, the network cost and the playback policy, and we only supply a
+     * validated container. Mixing the two in one table lets both share the same
+     * product/service relations, placement flags and admin CRUD instead of
+     * duplicating all of it.
+     */
+    source: videoSourceEnum("source").default("CLOUDINARY").notNull(),
+    title: text("title").notNull(),
+    category: text("category").default("WAREHOUSE").notNull(),
+    description: text("description"),
+    /**
+     * Canonical Instagram Reel permalink. Only meaningful when
+     * `source = 'INSTAGRAM'`, and only ever written through the validator in
+     * `lib/instagram`, so nothing unvalidated reaches the database.
+     */
+    instagramUrl: text("instagram_url"),
+    videoUrl: text("video_url").notNull(),
+    cloudinaryPublicId: text("cloudinary_public_id"),
+    posterUrl: text("poster_url"),
+    posterPublicId: text("poster_public_id"),
+    durationSeconds: integer("duration_seconds"),
+    width: integer("width"),
+    height: integer("height"),
+    ctaText: text("cta_text"),
+    ctaUrl: text("cta_url"),
+    href: text("href"),
+    showOnHome: boolean("show_on_home").default(true).notNull(),
+    showOnProducts: boolean("show_on_products").default(false).notNull(),
+    showOnServices: boolean("show_on_services").default(false).notNull(),
+    /**
+     * The live toggle, distinct from `status`: a record can be finished and
+     * published (`PUBLISHED`) yet pulled from the site without being turned
+     * back into a draft. A reel is shown only when both agree.
+     */
+    isActive: boolean("is_active").default(true).notNull(),
+    autoplay: boolean("autoplay").default(true).notNull(),
+    muted: boolean("muted").default(true).notNull(),
+    loop: boolean("loop").default(true).notNull(),
+    status: contentStatusEnum("status").default("PUBLISHED").notNull(),
+    displayOrder: integer("display_order").default(0).notNull(),
+    metaTitle: text("meta_title"),
+    metaDescription: text("meta_description"),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (table) => [
+    index("videos_status_idx").on(table.status),
+    index("videos_display_order_idx").on(table.displayOrder),
+    index("videos_public_id_idx").on(table.cloudinaryPublicId),
+    index("videos_source_idx").on(table.source),
+  ],
+);
+
+export const videoProducts = pgTable(
+  "video_products",
+  {
+    id: serial("id").primaryKey(),
+    videoId: integer("video_id").references(() => videos.id, { onDelete: "cascade" }).notNull(),
+    productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+  },
+  (table) => [
+    uniqueIndex("video_products_unique").on(table.videoId, table.productId),
+    index("video_products_product_idx").on(table.productId),
+  ],
+);
+
+export const videoServices = pgTable(
+  "video_services",
+  {
+    id: serial("id").primaryKey(),
+    videoId: integer("video_id").references(() => videos.id, { onDelete: "cascade" }).notNull(),
+    serviceId: integer("service_id").references(() => services.id, { onDelete: "cascade" }).notNull(),
+  },
+  (table) => [
+    uniqueIndex("video_services_unique").on(table.videoId, table.serviceId),
+    index("video_services_service_idx").on(table.serviceId),
+  ],
 );
 
 export const seoSettings = pgTable("seo_settings", {

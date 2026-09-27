@@ -117,7 +117,42 @@ When an enquiry is stored successfully, the server triggers:
 - A company notification containing the submitted requirement.
 - A professional customer acknowledgement.
 
-Database persistence does not depend on Resend availability. Email errors are logged without returning secrets or raw provider errors to visitors. Verify the sending domain and use a from address on that domain.
+Database persistence does not depend on Resend availability. `POST /api/inquiries` returns `201` as soon as the row is stored, so a mail outage can never cost a lead. Mail faults are reported through the structured server log instead, naming which of the two sends failed and why. Error text contains only Resend's own status, code and message — never the API key, which is read in server-only modules and is never sent to the browser.
+
+### `RESEND_FROM_EMAIL` must be on a verified domain
+
+Resend's shared test address (`onboarding@resend.dev`) can only deliver to the Resend account owner's own inbox. With it configured, the company notification still arrives *if* `INQUIRY_NOTIFICATION_EMAIL` happens to be that account, but every customer acknowledgement is rejected with a 403 `validation_error`, and changing the notification address to a real team inbox silently stops enquiry email entirely.
+
+The enquiry form still reports success in that state, so the fault is invisible from the browser. Run the check after any change to the mail environment:
+
+```bash
+npm run mail:check
+```
+
+It reports the API key, the sender, the recipient and the site URL, sends a probe, and fails with the specific remediation when the sender is a test address.
+
+### Mail diagnostics
+
+| Command | Purpose |
+| --- | --- |
+| `npm run mail:check` | Validate the Resend configuration and probe the sender. No customer mail. |
+| `npm run mail:test` | Send a single test message. `npm run mail:test -- --to you@example.com` overrides the recipient. |
+| `npm run form:check` | Verify the shared email/phone rules used by the form and the API. |
+
+## Enquiry pipeline
+
+`POST /api/inquiries` is the single entry point for the enquiry form, the product-page forms and the Request a Quote dialog.
+
+| Status | Meaning |
+| --- | --- |
+| `201` | Stored. Email is attempted in the background. |
+| `400` | Body was not valid JSON. |
+| `403` | Cross-origin request. |
+| `422` | Failed validation. The response carries a `fields` object the form maps onto individual inputs. |
+| `429` | Rate limited (5 per 10 minutes per client). The response carries `Retry-After`. |
+| `500` | The row could not be stored. The visitor's input is preserved so they can retry. |
+
+The browser validates the same rules before sending (`src/lib/form-validation.ts` and `src/lib/contact-format.ts`, the latter shared with the Zod schema so the two cannot drift). This matters beyond speed: the endpoint is rate limited, so an invalid submission that reached the server would consume a real attempt.
 
 ## Content and SEO
 
@@ -129,11 +164,11 @@ Changing a product slug records a permanent redirect entry and the old product r
 
 1. Open Home → Products → Heavy Duty Pallet Racking.
 2. Select Request Quote and submit valid details.
-3. Confirm redirect to `/thank-you`.
+3. Confirm the inline success message replaces the form.
 4. Open Admin → Inquiries and locate the persisted record.
 5. Edit its status and notes, save, then reload to confirm persistence.
 6. Open Activity Logs to confirm creation/status events.
-7. With Resend configured, check both the company notification and customer acknowledgement inboxes.
+7. Run `npm run mail:check`, then check both the company notification and the customer acknowledgement inboxes. Step 7 cannot pass until `RESEND_FROM_EMAIL` is on a verified domain.
 
 ## Deployment
 

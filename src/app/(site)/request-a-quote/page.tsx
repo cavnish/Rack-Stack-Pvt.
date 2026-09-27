@@ -19,29 +19,37 @@ export default async function QuotePage({ searchParams }: { searchParams: Promis
   const productOptions = [...catalogueProducts, ...products].filter((product, index, allProducts) => allProducts.findIndex((candidate) => candidate.slug === product.slug) === index);
 
   return (
-    <main className="bg-[#f4f4f1] py-16 lg:py-24">
-      <div className="container-shell grid gap-12 lg:grid-cols-[.65fr_1.35fr]">
-        <div>
-          <p className="eyebrow">Request a quote</p>
-          <h1 className="section-heading mt-5">Let&apos;s Plan Your Requirement</h1>
-          <p className="section-description mt-5 text-zinc-600">Tell us what you know today. We&apos;ll help fill in any missing sizes, load details or site information before we prepare a quote.</p>
-          <Stagger className="mt-9 space-y-4">
-            {["Your details are stored securely", "Your selected product or service is added automatically", "You'll get a confirmation once email is set up", "No obligation — sending the form is free"].map((item) => (
-              <StaggerItem key={item}>
-                <p className="flex gap-3 text-sm"><CheckCircle2 size={18} className="shrink-0 text-red-600" />{item}</p>
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </div>
-        <Reveal>
-          <div className="bg-white p-6 shadow-[0_24px_70px_rgba(0,0,0,.08)] sm:p-10">
-            <h2 className="heading-md">Requirement Details</h2>
-            <p className="mt-2 text-sm text-zinc-500">Fields marked * are required.</p>
-            <div className="mt-8">
-              <InquiryForm products={productOptions} services={services} defaultProduct={defaultProduct} defaultService={defaultService} />
-            </div>
+    /*
+     * Capped at 5xl rather than the full 1280px container. The form is the
+     * working part of this page, and at full container width its two columns
+     * read as a stretched web form instead of a quote sheet; the heading column
+     * keeps its own width and the pair still sits centred on the page.
+     */
+    <main className="bg-[#f4f4f1] py-14 lg:py-20">
+      <div className="container-shell">
+        <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[.7fr_1.3fr] lg:gap-12">
+          <div>
+            <p className="eyebrow">Request a quote</p>
+            <h1 className="section-heading mt-5">Let&apos;s Plan Your Requirement</h1>
+            <p className="section-description mt-4 text-zinc-600">Tell us what you know today. We&apos;ll help fill in any missing sizes, load details or site information before we prepare a quote.</p>
+            <Stagger className="mt-7 space-y-3">
+              {["Your details are stored securely", "Your selected product or service is added automatically", "You'll get a confirmation once email is set up", "No obligation — sending the form is free"].map((item) => (
+                <StaggerItem key={item}>
+                  <p className="flex gap-3 text-sm"><CheckCircle2 size={17} className="shrink-0 text-red-600" />{item}</p>
+                </StaggerItem>
+              ))}
+            </Stagger>
           </div>
-        </Reveal>
+          <Reveal>
+            <div className="bg-white p-5 shadow-[0_24px_70px_rgba(0,0,0,.08)] sm:p-7">
+              <h2 className="heading-md">Requirement Details</h2>
+              <p className="mt-1.5 text-sm text-zinc-500">Fields marked * are required.</p>
+              <div className="mt-6">
+                <InquiryForm products={productOptions} services={services} defaultProduct={defaultProduct} defaultService={defaultService} />
+              </div>
+            </div>
+          </Reveal>
+        </div>
       </div>
     </main>
   );

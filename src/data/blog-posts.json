@@ -1,0 +1,60 @@
+[
+  {
+    "post": {
+      "id": 1,
+      "title": "Getting Ready for a Pallet Racking Layout",
+      "slug": "prepare-for-pallet-racking-layout",
+      "excerpt": "The details that help us create a better first plan for you.",
+      "content": "A good racking plan starts with a few key details: pallet size, maximum weight, what you store and how much, your handling equipment, building drawings and how your team works. The clearer these are, the better the layout will fit your operation.\n\nAlso note sprinklers, lighting, columns, doors and any other building limits. The final design should be checked against all of this.",
+      "categoryId": 1,
+      "featuredImage": "/assets/images/blog/prepare-for-pallet-racking-layout-a7f5cf3df8.webp",
+      "featuredImagePublicId": null,
+      "authorId": null,
+      "status": "PUBLISHED",
+      "featured": true,
+      "publishedAt": "2026-09-19T06:51:25.730Z",
+      "scheduledAt": null,
+      "metaTitle": "Preparing for a Pallet Racking Layout",
+      "metaDescription": "Key information to gather before requesting a warehouse pallet racking layout.",
+      "keywords": null,
+      "canonicalUrl": null,
+      "deletedAt": null,
+      "createdAt": "2026-09-19T06:51:25.731Z",
+      "updatedAt": "2026-09-19T06:51:25.731Z"
+    },
+    "category": {
+      "id": 1,
+      "name": "Warehouse Optimization",
+      "slug": "warehouse-optimization"
+    }
+  },
+  {
+    "post": {
+      "id": 2,
+      "title": "Storage Density vs. Easy Access: Finding the Balance",
+      "slug": "storage-density-versus-accessibility",
+      "excerpt": "Why the layout with the most spaces isn't always the best one.",
+      "content": "More storage space is good — but so is easy access, short travel times and the right handling equipment. High-density storage works well for reserve stock, while direct-access shelving suits fast-moving items.\n\nA good plan sorts your inventory into groups and picks the right storage method for each — instead of forcing everything into one system.",
+      "categoryId": 2,
+      "featuredImage": "/assets/images/blog/storage-density-versus-accessibility-c4abdedecc.webp",
+      "featuredImagePublicId": null,
+      "authorId": null,
+      "status": "PUBLISHED",
+      "featured": false,
+      "publishedAt": "2026-09-19T06:51:25.730Z",
+      "scheduledAt": null,
+      "metaTitle": "Storage Density vs Accessibility",
+      "metaDescription": "How to balance warehouse storage capacity with practical inventory access.",
+      "keywords": null,
+      "canonicalUrl": null,
+      "deletedAt": null,
+      "createdAt": "2026-09-19T06:51:25.731Z",
+      "updatedAt": "2026-09-19T06:51:25.731Z"
+    },
+    "category": {
+      "id": 2,
+      "name": "Storage Systems",
+      "slug": "storage-systems"
+    }
+  }
+]

@@ -13,6 +13,7 @@ const labels: Record<string, string> = {
   settings: "Site settings",
   activity: "Activity logs",
   media: "Media library",
+  videos: "Reels",
 };
 const noCreate = new Set(["inquiries", "contact-messages", "activity", "media", "seo", "settings"]);
 const noEdit = new Set(["activity", "media"]);
@@ -21,11 +22,17 @@ const noDelete = new Set(["inquiries", "contact-messages", "activity", "seo", "s
 function display(row: Record<string, unknown>) {
   return String(row.name || row.title || row.clientName || row.question || row.email || row.action || row.sectionKey || `Record #${row.id}`);
 }
-function secondary(row: Record<string, unknown>) {
+function secondary(entity: string, row: Record<string, unknown>) {
+  // Keyed on the entity, not on a field: a hero slider with a background video
+  // also carries `videoUrl`, and it must not be summarised as a Reel.
+  if (entity === "videos") {
+    const placements = [row.showOnHome && "Home", row.showOnProducts && "Products", row.showOnServices && "Services"].filter(Boolean);
+    return [row.isActive === false ? "Hidden" : "Live", ...placements].filter(Boolean).join(" · ");
+  }
   return String(row.category || row.industry || row.company || row.entityType || row.entity || row.email || row.requirement || row.subject || "");
 }
 function thumbnail(row: Record<string, unknown>) {
-  const candidate = row.thumbnail || row.imageUrl || row.logo || row.coverImage || row.featuredImage || row.image || row.ogImage;
+  const candidate = row.thumbnail || row.imageUrl || row.logo || row.coverImage || row.featuredImage || row.image || row.ogImage || row.posterUrl;
   return typeof candidate === "string" && candidate.trim() ? candidate : undefined;
 }
 
@@ -294,7 +301,7 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
                         </div>
                       </div>
                     </td>
-                    <td className="max-w-[240px] truncate p-4 text-xs text-zinc-600">{secondary(row) || "—"}</td>
+                    <td className="max-w-[240px] truncate p-4 text-xs text-zinc-600">{secondary(entity, row) || "—"}</td>
                     <td className="p-4">
                       {row.status ? (
                         <span

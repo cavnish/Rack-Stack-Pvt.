@@ -8,7 +8,9 @@ import { FloatingActions } from "@/components/site/floating-actions";
 import { OrganizationSchema } from "@/components/site/organization-schema";
 import { getSiteSettings } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+// Settings resolve from the published static JSON first, so the shell can be
+// cached and revalidated on demand instead of re-rendered on every request.
+export const revalidate = 3600;
 
 export default async function SiteLayout({ children }: { children: ReactNode }) {
   const settings = await getSiteSettings();

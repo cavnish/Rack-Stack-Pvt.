@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "question": "What do you need to prepare a quote?",
+    "answer": "Share any dimensions you have, item or pallet sizes, maximum loads, quantities, how often you access them, your handling equipment and any building limits. A site survey can help fill the gaps.",
+    "entityType": "GLOBAL",
+    "entityId": null,
+    "displayOrder": 0,
+    "status": "PUBLISHED",
+    "createdAt": "2026-09-19T06:51:25.736Z",
+    "updatedAt": "2026-09-19T06:51:25.736Z"
+  },
+  {
+    "id": 2,
+    "question": "Can you set up a system in an existing warehouse?",
+    "answer": "Yes. We review your columns, clear height, doors, services, movement paths and current operations before proposing a layout.",
+    "entityType": "GLOBAL",
+    "entityId": null,
+    "displayOrder": 1,
+    "status": "PUBLISHED",
+    "createdAt": "2026-09-19T06:51:25.736Z",
+    "updatedAt": "2026-09-19T06:51:25.736Z"
+  },
+  {
+    "id": 3,
+    "question": "How do you calculate storage capacity?",
+    "answer": "Capacity depends on item size, declared loads, system type, aisle space, handling equipment and the usable building area. We calculate it from your specific inputs.",
+    "entityType": "GLOBAL",
+    "entityId": null,
+    "displayOrder": 2,
+    "status": "PUBLISHED",
+    "createdAt": "2026-09-19T06:51:25.736Z",
+    "updatedAt": "2026-09-19T06:51:25.736Z"
+  },
+  {
+    "id": 4,
+    "question": "Do you handle installation?",
+    "answer": "Yes. Installation is included as part of the agreed project scope. We check site readiness before scheduling.",
+    "entityType": "GLOBAL",
+    "entityId": null,
+    "displayOrder": 3,
+    "status": "PUBLISHED",
+    "createdAt": "2026-09-19T06:51:25.736Z",
+    "updatedAt": "2026-09-19T06:51:25.736Z"
+  }
+]

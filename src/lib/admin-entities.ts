@@ -4,13 +4,14 @@ import {
   activityLogs, blogPosts, clientLogos, clients, contactMessages, faqs, gallery, homeSliders, homepageSections, industries, inquiries,
   media, pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productImages, productIndustries, productProjects,
   productRelatedProducts, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projects, redirects, seoSettings,
-  serviceFeatures, services, siteSettings, testimonials, users,
+  serviceFeatures, services, siteSettings, testimonials, users, videoProducts, videos, videoServices,
 } from "@/db/schema";
 import { hash } from "bcryptjs";
 import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
-import { clientLogoAdminSchema, productAdminSchema } from "./validation";
+import { clientLogoAdminSchema, productAdminSchema, UserFacingError } from "./validation";
+import { requireInstagramUrl } from "./instagram";
 
-export const adminEntities = ["products", "services", "projects", "clients", "client-logos", "testimonials", "gallery", "pages", "industries", "faqs", "blog", "homepage", "home-slider", "inquiries", "contact-messages", "media", "seo", "settings", "users", "activity"] as const;
+export const adminEntities = ["products", "services", "projects", "clients", "client-logos", "testimonials", "gallery", "pages", "industries", "faqs", "blog", "homepage", "home-slider", "inquiries", "contact-messages", "media", "videos", "seo", "settings", "users", "activity"] as const;
 export type AdminEntity = typeof adminEntities[number];
 export function isAdminEntity(value: string): value is AdminEntity { return (adminEntities as readonly string[]).includes(value); }
 const bool = (v: unknown) => v === true || v === "true" || v === 1;
@@ -37,6 +38,7 @@ export async function listEntity(entity: AdminEntity) {
     case "inquiries": return db.select().from(inquiries).orderBy(desc(inquiries.createdAt));
     case "contact-messages": return db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
     case "media": return db.select().from(media).orderBy(desc(media.createdAt));
+    case "videos": return db.select().from(videos).where(isNull(videos.deletedAt)).orderBy(asc(videos.displayOrder), desc(videos.updatedAt));
     case "seo": return db.select().from(seoSettings).orderBy(asc(seoSettings.id));
     case "settings": return db.select().from(siteSettings).orderBy(asc(siteSettings.id));
     case "users": return db.select({ id: users.id, name: users.name, email: users.email, role: users.role, isActive: users.isActive, lastLogin: users.lastLogin, createdAt: users.createdAt, updatedAt: users.updatedAt }).from(users).orderBy(asc(users.name));
@@ -71,8 +73,116 @@ export async function getEntity(entity: AdminEntity, id: number) {
     if (!item) return null;
     return { ...item, features: await db.select().from(serviceFeatures).where(eq(serviceFeatures.serviceId, id)).orderBy(asc(serviceFeatures.displayOrder)) };
   }
+  if (entity === "videos") {
+    const item = (await db.select().from(videos).where(eq(videos.id, id)).limit(1))[0];
+    if (!item) return null;
+    const [productRows, serviceRows] = await Promise.all([
+      db.select({ productId: videoProducts.productId }).from(videoProducts).where(eq(videoProducts.videoId, id)),
+      db.select({ serviceId: videoServices.serviceId }).from(videoServices).where(eq(videoServices.videoId, id)),
+    ]);
+    return {
+      ...item,
+      productIds: productRows.map((row) => row.productId),
+      serviceIds: serviceRows.map((row) => row.serviceId),
+    };
+  }
   const rows = await listEntity(entity);
   return (rows as Array<{ id: number }>).find((row) => row.id === id) ?? null;
+}
+
+/**
+ * Shared column mapping so create and update cannot drift apart.
+ *
+ * This is the server-side half of the Instagram URL contract. The admin form
+ * validates for immediate feedback, but a request can be crafted by hand, so
+ * the permalink is re-parsed here and anything that is not a genuine Instagram
+ * Reel is rejected before it can reach the database.
+ */
+function videoValues(input: Record<string, unknown>, current?: Record<string, unknown>) {
+  const title = text(input.title) || text(current?.title);
+  if (!title) throw new UserFacingError("Enter a Reel name.");
+
+  // Instagram's official embed is the only delivery mechanism, so the
+  // permalink is the one value that has to be right. It is re-validated on
+  // every write — the admin form validates for immediate feedback, but a
+  // request can be crafted by hand and must not be able to store a link the
+  // renderer would then have to sanitise.
+  const permalink = requireInstagramUrl(text(input.instagramUrl) || text(current?.instagramUrl));
+
+  // Fields the Reel editor does not expose are carried over from the stored
+  // row rather than blanked, so editing a Reel can never silently discard
+  // content that another part of the site still reads.
+  const keep = (key: string) => nullable(input[key]) ?? nullable(current?.[key]);
+  const keepFlag = (key: string, fallback: boolean) =>
+    input[key] === undefined ? (current ? bool(current[key]) : fallback) : bool(input[key]);
+
+  return {
+    source: "INSTAGRAM" as const,
+    title,
+    category: text(input.category) || text(current?.category) || "WAREHOUSE",
+    description: keep("description"),
+    instagramUrl: permalink,
+    // `videoUrl` is NOT NULL, so an Instagram entry keeps its canonical
+    // permalink there too, giving one "where does this play" value for sorting,
+    // search and any consumer not yet taught about `source`.
+    videoUrl: permalink,
+    // Playback is Instagram's, and so is every derived media field. They are
+    // forced rather than left as misleading switches in the admin UI.
+    cloudinaryPublicId: null,
+    posterUrl: null,
+    posterPublicId: null,
+    durationSeconds: null,
+    width: null,
+    height: null,
+    ctaText: keep("ctaText"),
+    ctaUrl: keep("ctaUrl"),
+    href: keep("href"),
+    showOnHome: keepFlag("showOnHome", true),
+    showOnProducts: keepFlag("showOnProducts", false),
+    showOnServices: keepFlag("showOnServices", false),
+    isActive: keepFlag("isActive", true),
+    autoplay: true,
+    muted: true,
+    loop: false,
+    // A Reel is either shown or it is not. The old draft-by-default status is
+    // what made a freshly added Reel invisible on a site that looked configured
+    // correctly, so "Enabled" is now the only live switch an editor needs.
+    status: "PUBLISHED" as const,
+    displayOrder: input.displayOrder === undefined ? num(current?.displayOrder) : num(input.displayOrder),
+    metaTitle: keep("metaTitle"),
+    metaDescription: keep("metaDescription"),
+    updatedAt: new Date(),
+  };
+}
+
+/**
+ * Replaces the many-to-many relations for a video with the submitted selection.
+ *
+ * A request that mentions neither list is treated as "leave the relations
+ * alone" rather than "delete them all", so an API call that does not know about
+ * relations cannot wipe them.
+ */
+async function syncVideoRelations(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  videoId: number,
+  input: Record<string, unknown>,
+) {
+  const touchesProducts = Array.isArray(input.productIds);
+  const touchesServices = Array.isArray(input.serviceIds);
+  if (!touchesProducts && !touchesServices) return;
+
+  if (touchesProducts) await tx.delete(videoProducts).where(eq(videoProducts.videoId, videoId));
+  if (touchesServices) await tx.delete(videoServices).where(eq(videoServices.videoId, videoId));
+
+  const productIds = touchesProducts
+    ? Array.from(new Set((input.productIds as unknown[]).map(num).filter(Boolean)))
+    : [];
+  const serviceIds = touchesServices
+    ? Array.from(new Set((input.serviceIds as unknown[]).map(num).filter(Boolean)))
+    : [];
+
+  if (productIds.length) await tx.insert(videoProducts).values(productIds.map((productId) => ({ videoId, productId })));
+  if (serviceIds.length) await tx.insert(videoServices).values(serviceIds.map((serviceId) => ({ videoId, serviceId })));
 }
 
 export async function createEntity(entity: AdminEntity, input: Record<string, unknown>, currentUserId: number) {
@@ -133,6 +243,13 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
     return (await db.insert(homeSliders).values({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), description: nullable(input.description), imageUrl: nullable(input.imageUrl), imagePublicId: nullable(input.imagePublicId), mobileImageUrl: nullable(input.mobileImageUrl), mobileImagePublicId: nullable(input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: Math.max(2000, num(input.duration, 3500)), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null }).returning())[0];
   }
   if (entity === "users") { const password = text(input.password); if (password.length < 12) throw new Error("Password must be at least 12 characters"); return (await db.insert(users).values({ name: text(input.name), email: text(input.email).toLowerCase(), passwordHash: await hash(password, 12), role: ["SUPER_ADMIN", "ADMIN", "EDITOR"].includes(String(input.role)) ? input.role as "SUPER_ADMIN" | "ADMIN" | "EDITOR" : "EDITOR", isActive: true }).returning({ id: users.id, name: users.name, email: users.email }))[0]; }
+  if (entity === "videos") {
+    return db.transaction(async (tx) => {
+      const [item] = await tx.insert(videos).values(videoValues(input)).returning();
+      await syncVideoRelations(tx, item.id, input);
+      return item;
+    });
+  }
   throw new Error(`Creating ${entity} is not supported`);
 }
 
@@ -202,6 +319,16 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
   if (entity === "seo") return (await db.update(seoSettings).set({ siteTitle: text(input.siteTitle), defaultMetaDescription: text(input.defaultMetaDescription), keywords: nullable(input.keywords), ogImage: nullable(input.ogImage), twitterImage: nullable(input.twitterImage), robotsSettings: nullable(input.robotsSettings), googleVerification: nullable(input.googleVerification), canonicalBaseUrl: nullable(input.canonicalBaseUrl), organizationSchema: typeof input.organizationSchema === "object" ? input.organizationSchema as Record<string, unknown> : {}, socialLinks: typeof input.socialLinks === "object" ? input.socialLinks as Record<string, string> : {}, updatedAt: new Date() }).where(eq(seoSettings.id, id)).returning())[0];
   if (entity === "settings") return (await db.update(siteSettings).set({ companyName: text(input.companyName), logo: nullable(input.logo), favicon: nullable(input.favicon), primaryPhone: text(input.primaryPhone), secondaryPhone: nullable(input.secondaryPhone), whatsapp: text(input.whatsapp), email: text(input.email), address: text(input.address), workingHours: text(input.workingHours), footerContent: nullable(input.footerContent), copyright: nullable(input.copyright), googleMapsEmbed: nullable(input.googleMapsEmbed), brochureUrl: nullable(input.brochureUrl), catalogTitle: text(input.catalogTitle) || "Rack & Stack Product Catalog", catalogDescription: text(input.catalogDescription) || "See our storage systems and talk to us about the right setup for your business.", catalogLeadGated: bool(input.catalogLeadGated), updatedAt: new Date() }).where(eq(siteSettings.id, id)).returning())[0];
   if (entity === "users") { const current = (await db.select().from(users).where(eq(users.id, id)))[0]; if (!current) throw new Error("User not found"); const role = ["SUPER_ADMIN", "ADMIN", "EDITOR"].includes(String(input.role)) ? input.role as "SUPER_ADMIN" | "ADMIN" | "EDITOR" : current.role; const passwordHash = text(input.password).length >= 12 ? await hash(text(input.password), 12) : current.passwordHash; return (await db.update(users).set({ name: text(input.name), email: text(input.email).toLowerCase(), role, isActive: bool(input.isActive), passwordHash, updatedAt: new Date() }).where(eq(users.id, id)).returning({ id: users.id, name: users.name, email: users.email }))[0]; }
+  if (entity === "videos") {
+    const current = (await db.select().from(videos).where(eq(videos.id, id)).limit(1))[0];
+    if (!current) throw new Error("Reel not found");
+    return db.transaction(async (tx) => {
+      const [item] = await tx.update(videos).set(videoValues(input, current)).where(eq(videos.id, id)).returning();
+      if (!item) throw new Error("Reel not found");
+      await syncVideoRelations(tx, id, input);
+      return item;
+    });
+  }
   throw new Error(`Updating ${entity} is not supported`);
 }
 
@@ -221,5 +348,6 @@ export async function deleteEntity(entity: AdminEntity, id: number) {
   if (entity === "homepage") return db.delete(homepageSections).where(eq(homepageSections.id, id));
   if (entity === "home-slider") return db.delete(homeSliders).where(eq(homeSliders.id, id));
   if (entity === "media") return db.delete(media).where(eq(media.id, id));
+  if (entity === "videos") return db.delete(videos).where(eq(videos.id, id));
   throw new Error(`Deleting ${entity} is disabled to protect business records`);
 }

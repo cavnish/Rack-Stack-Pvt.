@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Activity, BadgeCheck, BookOpen, BriefcaseBusiness, ChevronLeft, ChevronRight, Files, GalleryHorizontal, Home,
-  Image as ImageIcon, LayoutDashboard, LogOut, Menu, MessageSquare, PanelsTopLeft, Search, Settings, ShieldCheck,
+  Image as ImageIcon, LayoutDashboard, LogOut, Menu, MessageSquare, PanelsTopLeft, Play, Search, Settings, ShieldCheck,
   SlidersHorizontal, Star, Users, X,
 } from "lucide-react";
 import { useState } from "react";
@@ -23,6 +23,7 @@ const nav = [
   ["Client Logos", "/admin/client-logos", BadgeCheck],
   ["Testimonials", "/admin/testimonials", Star],
   ["Gallery", "/admin/gallery", GalleryHorizontal],
+  ["Reels", "/admin/videos", Play],
   ["Blog", "/admin/blog", BookOpen],
   ["FAQs", "/admin/faqs", MessageSquare],
   ["Catalog", CATALOG_HREF, BookOpen],

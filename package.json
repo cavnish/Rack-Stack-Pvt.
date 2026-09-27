@@ -11,9 +11,15 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/seed.ts",
     "mail:test": "tsx scripts/test-email.ts",
+    "mail:check": "tsx scripts/check-mail-config.ts",
+    "form:check": "tsx scripts/verify-form-validation.ts",
     "db:studio": "drizzle-kit studio",
     "db:local:start": "node scripts/db-local.mjs start",
-    "db:local:stop": "node scripts/db-local.mjs stop"
+    "db:local:stop": "node scripts/db-local.mjs stop",
+    "publish": "tsx scripts/publish.ts",
+    "publish:force": "tsx scripts/publish.ts all --force",
+    "assets:sync": "tsx scripts/sync-assets.ts",
+    "verify:queue": "tsx scripts/verify-publish-queue.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

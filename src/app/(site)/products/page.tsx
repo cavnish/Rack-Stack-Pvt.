@@ -4,7 +4,11 @@ import { ArrowRight, Download } from "lucide-react";
 import { Breadcrumb, SectionHeading } from "@/components/site/ui";
 import { SmartImage } from "@/components/site/smart-image";
 import { CatalogueProductBrowser } from "@/components/site/catalogue-product-browser";
+import { ReelShowcase } from "@/components/media/reel-showcase";
 import { catalogueCategories, catalogueProducts } from "@/lib/catalogue";
+import { getProductsReelVideos } from "@/lib/data";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Products | Rack & Stack Storage Systems",
@@ -12,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
-  const { category } = await searchParams;
+  const [{ category }, reels] = await Promise.all([searchParams, getProductsReelVideos(10)]);
   return (
     <main>
       <section className="relative isolate overflow-hidden bg-zinc-950 text-white">
@@ -51,6 +55,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           </div>
         </div>
       </section>
+
+      <ReelShowcase
+        videos={reels}
+        subtitle="Our systems on site — installed, loaded and working in live warehouses."
+        cta={{ label: "Request a Quote", href: "/request-a-quote" }}
+      />
     </main>
   );
 }

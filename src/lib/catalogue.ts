@@ -1,3 +1,5 @@
+import { localAssetFor } from "@/lib/local-assets";
+
 export const catalogueCategorySlugs = [
   "office-storage",
   "industrial-storage",
@@ -74,21 +76,21 @@ const images = {
   hero: "https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000",
 } as const;
 
-const catalogueImage = (url: string, alt: string, caption: string): CatalogueImage => {
-  void url;
-  return {
-    url: "",
-    alt: `${alt} image placeholder`,
-    caption: `${caption} image placeholder`,
-  };
-};
+const catalogueImage = (url: string, alt: string, caption: string): CatalogueImage => ({
+  url: localAssetFor(url, "products") ?? url,
+  alt,
+  caption,
+});
+
+/** Category banners are editorial imagery, so they resolve from the products group too. */
+const catalogueCategoryImage = (url: string) => localAssetFor(url, "products") ?? url;
 
 const catalogueSeo = (title: string, description: string, ogImage: string): CatalogueSeo => ({
   title,
   description,
   ogTitle: title,
   ogDescription: description,
-  ogImage,
+  ogImage: localAssetFor(ogImage, "products") ?? ogImage,
 });
 
 export const catalogueCategories: readonly CatalogueCategory[] = [
@@ -98,7 +100,7 @@ export const catalogueCategories: readonly CatalogueCategory[] = [
     eyebrow: "Office Storage",
     title: "Space-smart storage for records and workplaces",
     description: "Mobile shelving, filing cabinets, pedestals, tables and lockers planned around office storage needs and available space.",
-    image: images.shelving,
+    image: catalogueCategoryImage(images.shelving),
     productCount: 13,
     order: 1,
     seo: catalogueSeo(
@@ -113,7 +115,7 @@ export const catalogueCategories: readonly CatalogueCategory[] = [
     eyebrow: "Industrial Storage",
     title: "Storage systems built around your inventory",
     description: "Industrial racking and platform systems for warehouses, factories, workshops and stockrooms, configured to project requirements.",
-    image: images.racks,
+    image: catalogueCategoryImage(images.racks),
     productCount: 6,
     order: 2,
     seo: catalogueSeo(
@@ -128,7 +130,7 @@ export const catalogueCategories: readonly CatalogueCategory[] = [
     eyebrow: "Material Handling",
     title: "Equipment for moving, lifting and loading",
     description: "Pallets, trolleys, stackers, cranes and lifting platforms for warehouse, factory and loading-bay material handling.",
-    image: images.forklift,
+    image: catalogueCategoryImage(images.forklift),
     productCount: 13,
     order: 3,
     seo: catalogueSeo(

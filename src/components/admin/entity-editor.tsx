@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CloudUpload, Eye, GripVertical, Plus, Save, Trash2 } from "lucide-react";
 import { SmartImage } from "@/components/site/smart-image";
+import { VideoEditor } from "@/components/admin/video-editor";
 import { slugify } from "@/lib/utils";
 
 type Data = Record<string, unknown>;
@@ -11,6 +12,7 @@ type RelationOptions = {
   products: Array<{ id: number; name: string }>;
   industries: Array<{ id: number; name: string }>;
   projects: Array<{ id: number; title: string }>;
+  services?: Array<{ id: number; name: string }>;
 };
 type Field = {
   key: string;
@@ -770,6 +772,20 @@ export function EntityEditor({
     return (
       <EditorFrame entity={entity} title={title} preview={preview}>
         <ProductEditor initial={initialData} onSave={save} saving={saving} uploading={uploading > 0} error={error} options={relationOptions} onUploadBusy={markUpload} />
+      </EditorFrame>
+    );
+  }
+
+  if (entity === "videos") {
+    return (
+      <EditorFrame entity={entity} title={title} preview={preview}>
+        <VideoEditor
+          initial={initialData}
+          onSave={save}
+          saving={saving}
+          error={error}
+          options={{ products: relationOptions.products, services: relationOptions.services ?? [] }}
+        />
       </EditorFrame>
     );
   }

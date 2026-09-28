@@ -3,6 +3,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Check, Download } from "lucide-react";
 import { SmartImage } from "./smart-image";
+import { useFitHeading } from "./use-fit-heading";
 import type { products, services } from "@/db/schema";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -21,14 +22,24 @@ const staggerParent = {
  * `size` selects the heading scale. It defaults to the site's main section
  * scale so existing call sites are unchanged; `sm` is for dense bands that sit
  * between taller neighbours and would otherwise out-shout them.
+ *
+ * `singleLine` asks for the heading to hold one line wherever the viewport has
+ * room, by shrinking the type until it fits rather than wrapping it. It defaults
+ * to on because this is the site's major section heading and the requirement is
+ * site-wide, and because a single shared switch is what keeps thirty-one call
+ * sites consistent instead of drifting apart one edit at a time. It is safe for
+ * long editorial titles: the floor in `useFitHeading` stops the shrink, and a
+ * title that would need to go below the floor falls back to wrapping at its
+ * normal size. Pass `singleLine={false}` to opt a heading out deliberately.
  */
-export function SectionHeading({ eyebrow, title, description, light = false, align = "left", compact = false, size }: { eyebrow?: string; title: string; description?: string | null; light?: boolean; align?: "left" | "center"; compact?: boolean; size?: "sm" }) {
+export function SectionHeading({ eyebrow, title, description, light = false, align = "left", compact = false, size, singleLine = true }: { eyebrow?: string; title: string; description?: string | null; light?: boolean; align?: "left" | "center"; compact?: boolean; size?: "sm"; singleLine?: boolean }) {
   const reduced = useReducedMotion();
   const anim = !reduced;
   const scale = size === "sm" ? "sm" : compact ? "md" : "lg";
   const headingClass = scale === "sm" ? "heading-sm" : scale === "md" ? "heading-md" : "section-heading";
   const descriptionClass = scale === "sm" ? "section-description-sm" : "section-description";
   const gap = scale === "sm" ? "mt-3.5" : "mt-5";
+  const headingRef = useFitHeading<HTMLHeadingElement>(singleLine ? 20 : 0);
   return (
     <motion.div
       className={`${align === "center" ? "mx-auto text-center" : ""}`}
@@ -43,8 +54,9 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
         </motion.p>
       ) : null}
       <motion.h2
+        ref={headingRef}
         variants={anim ? fadeUp : undefined}
-        className={`${eyebrow ? gap : ""} text-balance ${headingClass} ${
+        className={`${eyebrow ? gap : ""} text-balance ${headingClass} ${singleLine ? "fit-heading" : ""} ${
           light ? "text-white" : compact ? "text-zinc-900" : "text-zinc-950"
         }`}
       >

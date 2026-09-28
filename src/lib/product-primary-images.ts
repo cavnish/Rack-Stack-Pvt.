@@ -135,6 +135,75 @@ export async function getPrimaryProductImageFor(
   return map.get(product.id) || columnFallback(product);
 }
 
+/**
+ * The shape a "related products" row arrives in.
+ *
+ * A `related` entry is a trimmed-down product record: it has an id, a slug and
+ * the two legacy image columns, but no gallery. It is also mixed — CMS rows
+ * arrive with a numeric `id` and catalogue rows with a string one — so this type
+ * has to allow both.
+ */
+export type RelatedImageCandidate = {
+  id: string | number;
+  slug: string;
+  name: string;
+  heroImage?: string | null;
+  thumbnail?: string | null;
+};
+
+/**
+ * Primary image for every product in a "related" list, keyed by `id`.
+ *
+ * This is what makes a related-products card show the same photograph as the
+ * product page it links to. Reading `thumbnail` straight off the row does not:
+ * the detail page leads with the head of `[...folderImages, ...product_images]`,
+ * so a card that trusts the column shows a different image from its own target
+ * and stops following the admin when the gallery is reordered.
+ *
+ * The two id shapes need different resolvers, because only a CMS row can be
+ * looked up in `product_images`:
+ *
+ * - numeric id -> `getPrimaryProductImages`, which reads the gallery rows and
+ *   the product's `public/` folder;
+ * - string id -> `getPrimaryCatalogueImages`, which reads the `public/` folder
+ *   and falls back to the catalogue's own image. `adaptCatalogueRelated` has
+ *   already folded that image into `thumbnail`, so it is passed through as the
+ *   single catalogue image, which reproduces the folder-images-first order that
+ *   `adaptCatalogueProduct` uses.
+ *
+ * Keyed by `id` rather than by slug because that is what the caller already has
+ * and it is unique within one list.
+ */
+export async function getRelatedProductImages(
+  items: readonly RelatedImageCandidate[],
+): Promise<Map<string, string>> {
+  const resolved = new Map<string, string>();
+  if (items.length === 0) return resolved;
+
+  const cms = items.filter(
+    (item): item is RelatedImageCandidate & { id: number } => typeof item.id === "number",
+  );
+  const catalogue = items.filter((item) => typeof item.id !== "number");
+
+  const [cmsImages, catalogueImages] = await Promise.all([
+    getPrimaryProductImages(cms),
+    getPrimaryCatalogueImages(
+      catalogue.map((item) => ({
+        slug: item.slug,
+        name: item.name,
+        images: [{ url: item.thumbnail ?? "" }],
+      })),
+    ),
+  ]);
+
+  for (const [id, image] of cmsImages) resolved.set(String(id), image);
+  for (const item of catalogue) {
+    resolved.set(String(item.id), catalogueImages.get(item.slug) ?? item.thumbnail ?? "");
+  }
+
+  return resolved;
+}
+
 /** The fields of a `catalogue.ts` product this module reads. */
 export type PrimaryCatalogueImageCandidate = {
   slug: string;

@@ -30,9 +30,11 @@ import { ProductGallery } from "@/components/site/product-experience";
 import { ProductShowcase } from "@/components/site/product-showcase";
 import { FAQ } from "@/components/site/faq";
 import { ProductCard, type ProductCardProduct } from "@/components/site/product-card";
+import { FitHeading } from "@/components/site/fit-heading";
 import { InquiryForm } from "@/components/site/inquiry-form";
 import { SectionHeading } from "@/components/site/ui";
 import { MobileProductActions } from "@/components/site/product-experience";
+import { getRelatedProductImages } from "@/lib/product-primary-images";
 import { EventTracker } from "@/components/site/event-tracker";
 import { Reveal } from "@/components/site/reveal";
 import { WorkflowSteps } from "@/components/site/workflow-steps";
@@ -298,9 +300,9 @@ export function FeaturesSection({
       <div className="container-shell">
         {/* Header */}
         <div className="text-center">
-          <h2 className="section-heading text-balance">
+          <FitHeading className="section-heading text-balance">
             Built to Make Storage Easier
-          </h2>
+          </FitHeading>
         </div>
 
         {/* 6 Key Feature Cards Grid */}
@@ -379,7 +381,7 @@ export function OverviewSection({ product }: { product: ProductDetail }) {
     <section className="py-24">
       <div className="container-shell grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <div>
-          <h2 className="section-heading text-balance">Built for Efficient Storage</h2>
+          <FitHeading className="section-heading text-balance">Built for Efficient Storage</FitHeading>
           <p className="section-description mt-5 text-zinc-700">{body}</p>
           <p className="mt-6 flex items-start gap-3 text-sm leading-7 text-zinc-500"><Ruler size={17} className="mt-0.5 shrink-0 text-red-600" />Final sizes, loads and engineering are confirmed against your layout and project proposal.</p>
         </div>
@@ -400,9 +402,9 @@ export function TechnicalSpecificationsSection({ product }: { product: ProductDe
         {/* Header */}
         <div className="mb-10 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="section-heading">
+            <FitHeading className="section-heading">
               Specifications at a Glance
-            </h2>
+            </FitHeading>
           </div>
           <p className="max-w-xs text-sm leading-6 text-zinc-500 sm:text-right">
             Guide values. Final numbers are confirmed in your project proposal.
@@ -513,9 +515,9 @@ export function ApplicationsSection({ items, product }: { items: ProductDetail["
     <section className="bg-[#f4f4f1] border-y border-zinc-200 py-16 lg:py-20">
       <div className="container-shell">
         <div className="text-center">
-          <h2 className="section-heading text-balance">
+          <FitHeading className="section-heading text-balance">
             Where It&apos;s Used
-          </h2>
+          </FitHeading>
           <p className="section-description mt-5 mx-auto text-zinc-500">
             Common places where this storage system is installed and used every day.
           </p>
@@ -658,14 +660,36 @@ export function FaqSection({ items }: { items: ProductDetail["faqs"] }) {
   );
 }
 
-export function RelatedSection({ items }: { items: ProductDetail["related"] }) {
+/**
+ * "Related Storage Systems".
+ *
+ * The grid is one-per-row on phones, two on tablets and three on desktop, which
+ * is the same `1 / 2 / 3` progression the homepage "What We Offer" grid uses, so
+ * the two sections stay visually identical.
+ *
+ * Async because each card's image is resolved here rather than trusted from the
+ * `related` row. `adaptDatabaseRelated` only has the product's legacy
+ * `thumbnail`/`heroImage` columns to work with, but a product page leads with the
+ * first of `[...folderImages, ...product_images]`. Reading the column here would
+ * mean the card shows a different photograph from the page it links to and stops
+ * following the admin the moment the gallery is reordered. `getRelatedProductImages`
+ * answers the same question the product page answers, for every row in one batch.
+ */
+export async function RelatedSection({ items }: { items: ProductDetail["related"] }) {
   if (!items.length) return null;
+  const images = await getRelatedProductImages(items);
   return (
     <section className="border-t border-zinc-200 bg-[#f4f4f1] py-24">
       <div className="container-shell">
-        <SectionHeading compact title="Related Storage Systems" description="Other systems that work well alongside this one." />
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {items.map((item, i) => <ProductCard key={item.id} product={item as ProductCardProduct} index={i} />)}
+        <SectionHeading compact singleLine title="Related Storage Systems" description="Other systems that work well alongside this one." />
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, i) => (
+            <ProductCard
+              key={item.id}
+              product={{ ...item, image: images.get(String(item.id)) ?? null } as ProductCardProduct}
+              index={i}
+            />
+          ))}
         </div>
       </div>
     </section>
@@ -706,7 +730,7 @@ export function FinalCtaSection({ product }: { product: ProductDetail }) {
       <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,11,.62)_0%,rgba(9,9,11,.78)_55%,rgba(9,9,11,.7)_100%)]" />
 
       <div className="container-shell flex flex-col items-center text-center">
-        <h2 className="section-heading max-w-3xl text-balance">Planning Your Storage?</h2>
+        <FitHeading className="section-heading max-w-3xl text-balance">Planning Your Storage?</FitHeading>
         <p className="section-description mt-5 max-w-2xl text-zinc-300">
           Talk to Rack &amp; Stack about your storage needs and project.
         </p>
@@ -768,9 +792,9 @@ export function CompactContactSection({ product, allProducts, allServices }: { p
         {/* Left: copy */}
         <div>
           <p className="eyebrow text-red-400">Quick Enquiry</p>
-          <h2 className="section-heading mt-4 text-white text-balance">
+          <FitHeading className="section-heading mt-4 text-white text-balance">
             Need Storage?
-          </h2>
+          </FitHeading>
           <p className="section-description mt-5 text-zinc-400">
             Leave your details and we&apos;ll get back with setup options — usually within one business day.
           </p>

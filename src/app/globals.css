@@ -48,6 +48,15 @@ img,video,svg { max-width:100%; }
 /* One-line highlighted accent (PLANNED. SUPPLIED. INSTALLED.) */
 .hero-accent { display:block; white-space:nowrap; font-size:.6em; letter-spacing:.16em; font-weight:800; }
 .text-balance { text-wrap:balance; }
+/* A heading that asked to hold one line (see `useFitHeading`).
+   `nowrap` is switched on by the hook, never here, because the stylesheet size
+   is too large to fit a short heading on a phone and setting it statically would
+   push the page wider than the viewport.
+   `clip` is the safety net: while the hook is measuring a too-wide size, and in
+   the unlikely event a heading ever exceeds the floor, the text is cut at the
+   box edge rather than widening the page. `clip` rather than `hidden` so no
+   scroll container is created. */
+.fit-heading { overflow-x:clip; max-width:100%; }
 .card-title { font-size:clamp(1.25rem,1vw + 1.0625rem,1.5rem); line-height:1.3; letter-spacing:-.01em; font-weight:600; }
 .btn-primary,.btn-secondary,.btn-light { min-height:3.15rem; display:inline-flex; align-items:center; justify-content:center; gap:.7rem; padding:.8rem 1.15rem; font-size:.875rem; font-weight:650; letter-spacing:.02em; transition:all .22s ease; }
 .btn-primary { background:var(--red); color:white; border:1px solid var(--red); }

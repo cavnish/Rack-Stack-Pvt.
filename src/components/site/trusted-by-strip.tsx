@@ -28,7 +28,13 @@ export function TrustedByStrip({
     <section className={`bg-white py-8 sm:py-10 ${className}`}>
       <div className="container-shell">
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-          <p className="eyebrow">Trusted by businesses across India</p>
+          {/*
+            `whitespace-nowrap` so the label never breaks across lines. The row
+            already wraps, so on a narrow screen the "See Our Clients" link is
+            what moves to its own line — a link on line two reads fine, a label
+            split mid-phrase does not.
+          */}
+          <p className="eyebrow whitespace-nowrap">Trusted by businesses across India</p>
           <Link
             href="/clients"
             className="group ml-auto inline-flex items-center gap-1.5 text-[.7rem] font-bold text-zinc-500 transition-colors duration-200 hover:text-[var(--red)] sm:text-[.75rem]"

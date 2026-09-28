@@ -1,6 +1,6 @@
 [
   {
-    "id": 4,
+    "id": 1,
     "source": "INSTAGRAM",
     "title": "Rack & Stack on Instagram",
     "category": "WAREHOUSE",
@@ -20,7 +20,7 @@
     "showOnProducts": false,
     "showOnServices": false,
     "isActive": true,
-    "autoplay": false,
+    "autoplay": true,
     "muted": true,
     "loop": false,
     "status": "PUBLISHED",
@@ -28,13 +28,13 @@
     "metaTitle": null,
     "metaDescription": null,
     "deletedAt": null,
-    "createdAt": "2026-09-27T10:04:32.191Z",
-    "updatedAt": "2026-09-27T10:04:32.191Z",
+    "createdAt": "2026-09-28T08:58:51.487Z",
+    "updatedAt": "2026-09-28T08:58:51.487Z",
     "productSlugs": [],
     "serviceSlugs": []
   },
   {
-    "id": 5,
+    "id": 2,
     "source": "INSTAGRAM",
     "title": "Rack & Stack on Instagram",
     "category": "WAREHOUSE",
@@ -54,7 +54,7 @@
     "showOnProducts": false,
     "showOnServices": false,
     "isActive": true,
-    "autoplay": false,
+    "autoplay": true,
     "muted": true,
     "loop": false,
     "status": "PUBLISHED",
@@ -62,8 +62,8 @@
     "metaTitle": null,
     "metaDescription": null,
     "deletedAt": null,
-    "createdAt": "2026-09-27T10:04:32.202Z",
-    "updatedAt": "2026-09-27T10:04:32.202Z",
+    "createdAt": "2026-09-28T08:58:51.618Z",
+    "updatedAt": "2026-09-28T08:58:51.618Z",
     "productSlugs": [],
     "serviceSlugs": []
   }

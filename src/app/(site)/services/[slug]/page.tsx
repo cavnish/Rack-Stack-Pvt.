@@ -5,7 +5,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { getIndustries, getProducts, getServiceBySlug, getServiceReelVideos, getServices } from "@/lib/data";
 import { ReelShowcase } from "@/components/media/reel-showcase";
-import { Breadcrumb, CTASection, JsonLd, SectionHeading } from "@/components/site/ui";
+import { CTASection, JsonLd, SectionHeading } from "@/components/site/ui";
 import { SmartImage } from "@/components/site/smart-image";
 import { FAQ } from "@/components/site/faq";
 import { InquiryForm } from "@/components/site/inquiry-form";
@@ -64,8 +64,7 @@ export default async function ServicePage({
       <section className="bg-zinc-950 text-white">
         <div className="container-shell grid min-h-[620px] lg:grid-cols-2">
           <div className="flex flex-col justify-center py-16 lg:pr-16">
-            <Breadcrumb items={[{ label: "Services", href: "/services" }, { label: item.name }]} />
-            <p className="eyebrow mt-8 text-red-400">Our services</p>
+            <p className="eyebrow text-red-400">Our services</p>
             <h1 className="hero-heading mt-5">{item.name}</h1>
             <p className="hero-description mt-5 text-zinc-300">{item.shortDescription}</p>
             <Link

@@ -1,9 +1,9 @@
 [
   {
-    "id": 2,
+    "id": 1,
     "eyebrow": "Industrial storage systems",
-    "title": "Industrial Racking & Storage Systems Manufacturer",
-    "highlightedText": "Manufacture. Supply. Installation.",
+    "title": "Industrial Storage Systems,",
+    "highlightedText": "MANUFACTURER. SUPPLY. INSTALLATION.",
     "description": "Manufacturing-grade pallet racking, heavy duty shelving and mezzanine floors engineered for heavy loads, tight floorspace and continuous production output.",
     "imageUrl": "/Hero.jpeg",
     "imagePublicId": null,
@@ -11,7 +11,7 @@
     "mobileImagePublicId": null,
     "videoUrl": null,
     "imageAlt": "Industrial racking and storage systems installed across a manufacturing facility",
-    "primaryButtonText": "View Our Products",
+    "primaryButtonText": "View Products",
     "primaryButtonUrl": "/products",
     "secondaryButtonText": "Request a Quote",
     "secondaryButtonUrl": "/request-a-quote",
@@ -30,11 +30,11 @@
     "duration": 3500,
     "startAt": null,
     "endAt": null,
-    "createdAt": "2026-09-24T13:00:21.230Z",
-    "updatedAt": "2026-09-26T09:37:13.418Z"
+    "createdAt": "2026-09-28T08:58:50.431Z",
+    "updatedAt": "2026-09-28T08:58:50.431Z"
   },
   {
-    "id": 3,
+    "id": 2,
     "eyebrow": "Space optimization",
     "title": "Maximize Manufacturing Floor Space with Vertical Storage",
     "highlightedText": "FROM FLOOR TO FULL.",
@@ -47,8 +47,8 @@
     "imageAlt": "Wide warehouse layout with organised industrial storage",
     "primaryButtonText": "Explore Solutions",
     "primaryButtonUrl": "/products",
-    "secondaryButtonText": "Speak With Our Team",
-    "secondaryButtonUrl": "/contact",
+    "secondaryButtonText": "Request a Quote",
+    "secondaryButtonUrl": "/request-a-quote",
     "tertiaryButtonText": "Talk to Us",
     "tertiaryButtonUrl": "/contact",
     "trustPoints": [
@@ -64,11 +64,11 @@
     "duration": 3500,
     "startAt": null,
     "endAt": null,
-    "createdAt": "2026-09-24T13:00:21.230Z",
-    "updatedAt": "2026-09-27T08:00:31.242Z"
+    "createdAt": "2026-09-28T08:58:50.431Z",
+    "updatedAt": "2026-09-28T08:58:50.431Z"
   },
   {
-    "id": 4,
+    "id": 3,
     "eyebrow": "Industrial racking & shelving",
     "title": "Heavy Duty Racking Built for High-Output Manufacturing",
     "highlightedText": "BUILT FOR YOUR OPERATION.",
@@ -98,7 +98,7 @@
     "duration": 3500,
     "startAt": null,
     "endAt": null,
-    "createdAt": "2026-09-24T13:00:21.230Z",
-    "updatedAt": "2026-09-24T13:45:51.904Z"
+    "createdAt": "2026-09-28T08:58:50.431Z",
+    "updatedAt": "2026-09-28T08:58:50.431Z"
   }
 ]

@@ -22,7 +22,7 @@ export default async function CatalogPage() {
 
   return (
     <main>
-      <PageHero eyebrow="Product catalog" title={settings.catalogTitle} description={settings.catalogDescription} image={heroImage} breadcrumb={[{ label: "Catalog" }]} />
+      <PageHero title={settings.catalogTitle} description={settings.catalogDescription} image={heroImage} />
       <section className="py-24"><div className="container-shell grid gap-14 lg:grid-cols-[.75fr_1.25fr]">
         <div><p className="eyebrow">Download</p><h2 className="section-heading mt-5 text-balance">Keep Our Full Product Range at Hand</h2><p className="section-description mt-5 text-zinc-600">The catalog introduces our system categories. Final sizes, loads, accessories and fit are confirmed for your project.</p><ul className="mt-8 space-y-3">{["Racking and shelving categories", "Space optimization systems", "Workplace storage options", "A clear next step to discuss your setup"].map((item) => <li key={item} className="flex items-center gap-3 text-sm"><CheckCircle2 size={17} className="text-red-600" />{item}</li>)}</ul></div>
         <div className="surface-grid border border-zinc-200 bg-[#f4f4f1] p-7 sm:p-10"><span className="grid h-12 w-12 place-items-center bg-zinc-950 text-white"><BookOpen size={21} /></span><h2 className="card-title mt-7">{settings.catalogTitle}</h2><p className="mt-3 text-sm leading-6 text-zinc-600">{settings.catalogLeadGated ? "Enter your details to download the latest catalog." : "Download the catalog now."}</p><div className="mt-7"><CatalogDownload available={Boolean(settings.brochureUrl)} gated={settings.catalogLeadGated} /></div></div>

@@ -64,6 +64,20 @@
       "when": 1790502376452,
       "tag": "0008_keen_piledriver",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790584984734,
+      "tag": "0009_special_medusa",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790591623101,
+      "tag": "0010_stormy_tarot",
+      "breakpoints": true
     }
   ]
 }

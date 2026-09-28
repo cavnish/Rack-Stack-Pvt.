@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
-import { Breadcrumb, CTASection } from "@/components/site/ui";
+import { CTASection } from "@/components/site/ui";
 
 /**
  * Route-group level 404 boundary.
@@ -14,8 +14,7 @@ export default function SiteNotFound() {
     <main>
       <section className="bg-zinc-950 py-24 text-white">
         <div className="container-shell max-w-3xl">
-          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Page Not Found" }]} />
-          <p className="eyebrow mt-10 text-red-400">Error 404</p>
+          <p className="eyebrow text-red-400">Error 404</p>
           <h1 className="hero-heading mt-5">Page Not Found</h1>
           <p className="hero-description mt-5 text-zinc-300">
             The page may have moved or no longer exists. Use the links below to get back on track.

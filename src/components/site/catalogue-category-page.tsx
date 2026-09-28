@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Breadcrumb } from "@/components/site/ui";
 import { SmartImage } from "@/components/site/smart-image";
 import { CatalogueProductBrowser } from "@/components/site/catalogue-product-browser";
+import { TrustedByStrip } from "@/components/site/trusted-by-strip";
+import type { ClientLogo } from "@/components/site/client-logo-marquee";
 import type { CatalogueCategory, CatalogueProduct } from "@/lib/catalogue";
 
-export function CatalogueCategoryPage({ category, products }: { category: CatalogueCategory; products: readonly CatalogueProduct[] }) {
+export function CatalogueCategoryPage({ category, products, logos }: { category: CatalogueCategory; products: readonly CatalogueProduct[]; logos: ClientLogo[] }) {
   return (
     <main>
       <section className="relative isolate overflow-hidden bg-zinc-950 text-white">
@@ -14,8 +15,7 @@ export function CatalogueCategoryPage({ category, products }: { category: Catalo
         </div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-zinc-950 via-zinc-950/90 to-zinc-950/30" />
         <div className="container-shell flex min-h-[500px] flex-col justify-end py-16">
-          <Breadcrumb items={[{ label: "Products", href: "/products" }, { label: category.name }]} />
-          <p className="eyebrow mt-8 text-red-400">{category.eyebrow}</p>
+          <p className="eyebrow text-red-400">{category.eyebrow}</p>
           <h1 className="hero-heading mt-5 max-w-4xl text-balance">{category.title}</h1>
           <p className="hero-description mt-5 max-w-2xl text-zinc-300">{category.description}</p>
           <div className="mt-9 flex flex-wrap gap-3">
@@ -37,6 +37,8 @@ export function CatalogueCategoryPage({ category, products }: { category: Catalo
           </div>
         </div>
       </section>
+
+      <TrustedByStrip logos={logos} className="border-y border-zinc-200" />
 
       <section className="bg-zinc-950 py-16 text-white">
         <div className="container-shell grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">

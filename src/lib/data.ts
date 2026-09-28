@@ -1,8 +1,9 @@
 import "server-only";
 import { db, dbConfigured } from "@/db";
 import {
-  activityLogs, blogCategories, blogPosts, catalogDownloads, clientLogos, clients, contactMessages, faqs, gallery, homeSliders, homepageSections, industries, inquiries,
-  pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productImages, productIndustries, productProjects,
+  activityLogs, blogCategories, blogPosts, catalogDownloads, clientLogos, clients, contactMessages, faqs, gallery, homeOfferCards, homeSliders, homepageSections, industries, inquiries,
+  pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productGalleryImages, productImages, productIndustries, productProjects,
+
   productRelatedProducts, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projectImages, projects, redirects,
   seoSettings, serviceFeatures, serviceIndustries, serviceProjects, services, siteSettings, testimonials, videoProducts, videos, videoServices,
 } from "@/db/schema";
@@ -31,7 +32,11 @@ import {
 import { publishSerialized, type PublishScope } from "@/lib/publish";
 import { reviveDates, reviveList, type StaticBlogPostWithCategory, type StaticProductDetail, type StaticRoutes, type StaticVideo } from "@/lib/publish/types";
 import { getPublicClientLogos } from "@/lib/client-assets";
+import { homeOfferCardSeeds } from "@/lib/home-offer-cards";
+import { buildProductIndex, resolveHomeProductCards, type HomeProductCard } from "@/lib/home-products";
+import { getPrimaryProductImages, getPrimaryCatalogueImages } from "@/lib/product-primary-images";
 import type { ReelVideoItem } from "@/lib/reel-video";
+
 
 /**
  * Public content read layer.
@@ -171,12 +176,97 @@ export async function getHomepageSections() {
 
 export type HomeSlide = typeof homeSliders.$inferSelect;
 
+export type HomeOfferCard = typeof homeOfferCards.$inferSelect;
+
+/**
+ * A card with its product's own copy already folded in, in display order.
+ *
+ * The raw row is not enough to render: every field is an override that may be
+ * empty, and the product it points at may live in `products` or only in the
+ * code-defined catalogue. `home-products.ts` does that resolution, so the
+ * homepage receives a card that always has a name, an image and a destination.
+ */
+export type ResolvedHomeOfferCard = HomeProductCard;
+
+/**
+ * The homepage "What We Offer" cards, resolved and in display order.
+ *
+ * Cards point at products rather than duplicating them, so this reads the
+ * products alongside the card rows and merges the two. Falls back to the curated
+ * default shortlist so a freshly-migrated site still shows a full row of cards
+ * before anyone has created them in the CMS. Hidden cards are already withheld by
+ * the static generator, so nothing filters here.
+ */
+export async function getHomeOfferCards(): Promise<ResolvedHomeOfferCard[]> {
+  const [{ value }, databaseProducts] = await Promise.all([
+    resolve<HomeOfferCard[]>(
+      "homeOfferCards",
+      () =>
+        db
+          .select()
+          .from(homeOfferCards)
+          .where(eq(homeOfferCards.isActive, true))
+          .orderBy(asc(homeOfferCards.displayOrder), asc(homeOfferCards.id)),
+      () => fallbackOfferCards(),
+      { scope: "home-offer-cards", isEmpty: notEmptyArray },
+    ),
+    getProducts(),
+  ]);
+  /**
+   * The same primary-image resolution the product detail page performs, for
+   * every product at once and for both product systems. Passing these in is what
+   * makes a card's image the head of the product's own image list rather than an
+   * independent guess.
+   */
+  const [primaryImages, cataloguePrimaryImages] = await Promise.all([
+    getPrimaryProductImages(databaseProducts),
+    getPrimaryCatalogueImages(catalogueProducts),
+  ]);
+  return resolveHomeProductCards(
+    value as HomeOfferCard[],
+    buildProductIndex({ databaseProducts, primaryImages, catalogueProducts, cataloguePrimaryImages }),
+  );
+}
+
+/**
+ * Local stand-ins for the default cards.
+ *
+ * Only the pointer is filled in. Every other column is left null on purpose, so
+ * the card falls back to the product's own name, description, image, badge and
+ * link — the same source the CMS cards use. Hardcoding any of them here would
+ * create a second place to update every time a product changes.
+ */
+function fallbackOfferCards(): HomeOfferCard[] {
+  const now = new Date(0);
+  return homeOfferCardSeeds.map((seed, index) => ({
+    id: index + 1,
+    productId: null,
+    title: null,
+    slug: seed.slug,
+    description: null,
+    imageUrl: null,
+    imagePublicId: null,
+    altText: null,
+    category: null,
+    href: null,
+    ctaLabel: null,
+    showQuoteButton: true,
+    displayOrder: index,
+    isActive: true,
+    createdAt: now,
+    updatedAt: now,
+  }));
+}
+
+
 export type ProductDetail = typeof products.$inferSelect & {
   features: Array<typeof productFeatures.$inferSelect>;
   specifications: Array<typeof productSpecifications.$inferSelect>;
   applications: Array<typeof productApplications.$inferSelect>;
   images: Array<typeof productImages.$inferSelect>;
+  gallery: Array<typeof productGalleryImages.$inferSelect>;
   benefits: Array<typeof productBenefits.$inferSelect>;
+
   components: Array<typeof productComponents.$inferSelect>;
   configurations: Array<typeof productConfigurations.$inferSelect>;
   storedMaterials: Array<typeof productStoredMaterials.$inferSelect>;
@@ -308,6 +398,7 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
         specifications,
         applications,
         images,
+        gallery,
         benefits,
         components,
         configurations,
@@ -323,6 +414,8 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
         db.select().from(productSpecifications).where(eq(productSpecifications.productId, product.id)).orderBy(asc(productSpecifications.displayOrder)),
         db.select().from(productApplications).where(eq(productApplications.productId, product.id)).orderBy(asc(productApplications.displayOrder)),
         db.select().from(productImages).where(eq(productImages.productId, product.id)).orderBy(asc(productImages.displayOrder)),
+        db.select().from(productGalleryImages).where(eq(productGalleryImages.productId, product.id)).orderBy(asc(productGalleryImages.displayOrder)),
+
         db.select().from(productBenefits).where(eq(productBenefits.productId, product.id)).orderBy(asc(productBenefits.displayOrder)),
         db.select().from(productComponents).where(eq(productComponents.productId, product.id)).orderBy(asc(productComponents.displayOrder)),
         db.select().from(productConfigurations).where(eq(productConfigurations.productId, product.id)).orderBy(asc(productConfigurations.displayOrder)),
@@ -369,7 +462,9 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
         specifications,
         applications,
         images,
+        gallery,
         benefits,
+
         components,
         configurations,
         storedMaterials,
@@ -396,7 +491,9 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
     specifications: children.specifications as unknown as ProductDetail["specifications"],
     applications: children.applications as unknown as ProductDetail["applications"],
     images: children.images as unknown as ProductDetail["images"],
+    gallery: (Array.isArray(children.gallery) ? children.gallery : []) as unknown as ProductDetail["gallery"],
     benefits: [],
+
     components: [],
     configurations: [],
     storedMaterials: [],
@@ -424,6 +521,8 @@ function reviveProductDetail(detail: StaticProductDetail): ProductDetail {
     specifications: detail.specifications.map(revive) as unknown as ProductDetail["specifications"],
     applications: detail.applications.map(revive) as unknown as ProductDetail["applications"],
     images: detail.images.map(revive) as unknown as ProductDetail["images"],
+    gallery: (detail.gallery ?? []).map(revive) as unknown as ProductDetail["gallery"],
+
     benefits: detail.benefits.map(revive) as unknown as ProductDetail["benefits"],
     components: detail.components.map(revive) as unknown as ProductDetail["components"],
     configurations: detail.configurations.map(revive) as unknown as ProductDetail["configurations"],

@@ -9,12 +9,14 @@ import {
   clients,
   faqs,
   gallery,
+  homeOfferCards,
   homeSliders,
   homepageSections,
   industries,
   pages,
   productApplications,
   productFeatures,
+  productGalleryImages,
   productImages,
   productIndustries,
   productRelatedProducts,
@@ -29,6 +31,13 @@ import {
   users,
 } from "../src/db/schema";
 import { requireInstagramUrl } from "../src/lib/instagram";
+import { homeOfferCardSeeds } from "../src/lib/home-offer-cards";
+import {
+  defaultGalleryAltText,
+  defaultGalleryCaption,
+  productGalleryOrder,
+  productGallerySlots,
+} from "../src/lib/product-gallery-slots";
 
 /**
  * The Reels shown on the homepage out of the box. Order is the display order.
@@ -52,6 +61,26 @@ const images = {
   installation: "https://images.pexels.com/photos/4483860/pexels-photo-4483860.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600",
   longspan: "https://images.pexels.com/photos/1797415/pexels-photo-1797415.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600",
 };
+
+/**
+ * The six gallery views a seeded product starts with, in canonical slot order.
+ *
+ * These are the site's own stock photographs, mapped to the views they actually
+ * show. They exist so a new product page is never born with an empty gallery —
+ * an editor replaces them with real project photography from the CMS, at which
+ * point nothing in the renderer has to change.
+ */
+function gallerySeedFor(product: { name: string; heroImage: string | null; thumbnail: string | null }) {
+  const lead = product.heroImage || product.thumbnail || images.aisle;
+  return [
+    { url: lead, alt: `${product.name} storage system` },
+    { url: images.installation, alt: `${product.name} installed in a warehouse` },
+    { url: images.racks, alt: `Close-up of ${product.name.toLowerCase()} beams and joints` },
+    { url: images.aisle, alt: `Layout options for ${product.name.toLowerCase()}` },
+    { url: images.warehouse, alt: `${product.name} loaded with heavy stock` },
+    { url: images.shelving, alt: `${product.name} in everyday operation` },
+  ];
+}
 
 const productSeed = [
   {
@@ -320,12 +349,70 @@ async function seed() {
     { sectionKey: "hero", title: "SMART STORAGE. BUILT TO LAST.", subtitle: "Smart storage systems that help you save space, work faster and grow with ease.", displayOrder: 0, content: { eyebrow: "Industrial storage systems", highlight: "BUILT TO LAST.", primaryCta: "View Our Products", secondaryCta: "Request a Quote", tertiaryCta: "Talk to Us", image: images.siteHero, badge: "Planned around your operation" } },
     { sectionKey: "trust", title: "What You Can Count On", subtitle: "Every plan starts with your space, your loads and the way your team works.", displayOrder: 2, content: { metrics: [{ value: "Site-Based", label: "Planning" }, { value: "Load-Based", label: "Configuration" }, { value: "Workflow-Based", label: "Layout" }, { value: "End-to-End", label: "Support" }] } },
     { sectionKey: "about", title: "About Rack & Stack", subtitle: "Rack & Stack designs and installs complete storage systems — industrial racking, shelving, mezzanine floors, material handling and workplace storage. We start from how you actually operate, then plan the space, the system and the setup as one connected solution.\n\nWe plan around what you store, how you access it and how your team moves it — so the result handles capacity, safety and growth without making daily work harder.", displayOrder: 1, content: { image: images.aisle, cta: "Explore Our Solutions" } },
+    { sectionKey: "services", title: "One Team for the Whole Storage System", subtitle: "Design, manufacturing, supply and installation handled by the people who built the system.", displayOrder: 3, content: { label: "Why Rack & Stack", kicker: "Manufacturing • Supply • Installation", items: [{ title: "Manufacturing", description: "In-house rack production", icon: "Factory" }, { title: "Quality", description: "Strong & durable materials", icon: "BadgeCheck" }, { title: "Custom Design", description: "Solutions for every storage need", icon: "PencilRuler" }, { title: "Installation", description: "Professional installation", icon: "HardHat" }, { title: "After-Sales Support", description: "Long-term service & support", icon: "LifeBuoy" }] } },
+    { sectionKey: "offers", title: "What We Offer", subtitle: "We offer great service at a very competitive price and never compromise on quality.", displayOrder: 5, content: { ctaLabel: "View All Systems", ctaHref: "/products" } },
     { sectionKey: "why", title: "The Rack & Stack Difference", subtitle: "A simple, honest approach to space, load, access and setup.", displayOrder: 4, content: { cards: [{ title: "Built Around You", description: "We start with what you store and how you move it." }, { title: "Makes Best Use of Space", description: "We plan around your building, services and clearances." }, { title: "Right Load Capacity", description: "We design based on your actual load data." }, { title: "Smooth Execution", description: "We plan installation and site needs from day one." }] } },
     { sectionKey: "process", title: "How We Work", subtitle: "A simple, clear process from the first call to final handover.", displayOrder: 8, content: { steps: [{ number: "01", title: "Discover", description: "We learn your needs, stock and workflow" }, { number: "02", title: "Survey", description: "We measure your site and note limits" }, { number: "03", title: "Design", description: "We pick the system and plan the layout" }, { number: "04", title: "Deliver", description: "We supply and coordinate installation" }] } },
     { sectionKey: "manufacturing", title: "Built for Your Needs", subtitle: "Materials, build and finish all match the design we agree with you.", displayOrder: 9, content: { image: images.installation, cta: "Discuss Your Requirement" } },
     { sectionKey: "cta", title: "Setting Up a New Warehouse or Improving an Old One?", subtitle: "Tell us about your space and storage needs. We'll help you take the next step.", displayOrder: 14, content: { primaryCta: "Request a Quote", secondaryCta: "Call +91 97692 67792" } },
   ];
   for (const section of sections) await db.insert(homepageSections).values(section).onConflictDoNothing();
+
+  // The homepage "What We Offer" row used to be a hardcoded list in the page
+  // component. Importing it makes the cards editable without touching code, and
+  // the rows are pointers only: every copy column stays null so the card shows
+  // the product's own name, description, image, badge and link. A CMS product
+  // is bound by id, so deleting the product takes its card with it instead of
+  // leaving the homepage pointing at nothing.
+  for (const [displayOrder, card] of homeOfferCardSeeds.entries()) {
+    const [product] = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(eq(products.slug, card.slug))
+      .limit(1);
+    await db
+      .insert(homeOfferCards)
+      .values({
+        productId: product?.id ?? null,
+        slug: card.slug,
+        displayOrder,
+        isActive: true,
+        showQuoteButton: true,
+      })
+      .onConflictDoNothing();
+  }
+
+  /*
+   * Six-slot galleries.
+   *
+   * Seeded from the shared site imagery plus the product's own image so a freshly
+   * imported product has a complete gallery rather than six empty frames. The
+   * slot set is fixed, so a seventh image has nowhere to go — it is dropped here
+   * rather than given a home in the renderer.
+   */
+  for (const product of productRows) {
+    const existing = await db
+      .select({ id: productGalleryImages.id })
+      .from(productGalleryImages)
+      .where(eq(productGalleryImages.productId, product.id))
+      .limit(1);
+    if (existing.length) continue;
+    for (const [index, entry] of gallerySeedFor(product).entries()) {
+      const definition = productGallerySlots[index];
+      if (!definition || !entry.url) continue;
+      await db
+        .insert(productGalleryImages)
+        .values({
+          productId: product.id,
+          slot: definition.slot,
+          imageUrl: entry.url,
+          altText: entry.alt || defaultGalleryAltText(definition.slot, product.name),
+          caption: defaultGalleryCaption(definition.slot, product.name),
+          displayOrder: productGalleryOrder(definition.slot),
+        })
+        .onConflictDoNothing();
+    }
+  }
 
   if (Number((await db.select({ count: sql<number>`count(*)` }).from(homeSliders))[0].count) === 0) {
     await db.insert(homeSliders).values([

@@ -1,5 +1,12 @@
 import { cacheImage, resolveLocalAsset, slugifySegment, type AssetGroup } from "./media";
 import { catalogueProducts, getRelatedCatalogueProducts } from "@/lib/catalogue";
+import { CORE_SERVICES } from "@/data/services-data";
+import {
+  defaultGalleryAltText,
+  defaultGalleryCaption,
+  productGalleryOrder,
+  productGallerySlots,
+} from "@/lib/product-gallery-slots";
 import type {
   StaticBlogCategory,
   StaticBlogPost,
@@ -147,6 +154,21 @@ export async function bootstrapProducts(): Promise<StaticProduct[]> {
     ogImage: images.racks,
     canonicalUrl: null,
     robotsIndex: true,
+    // Editorial copy. Left null so the renderer's own defaults apply: a fallback
+    // page should read like the real product page, not like a section that has
+    // been half filled in.
+    galleryHeading: null,
+    featuresHeading: null,
+    overviewHeading: null,
+    overviewBody: null,
+    applicationsHeading: null,
+    applicationsIntro: null,
+    ctaTitle: null,
+    ctaSubtitle: null,
+    primaryCtaLabel: null,
+    primaryCtaHref: null,
+    secondaryCtaLabel: null,
+    secondaryCtaHref: null,
     deletedAt: null,
     createdAt: EPOCH,
     updatedAt: EPOCH,
@@ -201,6 +223,37 @@ export async function bootstrapProductChildren(slug: string) {
         createdAt: EPOCH,
       })),
     ),
+    /*
+     * Gallery slots for the offline fallback.
+     *
+     * The catalogue has no notion of the six-view grid, so the images are mapped
+     * onto it in order: whatever the first catalogue shot is becomes the main
+     * view, the second the installation, and so on. Any slot the catalogue
+     * cannot fill is left out rather than padded with unrelated stock, which is
+     * the same rule the renderer follows.
+     */
+    gallery: (
+      await Promise.all(
+        productGallerySlots.map(async (definition, index) => {
+          const image = product.images[index];
+          if (!image) return null;
+          return {
+            id: id * 1000 + index,
+            productId: id,
+            slot: definition.slot,
+            imageUrl: await localImageFor(image.url, "racks"),
+            cloudinaryPublicId: null,
+            altText: image.alt || defaultGalleryAltText(definition.slot, product.name),
+            caption: image.caption || defaultGalleryCaption(definition.slot, product.name),
+            width: null,
+            height: null,
+            fileSize: null,
+            displayOrder: productGalleryOrder(definition.slot),
+            createdAt: EPOCH,
+          };
+        }),
+      )
+    ).filter((row): row is NonNullable<typeof row> => row !== null),
     related: related.filter(Boolean),
     industries: product.industries.map((name) => catalogueIndustryNames.indexOf(name) + 1).filter((index) => index > 0),
     fallbackImage: images.installation,
@@ -228,41 +281,50 @@ const industrySeed: Array<[name: string, slug: string, shortDescription: string]
 ]);
 
 export async function bootstrapServices(): Promise<StaticService[]> {
-  const images = await bootstrapImages();
-  return serviceSeed.map(([name, slug, shortDescription, description, icon], displayOrder) => ({
-    id: displayOrder + 1,
-    name,
-    slug,
-    shortDescription,
-    description,
-    heroImage: displayOrder % 2 ? images.installation : images.racks,
-    heroImagePublicId: null,
-    icon,
-    featured: displayOrder < 6,
-    status: "PUBLISHED",
-    displayOrder,
-    process: [
-      { title: "Understand", description: "We learn your needs and limits." },
-      { title: "Develop", description: "We prepare the right system or layout." },
-      { title: "Coordinate", description: "We align the scope and plan the setup." },
-    ],
-    deliverables: ["Review of your requirements", "A recommended approach", "A clear project plan"],
-    metaTitle: `${name} | Rack & Stack`,
-    metaDescription: shortDescription,
-    keywords: `${name}, storage services`,
-    focusKeyword: name.toLowerCase(),
-    ogTitle: null,
-    ogDescription: null,
-    ogImage: displayOrder % 2 ? images.installation : images.racks,
-    canonicalUrl: null,
-    robotsIndex: true,
-    deletedAt: null,
-    createdAt: EPOCH,
-    updatedAt: EPOCH,
+  return CORE_SERVICES.map((s) => ({
+    id: s.id,
+    name: s.name,
+    slug: s.slug,
+    shortDescription: s.shortDescription,
+    description: s.description,
+    heroImage: s.heroImage,
+    heroImagePublicId: s.heroImagePublicId,
+    icon: s.icon,
+    featured: s.featured,
+    status: s.status,
+    displayOrder: s.displayOrder,
+    process: s.process,
+    deliverables: s.deliverables,
+    heroHeading: s.heroHeading,
+    introHeading: s.introHeading,
+    introDescription: s.introDescription,
+    introBullets: s.introBullets,
+    capabilities: s.capabilities,
+    applications: s.applications,
+    whyChoosePoints: s.whyChoosePoints,
+    locationCoverage: s.locationCoverage,
+    relatedProductSlugs: s.relatedProductSlugs,
+    galleryImageIds: s.galleryImageIds,
+    metaTitle: s.metaTitle,
+    metaDescription: s.metaDescription,
+    keywords: s.keywords,
+    focusKeyword: s.focusKeyword,
+    ogTitle: s.ogTitle,
+    ogDescription: s.ogDescription,
+    ogImage: s.ogImage,
+    canonicalUrl: s.canonicalUrl,
+    robotsIndex: s.robotsIndex,
+    deletedAt: s.deletedAt,
+    createdAt: s.createdAt,
+    updatedAt: s.updatedAt,
   }));
 }
 
-export function bootstrapServiceFeatures(serviceId: number) {
+export function bootstrapServiceFeatures(serviceId: number): Array<{ id: number; serviceId: number; title: string; description: string; icon: string; displayOrder: number }> {
+  const service = CORE_SERVICES.find((s) => s.id === serviceId);
+  if (service && service.features.length > 0) {
+    return service.features;
+  }
   return [
     { id: serviceId * 100, serviceId, title: "Based on Your Needs", description: "We start with how you work — not a one-size-fits-all answer.", icon: "CheckCircle2", displayOrder: 0 },
     { id: serviceId * 100 + 1, serviceId, title: "Clear Planning", description: "Everything is agreed before work begins.", icon: "CheckCircle2", displayOrder: 1 },
@@ -354,6 +416,14 @@ export async function bootstrapHomeSections(): Promise<StaticHomeSection[]> {
       content: { image: images.aisle, cta: "Explore Our Solutions" },
       enabled: true,
       displayOrder: 1,
+    },
+    {
+      sectionKey: "offers",
+      title: "What We Offer",
+      subtitle: "We offer great service at a very competitive price and never compromise on quality.",
+      content: { ctaLabel: "View All Systems", ctaHref: "/products" },
+      enabled: true,
+      displayOrder: 5,
     },
     {
       sectionKey: "why",

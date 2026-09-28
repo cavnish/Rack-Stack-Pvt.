@@ -6,6 +6,7 @@ import type {
   faqs,
   gallery,
   homeSliders,
+  homeOfferCards,
   homepageSections,
   industries,
   pages,
@@ -14,6 +15,7 @@ import type {
   productComponents,
   productConfigurations,
   productFeatures,
+  productGalleryImages,
   productImages,
   productRelatedProducts,
   productSpecifications,
@@ -60,6 +62,7 @@ export function reviveList<T extends Record<string, unknown>>(rows: StaticList<T
 }
 
 export type StaticHomeSection = Static<typeof homepageSections.$inferSelect>;
+export type StaticHomeOfferCard = Static<typeof homeOfferCards.$inferSelect>;
 export type StaticHomeSlider = Static<typeof homeSliders.$inferSelect>;
 export type StaticProduct = Static<typeof products.$inferSelect>;
 export type StaticService = Static<typeof services.$inferSelect>;
@@ -77,6 +80,7 @@ export type StaticSiteSettings = Static<typeof siteSettings.$inferSelect>;
 export type StaticSeoSettings = Static<typeof seoSettings.$inferSelect>;
 export type StaticRedirect = Static<typeof redirects.$inferSelect>;
 export type StaticProductImage = Static<typeof productImages.$inferSelect>;
+export type StaticProductGalleryImage = Static<typeof productGalleryImages.$inferSelect>;
 export type StaticProjectImage = Static<typeof projectImages.$inferSelect>;
 export type StaticProductFeature = Static<typeof productFeatures.$inferSelect>;
 export type StaticProductSpecification = Static<typeof productSpecifications.$inferSelect>;
@@ -101,6 +105,7 @@ export type StaticVideo = Static<typeof videos.$inferSelect> & {
 /** A fully expanded product record, the shape the public product page consumes. */
 export type StaticProductDetail = StaticProduct & {
   images: StaticProductImage[];
+  gallery: StaticProductGalleryImage[];
   features: StaticProductFeature[];
   specifications: StaticProductSpecification[];
   applications: StaticProductApplication[];

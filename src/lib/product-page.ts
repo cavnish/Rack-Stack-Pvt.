@@ -136,9 +136,33 @@ function categoryLabel(category: string) {
     .join(" ");
 }
 
+/**
+ * The canonical URL for a CMS product, from a database row.
+ *
+ * CMS products live at the flat `/products/{slug}` route, which is what
+ * `generateMetadata` already publishes as their canonical and what
+ * `/products/[category]` resolves. They deliberately do *not* get the
+ * `/products/{category}/{slug}` shape: that route only serves catalogue products
+ * and 404s unless the category matches, so a category form is a dead link for a
+ * CMS product.
+ */
+export function getDatabaseProductHref(slug: string) {
+  return `/products/${slug}`;
+}
+
+/**
+ * Resolves a URL from a bare slug.
+ *
+ * Catalogue first, because a slug is only unambiguous when it is not also a CMS
+ * slug. Where a slug exists in *both* systems — `mezzanine-floor`,
+ * `slotted-angle-racks` and `mobile-compactor-storage-system` do — the answer
+ * depends on which record you actually hold, so anything resolving a known CMS
+ * product must call `getDatabaseProductHref` with the row's slug instead. The two
+ * records are different products and their pages are genuinely different.
+ */
 export function getProductHref(slug: string) {
   const catalogueProduct = getCatalogueProductBySlug(slug);
-  return catalogueProduct ? getCatalogueProductHref(catalogueProduct) : `/products/${slug}`;
+  return catalogueProduct ? getCatalogueProductHref(catalogueProduct) : getDatabaseProductHref(slug);
 }
 
 function adaptCatalogueRelated(product: CatalogueProduct): ProductPageRelated {
@@ -155,14 +179,20 @@ function adaptCatalogueRelated(product: CatalogueProduct): ProductPageRelated {
   };
 }
 
-export function adaptDatabaseRelated(product: DatabaseProduct): ProductPageRelated {
-  const catalogueProduct = getCatalogueProductBySlug(product.slug);
-  if (catalogueProduct) return adaptCatalogueRelated(catalogueProduct);
+export /**
+ * Adapts a CMS product for a "related" list.
+ *
+ * The row is always a CMS product, so it is always adapted as one — both for
+ * its copy and for its URL. Deferring to a same-slug catalogue entry here would
+ * have been self-contradictory: the card would show a different product's name
+ * and open that product's page, while the row came from the CMS.
+ */
+function adaptDatabaseRelated(product: DatabaseProduct): ProductPageRelated {
   return {
     id: product.id,
     name: product.name,
     slug: product.slug,
-    href: getProductHref(product.slug),
+    href: getDatabaseProductHref(product.slug),
     category: product.category,
     shortDescription: product.shortDescription,
     thumbnail: product.thumbnail,
@@ -178,7 +208,7 @@ export function adaptCatalogueProduct(product: CatalogueProduct, relatedProducts
     caption: image.caption,
   }));
   const sourceImages: ProductPageImage[] = folderImages.length > 0 ? [...folderImages, ...catalogueImages] : catalogueImages;
-  const firstImage = sourceImages.find((image) => image.imageUrl.trim())?.imageUrl ?? "";
+  const firstImage = getPrimaryProductImage({ images: sourceImages });
   return {
     id: product.id,
     name: product.name,
@@ -240,6 +270,37 @@ export function adaptCatalogueProduct(product: CatalogueProduct, relatedProducts
   };
 }
 
+/**
+ * Image #1 for a product — the single definition of a product's primary image.
+ *
+ * A product's images live in one ordered list: the media assets in its product
+ * folder first, then the images on its record. The product page renders the head
+ * of that list as the primary image, and the homepage card asks this function for
+ * the same value, so the two cannot drift apart.
+ *
+ * The list is ordered by `sortOrder` on the images table, so reordering a
+ * product's gallery in the admin changes image #1 on the product page and on the
+ * homepage card at the same time. `heroImage`/`thumbnail` are consulted only once
+ * a product has no images at all.
+ */
+export function getPrimaryProductImage(
+  product: {
+    heroImage?: string | null;
+    thumbnail?: string | null;
+    images?: readonly { imageUrl?: string | null }[] | null;
+  },
+  folderImages: readonly { imageUrl?: string | null }[] = [],
+): string {
+  const ordered = [...folderImages, ...(product.images ?? [])];
+  for (const image of ordered) {
+    const url = typeof image?.imageUrl === "string" ? image.imageUrl.trim() : "";
+    if (url) return url;
+  }
+  const hero = typeof product.heroImage === "string" ? product.heroImage.trim() : "";
+  if (hero) return hero;
+  return typeof product.thumbnail === "string" ? product.thumbnail.trim() : "";
+}
+
 export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages: ProductPageImage[] = []): ProductPageProduct {
   const sourceImages: ProductPageImage[] = [
     ...folderImages,
@@ -250,12 +311,12 @@ export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages:
       caption: image.caption,
     })),
   ];
-  const firstImage = folderImages[0]?.imageUrl ?? product.heroImage ?? product.thumbnail;
+  const firstImage = getPrimaryProductImage(product, folderImages);
   return {
     id: product.id,
     name: product.name,
     slug: product.slug,
-    href: getProductHref(product.slug),
+    href: getDatabaseProductHref(product.slug),
     category: product.category,
     categoryLabel: categoryLabel(product.category),
     productType: undefined,

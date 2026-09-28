@@ -1,12 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowDown, ArrowDownUp, ArrowUp, Copy, Edit3, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowDownUp, ArrowUp, Copy, Edit3, Eye, EyeOff, Plus, Search, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SmartImage } from "@/components/site/smart-image";
 
 const labels: Record<string, string> = {
   homepage: "Homepage sections",
+  "home-offer-cards": "Homepage offer cards",
   blog: "Blog posts",
   "contact-messages": "Contact messages",
   seo: "SEO settings",
@@ -18,6 +19,18 @@ const labels: Record<string, string> = {
 const noCreate = new Set(["inquiries", "contact-messages", "activity", "media", "seo", "settings"]);
 const noEdit = new Set(["activity", "media"]);
 const noDelete = new Set(["inquiries", "contact-messages", "activity", "seo", "settings", "users"]);
+
+/**
+ * Collections whose order is editorial, and the field that holds it.
+ *
+ * Keyed by entity rather than hardcoded per table so a collection only has to
+ * declare its ordering field once: the row sort, the move buttons and the save
+ * payload all read the same key, and a field rename cannot desynchronise them.
+ */
+const orderFields: Record<string, string> = {
+  "home-slider": "sortOrder",
+  "home-offer-cards": "displayOrder",
+};
 
 function display(row: Record<string, unknown>) {
   return String(row.name || row.title || row.clientName || row.question || row.email || row.action || row.sectionKey || `Record #${row.id}`);
@@ -32,7 +45,7 @@ function secondary(entity: string, row: Record<string, unknown>) {
   return String(row.category || row.industry || row.company || row.entityType || row.entity || row.email || row.requirement || row.subject || "");
 }
 function thumbnail(row: Record<string, unknown>) {
-  const candidate = row.thumbnail || row.imageUrl || row.logo || row.coverImage || row.featuredImage || row.image || row.ogImage || row.posterUrl;
+  const candidate = row.thumbnail || row.heroImage || row.imageUrl || row.logo || row.coverImage || row.featuredImage || row.image || row.ogImage || row.posterUrl;
   return typeof candidate === "string" && candidate.trim() ? candidate : undefined;
 }
 
@@ -59,7 +72,8 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
             (featured === "ALL" || String(Boolean(row.featured)) === featured),
         )
         .sort((a, b) => {
-          if (entity === "home-slider") return (Number(a.sortOrder ?? 0) - Number(b.sortOrder ?? 0)) * (sortAsc ? 1 : -1);
+          const orderField = orderFields[entity];
+          if (orderField) return (Number(a[orderField] ?? 0) - Number(b[orderField] ?? 0)) * (sortAsc ? 1 : -1);
           return (sortAsc ? 1 : -1) * display(a).localeCompare(display(b));
         }),
     [rows, query, status, featured, sortAsc, entity],
@@ -115,14 +129,17 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
     }
   }
 
+  const orderField = orderFields[entity];
+
   async function move(id: number, direction: -1 | 1) {
+    if (!orderField) return;
     const idx = rows.findIndex((row) => Number(row.id) === id);
     const target = idx + direction;
     if (idx < 0 || target < 0 || target >= rows.length) return;
     const current = rows[idx];
     const other = rows[target];
-    const a = Number(current.sortOrder ?? 0);
-    const b = Number(other.sortOrder ?? 0);
+    const a = Number(current[orderField] ?? 0);
+    const b = Number(other[orderField] ?? 0);
     const swapA = a !== b ? b : a + direction;
     const swapB = a !== b ? a : b;
     if (swapA < 0 || swapB < 0) return;
@@ -130,15 +147,15 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
     setPending(true);
     try {
       const results = await Promise.all([
-        fetch(`/api/admin/home-slider/${current.id}`, {
+        fetch(`/api/admin/${entity}/${current.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...current, sortOrder: swapA }),
+          body: JSON.stringify({ ...current, [orderField]: swapA }),
         }),
-        fetch(`/api/admin/home-slider/${other.id}`, {
+        fetch(`/api/admin/${entity}/${other.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...other, sortOrder: swapB }),
+          body: JSON.stringify({ ...other, [orderField]: swapB }),
         }),
       ]);
       if (results.some((response) => !response.ok)) {
@@ -148,13 +165,43 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
       setRows((value) => {
         const arr = [...value];
         [arr[idx], arr[target]] = [arr[target], arr[idx]];
-        arr[idx] = { ...arr[idx], sortOrder: swapB };
-        arr[target] = { ...arr[target], sortOrder: swapA };
+        arr[idx] = { ...arr[idx], [orderField]: swapB };
+        arr[target] = { ...arr[target], [orderField]: swapA };
         return arr;
       });
       router.refresh();
     } catch {
       setMessage("Network error while reordering. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  /**
+   * Shows or hides a record without opening the editor.
+   *
+   * Only offered where the collection actually has a visibility flag. Hiding is
+   * a save, not a local toggle, so the row is only updated once the API has
+   * accepted it — otherwise a failed write would leave the screen claiming a
+   * state the site is not in.
+   */
+  async function toggleActive(row: Record<string, unknown>) {
+    setMessage("");
+    setPending(true);
+    try {
+      const response = await fetch(`/api/admin/${entity}/${row.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...row, isActive: !row.isActive }),
+      });
+      if (!response.ok) {
+        setMessage("Unable to change visibility. Please try again.");
+        return;
+      }
+      setRows((value) => value.map((item) => (item.id === row.id ? { ...item, isActive: !item.isActive } : item)));
+      router.refresh();
+    } catch {
+      setMessage("Network error while changing visibility. Please try again.");
     } finally {
       setPending(false);
     }
@@ -275,6 +322,7 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
             <tbody className="divide-y divide-zinc-100">
               {visible.map((row) => {
                 const image = thumbnail(row);
+                const idx = rows.findIndex((item) => item.id === row.id);
                 return (
                   <tr className="hover:bg-zinc-50" key={String(row.id)}>
                     <td className="p-4">
@@ -328,12 +376,12 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
                     </td>
                     <td className="p-4">
                       <div className="flex justify-end gap-1">
-                        {entity === "home-slider" ? (
+                        {orderField ? (
                           <span className="mr-1 flex items-center">
                             <button
                               title="Move up"
                               onClick={() => move(Number(row.id), -1)}
-                              disabled={pending || Number(row.id) === Number(rows[0]?.id)}
+                              disabled={pending || idx === 0}
                               className="grid h-8 w-8 place-items-center rounded text-zinc-600 hover:bg-zinc-100 disabled:opacity-40"
                             >
                               <ArrowUp size={14} />
@@ -341,12 +389,23 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
                             <button
                               title="Move down"
                               onClick={() => move(Number(row.id), 1)}
-                              disabled={pending || Number(row.id) === Number(rows[rows.length - 1]?.id)}
+                              disabled={pending || idx === rows.length - 1}
                               className="grid h-8 w-8 place-items-center rounded text-zinc-600 hover:bg-zinc-100 disabled:opacity-40"
                             >
                               <ArrowDown size={14} />
                             </button>
                           </span>
+                        ) : null}
+                        {orderField && row.isActive !== undefined ? (
+                          <button
+                            title={row.isActive ? "Hide from the site" : "Show on the site"}
+                            aria-label={row.isActive ? `Hide ${display(row)}` : `Show ${display(row)}`}
+                            onClick={() => toggleActive(row)}
+                            disabled={pending}
+                            className={`grid h-8 w-8 place-items-center rounded disabled:opacity-50 ${row.isActive ? "text-zinc-600 hover:bg-zinc-100" : "text-amber-600 hover:bg-amber-50"}`}
+                          >
+                            {row.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                          </button>
                         ) : null}
                         {entity === "products" ? (
                           <button

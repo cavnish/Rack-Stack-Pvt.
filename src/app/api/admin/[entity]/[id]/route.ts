@@ -29,6 +29,7 @@ const managedImages: Partial<Record<AdminEntity, { url: string; publicId: string
     { url: "imageUrl", publicId: "imagePublicId" },
     { url: "mobileImageUrl", publicId: "mobileImagePublicId" },
   ],
+  "home-offer-cards": [{ url: "imageUrl", publicId: "imagePublicId" }],
 };
 
 /**
@@ -104,6 +105,35 @@ async function pruneReplacedVideos(entity: AdminEntity, previous: ManagedAsset |
   await Promise.all(doomed.map((item) => destroyRemote(item.publicId, item.resourceType)));
 }
 
+/**
+ * Removes the product gallery originals the save dropped.
+ *
+ * A gallery slot that is cleared (or whose photo is swapped) leaves a real file
+ * behind on Cloudinary, and nothing else in the system would ever reclaim it.
+ * The write has already succeeded by the time this runs, so destroying first
+ * could never leave a row pointing at a deleted image.
+ */
+async function pruneProductGallery(entity: AdminEntity, previous: ManagedImage | null, body: Record<string, unknown>) {
+  if (entity !== "products" || !previous || !process.env.CLOUDINARY_CLOUD_NAME) return;
+  const before = Array.isArray(previous.gallery) ? (previous.gallery as ManagedImage[]) : [];
+  if (!before.length) return;
+  // An absent `gallery` key means the caller did not manage the gallery on this
+  // save, not that it is empty. Only an explicit array is authoritative; a PUT
+  // from a form that omits the field must not destroy six originals.
+  if (!Array.isArray(body.gallery)) return;
+  const after = body.gallery as ManagedImage[];
+  const kept = new Set(after.map((item) => String(item.imageUrl ?? "")));
+  const doomed = new Set<string>();
+  for (const item of before) {
+    const publicId = item.cloudinaryPublicId;
+    if (typeof publicId !== "string" || !publicId) continue;
+    if (!kept.has(String(item.imageUrl ?? ""))) doomed.add(publicId);
+  }
+  if (doomed.size) {
+    await Promise.all([...doomed].map((publicId) => cloudinaryClient().uploader.destroy(publicId).catch(() => { })));
+  }
+}
+
 export async function PUT(request: Request, context: { params: Promise<{ entity: string; id: string }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -113,12 +143,13 @@ export async function PUT(request: Request, context: { params: Promise<{ entity:
   if (entity === "users" && user.role !== "SUPER_ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   try {
     const body = (await request.json()) as Record<string, unknown>;
-    const previous = (managedImages[entity] || managedVideos[entity]
+    const previous = (managedImages[entity] || managedVideos[entity] || entity === "products"
       ? ((await getEntity(entity, Number(id))) as ManagedImage | null)
       : null) as ManagedImage | null;
     const item = await updateEntity(entity, Number(id), body, user.id);
     await pruneReplacedImages(entity, Number(id), previous, body);
     await pruneReplacedVideos(entity, previous, body);
+    await pruneProductGallery(entity, previous, body);
     await logActivity(entity === "inquiries" ? "INQUIRY_STATUS_CHANGED" : `${entity.toUpperCase()}_UPDATED`, entity, id, user.id);
     const publish = await publishEntity(entity);
     revalidatePath("/", "layout");

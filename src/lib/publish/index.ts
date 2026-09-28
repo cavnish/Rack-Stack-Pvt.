@@ -10,6 +10,7 @@ import {
   clients,
   faqs,
   gallery,
+  homeOfferCards,
   homeSliders,
   homepageSections,
   industries,
@@ -19,6 +20,7 @@ import {
   productComponents,
   productConfigurations,
   productFeatures,
+  productGalleryImages,
   productImages,
   productIndustries,
   productProjects,
@@ -59,6 +61,7 @@ export type PublishScope =
   | "settings"
   | "seo"
   | "homepage"
+  | "home-offer-cards"
   | "sliders"
   | "products"
   | "product"
@@ -275,6 +278,24 @@ async function generateHomepage() {
   return output;
 }
 
+/**
+ * Publishes the homepage "What We Offer" cards.
+ *
+ * Hidden cards are withheld rather than published with a flag, so the public
+ * payload contains exactly what renders and the homepage never has to filter.
+ * `localizeSerialized` rewrites the artwork afterwards, which is why the row is
+ * passed straight through here instead of being cached per field.
+ */
+async function generateHomeOfferCards() {
+  const rows = await db
+    .select()
+    .from(homeOfferCards)
+    .where(eq(homeOfferCards.isActive, true))
+    .orderBy(asc(homeOfferCards.displayOrder), asc(homeOfferCards.id));
+  if (rows.length === 0) return null;
+  return serialize(rows);
+}
+
 async function generateSliders() {
   const now = new Date();
   const rows = await db
@@ -341,6 +362,7 @@ export async function generateProducts() {
     specifications,
     applications,
     images,
+    galleryRows,
     benefits,
     components,
     configurations,
@@ -357,6 +379,7 @@ export async function generateProducts() {
     db.select().from(productSpecifications).where(inArray(productSpecifications.productId, ids)).orderBy(order(productSpecifications.displayOrder)),
     db.select().from(productApplications).where(inArray(productApplications.productId, ids)).orderBy(order(productApplications.displayOrder)),
     db.select().from(productImages).where(inArray(productImages.productId, ids)).orderBy(order(productImages.displayOrder)),
+    db.select().from(productGalleryImages).where(inArray(productGalleryImages.productId, ids)).orderBy(order(productGalleryImages.displayOrder)),
     db.select().from(productBenefits).where(inArray(productBenefits.productId, ids)).orderBy(order(productBenefits.displayOrder)),
     db.select().from(productComponents).where(inArray(productComponents.productId, ids)).orderBy(order(productComponents.displayOrder)),
     db.select().from(productConfigurations).where(inArray(productConfigurations.productId, ids)).orderBy(order(productConfigurations.displayOrder)),
@@ -399,6 +422,7 @@ export async function generateProducts() {
   const bySpecification = groupByProductId(specifications);
   const byApplication = groupByProductId(applications);
   const byImage = groupByProductId(images);
+  const byGallery = groupByProductId(galleryRows);
   const byBenefit = groupByProductId(benefits);
   const byComponent = groupByProductId(components);
   const byConfiguration = groupByProductId(configurations);
@@ -421,6 +445,13 @@ export async function generateProducts() {
     { key: "imageUrl", group: "products", name: (row) => `${slugifySegment(row.altText)}-${row.id}`, entityKey: (row) => `product-image:${row.id}` },
   ]);
   const cachedImageById = new Map(cachedImages.map((row) => [row.id, row]));
+
+  // Gallery filenames are keyed on the slot, so replacing one slot rewrites one
+  // file instead of churning every asset the product owns.
+  const cachedGallery = await mapImageColumns(galleryRows, [
+    { key: "imageUrl", group: "products", name: (row) => `${row.slot}-${row.id}`, entityKey: (row) => `product-gallery:${row.id}` },
+  ]);
+  const cachedGalleryById = new Map(cachedGallery.map((row) => [row.id, row]));
 
   const base = await mapImageColumns(rows, [
     { key: "heroImage", group: "products", name: (row) => `${row.slug}-hero`, entityKey: (row) => `product:${row.id}` },
@@ -452,6 +483,7 @@ export async function generateProducts() {
       specifications: bySpecification.get(row.id) ?? [],
       applications: byApplication.get(row.id) ?? [],
       images: (byImage.get(row.id) ?? []).map((entry) => cachedImageById.get(entry.id) ?? entry),
+      gallery: (byGallery.get(row.id) ?? []).map((entry) => cachedGalleryById.get(entry.id) ?? entry),
       benefits: byBenefit.get(row.id) ?? [],
       components: byComponent.get(row.id) ?? [],
       configurations: byConfiguration.get(row.id) ?? [],
@@ -855,6 +887,7 @@ export async function loadProductDetail(slug: string) {
     specifications,
     applications,
     images,
+    galleryRows,
     benefits,
     components,
     configurations,
@@ -870,6 +903,7 @@ export async function loadProductDetail(slug: string) {
     db.select().from(productSpecifications).where(eq(productSpecifications.productId, product.id)).orderBy(asc(productSpecifications.displayOrder)),
     db.select().from(productApplications).where(eq(productApplications.productId, product.id)).orderBy(asc(productApplications.displayOrder)),
     db.select().from(productImages).where(eq(productImages.productId, product.id)).orderBy(asc(productImages.displayOrder)),
+    db.select().from(productGalleryImages).where(eq(productGalleryImages.productId, product.id)).orderBy(asc(productGalleryImages.displayOrder)),
     db.select().from(productBenefits).where(eq(productBenefits.productId, product.id)).orderBy(asc(productBenefits.displayOrder)),
     db.select().from(productComponents).where(eq(productComponents.productId, product.id)).orderBy(asc(productComponents.displayOrder)),
     db.select().from(productConfigurations).where(eq(productConfigurations.productId, product.id)).orderBy(asc(productConfigurations.displayOrder)),
@@ -905,7 +939,7 @@ export async function loadProductDetail(slug: string) {
       .where(and(eq(productProjects.productId, product.id), eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt)))
       .orderBy(asc(productProjects.displayOrder)),
   ]);
-  return { product, features, specifications, applications, images, benefits, components, configurations, storedMaterials, stories, workflows, faqs: productFaqs, related: relatedRows.map((row) => row.item), industries: industryRows.map((row) => row.item), projects: projectRows.map((row) => row.item) };
+  return { product, features, specifications, applications, images, gallery: galleryRows, benefits, components, configurations, storedMaterials, stories, workflows, faqs: productFaqs, related: relatedRows.map((row) => row.item), industries: industryRows.map((row) => row.item), projects: projectRows.map((row) => row.item) };
 }
 
 export async function loadServiceDetail(slug: string) {
@@ -995,6 +1029,7 @@ const generators: Partial<Record<CollectionKey, () => Promise<unknown>>> = {
   site: generateSettings,
   seo: generateSeo,
   homepage: generateHomepage,
+  homeOfferCards: generateHomeOfferCards,
   sliders: generateSliders,
   products: generateProducts,
   services: generateServices,
@@ -1017,6 +1052,7 @@ const scopeCollections: Record<PublishScope, CollectionKey[]> = {
     "site",
     "seo",
     "homepage",
+    "homeOfferCards",
     "sliders",
     "products",
     "services",
@@ -1037,6 +1073,7 @@ const scopeCollections: Record<PublishScope, CollectionKey[]> = {
   settings: ["site", "routes"],
   seo: ["seo", "routes"],
   homepage: ["homepage", "routes"],
+  "home-offer-cards": ["homeOfferCards", "homepage", "routes"],
   sliders: ["sliders", "routes"],
   products: ["products", "routes"],
   product: ["products", "routes"],
@@ -1088,6 +1125,8 @@ export function scopeForAdminEntity(entity: string): PublishScope {
       return "blog";
     case "homepage":
       return "homepage";
+    case "home-offer-cards":
+      return "home-offer-cards";
     case "home-slider":
       return "sliders";
     case "videos":

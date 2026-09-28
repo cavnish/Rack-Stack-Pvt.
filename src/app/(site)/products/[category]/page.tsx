@@ -36,11 +36,17 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
 export default async function LegacyProductPage({ params, searchParams }: { params: Promise<{ category: string }>; searchParams: Promise<{ preview?: string }> }) {
   const [{ category: slug }, { preview }] = await Promise.all([params, searchParams]);
-  const catalogueProduct = getCatalogueProductBySlug(slug);
-  if (catalogueProduct) redirect(getCatalogueProductHref(catalogueProduct));
   const allowPreview = preview === "1" && Boolean(await getCurrentUser());
   const product = await getProductBySlug(slug, allowPreview);
   if (!product) {
+    // Only a slug with no CMS product of its own may fall through to the
+    // catalogue. Checking the catalogue first would hand every shared slug to it,
+    // silently retiring the CMS record: `mezzanine-floor` and
+    // `slotted-angle-racks` exist in both systems, and the redirect sent the
+    // CMS page's visitors to a different product while the CMS product stayed
+    // uneditable-in-practice and unreachable.
+    const catalogueProduct = getCatalogueProductBySlug(slug);
+    if (catalogueProduct) redirect(getCatalogueProductHref(catalogueProduct));
     const target = await getRedirectPath(`/products/${slug}`);
     if (target) redirect(target);
     notFound();

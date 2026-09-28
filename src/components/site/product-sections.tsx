@@ -31,19 +31,19 @@ import { ProductShowcase } from "@/components/site/product-showcase";
 import { FAQ } from "@/components/site/faq";
 import { ProductCard, type ProductCardProduct } from "@/components/site/product-card";
 import { InquiryForm } from "@/components/site/inquiry-form";
-import { Breadcrumb, SectionHeading } from "@/components/site/ui";
+import { SectionHeading } from "@/components/site/ui";
 import { MobileProductActions } from "@/components/site/product-experience";
 import { EventTracker } from "@/components/site/event-tracker";
 import { Reveal } from "@/components/site/reveal";
 import { WorkflowSteps } from "@/components/site/workflow-steps";
-import { ClientLogoMarquee } from "@/components/site/client-logo-marquee";
+import { TrustedByStrip } from "@/components/site/trusted-by-strip";
 import { ReelShowcase } from "@/components/media/reel-showcase";
 import { optimizeImage } from "@/lib/image-utils";
 import { localAssetFor } from "@/lib/local-assets";
 import type { ClientLogo } from "@/lib/data";
 import type { getServices } from "@/lib/data";
 import type { ReelVideoItem } from "@/lib/reel-video";
-import { getProductHref } from "@/lib/product-page";
+import { getDatabaseProductHref } from "@/lib/product-page";
 import type { ProductOption, ProductPageProduct } from "@/lib/product-page";
 
 export type ProductDetail = ProductPageProduct;
@@ -182,18 +182,18 @@ export function ProductHero({ product }: { product: ProductDetail }) {
   let upsellTitle = "Need Denser Hand-Picked Storage?";
   let upsellText = "Our";
   let upsellLinkText = "mezzanine floor";
-  let upsellHref = getProductHref("mezzanine-floor");
+  let upsellHref = getDatabaseProductHref("mezzanine-floor");
   let upsellSuffix = "can add a second storage level above your shelving.";
 
   if (isMezzanine) {
     upsellTitle = "Need Pallet Storage Too?";
     upsellLinkText = "heavy duty pallet racking";
-    upsellHref = getProductHref("heavy-duty-pallet-racking");
+    upsellHref = getDatabaseProductHref("heavy-duty-pallet-racking");
     upsellSuffix = "connects directly to your mezzanine platform.";
   } else if (isPallet) {
     upsellTitle = "Need More Storage Levels?";
     upsellLinkText = "mezzanine floor";
-    upsellHref = getProductHref("mezzanine-floor");
+    upsellHref = getDatabaseProductHref("mezzanine-floor");
     upsellSuffix = "turns empty warehouse height into extra picking levels.";
   } else if (product.related.length > 0) {
     const rec = product.related[0];
@@ -213,21 +213,12 @@ export function ProductHero({ product }: { product: ProductDetail }) {
 
         {/* Right Column: Product Information & Action Panel */}
         <div className="flex flex-col justify-center">
-          <Breadcrumb items={[{ label: "Products", href: "/products" }, { label: product.name }]} />
-
           {product.status !== "PUBLISHED" ? (
-            <span className="mt-4 w-fit bg-amber-300 px-3 py-1 text-xs font-bold text-black rounded">Draft preview</span>
+            <span className="w-fit bg-amber-300 px-3 py-1 text-xs font-bold text-black rounded">Draft preview</span>
           ) : null}
 
-          {/* Eyebrow with decorative dashes in theme red */}
-          <div className="mt-5 flex items-center gap-2 eyebrow before:hidden text-[#d11f2f]">
-            <span>—</span>
-            <span>{product.category || product.name}</span>
-            <span>—</span>
-          </div>
-
           {/* Product Title */}
-          <h1 className="section-heading mt-3 text-balance text-zinc-900">
+          <h1 className="section-heading text-balance text-zinc-900">
             {heroTitle}
           </h1>
 
@@ -305,12 +296,9 @@ export function FeaturesSection({
   return (
     <section className="border-y border-zinc-200 bg-[#f8fafc] py-16 lg:py-20">
       <div className="container-shell">
-        {/* Header with dashed red eyebrow and title */}
+        {/* Header */}
         <div className="text-center">
-          <p className="eyebrow justify-center before:hidden text-[#d11f2f]">
-            — KEY FEATURES —
-          </p>
-          <h2 className="section-heading mt-4 text-balance">
+          <h2 className="section-heading text-balance">
             Built to Make Storage Easier
           </h2>
         </div>
@@ -391,8 +379,7 @@ export function OverviewSection({ product }: { product: ProductDetail }) {
     <section className="py-24">
       <div className="container-shell grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <div>
-          <p className="eyebrow text-red-600">Product overview</p>
-          <h2 className="section-heading mt-4 text-balance">Built for Efficient Storage</h2>
+          <h2 className="section-heading text-balance">Built for Efficient Storage</h2>
           <p className="section-description mt-5 text-zinc-700">{body}</p>
           <p className="mt-6 flex items-start gap-3 text-sm leading-7 text-zinc-500"><Ruler size={17} className="mt-0.5 shrink-0 text-red-600" />Final sizes, loads and engineering are confirmed against your layout and project proposal.</p>
         </div>
@@ -413,8 +400,7 @@ export function TechnicalSpecificationsSection({ product }: { product: ProductDe
         {/* Header */}
         <div className="mb-10 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="eyebrow text-[#d11f2f]">— Technical Specifications —</p>
-            <h2 className="section-heading mt-4">
+            <h2 className="section-heading">
               Specifications at a Glance
             </h2>
           </div>
@@ -527,8 +513,7 @@ export function ApplicationsSection({ items, product }: { items: ProductDetail["
     <section className="bg-[#f4f4f1] border-y border-zinc-200 py-16 lg:py-20">
       <div className="container-shell">
         <div className="text-center">
-          <p className="eyebrow justify-center before:hidden text-[#d11f2f]">— Applications —</p>
-          <h2 className="section-heading mt-4 text-balance">
+          <h2 className="section-heading text-balance">
             Where It&apos;s Used
           </h2>
           <p className="section-description mt-5 mx-auto text-zinc-500">
@@ -611,7 +596,7 @@ export function WorkflowSection() {
     // neighbours without dominating them. Background and content are unchanged.
     <section className="dark-grid bg-zinc-950 py-14 text-white lg:py-16">
       <div className="container-shell">
-        <SectionHeading eyebrow="How we work" title="From Plan to Installation" description="We take your storage system from the first conversation to a finished, handed-over installation." light align="center" size="sm" />
+        <SectionHeading title="From Plan to Installation" description="We take your storage system from the first conversation to a finished, handed-over installation." light align="center" size="sm" />
         <WorkflowSteps />
         <p className="mt-6 text-xs text-zinc-500">Timelines are a guide and confirmed in your project proposal.</p>
       </div>
@@ -678,7 +663,7 @@ export function RelatedSection({ items }: { items: ProductDetail["related"] }) {
   return (
     <section className="border-t border-zinc-200 bg-[#f4f4f1] py-24">
       <div className="container-shell">
-        <SectionHeading compact eyebrow="You may also like" title="Related Storage Systems" description="Other systems that work well alongside this one." />
+        <SectionHeading compact title="Related Storage Systems" description="Other systems that work well alongside this one." />
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           {items.map((item, i) => <ProductCard key={item.id} product={item as ProductCardProduct} index={i} />)}
         </div>
@@ -755,8 +740,7 @@ export function FinalEnquirySection({ product, allProducts, allServices }: { pro
             the form is a working area, not a full-bleed panel. */}
         <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[.7fr_1.3fr] lg:gap-12">
           <div>
-            <p className="eyebrow">Request a quote</p>
-            <h2 className="heading-md mt-5 text-balance">Tell Us What You Need to Store</h2>
+            <h2 className="heading-md text-balance">Tell Us What You Need to Store</h2>
             <p className="mt-4 text-sm leading-6 text-zinc-500">Share your space, item sizes, maximum loads and handling method if you know them — we&apos;ll come back with setup options.</p>
           </div>
           <InquiryForm products={allProducts} services={allServices} defaultProduct={product.id} />
@@ -766,22 +750,15 @@ export function FinalEnquirySection({ product, allProducts, allServices }: { pro
   );
 }
 
+/**
+ * Product-page client roster.
+ *
+ * A thin wrapper over `TrustedByStrip` so product pages read exactly like the
+ * homepage, with hairline rules above and below because this section sits
+ * between two others rather than under the hero.
+ */
 export function ClientRosterSection({ logos }: { logos: ClientLogo[] }) {
-  return (
-    <section className="border-y border-zinc-200 bg-white py-16">
-      <div className="container-shell">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <p className="eyebrow text-zinc-400">Trusted by businesses across India</p>
-          <h2 className="heading-md mt-4 text-balance">
-            Companies on Our Client List
-          </h2>
-        </div>
-        <div className="mt-10">
-          <ClientLogoMarquee logos={logos} />
-        </div>
-      </div>
-    </section>
-  );
+  return <TrustedByStrip logos={logos} className="border-y border-zinc-200" />;
 }
 
 export function CompactContactSection({ product, allProducts, allServices }: { product: ProductDetail; allProducts: ProductDetail["related"]; allServices: Awaited<ReturnType<typeof getServices>> }) {

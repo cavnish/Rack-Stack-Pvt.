@@ -1,86 +1,91 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-27T10:05:00.429Z",
+  "generatedAt": "2026-09-28T12:17:59.048Z",
   "collections": {
     "blogPosts": {
-      "hash": "f7962b263360d09a",
-      "generatedAt": "2026-09-27T06:50:46.695Z",
+      "hash": "c0f553ffb6c41b00",
+      "generatedAt": "2026-09-28T09:00:11.017Z",
       "count": 2
     },
     "blogCategories": {
       "hash": "ec8a73d45d9fef73",
-      "generatedAt": "2026-09-27T06:50:46.716Z",
+      "generatedAt": "2026-09-28T09:00:11.088Z",
       "count": 5
     },
     "routes": {
-      "hash": "92b430e33ebffcb0",
-      "generatedAt": "2026-09-27T10:05:00.429Z",
+      "hash": "1f380fb4a9dc13e9",
+      "generatedAt": "2026-09-28T12:17:59.048Z",
       "count": 1
     },
     "site": {
-      "hash": "c68dbefd86cd8d7d",
-      "generatedAt": "2026-09-27T06:50:59.545Z",
+      "hash": "8fe7cb1c56870174",
+      "generatedAt": "2026-09-28T09:00:02.213Z",
       "count": 1
     },
     "homepage": {
-      "hash": "956beeb1f69abf5e",
-      "generatedAt": "2026-09-27T06:51:01.309Z",
-      "count": 7
+      "hash": "be715001cdb387df",
+      "generatedAt": "2026-09-28T09:00:02.836Z",
+      "count": 9
     },
     "services": {
-      "hash": "0d8913bfbf80829e",
-      "generatedAt": "2026-09-27T07:28:55.928Z",
+      "hash": "5c1383913bada8bc",
+      "generatedAt": "2026-09-28T09:00:09.078Z",
       "count": 8
     },
     "products": {
-      "hash": "9666f44d904a9980",
-      "generatedAt": "2026-09-27T07:28:55.911Z",
+      "hash": "67557b4713e67d4b",
+      "generatedAt": "2026-09-28T12:17:59.023Z",
       "count": 8
     },
     "industries": {
-      "hash": "2b47000cbd249d24",
-      "generatedAt": "2026-09-27T07:28:55.958Z",
+      "hash": "2e989a79220b2b33",
+      "generatedAt": "2026-09-28T09:00:09.497Z",
       "count": 12
     },
     "sliders": {
-      "hash": "581c5aff94ee19e3",
-      "generatedAt": "2026-09-27T08:00:31.261Z",
+      "hash": "78ddf72c56821d8c",
+      "generatedAt": "2026-09-28T09:00:03.442Z",
       "count": 3
     },
     "pages": {
-      "hash": "5ae872a2daa9bee2",
-      "generatedAt": "2026-09-27T06:53:05.990Z",
+      "hash": "51b78b2b5e54e833",
+      "generatedAt": "2026-09-28T09:00:11.228Z",
       "count": 4
     },
     "seo": {
-      "hash": "c87360085be383af",
-      "generatedAt": "2026-09-27T06:56:32.758Z",
+      "hash": "33afbc06d84b97a7",
+      "generatedAt": "2026-09-28T09:00:02.521Z",
       "count": 1
     },
     "clients": {
-      "hash": "eea5d5069683430c",
-      "generatedAt": "2026-09-27T07:52:51.567Z",
+      "hash": "45cb52e6678eac2b",
+      "generatedAt": "2026-09-28T09:00:09.199Z",
       "count": 8
     },
     "clientLogos": {
-      "hash": "4981e24a341bb2d9",
-      "generatedAt": "2026-09-27T08:01:26.801Z",
+      "hash": "6f8a7a8e5d67828e",
+      "generatedAt": "2026-09-28T09:00:09.263Z",
       "count": 8
     },
     "gallery": {
-      "hash": "a362e365d76ce920",
-      "generatedAt": "2026-09-27T06:56:33.815Z",
+      "hash": "33af7c90f4c85505",
+      "generatedAt": "2026-09-28T09:00:10.880Z",
       "count": 6
     },
     "faqs": {
-      "hash": "d519727df1ade3ba",
-      "generatedAt": "2026-09-27T06:56:33.832Z",
+      "hash": "02797f98697f6644",
+      "generatedAt": "2026-09-28T09:00:11.157Z",
       "count": 4
     },
     "videos": {
-      "hash": "91073b0d3eb3a1c2",
-      "generatedAt": "2026-09-27T10:05:00.422Z",
+      "hash": "4f16ff61309fcc27",
+      "generatedAt": "2026-09-28T09:00:11.436Z",
       "count": 2
+    },
+    "homeOfferCards": {
+      "hash": "9e0f0bcd790df225",
+      "generatedAt": "2026-09-28T09:00:03.135Z",
+      "count": 8
     }
   },
   "records": {}

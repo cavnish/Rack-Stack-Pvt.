@@ -1,17 +1,19 @@
 import "server-only";
 import { db } from "@/db";
 import {
-  activityLogs, blogPosts, clientLogos, clients, contactMessages, faqs, gallery, homeSliders, homepageSections, industries, inquiries,
-  media, pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productImages, productIndustries, productProjects,
+  activityLogs, blogPosts, clientLogos, clients, contactMessages, faqs, gallery, homeOfferCards, homeSliders, homepageSections, industries, inquiries,
+  media, pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productGalleryImages, productImages, productIndustries, productProjects,
   productRelatedProducts, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projects, redirects, seoSettings,
   serviceFeatures, services, siteSettings, testimonials, users, videoProducts, videos, videoServices,
 } from "@/db/schema";
 import { hash } from "bcryptjs";
 import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
-import { clientLogoAdminSchema, productAdminSchema, UserFacingError } from "./validation";
+import { clientLogoAdminSchema, homeOfferCardSchema, productAdminSchema, UserFacingError } from "./validation";
+import { defaultGalleryAltText, defaultGalleryCaption, getProductGallerySlot, productGalleryOrder } from "./product-gallery-slots";
 import { requireInstagramUrl } from "./instagram";
 
-export const adminEntities = ["products", "services", "projects", "clients", "client-logos", "testimonials", "gallery", "pages", "industries", "faqs", "blog", "homepage", "home-slider", "inquiries", "contact-messages", "media", "videos", "seo", "settings", "users", "activity"] as const;
+export const adminEntities = ["products", "services", "projects", "clients", "client-logos", "testimonials", "gallery", "pages", "industries", "faqs", "blog", "homepage", "home-offer-cards", "home-slider", "inquiries", "contact-messages", "media", "videos", "seo", "settings", "users", "activity"] as const;
+
 export type AdminEntity = typeof adminEntities[number];
 export function isAdminEntity(value: string): value is AdminEntity { return (adminEntities as readonly string[]).includes(value); }
 const bool = (v: unknown) => v === true || v === "true" || v === 1;
@@ -35,6 +37,7 @@ export async function listEntity(entity: AdminEntity) {
     case "faqs": return db.select().from(faqs).orderBy(asc(faqs.entityType), asc(faqs.displayOrder));
     case "blog": return db.select().from(blogPosts).where(isNull(blogPosts.deletedAt)).orderBy(desc(blogPosts.createdAt));
     case "homepage": return db.select().from(homepageSections).orderBy(asc(homepageSections.displayOrder));
+    case "home-offer-cards": return db.select().from(homeOfferCards).orderBy(asc(homeOfferCards.displayOrder), asc(homeOfferCards.id));
     case "inquiries": return db.select().from(inquiries).orderBy(desc(inquiries.createdAt));
     case "contact-messages": return db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
     case "media": return db.select().from(media).orderBy(desc(media.createdAt));
@@ -50,11 +53,12 @@ export async function getEntity(entity: AdminEntity, id: number) {
   if (entity === "products") {
     const item = (await db.select().from(products).where(eq(products.id, id)).limit(1))[0];
     if (!item) return null;
-    const [features, specifications, applications, images, benefits, components, configurations, storedMaterials, stories, workflows, relatedRows, industryRows, projectRows, productFaqs] = await Promise.all([
+    const [features, specifications, applications, images, galleryRows, benefits, components, configurations, storedMaterials, stories, workflows, relatedRows, industryRows, projectRows, productFaqs] = await Promise.all([
       db.select().from(productFeatures).where(eq(productFeatures.productId, id)).orderBy(asc(productFeatures.displayOrder)),
       db.select().from(productSpecifications).where(eq(productSpecifications.productId, id)).orderBy(asc(productSpecifications.displayOrder)),
       db.select().from(productApplications).where(eq(productApplications.productId, id)).orderBy(asc(productApplications.displayOrder)),
       db.select().from(productImages).where(eq(productImages.productId, id)).orderBy(asc(productImages.displayOrder)),
+      db.select().from(productGalleryImages).where(eq(productGalleryImages.productId, id)).orderBy(asc(productGalleryImages.displayOrder)),
       db.select().from(productBenefits).where(eq(productBenefits.productId, id)).orderBy(asc(productBenefits.displayOrder)),
       db.select().from(productComponents).where(eq(productComponents.productId, id)).orderBy(asc(productComponents.displayOrder)),
       db.select().from(productConfigurations).where(eq(productConfigurations.productId, id)).orderBy(asc(productConfigurations.displayOrder)),
@@ -66,7 +70,7 @@ export async function getEntity(entity: AdminEntity, id: number) {
       db.select().from(productProjects).where(eq(productProjects.productId, id)).orderBy(asc(productProjects.displayOrder)),
       db.select().from(faqs).where(and(eq(faqs.entityType, "PRODUCT"), eq(faqs.entityId, id))).orderBy(asc(faqs.displayOrder)),
     ]);
-    return { ...item, features, specifications, applications, images, benefits, components, configurations, storedMaterials, stories, workflows, relatedProductIds: relatedRows.map((row) => row.relatedProductId), industryIds: industryRows.map((row) => row.industryId), projectIds: projectRows.map((row) => row.projectId), faqs: productFaqs };
+    return { ...item, features, specifications, applications, images, gallery: galleryRows, benefits, components, configurations, storedMaterials, stories, workflows, relatedProductIds: relatedRows.map((row) => row.relatedProductId), industryIds: industryRows.map((row) => row.industryId), projectIds: projectRows.map((row) => row.projectId), faqs: productFaqs };
   }
   if (entity === "services") {
     const item = (await db.select().from(services).where(eq(services.id, id)).limit(1))[0];
@@ -185,6 +189,66 @@ async function syncVideoRelations(
   if (serviceIds.length) await tx.insert(videoServices).values(serviceIds.map((serviceId) => ({ videoId, serviceId })));
 }
 
+/**
+ * The editorial copy columns shared by product create and update.
+ *
+ * Kept in one function so the two writes cannot drift: a field added to the
+ * product form but only to `create` would appear in the database, vanish on the
+ * next edit, and be very hard to trace back.
+ */
+function productContentValues(data: ReturnType<typeof productAdminSchema.parse>) {
+  return {
+    galleryHeading: nullable(data.galleryHeading),
+    featuresHeading: nullable(data.featuresHeading),
+    overviewHeading: nullable(data.overviewHeading),
+    overviewBody: nullable(data.overviewBody),
+    applicationsHeading: nullable(data.applicationsHeading),
+    applicationsIntro: nullable(data.applicationsIntro),
+    ctaTitle: nullable(data.ctaTitle),
+    ctaSubtitle: nullable(data.ctaSubtitle),
+    primaryCtaLabel: nullable(data.primaryCtaLabel),
+    primaryCtaHref: nullable(data.primaryCtaHref),
+    secondaryCtaLabel: nullable(data.secondaryCtaLabel),
+    secondaryCtaHref: nullable(data.secondaryCtaHref),
+  };
+}
+
+/**
+ * Replaces a product's gallery with the submitted slots.
+ *
+ * Slots are written in the canonical order and any slot without a photo is
+ * deleted rather than stored as a broken row, so the renderer never has to guess
+ * whether an empty slot means "empty" or "missing". Alt text and caption fall
+ * back to slot-derived copy, because a gallery image with no alt text is an
+ * accessibility defect rather than a blank the renderer should paper over.
+ */
+async function syncProductGallery(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  productId: number,
+  productName: string,
+  gallery: ReturnType<typeof productAdminSchema.parse>["gallery"],
+) {
+  await tx.delete(productGalleryImages).where(eq(productGalleryImages.productId, productId));
+  if (!gallery.length) return;
+  await tx.insert(productGalleryImages).values(
+    gallery
+      .map((item) => ({ item, order: productGalleryOrder(item.slot) }))
+      .sort((left, right) => left.order - right.order)
+      .map(({ item, order }) => ({
+        productId,
+        slot: item.slot,
+        label: item.label ?? getProductGallerySlot(item.slot)?.label ?? null,
+        imageUrl: item.imageUrl,
+        cloudinaryPublicId: item.cloudinaryPublicId || null,
+        altText: item.altText || defaultGalleryAltText(item.slot, productName),
+        caption: item.caption || defaultGalleryCaption(item.slot, productName),
+        width: item.width ?? null,
+        height: item.height ?? null,
+        displayOrder: order,
+      })),
+  );
+}
+
 export async function createEntity(entity: AdminEntity, input: Record<string, unknown>, currentUserId: number) {
   if (entity === "products") {
     if (input.duplicateId) {
@@ -201,9 +265,11 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
         heroTitle: data.heroTitle || null, heroDescription: data.heroDescription || null, specHighlights: data.specHighlights,
         technicalImage: data.technicalImage || null, technicalImagePublicId: data.technicalImagePublicId || null, technicalDescription: data.technicalDescription || null, technicalEnabled: data.technicalEnabled,
         showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated,
+        ...productContentValues(data),
         metaTitle: data.metaTitle || null, metaDescription: data.metaDescription || null, keywords: data.keywords || null, focusKeyword: data.focusKeyword || null, ogTitle: data.ogTitle || null, ogDescription: data.ogDescription || null, ogImage: data.ogImage || null, canonicalUrl: data.canonicalUrl || null, robotsIndex: data.robotsIndex,
       }).returning();
       const productId = item.id;
+      await syncProductGallery(tx, productId, data.name, data.gallery);
       if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId, title: x.title, description: x.description, icon: x.icon || "CheckCircle2", displayOrder: i })));
       if (data.specifications.length) await tx.insert(productSpecifications).values(data.specifications.map((x, i) => ({ productId, ...x, displayOrder: i })));
       if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId, application: x.title, title: x.title || null, description: x.description || null, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
@@ -222,7 +288,32 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
       return item;
     });
   }
-  if (entity === "services") return (await db.insert(services).values({ name: text(input.name), slug: text(input.slug), shortDescription: text(input.shortDescription), description: text(input.description), heroImage: nullable(input.heroImage), icon: text(input.icon) || "DraftingCompass", featured: bool(input.featured), status: status(input.status), displayOrder: num(input.displayOrder), metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription) }).returning())[0];
+  if (entity === "services") {
+    return db.transaction(async (tx) => {
+      const [item] = await tx.insert(services).values({
+        name: text(input.name), slug: text(input.slug), shortDescription: text(input.shortDescription), description: text(input.description),
+        heroImage: nullable(input.heroImage), heroImagePublicId: nullable(input.heroImagePublicId), icon: text(input.icon) || "DraftingCompass",
+        featured: bool(input.featured), status: status(input.status), displayOrder: num(input.displayOrder),
+        heroHeading: nullable(input.heroHeading), introHeading: nullable(input.introHeading), introDescription: nullable(input.introDescription),
+        introBullets: Array.isArray(input.introBullets) ? input.introBullets.map(String) : [],
+        capabilities: Array.isArray(input.capabilities) ? input.capabilities.map(String) : [],
+        process: Array.isArray(input.process) ? input.process as Array<{ title: string; description: string }> : [],
+        deliverables: Array.isArray(input.deliverables) ? input.deliverables.map(String) : [],
+        applications: Array.isArray(input.applications) ? input.applications as Array<{ title: string; description?: string }> : [],
+        whyChoosePoints: Array.isArray(input.whyChoosePoints) ? input.whyChoosePoints as Array<{ title: string; description: string }> : [],
+        locationCoverage: typeof input.locationCoverage === "object" && input.locationCoverage ? input.locationCoverage as { mumbaiMaharashtra: string[]; panIndia: string[] } : [],
+        relatedProductSlugs: Array.isArray(input.relatedProductSlugs) ? input.relatedProductSlugs.map(String) : [],
+        galleryImageIds: Array.isArray(input.galleryImageIds) ? (input.galleryImageIds as unknown[]).map(num).filter(Boolean) : [],
+        metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), keywords: nullable(input.keywords),
+        focusKeyword: nullable(input.focusKeyword), ogTitle: nullable(input.ogTitle), ogDescription: nullable(input.ogDescription),
+        ogImage: nullable(input.ogImage), canonicalUrl: nullable(input.canonicalUrl), robotsIndex: input.robotsIndex === undefined ? true : bool(input.robotsIndex),
+      }).returning();
+      const serviceId = item.id;
+      const feats = Array.isArray(input.features) ? input.features as Array<Record<string, unknown>> : [];
+      if (feats.length) await tx.insert(serviceFeatures).values(feats.map((f, i) => ({ serviceId, title: text(f.title), description: text(f.description), icon: text(f.icon) || "CheckCircle2", displayOrder: i })));
+      return item;
+    });
+  }
   if (entity === "projects") return (await db.insert(projects).values({ title: text(input.title), slug: text(input.slug), clientName: nullable(input.clientName), location: nullable(input.location), industry: nullable(input.industry), solution: nullable(input.solution), description: text(input.description), challenge: nullable(input.challenge), solutionDescription: nullable(input.solutionDescription), result: nullable(input.result), execution: nullable(input.execution), featured: bool(input.featured), coverImage: nullable(input.coverImage), status: status(input.status), projectDate: input.projectDate ? new Date(String(input.projectDate)) : null, metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription) }).returning())[0];
   if (entity === "clients") return (await db.insert(clients).values({ name: text(input.name), logo: nullable(input.logo), cloudinaryPublicId: nullable(input.cloudinaryPublicId), website: nullable(input.website), industry: nullable(input.industry), featured: bool(input.featured), displayOrder: num(input.displayOrder) }).returning())[0];
   if (entity === "client-logos") { const data = clientLogoAdminSchema.parse(input); return (await db.insert(clientLogos).values({ name: data.name, imageUrl: data.imageUrl, imagePublicId: nullable(data.imagePublicId), altText: data.altText, sortOrder: data.sortOrder, isActive: data.isActive, width: data.width ?? null, height: data.height ?? null }).returning())[0]; }
@@ -233,6 +324,17 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
   if (entity === "faqs") return (await db.insert(faqs).values({ question: text(input.question), answer: text(input.answer), entityType: text(input.entityType) || "GLOBAL", entityId: input.entityId ? num(input.entityId) : null, displayOrder: num(input.displayOrder), status: status(input.status) }).returning())[0];
   if (entity === "blog") return (await db.insert(blogPosts).values({ title: text(input.title), slug: text(input.slug), excerpt: text(input.excerpt), content: text(input.content), featuredImage: nullable(input.featuredImage), status: status(input.status), featured: bool(input.featured), publishedAt: status(input.status) === "PUBLISHED" ? new Date() : null, metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), keywords: nullable(input.keywords), canonicalUrl: nullable(input.canonicalUrl), authorId: currentUserId }).returning())[0];
   if (entity === "homepage") return (await db.insert(homepageSections).values({ sectionKey: text(input.sectionKey), title: nullable(input.title), subtitle: nullable(input.subtitle), content: typeof input.content === "object" && input.content ? input.content as Record<string, unknown> : {}, enabled: input.enabled === undefined ? true : bool(input.enabled), displayOrder: num(input.displayOrder) }).returning())[0];
+  if (entity === "home-offer-cards") {
+    const data = homeOfferCardSchema.parse(input);
+    return (await db.insert(homeOfferCards).values({
+      productId: data.productId ?? null, slug: data.slug || null,
+      title: nullable(data.title), description: nullable(data.description),
+      imageUrl: nullable(data.imageUrl), imagePublicId: nullable(data.imagePublicId), altText: nullable(data.altText),
+      category: nullable(data.category), href: nullable(data.href), ctaLabel: nullable(data.ctaLabel),
+      showQuoteButton: data.showQuoteButton,
+      displayOrder: data.displayOrder, isActive: data.isActive,
+    }).returning())[0];
+  }
   if (entity === "home-slider") {
     if (input.duplicateId) {
       const source = (await listEntity("home-slider")).find((slide) => slide.id === num(input.duplicateId)) as typeof homeSliders.$inferSelect | undefined;
@@ -264,9 +366,11 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
         heroTitle: data.heroTitle || null, heroDescription: data.heroDescription || null, specHighlights: data.specHighlights,
         technicalImage: data.technicalImage || null, technicalImagePublicId: data.technicalImagePublicId || null, technicalDescription: data.technicalDescription || null, technicalEnabled: data.technicalEnabled,
         showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated,
+        ...productContentValues(data),
         metaTitle: data.metaTitle || null, metaDescription: data.metaDescription || null, keywords: data.keywords || null, focusKeyword: data.focusKeyword || null, ogTitle: data.ogTitle || null, ogDescription: data.ogDescription || null, ogImage: data.ogImage || null, canonicalUrl: data.canonicalUrl || null, robotsIndex: data.robotsIndex, updatedAt: new Date(),
       }).where(eq(products.id, id)).returning();
       if (!item) throw new Error("Product not found");
+      await syncProductGallery(tx, id, data.name, data.gallery);
       await Promise.all([
         tx.delete(productFeatures).where(eq(productFeatures.productId, id)),
         tx.delete(productSpecifications).where(eq(productSpecifications.productId, id)),
@@ -302,7 +406,34 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
       return item;
     });
   }
-  if (entity === "services") return (await db.update(services).set({ name: text(input.name), slug: text(input.slug), shortDescription: text(input.shortDescription), description: text(input.description), heroImage: nullable(input.heroImage), icon: text(input.icon) || "DraftingCompass", featured: bool(input.featured), status: status(input.status), displayOrder: num(input.displayOrder), metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), updatedAt: new Date() }).where(eq(services.id, id)).returning())[0];
+  if (entity === "services") {
+    return db.transaction(async (tx) => {
+      const [item] = await tx.update(services).set({
+        name: text(input.name), slug: text(input.slug), shortDescription: text(input.shortDescription), description: text(input.description),
+        heroImage: nullable(input.heroImage), heroImagePublicId: nullable(input.heroImagePublicId), icon: text(input.icon) || "DraftingCompass",
+        featured: bool(input.featured), status: status(input.status), displayOrder: num(input.displayOrder),
+        heroHeading: nullable(input.heroHeading), introHeading: nullable(input.introHeading), introDescription: nullable(input.introDescription),
+        introBullets: Array.isArray(input.introBullets) ? input.introBullets.map(String) : [],
+        capabilities: Array.isArray(input.capabilities) ? input.capabilities.map(String) : [],
+        process: Array.isArray(input.process) ? input.process as Array<{ title: string; description: string }> : [],
+        deliverables: Array.isArray(input.deliverables) ? input.deliverables.map(String) : [],
+        applications: Array.isArray(input.applications) ? input.applications as Array<{ title: string; description?: string }> : [],
+        whyChoosePoints: Array.isArray(input.whyChoosePoints) ? input.whyChoosePoints as Array<{ title: string; description: string }> : [],
+        locationCoverage: typeof input.locationCoverage === "object" && input.locationCoverage ? input.locationCoverage as { mumbaiMaharashtra: string[]; panIndia: string[] } : [],
+        relatedProductSlugs: Array.isArray(input.relatedProductSlugs) ? input.relatedProductSlugs.map(String) : [],
+        galleryImageIds: Array.isArray(input.galleryImageIds) ? (input.galleryImageIds as unknown[]).map(num).filter(Boolean) : [],
+        metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), keywords: nullable(input.keywords),
+        focusKeyword: nullable(input.focusKeyword), ogTitle: nullable(input.ogTitle), ogDescription: nullable(input.ogDescription),
+        ogImage: nullable(input.ogImage), canonicalUrl: nullable(input.canonicalUrl), robotsIndex: input.robotsIndex === undefined ? true : bool(input.robotsIndex),
+        updatedAt: new Date(),
+      }).where(eq(services.id, id)).returning();
+      if (!item) throw new Error("Service not found");
+      await tx.delete(serviceFeatures).where(eq(serviceFeatures.serviceId, id));
+      const feats = Array.isArray(input.features) ? input.features as Array<Record<string, unknown>> : [];
+      if (feats.length) await tx.insert(serviceFeatures).values(feats.map((f, i) => ({ serviceId: id, title: text(f.title), description: text(f.description), icon: text(f.icon) || "CheckCircle2", displayOrder: i })));
+      return item;
+    });
+  }
   if (entity === "projects") return (await db.update(projects).set({ title: text(input.title), slug: text(input.slug), clientName: nullable(input.clientName), location: nullable(input.location), industry: nullable(input.industry), solution: nullable(input.solution), description: text(input.description), challenge: nullable(input.challenge), solutionDescription: nullable(input.solutionDescription), result: nullable(input.result), execution: nullable(input.execution), featured: bool(input.featured), coverImage: nullable(input.coverImage), status: status(input.status), projectDate: input.projectDate ? new Date(String(input.projectDate)) : null, metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), updatedAt: new Date() }).where(eq(projects.id, id)).returning())[0];
   if (entity === "clients") return (await db.update(clients).set({ name: text(input.name), logo: nullable(input.logo), cloudinaryPublicId: nullable(input.cloudinaryPublicId), website: nullable(input.website), industry: nullable(input.industry), featured: bool(input.featured), displayOrder: num(input.displayOrder) }).where(eq(clients.id, id)).returning())[0];
   if (entity === "client-logos") { const data = clientLogoAdminSchema.parse(input); return (await db.update(clientLogos).set({ name: data.name, imageUrl: data.imageUrl, imagePublicId: nullable(data.imagePublicId), altText: data.altText, sortOrder: data.sortOrder, isActive: data.isActive, width: data.width ?? null, height: data.height ?? null, updatedAt: new Date() }).where(eq(clientLogos.id, id)).returning())[0]; }
@@ -313,6 +444,17 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
   if (entity === "faqs") return (await db.update(faqs).set({ question: text(input.question), answer: text(input.answer), entityType: text(input.entityType) || "GLOBAL", entityId: input.entityId ? num(input.entityId) : null, displayOrder: num(input.displayOrder), status: status(input.status), updatedAt: new Date() }).where(eq(faqs.id, id)).returning())[0];
   if (entity === "blog") return (await db.update(blogPosts).set({ title: text(input.title), slug: text(input.slug), excerpt: text(input.excerpt), content: text(input.content), featuredImage: nullable(input.featuredImage), status: status(input.status), featured: bool(input.featured), publishedAt: status(input.status) === "PUBLISHED" ? new Date() : null, metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), keywords: nullable(input.keywords), canonicalUrl: nullable(input.canonicalUrl), updatedAt: new Date() }).where(eq(blogPosts.id, id)).returning())[0];
   if (entity === "homepage") return (await db.update(homepageSections).set({ sectionKey: text(input.sectionKey), title: nullable(input.title), subtitle: nullable(input.subtitle), content: typeof input.content === "object" && input.content ? input.content as Record<string, unknown> : {}, enabled: bool(input.enabled), displayOrder: num(input.displayOrder), updatedAt: new Date() }).where(eq(homepageSections.id, id)).returning())[0];
+  if (entity === "home-offer-cards") {
+    const data = homeOfferCardSchema.parse(input);
+    return (await db.update(homeOfferCards).set({
+      productId: data.productId ?? null, slug: data.slug || null,
+      title: nullable(data.title), description: nullable(data.description),
+      imageUrl: nullable(data.imageUrl), imagePublicId: nullable(data.imagePublicId), altText: nullable(data.altText),
+      category: nullable(data.category), href: nullable(data.href), ctaLabel: nullable(data.ctaLabel),
+      showQuoteButton: data.showQuoteButton,
+      displayOrder: data.displayOrder, isActive: data.isActive, updatedAt: new Date(),
+    }).where(eq(homeOfferCards.id, id)).returning())[0];
+  }
   if (entity === "home-slider") return (await db.update(homeSliders).set({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), description: nullable(input.description), imageUrl: nullable(input.imageUrl), imagePublicId: nullable(input.imagePublicId), mobileImageUrl: nullable(input.mobileImageUrl), mobileImagePublicId: nullable(input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: Math.max(2000, num(input.duration, 3500)), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null, updatedAt: new Date() }).where(eq(homeSliders.id, id)).returning())[0];
   if (entity === "inquiries") return (await db.update(inquiries).set({ status: ["NEW", "CONTACTED", "QUALIFIED", "QUOTATION_SENT", "WON", "LOST", "SPAM"].includes(String(input.status)) ? input.status as "NEW" | "CONTACTED" | "QUALIFIED" | "QUOTATION_SENT" | "WON" | "LOST" | "SPAM" : "NEW", notes: nullable(input.notes), assignedTo: input.assignedTo ? num(input.assignedTo) : null, updatedAt: new Date() }).where(eq(inquiries.id, id)).returning())[0];
   if (entity === "contact-messages") return (await db.update(contactMessages).set({ status: ["NEW", "READ", "REPLIED", "ARCHIVED", "SPAM"].includes(String(input.status)) ? input.status as "NEW" | "READ" | "REPLIED" | "ARCHIVED" | "SPAM" : "NEW", updatedAt: new Date() }).where(eq(contactMessages.id, id)).returning())[0];
@@ -346,6 +488,7 @@ export async function deleteEntity(entity: AdminEntity, id: number) {
   if (entity === "industries") return db.delete(industries).where(eq(industries.id, id));
   if (entity === "faqs") return db.delete(faqs).where(eq(faqs.id, id));
   if (entity === "homepage") return db.delete(homepageSections).where(eq(homepageSections.id, id));
+  if (entity === "home-offer-cards") return db.delete(homeOfferCards).where(eq(homeOfferCards.id, id));
   if (entity === "home-slider") return db.delete(homeSliders).where(eq(homeSliders.id, id));
   if (entity === "media") return db.delete(media).where(eq(media.id, id));
   if (entity === "videos") return db.delete(videos).where(eq(videos.id, id));

@@ -33,6 +33,18 @@
     "showComponents": true,
     "showFaq": true,
     "showRelated": true,
+    "galleryHeading": null,
+    "featuresHeading": null,
+    "overviewHeading": null,
+    "overviewBody": null,
+    "applicationsHeading": null,
+    "applicationsIntro": null,
+    "ctaTitle": null,
+    "ctaSubtitle": null,
+    "primaryCtaLabel": null,
+    "primaryCtaHref": null,
+    "secondaryCtaLabel": null,
+    "secondaryCtaHref": null,
     "metaTitle": "Compactor Storage Systems | Rack & Stack",
     "metaDescription": "Space-saving movable storage that frees up floor space and keeps your records tidy.",
     "keywords": "Compactor Storage Systems, industrial storage systems",
@@ -43,8 +55,8 @@
     "canonicalUrl": null,
     "robotsIndex": true,
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.512Z",
-    "updatedAt": "2026-09-19T06:51:25.512Z",
+    "createdAt": "2026-09-28T08:58:36.580Z",
+    "updatedAt": "2026-09-28T08:58:36.580Z",
     "features": [
       {
         "id": 1,
@@ -114,7 +126,7 @@
         "id": 1,
         "productId": 1,
         "application": "Archives and records",
-        "title": "Archives and records",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -125,7 +137,7 @@
         "id": 2,
         "productId": 1,
         "application": "Office files",
-        "title": "Office files",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -136,7 +148,7 @@
         "id": 3,
         "productId": 1,
         "application": "Libraries",
-        "title": "Libraries",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -147,7 +159,7 @@
         "id": 4,
         "productId": 1,
         "application": "Healthcare records",
-        "title": "Healthcare records",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -158,7 +170,7 @@
         "id": 5,
         "productId": 1,
         "application": "Component storage",
-        "title": "Component storage",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -178,7 +190,7 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 0,
-        "createdAt": "2026-09-19T06:51:25.536Z"
+        "createdAt": "2026-09-28T08:58:36.850Z"
       },
       {
         "id": 2,
@@ -191,7 +203,99 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 1,
-        "createdAt": "2026-09-19T06:51:25.536Z"
+        "createdAt": "2026-09-28T08:58:36.850Z"
+      }
+    ],
+    "gallery": [
+      {
+        "id": 1,
+        "productId": 1,
+        "slot": "main",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Compactor Storage Systems storage system",
+        "caption": "Product overview",
+        "width": null,
+        "height": null,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T08:58:46.798Z",
+        "updatedAt": "2026-09-28T08:58:46.798Z"
+      },
+      {
+        "id": 2,
+        "productId": 1,
+        "slot": "installation",
+        "label": null,
+        "imageUrl": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Compactor Storage Systems installed in a warehouse",
+        "caption": "Installed in your warehouse",
+        "width": null,
+        "height": null,
+        "displayOrder": 1,
+        "createdAt": "2026-09-28T08:58:46.862Z",
+        "updatedAt": "2026-09-28T08:58:46.862Z"
+      },
+      {
+        "id": 3,
+        "productId": 1,
+        "slot": "close-up",
+        "label": null,
+        "imageUrl": "/assets/images/products/industrial-racking-systems-4d37fd521f.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Close-up of compactor storage systems beams and joints",
+        "caption": "Build detail",
+        "width": null,
+        "height": null,
+        "displayOrder": 2,
+        "createdAt": "2026-09-28T08:58:46.924Z",
+        "updatedAt": "2026-09-28T08:58:46.924Z"
+      },
+      {
+        "id": 4,
+        "productId": 1,
+        "slot": "configurations",
+        "label": null,
+        "imageUrl": "/assets/images/products/slotted-angle-racks-storage-system-13-d9af30c109.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Layout options for compactor storage systems",
+        "caption": "Available configurations",
+        "width": null,
+        "height": null,
+        "displayOrder": 3,
+        "createdAt": "2026-09-28T08:58:46.983Z",
+        "updatedAt": "2026-09-28T08:58:46.983Z"
+      },
+      {
+        "id": 5,
+        "productId": 1,
+        "slot": "heavy-load",
+        "label": null,
+        "imageUrl": "/assets/images/products/medium-duty-shelving-racks-storage-system-9-7efd5fed96.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Compactor Storage Systems loaded with heavy stock",
+        "caption": "Built for heavy loads",
+        "width": null,
+        "height": null,
+        "displayOrder": 4,
+        "createdAt": "2026-09-28T08:58:47.044Z",
+        "updatedAt": "2026-09-28T08:58:47.044Z"
+      },
+      {
+        "id": 6,
+        "productId": 1,
+        "slot": "in-operation",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Compactor Storage Systems in everyday operation",
+        "caption": "In everyday operation",
+        "width": null,
+        "height": null,
+        "displayOrder": 5,
+        "createdAt": "2026-09-28T08:58:47.105Z",
+        "updatedAt": "2026-09-28T08:58:47.105Z"
       }
     ],
     "benefits": [],
@@ -209,8 +313,8 @@
         "entityId": null,
         "displayOrder": 0,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 2,
@@ -220,8 +324,8 @@
         "entityId": null,
         "displayOrder": 1,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 3,
@@ -231,8 +335,8 @@
         "entityId": null,
         "displayOrder": 2,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 4,
@@ -242,8 +346,8 @@
         "entityId": null,
         "displayOrder": 3,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       }
     ],
     "related": [
@@ -281,6 +385,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mobile Shelving Racks | Rack & Stack",
         "metaDescription": "Store more in less space — without making daily access harder.",
         "keywords": "Mobile Shelving Racks, industrial storage systems",
@@ -291,8 +407,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.542Z",
-        "updatedAt": "2026-09-19T06:51:25.542Z"
+        "createdAt": "2026-09-28T08:58:36.916Z",
+        "updatedAt": "2026-09-28T08:58:36.916Z"
       },
       {
         "id": 5,
@@ -328,6 +444,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Medium Duty Shelving Racks | Rack & Stack",
         "metaDescription": "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
         "keywords": "Medium Duty Shelving Racks, industrial storage systems",
@@ -338,8 +466,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.569Z",
-        "updatedAt": "2026-09-19T06:51:25.569Z"
+        "createdAt": "2026-09-28T08:58:37.836Z",
+        "updatedAt": "2026-09-28T08:58:37.836Z"
       }
     ],
     "industries": [
@@ -366,8 +494,8 @@
         "displayOrder": 10,
         "metaTitle": "Storage Solutions for Archives & Records | Rack & Stack",
         "metaDescription": "Dense, organized storage for files, documents and record boxes.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 10,
@@ -392,8 +520,8 @@
         "displayOrder": 9,
         "metaTitle": "Storage Solutions for Office & Corporate | Rack & Stack",
         "metaDescription": "Compact storage for records, lockers and office supplies.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 4,
@@ -418,8 +546,8 @@
         "displayOrder": 3,
         "metaTitle": "Storage Solutions for Pharmaceuticals | Rack & Stack",
         "metaDescription": "Well-organized storage that supports clean, controlled workflows.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       }
     ],
     "projects": []
@@ -458,6 +586,18 @@
     "showComponents": true,
     "showFaq": true,
     "showRelated": true,
+    "galleryHeading": null,
+    "featuresHeading": null,
+    "overviewHeading": null,
+    "overviewBody": null,
+    "applicationsHeading": null,
+    "applicationsIntro": null,
+    "ctaTitle": null,
+    "ctaSubtitle": null,
+    "primaryCtaLabel": null,
+    "primaryCtaHref": null,
+    "secondaryCtaLabel": null,
+    "secondaryCtaHref": null,
     "metaTitle": "Mobile Shelving Racks | Rack & Stack",
     "metaDescription": "Store more in less space — without making daily access harder.",
     "keywords": "Mobile Shelving Racks, industrial storage systems",
@@ -468,8 +608,8 @@
     "canonicalUrl": null,
     "robotsIndex": true,
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.542Z",
-    "updatedAt": "2026-09-19T06:51:25.542Z",
+    "createdAt": "2026-09-28T08:58:36.916Z",
+    "updatedAt": "2026-09-28T08:58:36.916Z",
     "features": [
       {
         "id": 5,
@@ -539,7 +679,7 @@
         "id": 6,
         "productId": 2,
         "application": "Records rooms",
-        "title": "Records rooms",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -550,7 +690,7 @@
         "id": 7,
         "productId": 2,
         "application": "Libraries",
-        "title": "Libraries",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -561,7 +701,7 @@
         "id": 8,
         "productId": 2,
         "application": "Parts stores",
-        "title": "Parts stores",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -572,7 +712,7 @@
         "id": 9,
         "productId": 2,
         "application": "Back-office storage",
-        "title": "Back-office storage",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -583,7 +723,7 @@
         "id": 10,
         "productId": 2,
         "application": "Institutional storage",
-        "title": "Institutional storage",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -603,7 +743,7 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 0,
-        "createdAt": "2026-09-19T06:51:25.551Z"
+        "createdAt": "2026-09-28T08:58:37.158Z"
       },
       {
         "id": 4,
@@ -616,7 +756,99 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 1,
-        "createdAt": "2026-09-19T06:51:25.551Z"
+        "createdAt": "2026-09-28T08:58:37.158Z"
+      }
+    ],
+    "gallery": [
+      {
+        "id": 7,
+        "productId": 2,
+        "slot": "main",
+        "label": null,
+        "imageUrl": "/assets/images/products/industrial-racking-systems-4d37fd521f.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Mobile Shelving Racks storage system",
+        "caption": "Product overview",
+        "width": null,
+        "height": null,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T08:58:47.223Z",
+        "updatedAt": "2026-09-28T08:58:47.223Z"
+      },
+      {
+        "id": 8,
+        "productId": 2,
+        "slot": "installation",
+        "label": null,
+        "imageUrl": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Mobile Shelving Racks installed in a warehouse",
+        "caption": "Installed in your warehouse",
+        "width": null,
+        "height": null,
+        "displayOrder": 1,
+        "createdAt": "2026-09-28T08:58:47.282Z",
+        "updatedAt": "2026-09-28T08:58:47.282Z"
+      },
+      {
+        "id": 9,
+        "productId": 2,
+        "slot": "close-up",
+        "label": null,
+        "imageUrl": "/assets/images/products/industrial-racking-systems-4d37fd521f.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Close-up of mobile shelving racks beams and joints",
+        "caption": "Build detail",
+        "width": null,
+        "height": null,
+        "displayOrder": 2,
+        "createdAt": "2026-09-28T08:58:47.340Z",
+        "updatedAt": "2026-09-28T08:58:47.340Z"
+      },
+      {
+        "id": 10,
+        "productId": 2,
+        "slot": "configurations",
+        "label": null,
+        "imageUrl": "/assets/images/products/slotted-angle-racks-storage-system-13-d9af30c109.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Layout options for mobile shelving racks",
+        "caption": "Available configurations",
+        "width": null,
+        "height": null,
+        "displayOrder": 3,
+        "createdAt": "2026-09-28T08:58:47.407Z",
+        "updatedAt": "2026-09-28T08:58:47.407Z"
+      },
+      {
+        "id": 11,
+        "productId": 2,
+        "slot": "heavy-load",
+        "label": null,
+        "imageUrl": "/assets/images/products/medium-duty-shelving-racks-storage-system-9-7efd5fed96.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Mobile Shelving Racks loaded with heavy stock",
+        "caption": "Built for heavy loads",
+        "width": null,
+        "height": null,
+        "displayOrder": 4,
+        "createdAt": "2026-09-28T08:58:47.469Z",
+        "updatedAt": "2026-09-28T08:58:47.469Z"
+      },
+      {
+        "id": 12,
+        "productId": 2,
+        "slot": "in-operation",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Mobile Shelving Racks in everyday operation",
+        "caption": "In everyday operation",
+        "width": null,
+        "height": null,
+        "displayOrder": 5,
+        "createdAt": "2026-09-28T08:58:47.526Z",
+        "updatedAt": "2026-09-28T08:58:47.526Z"
       }
     ],
     "benefits": [],
@@ -634,8 +866,8 @@
         "entityId": null,
         "displayOrder": 0,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 2,
@@ -645,8 +877,8 @@
         "entityId": null,
         "displayOrder": 1,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 3,
@@ -656,8 +888,8 @@
         "entityId": null,
         "displayOrder": 2,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 4,
@@ -667,8 +899,8 @@
         "entityId": null,
         "displayOrder": 3,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       }
     ],
     "related": [
@@ -706,6 +938,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Compactor Storage Systems | Rack & Stack",
         "metaDescription": "Space-saving movable storage that frees up floor space and keeps your records tidy.",
         "keywords": "Compactor Storage Systems, industrial storage systems",
@@ -716,8 +960,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.512Z",
-        "updatedAt": "2026-09-19T06:51:25.512Z"
+        "createdAt": "2026-09-28T08:58:36.580Z",
+        "updatedAt": "2026-09-28T08:58:36.580Z"
       },
       {
         "id": 7,
@@ -753,6 +997,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Slotted Angle Racks | Rack & Stack",
         "metaDescription": "Simple, practical shelving for light items, records and everyday stockrooms.",
         "keywords": "Slotted Angle Racks, industrial storage systems",
@@ -763,8 +1019,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.579Z",
-        "updatedAt": "2026-09-19T06:51:25.579Z"
+        "createdAt": "2026-09-28T08:58:38.443Z",
+        "updatedAt": "2026-09-28T08:58:38.443Z"
       }
     ],
     "industries": [
@@ -791,8 +1047,8 @@
         "displayOrder": 10,
         "metaTitle": "Storage Solutions for Archives & Records | Rack & Stack",
         "metaDescription": "Dense, organized storage for files, documents and record boxes.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 10,
@@ -817,8 +1073,8 @@
         "displayOrder": 9,
         "metaTitle": "Storage Solutions for Office & Corporate | Rack & Stack",
         "metaDescription": "Compact storage for records, lockers and office supplies.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 6,
@@ -843,8 +1099,8 @@
         "displayOrder": 5,
         "metaTitle": "Storage Solutions for Retail | Rack & Stack",
         "metaDescription": "Easy back-of-house storage for cartons, restock items and supplies.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       }
     ],
     "projects": []
@@ -883,6 +1139,18 @@
     "showComponents": true,
     "showFaq": true,
     "showRelated": true,
+    "galleryHeading": null,
+    "featuresHeading": null,
+    "overviewHeading": null,
+    "overviewBody": null,
+    "applicationsHeading": null,
+    "applicationsIntro": null,
+    "ctaTitle": null,
+    "ctaSubtitle": null,
+    "primaryCtaLabel": null,
+    "primaryCtaHref": null,
+    "secondaryCtaLabel": null,
+    "secondaryCtaHref": null,
     "metaTitle": "Heavy Duty Long Span Racks | Rack & Stack",
     "metaDescription": "Strong hand-loaded racks for cartons, bins, tools and bulky items.",
     "keywords": "Heavy Duty Long Span Racks, industrial storage systems",
@@ -893,8 +1161,8 @@
     "canonicalUrl": null,
     "robotsIndex": true,
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.553Z",
-    "updatedAt": "2026-09-19T06:51:25.553Z",
+    "createdAt": "2026-09-28T08:58:37.224Z",
+    "updatedAt": "2026-09-28T08:58:37.224Z",
     "features": [
       {
         "id": 9,
@@ -964,7 +1232,7 @@
         "id": 11,
         "productId": 3,
         "application": "Spare parts",
-        "title": "Spare parts",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -975,7 +1243,7 @@
         "id": 12,
         "productId": 3,
         "application": "Carton storage",
-        "title": "Carton storage",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -986,7 +1254,7 @@
         "id": 13,
         "productId": 3,
         "application": "Tool rooms",
-        "title": "Tool rooms",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -997,7 +1265,7 @@
         "id": 14,
         "productId": 3,
         "application": "Distribution picking",
-        "title": "Distribution picking",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -1008,7 +1276,7 @@
         "id": 15,
         "productId": 3,
         "application": "Maintenance stores",
-        "title": "Maintenance stores",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -1028,7 +1296,7 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 0,
-        "createdAt": "2026-09-19T06:51:25.559Z"
+        "createdAt": "2026-09-28T08:58:37.466Z"
       },
       {
         "id": 6,
@@ -1041,7 +1309,99 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 1,
-        "createdAt": "2026-09-19T06:51:25.559Z"
+        "createdAt": "2026-09-28T08:58:37.466Z"
+      }
+    ],
+    "gallery": [
+      {
+        "id": 13,
+        "productId": 3,
+        "slot": "main",
+        "label": null,
+        "imageUrl": "/assets/images/products/long-span-storage-d7b2410089.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Heavy Duty Long Span Racks storage system",
+        "caption": "Product overview",
+        "width": null,
+        "height": null,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T08:58:47.910Z",
+        "updatedAt": "2026-09-28T08:58:47.910Z"
+      },
+      {
+        "id": 14,
+        "productId": 3,
+        "slot": "installation",
+        "label": null,
+        "imageUrl": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Heavy Duty Long Span Racks installed in a warehouse",
+        "caption": "Installed in your warehouse",
+        "width": null,
+        "height": null,
+        "displayOrder": 1,
+        "createdAt": "2026-09-28T08:58:47.968Z",
+        "updatedAt": "2026-09-28T08:58:47.968Z"
+      },
+      {
+        "id": 15,
+        "productId": 3,
+        "slot": "close-up",
+        "label": null,
+        "imageUrl": "/assets/images/products/industrial-racking-systems-4d37fd521f.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Close-up of heavy duty long span racks beams and joints",
+        "caption": "Build detail",
+        "width": null,
+        "height": null,
+        "displayOrder": 2,
+        "createdAt": "2026-09-28T08:58:48.026Z",
+        "updatedAt": "2026-09-28T08:58:48.026Z"
+      },
+      {
+        "id": 16,
+        "productId": 3,
+        "slot": "configurations",
+        "label": null,
+        "imageUrl": "/assets/images/products/slotted-angle-racks-storage-system-13-d9af30c109.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Layout options for heavy duty long span racks",
+        "caption": "Available configurations",
+        "width": null,
+        "height": null,
+        "displayOrder": 3,
+        "createdAt": "2026-09-28T08:58:48.085Z",
+        "updatedAt": "2026-09-28T08:58:48.085Z"
+      },
+      {
+        "id": 17,
+        "productId": 3,
+        "slot": "heavy-load",
+        "label": null,
+        "imageUrl": "/assets/images/products/medium-duty-shelving-racks-storage-system-9-7efd5fed96.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Heavy Duty Long Span Racks loaded with heavy stock",
+        "caption": "Built for heavy loads",
+        "width": null,
+        "height": null,
+        "displayOrder": 4,
+        "createdAt": "2026-09-28T08:58:48.145Z",
+        "updatedAt": "2026-09-28T08:58:48.145Z"
+      },
+      {
+        "id": 18,
+        "productId": 3,
+        "slot": "in-operation",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Heavy Duty Long Span Racks in everyday operation",
+        "caption": "In everyday operation",
+        "width": null,
+        "height": null,
+        "displayOrder": 5,
+        "createdAt": "2026-09-28T08:58:48.206Z",
+        "updatedAt": "2026-09-28T08:58:48.206Z"
       }
     ],
     "benefits": [],
@@ -1059,8 +1419,8 @@
         "entityId": null,
         "displayOrder": 0,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 2,
@@ -1070,8 +1430,8 @@
         "entityId": null,
         "displayOrder": 1,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 3,
@@ -1081,8 +1441,8 @@
         "entityId": null,
         "displayOrder": 2,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 4,
@@ -1092,8 +1452,8 @@
         "entityId": null,
         "displayOrder": 3,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       }
     ],
     "related": [
@@ -1131,6 +1491,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Pallet Racking | Rack & Stack",
         "metaDescription": "Strong pallet racking planned around your loads, equipment and warehouse flow.",
         "keywords": "Heavy Duty Pallet Racking, industrial storage systems",
@@ -1141,8 +1513,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.561Z",
-        "updatedAt": "2026-09-21T08:40:04.471Z"
+        "createdAt": "2026-09-28T08:58:37.526Z",
+        "updatedAt": "2026-09-28T08:58:37.526Z"
       },
       {
         "id": 5,
@@ -1178,6 +1550,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Medium Duty Shelving Racks | Rack & Stack",
         "metaDescription": "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
         "keywords": "Medium Duty Shelving Racks, industrial storage systems",
@@ -1188,8 +1572,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.569Z",
-        "updatedAt": "2026-09-19T06:51:25.569Z"
+        "createdAt": "2026-09-28T08:58:37.836Z",
+        "updatedAt": "2026-09-28T08:58:37.836Z"
       },
       {
         "id": 6,
@@ -1225,6 +1609,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mezzanine Floor | Rack & Stack",
         "metaDescription": "Extra floors that turn empty height into usable space.",
         "keywords": "Mezzanine Floor, industrial storage systems",
@@ -1235,8 +1631,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.574Z",
-        "updatedAt": "2026-09-19T06:51:25.574Z"
+        "createdAt": "2026-09-28T08:58:38.140Z",
+        "updatedAt": "2026-09-28T12:17:54.482Z"
       }
     ],
     "industries": [
@@ -1263,8 +1659,8 @@
         "displayOrder": 1,
         "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
         "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 3,
@@ -1289,8 +1685,8 @@
         "displayOrder": 2,
         "metaTitle": "Storage Solutions for Automotive | Rack & Stack",
         "metaDescription": "Flexible storage for parts, spares and stock kept near the line.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 9,
@@ -1315,8 +1711,8 @@
         "displayOrder": 8,
         "metaTitle": "Storage Solutions for Engineering | Rack & Stack",
         "metaDescription": "Storage for tools, parts, consumables and odd-sized items.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 5,
@@ -1341,8 +1737,8 @@
         "displayOrder": 4,
         "metaTitle": "Storage Solutions for E-commerce | Rack & Stack",
         "metaDescription": "Easy picking storage for large product ranges and changing orders.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       }
     ],
     "projects": []
@@ -1381,6 +1777,18 @@
     "showComponents": true,
     "showFaq": true,
     "showRelated": true,
+    "galleryHeading": null,
+    "featuresHeading": null,
+    "overviewHeading": null,
+    "overviewBody": null,
+    "applicationsHeading": null,
+    "applicationsIntro": null,
+    "ctaTitle": null,
+    "ctaSubtitle": null,
+    "primaryCtaLabel": null,
+    "primaryCtaHref": null,
+    "secondaryCtaLabel": null,
+    "secondaryCtaHref": null,
     "metaTitle": "Heavy Duty Pallet Racking | Rack & Stack",
     "metaDescription": "Strong pallet racking planned around your loads, equipment and warehouse flow.",
     "keywords": "Heavy Duty Pallet Racking, industrial storage systems",
@@ -1391,11 +1799,11 @@
     "canonicalUrl": null,
     "robotsIndex": true,
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.561Z",
-    "updatedAt": "2026-09-21T08:40:04.471Z",
+    "createdAt": "2026-09-28T08:58:37.526Z",
+    "updatedAt": "2026-09-28T08:58:37.526Z",
     "features": [
       {
-        "id": 35,
+        "id": 13,
         "productId": 4,
         "title": "Direct Access",
         "description": "Every pallet is easy to reach.",
@@ -1403,7 +1811,7 @@
         "displayOrder": 0
       },
       {
-        "id": 36,
+        "id": 14,
         "productId": 4,
         "title": "Uses Height Well",
         "description": "Beam levels use your available height and lift equipment.",
@@ -1411,7 +1819,7 @@
         "displayOrder": 1
       },
       {
-        "id": 37,
+        "id": 15,
         "productId": 4,
         "title": "Fits Your Workflow",
         "description": "Aisles and bays match how your team moves goods.",
@@ -1419,7 +1827,7 @@
         "displayOrder": 2
       },
       {
-        "id": 38,
+        "id": 16,
         "productId": 4,
         "title": "Easy to Adjust",
         "description": "Move beams as your inventory changes.",
@@ -1427,7 +1835,7 @@
         "displayOrder": 3
       },
       {
-        "id": 39,
+        "id": 17,
         "productId": 4,
         "title": "Built for Your Load",
         "description": "Every part is chosen for your declared load weights.",
@@ -1435,7 +1843,7 @@
         "displayOrder": 4
       },
       {
-        "id": 40,
+        "id": 18,
         "productId": 4,
         "title": "Safety Built In",
         "description": "Protection and load signs can be included.",
@@ -1445,28 +1853,28 @@
     ],
     "specifications": [
       {
-        "id": 33,
+        "id": 13,
         "productId": 4,
         "specificationName": "Unit load",
         "specificationValue": "Designed from declared pallet weight and geometry",
         "displayOrder": 0
       },
       {
-        "id": 34,
+        "id": 14,
         "productId": 4,
         "specificationName": "Beam levels",
         "specificationValue": "Project-specific and adjustable",
         "displayOrder": 1
       },
       {
-        "id": 35,
+        "id": 15,
         "productId": 4,
         "specificationName": "Aisle width",
         "specificationValue": "Matched to handling equipment",
         "displayOrder": 2
       },
       {
-        "id": 36,
+        "id": 16,
         "productId": 4,
         "specificationName": "Accessories",
         "specificationValue": "Protection, decking and guides as required",
@@ -1475,10 +1883,10 @@
     ],
     "applications": [
       {
-        "id": 41,
+        "id": 16,
         "productId": 4,
         "application": "Warehouse pallet storage",
-        "title": "Warehouse pallet storage",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -1486,10 +1894,10 @@
         "displayOrder": 0
       },
       {
-        "id": 42,
+        "id": 17,
         "productId": 4,
         "application": "Manufacturing buffer stock",
-        "title": "Manufacturing buffer stock",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -1497,10 +1905,10 @@
         "displayOrder": 1
       },
       {
-        "id": 43,
+        "id": 18,
         "productId": 4,
         "application": "Distribution centers",
-        "title": "Distribution centers",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -1508,10 +1916,10 @@
         "displayOrder": 2
       },
       {
-        "id": 44,
+        "id": 19,
         "productId": 4,
         "application": "FMCG storage",
-        "title": "FMCG storage",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -1519,10 +1927,10 @@
         "displayOrder": 3
       },
       {
-        "id": 45,
+        "id": 20,
         "productId": 4,
         "application": "Automotive components",
-        "title": "Automotive components",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -1532,7 +1940,7 @@
     ],
     "images": [
       {
-        "id": 17,
+        "id": 7,
         "productId": 4,
         "imageUrl": "/assets/images/products/heavy-duty-pallet-racking-storage-system-17-361f1d7770.webp",
         "cloudinaryPublicId": null,
@@ -1542,10 +1950,10 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 0,
-        "createdAt": "2026-09-21T08:40:04.468Z"
+        "createdAt": "2026-09-28T08:58:37.770Z"
       },
       {
-        "id": 18,
+        "id": 8,
         "productId": 4,
         "imageUrl": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp",
         "cloudinaryPublicId": null,
@@ -1555,7 +1963,99 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 1,
-        "createdAt": "2026-09-21T08:40:04.468Z"
+        "createdAt": "2026-09-28T08:58:37.770Z"
+      }
+    ],
+    "gallery": [
+      {
+        "id": 19,
+        "productId": 4,
+        "slot": "main",
+        "label": null,
+        "imageUrl": "/assets/images/products/heavy-duty-pallet-racking-storage-system-17-361f1d7770.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Heavy Duty Pallet Racking storage system",
+        "caption": "Product overview",
+        "width": null,
+        "height": null,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T08:58:48.325Z",
+        "updatedAt": "2026-09-28T08:58:48.325Z"
+      },
+      {
+        "id": 20,
+        "productId": 4,
+        "slot": "installation",
+        "label": null,
+        "imageUrl": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Heavy Duty Pallet Racking installed in a warehouse",
+        "caption": "Installed in your warehouse",
+        "width": null,
+        "height": null,
+        "displayOrder": 1,
+        "createdAt": "2026-09-28T08:58:48.386Z",
+        "updatedAt": "2026-09-28T08:58:48.386Z"
+      },
+      {
+        "id": 21,
+        "productId": 4,
+        "slot": "close-up",
+        "label": null,
+        "imageUrl": "/assets/images/products/industrial-racking-systems-4d37fd521f.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Close-up of heavy duty pallet racking beams and joints",
+        "caption": "Build detail",
+        "width": null,
+        "height": null,
+        "displayOrder": 2,
+        "createdAt": "2026-09-28T08:58:48.445Z",
+        "updatedAt": "2026-09-28T08:58:48.445Z"
+      },
+      {
+        "id": 22,
+        "productId": 4,
+        "slot": "configurations",
+        "label": null,
+        "imageUrl": "/assets/images/products/slotted-angle-racks-storage-system-13-d9af30c109.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Layout options for heavy duty pallet racking",
+        "caption": "Available configurations",
+        "width": null,
+        "height": null,
+        "displayOrder": 3,
+        "createdAt": "2026-09-28T08:58:48.506Z",
+        "updatedAt": "2026-09-28T08:58:48.506Z"
+      },
+      {
+        "id": 23,
+        "productId": 4,
+        "slot": "heavy-load",
+        "label": null,
+        "imageUrl": "/assets/images/products/medium-duty-shelving-racks-storage-system-9-7efd5fed96.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Heavy Duty Pallet Racking loaded with heavy stock",
+        "caption": "Built for heavy loads",
+        "width": null,
+        "height": null,
+        "displayOrder": 4,
+        "createdAt": "2026-09-28T08:58:48.564Z",
+        "updatedAt": "2026-09-28T08:58:48.564Z"
+      },
+      {
+        "id": 24,
+        "productId": 4,
+        "slot": "in-operation",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Heavy Duty Pallet Racking in everyday operation",
+        "caption": "In everyday operation",
+        "width": null,
+        "height": null,
+        "displayOrder": 5,
+        "createdAt": "2026-09-28T08:58:48.628Z",
+        "updatedAt": "2026-09-28T08:58:48.628Z"
       }
     ],
     "benefits": [],
@@ -1573,8 +2073,8 @@
         "entityId": null,
         "displayOrder": 0,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 2,
@@ -1584,8 +2084,8 @@
         "entityId": null,
         "displayOrder": 1,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 3,
@@ -1595,8 +2095,8 @@
         "entityId": null,
         "displayOrder": 2,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 4,
@@ -1606,8 +2106,8 @@
         "entityId": null,
         "displayOrder": 3,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       }
     ],
     "related": [
@@ -1645,6 +2145,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Long Span Racks | Rack & Stack",
         "metaDescription": "Strong hand-loaded racks for cartons, bins, tools and bulky items.",
         "keywords": "Heavy Duty Long Span Racks, industrial storage systems",
@@ -1655,8 +2167,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.553Z",
-        "updatedAt": "2026-09-19T06:51:25.553Z"
+        "createdAt": "2026-09-28T08:58:37.224Z",
+        "updatedAt": "2026-09-28T08:58:37.224Z"
       },
       {
         "id": 6,
@@ -1692,6 +2204,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mezzanine Floor | Rack & Stack",
         "metaDescription": "Extra floors that turn empty height into usable space.",
         "keywords": "Mezzanine Floor, industrial storage systems",
@@ -1702,8 +2226,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.574Z",
-        "updatedAt": "2026-09-19T06:51:25.574Z"
+        "createdAt": "2026-09-28T08:58:38.140Z",
+        "updatedAt": "2026-09-28T12:17:54.482Z"
       },
       {
         "id": 5,
@@ -1739,6 +2263,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Medium Duty Shelving Racks | Rack & Stack",
         "metaDescription": "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
         "keywords": "Medium Duty Shelving Racks, industrial storage systems",
@@ -1749,8 +2285,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.569Z",
-        "updatedAt": "2026-09-19T06:51:25.569Z"
+        "createdAt": "2026-09-28T08:58:37.836Z",
+        "updatedAt": "2026-09-28T08:58:37.836Z"
       }
     ],
     "industries": [
@@ -1777,8 +2313,8 @@
         "displayOrder": 0,
         "metaTitle": "Storage Solutions for Warehousing | Rack & Stack",
         "metaDescription": "Storage that balances pallet space, picking access and smooth movement.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 8,
@@ -1803,8 +2339,8 @@
         "displayOrder": 7,
         "metaTitle": "Storage Solutions for Logistics | Rack & Stack",
         "metaDescription": "Flexible storage for receiving, staging, picking and dispatch.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 7,
@@ -1829,8 +2365,8 @@
         "displayOrder": 6,
         "metaTitle": "Storage Solutions for FMCG | Rack & Stack",
         "metaDescription": "Pallet and carton storage planned around fast stock movement.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 12,
@@ -1855,8 +2391,8 @@
         "displayOrder": 11,
         "metaTitle": "Storage Solutions for Distribution Centers | Rack & Stack",
         "metaDescription": "Pallet and picking systems that keep orders moving.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 2,
@@ -1881,8 +2417,8 @@
         "displayOrder": 1,
         "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
         "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       }
     ],
     "projects": []
@@ -1921,6 +2457,18 @@
     "showComponents": true,
     "showFaq": true,
     "showRelated": true,
+    "galleryHeading": null,
+    "featuresHeading": null,
+    "overviewHeading": null,
+    "overviewBody": null,
+    "applicationsHeading": null,
+    "applicationsIntro": null,
+    "ctaTitle": null,
+    "ctaSubtitle": null,
+    "primaryCtaLabel": null,
+    "primaryCtaHref": null,
+    "secondaryCtaLabel": null,
+    "secondaryCtaHref": null,
     "metaTitle": "Medium Duty Shelving Racks | Rack & Stack",
     "metaDescription": "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
     "keywords": "Medium Duty Shelving Racks, industrial storage systems",
@@ -1931,8 +2479,8 @@
     "canonicalUrl": null,
     "robotsIndex": true,
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.569Z",
-    "updatedAt": "2026-09-19T06:51:25.569Z",
+    "createdAt": "2026-09-28T08:58:37.836Z",
+    "updatedAt": "2026-09-28T08:58:37.836Z",
     "features": [
       {
         "id": 19,
@@ -2002,7 +2550,7 @@
         "id": 21,
         "productId": 5,
         "application": "Component storage",
-        "title": "Component storage",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2013,7 +2561,7 @@
         "id": 22,
         "productId": 5,
         "application": "Retail backrooms",
-        "title": "Retail backrooms",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2024,7 +2572,7 @@
         "id": 23,
         "productId": 5,
         "application": "Workshop stores",
-        "title": "Workshop stores",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2035,7 +2583,7 @@
         "id": 24,
         "productId": 5,
         "application": "Carton picking",
-        "title": "Carton picking",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2046,7 +2594,7 @@
         "id": 25,
         "productId": 5,
         "application": "E-commerce inventory",
-        "title": "E-commerce inventory",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2066,7 +2614,7 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 0,
-        "createdAt": "2026-09-19T06:51:25.573Z"
+        "createdAt": "2026-09-28T08:58:38.078Z"
       },
       {
         "id": 10,
@@ -2079,7 +2627,99 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 1,
-        "createdAt": "2026-09-19T06:51:25.573Z"
+        "createdAt": "2026-09-28T08:58:38.078Z"
+      }
+    ],
+    "gallery": [
+      {
+        "id": 25,
+        "productId": 5,
+        "slot": "main",
+        "label": null,
+        "imageUrl": "/assets/images/products/medium-duty-shelving-racks-storage-system-9-7efd5fed96.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Medium Duty Shelving Racks storage system",
+        "caption": "Product overview",
+        "width": null,
+        "height": null,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T08:58:48.746Z",
+        "updatedAt": "2026-09-28T08:58:48.746Z"
+      },
+      {
+        "id": 26,
+        "productId": 5,
+        "slot": "installation",
+        "label": null,
+        "imageUrl": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Medium Duty Shelving Racks installed in a warehouse",
+        "caption": "Installed in your warehouse",
+        "width": null,
+        "height": null,
+        "displayOrder": 1,
+        "createdAt": "2026-09-28T08:58:48.806Z",
+        "updatedAt": "2026-09-28T08:58:48.806Z"
+      },
+      {
+        "id": 27,
+        "productId": 5,
+        "slot": "close-up",
+        "label": null,
+        "imageUrl": "/assets/images/products/industrial-racking-systems-4d37fd521f.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Close-up of medium duty shelving racks beams and joints",
+        "caption": "Build detail",
+        "width": null,
+        "height": null,
+        "displayOrder": 2,
+        "createdAt": "2026-09-28T08:58:48.865Z",
+        "updatedAt": "2026-09-28T08:58:48.865Z"
+      },
+      {
+        "id": 28,
+        "productId": 5,
+        "slot": "configurations",
+        "label": null,
+        "imageUrl": "/assets/images/products/slotted-angle-racks-storage-system-13-d9af30c109.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Layout options for medium duty shelving racks",
+        "caption": "Available configurations",
+        "width": null,
+        "height": null,
+        "displayOrder": 3,
+        "createdAt": "2026-09-28T08:58:48.927Z",
+        "updatedAt": "2026-09-28T08:58:48.927Z"
+      },
+      {
+        "id": 29,
+        "productId": 5,
+        "slot": "heavy-load",
+        "label": null,
+        "imageUrl": "/assets/images/products/medium-duty-shelving-racks-storage-system-9-7efd5fed96.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Medium Duty Shelving Racks loaded with heavy stock",
+        "caption": "Built for heavy loads",
+        "width": null,
+        "height": null,
+        "displayOrder": 4,
+        "createdAt": "2026-09-28T08:58:48.987Z",
+        "updatedAt": "2026-09-28T08:58:48.987Z"
+      },
+      {
+        "id": 30,
+        "productId": 5,
+        "slot": "in-operation",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Medium Duty Shelving Racks in everyday operation",
+        "caption": "In everyday operation",
+        "width": null,
+        "height": null,
+        "displayOrder": 5,
+        "createdAt": "2026-09-28T08:58:49.044Z",
+        "updatedAt": "2026-09-28T08:58:49.044Z"
       }
     ],
     "benefits": [],
@@ -2097,8 +2737,8 @@
         "entityId": null,
         "displayOrder": 0,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 2,
@@ -2108,8 +2748,8 @@
         "entityId": null,
         "displayOrder": 1,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 3,
@@ -2119,8 +2759,8 @@
         "entityId": null,
         "displayOrder": 2,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 4,
@@ -2130,8 +2770,8 @@
         "entityId": null,
         "displayOrder": 3,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       }
     ],
     "related": [
@@ -2169,6 +2809,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Long Span Racks | Rack & Stack",
         "metaDescription": "Strong hand-loaded racks for cartons, bins, tools and bulky items.",
         "keywords": "Heavy Duty Long Span Racks, industrial storage systems",
@@ -2179,8 +2831,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.553Z",
-        "updatedAt": "2026-09-19T06:51:25.553Z"
+        "createdAt": "2026-09-28T08:58:37.224Z",
+        "updatedAt": "2026-09-28T08:58:37.224Z"
       },
       {
         "id": 7,
@@ -2216,6 +2868,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Slotted Angle Racks | Rack & Stack",
         "metaDescription": "Simple, practical shelving for light items, records and everyday stockrooms.",
         "keywords": "Slotted Angle Racks, industrial storage systems",
@@ -2226,8 +2890,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.579Z",
-        "updatedAt": "2026-09-19T06:51:25.579Z"
+        "createdAt": "2026-09-28T08:58:38.443Z",
+        "updatedAt": "2026-09-28T08:58:38.443Z"
       }
     ],
     "industries": [
@@ -2254,8 +2918,8 @@
         "displayOrder": 4,
         "metaTitle": "Storage Solutions for E-commerce | Rack & Stack",
         "metaDescription": "Easy picking storage for large product ranges and changing orders.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 6,
@@ -2280,8 +2944,8 @@
         "displayOrder": 5,
         "metaTitle": "Storage Solutions for Retail | Rack & Stack",
         "metaDescription": "Easy back-of-house storage for cartons, restock items and supplies.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 9,
@@ -2306,8 +2970,8 @@
         "displayOrder": 8,
         "metaTitle": "Storage Solutions for Engineering | Rack & Stack",
         "metaDescription": "Storage for tools, parts, consumables and odd-sized items.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 2,
@@ -2332,8 +2996,8 @@
         "displayOrder": 1,
         "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
         "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       }
     ],
     "projects": []
@@ -2372,6 +3036,18 @@
     "showComponents": true,
     "showFaq": true,
     "showRelated": true,
+    "galleryHeading": null,
+    "featuresHeading": null,
+    "overviewHeading": null,
+    "overviewBody": null,
+    "applicationsHeading": null,
+    "applicationsIntro": null,
+    "ctaTitle": null,
+    "ctaSubtitle": null,
+    "primaryCtaLabel": null,
+    "primaryCtaHref": null,
+    "secondaryCtaLabel": null,
+    "secondaryCtaHref": null,
     "metaTitle": "Mezzanine Floor | Rack & Stack",
     "metaDescription": "Extra floors that turn empty height into usable space.",
     "keywords": "Mezzanine Floor, industrial storage systems",
@@ -2382,8 +3058,8 @@
     "canonicalUrl": null,
     "robotsIndex": true,
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.574Z",
-    "updatedAt": "2026-09-19T06:51:25.574Z",
+    "createdAt": "2026-09-28T08:58:38.140Z",
+    "updatedAt": "2026-09-28T12:17:54.482Z",
     "features": [
       {
         "id": 23,
@@ -2453,7 +3129,7 @@
         "id": 26,
         "productId": 6,
         "application": "Additional storage",
-        "title": "Additional storage",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2464,7 +3140,7 @@
         "id": 27,
         "productId": 6,
         "application": "Picking floors",
-        "title": "Picking floors",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2475,7 +3151,7 @@
         "id": 28,
         "productId": 6,
         "application": "Production support areas",
-        "title": "Production support areas",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2486,7 +3162,7 @@
         "id": 29,
         "productId": 6,
         "application": "Packing zones",
-        "title": "Packing zones",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2497,7 +3173,7 @@
         "id": 30,
         "productId": 6,
         "application": "Maintenance stores",
-        "title": "Maintenance stores",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2517,7 +3193,7 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 0,
-        "createdAt": "2026-09-19T06:51:25.578Z"
+        "createdAt": "2026-09-28T08:58:38.382Z"
       },
       {
         "id": 12,
@@ -2530,7 +3206,99 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 1,
-        "createdAt": "2026-09-19T06:51:25.578Z"
+        "createdAt": "2026-09-28T08:58:38.382Z"
+      }
+    ],
+    "gallery": [
+      {
+        "id": 31,
+        "productId": 6,
+        "slot": "main",
+        "label": null,
+        "imageUrl": "/assets/images/products/forklift-alongside-pallet-racking-aef55e63fd.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Mezzanine Floor storage system",
+        "caption": "Product overview",
+        "width": null,
+        "height": null,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T08:58:49.161Z",
+        "updatedAt": "2026-09-28T08:58:49.161Z"
+      },
+      {
+        "id": 32,
+        "productId": 6,
+        "slot": "installation",
+        "label": null,
+        "imageUrl": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Mezzanine Floor installed in a warehouse",
+        "caption": "Installed in your warehouse",
+        "width": null,
+        "height": null,
+        "displayOrder": 1,
+        "createdAt": "2026-09-28T08:58:49.221Z",
+        "updatedAt": "2026-09-28T08:58:49.221Z"
+      },
+      {
+        "id": 33,
+        "productId": 6,
+        "slot": "close-up",
+        "label": null,
+        "imageUrl": "/assets/images/products/industrial-racking-systems-4d37fd521f.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Close-up of mezzanine floor beams and joints",
+        "caption": "Build detail",
+        "width": null,
+        "height": null,
+        "displayOrder": 2,
+        "createdAt": "2026-09-28T08:58:49.282Z",
+        "updatedAt": "2026-09-28T08:58:49.282Z"
+      },
+      {
+        "id": 34,
+        "productId": 6,
+        "slot": "configurations",
+        "label": null,
+        "imageUrl": "/assets/images/products/slotted-angle-racks-storage-system-13-d9af30c109.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Layout options for mezzanine floor",
+        "caption": "Available configurations",
+        "width": null,
+        "height": null,
+        "displayOrder": 3,
+        "createdAt": "2026-09-28T08:58:49.339Z",
+        "updatedAt": "2026-09-28T08:58:49.339Z"
+      },
+      {
+        "id": 35,
+        "productId": 6,
+        "slot": "heavy-load",
+        "label": null,
+        "imageUrl": "/assets/images/products/medium-duty-shelving-racks-storage-system-9-7efd5fed96.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Mezzanine Floor loaded with heavy stock",
+        "caption": "Built for heavy loads",
+        "width": null,
+        "height": null,
+        "displayOrder": 4,
+        "createdAt": "2026-09-28T08:58:49.396Z",
+        "updatedAt": "2026-09-28T08:58:49.396Z"
+      },
+      {
+        "id": 36,
+        "productId": 6,
+        "slot": "in-operation",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Mezzanine Floor in everyday operation",
+        "caption": "In everyday operation",
+        "width": null,
+        "height": null,
+        "displayOrder": 5,
+        "createdAt": "2026-09-28T08:58:49.454Z",
+        "updatedAt": "2026-09-28T08:58:49.454Z"
       }
     ],
     "benefits": [],
@@ -2548,8 +3316,8 @@
         "entityId": null,
         "displayOrder": 0,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 2,
@@ -2559,8 +3327,8 @@
         "entityId": null,
         "displayOrder": 1,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 3,
@@ -2570,8 +3338,8 @@
         "entityId": null,
         "displayOrder": 2,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 4,
@@ -2581,8 +3349,8 @@
         "entityId": null,
         "displayOrder": 3,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       }
     ],
     "related": [
@@ -2620,6 +3388,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Pallet Racking | Rack & Stack",
         "metaDescription": "Strong pallet racking planned around your loads, equipment and warehouse flow.",
         "keywords": "Heavy Duty Pallet Racking, industrial storage systems",
@@ -2630,8 +3410,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.561Z",
-        "updatedAt": "2026-09-21T08:40:04.471Z"
+        "createdAt": "2026-09-28T08:58:37.526Z",
+        "updatedAt": "2026-09-28T08:58:37.526Z"
       },
       {
         "id": 3,
@@ -2667,6 +3447,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Long Span Racks | Rack & Stack",
         "metaDescription": "Strong hand-loaded racks for cartons, bins, tools and bulky items.",
         "keywords": "Heavy Duty Long Span Racks, industrial storage systems",
@@ -2677,8 +3469,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.553Z",
-        "updatedAt": "2026-09-19T06:51:25.553Z"
+        "createdAt": "2026-09-28T08:58:37.224Z",
+        "updatedAt": "2026-09-28T08:58:37.224Z"
       }
     ],
     "industries": [
@@ -2705,8 +3497,8 @@
         "displayOrder": 0,
         "metaTitle": "Storage Solutions for Warehousing | Rack & Stack",
         "metaDescription": "Storage that balances pallet space, picking access and smooth movement.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 2,
@@ -2731,8 +3523,8 @@
         "displayOrder": 1,
         "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
         "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 8,
@@ -2757,8 +3549,8 @@
         "displayOrder": 7,
         "metaTitle": "Storage Solutions for Logistics | Rack & Stack",
         "metaDescription": "Flexible storage for receiving, staging, picking and dispatch.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 5,
@@ -2783,8 +3575,8 @@
         "displayOrder": 4,
         "metaTitle": "Storage Solutions for E-commerce | Rack & Stack",
         "metaDescription": "Easy picking storage for large product ranges and changing orders.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       }
     ],
     "projects": []
@@ -2823,6 +3615,18 @@
     "showComponents": true,
     "showFaq": true,
     "showRelated": true,
+    "galleryHeading": null,
+    "featuresHeading": null,
+    "overviewHeading": null,
+    "overviewBody": null,
+    "applicationsHeading": null,
+    "applicationsIntro": null,
+    "ctaTitle": null,
+    "ctaSubtitle": null,
+    "primaryCtaLabel": null,
+    "primaryCtaHref": null,
+    "secondaryCtaLabel": null,
+    "secondaryCtaHref": null,
     "metaTitle": "Slotted Angle Racks | Rack & Stack",
     "metaDescription": "Simple, practical shelving for light items, records and everyday stockrooms.",
     "keywords": "Slotted Angle Racks, industrial storage systems",
@@ -2833,8 +3637,8 @@
     "canonicalUrl": null,
     "robotsIndex": true,
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.579Z",
-    "updatedAt": "2026-09-19T06:51:25.579Z",
+    "createdAt": "2026-09-28T08:58:38.443Z",
+    "updatedAt": "2026-09-28T08:58:38.443Z",
     "features": [
       {
         "id": 27,
@@ -2904,7 +3708,7 @@
         "id": 31,
         "productId": 7,
         "application": "General stores",
-        "title": "General stores",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2915,7 +3719,7 @@
         "id": 32,
         "productId": 7,
         "application": "Records",
-        "title": "Records",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2926,7 +3730,7 @@
         "id": 33,
         "productId": 7,
         "application": "Spare parts",
-        "title": "Spare parts",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2937,7 +3741,7 @@
         "id": 34,
         "productId": 7,
         "application": "Office supplies",
-        "title": "Office supplies",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2948,7 +3752,7 @@
         "id": 35,
         "productId": 7,
         "application": "Workshop inventory",
-        "title": "Workshop inventory",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -2968,7 +3772,7 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 0,
-        "createdAt": "2026-09-19T06:51:25.583Z"
+        "createdAt": "2026-09-28T08:58:38.695Z"
       },
       {
         "id": 14,
@@ -2981,7 +3785,99 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 1,
-        "createdAt": "2026-09-19T06:51:25.583Z"
+        "createdAt": "2026-09-28T08:58:38.695Z"
+      }
+    ],
+    "gallery": [
+      {
+        "id": 37,
+        "productId": 7,
+        "slot": "main",
+        "label": null,
+        "imageUrl": "/assets/images/products/slotted-angle-racks-storage-system-13-d9af30c109.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Slotted Angle Racks storage system",
+        "caption": "Product overview",
+        "width": null,
+        "height": null,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T08:58:49.577Z",
+        "updatedAt": "2026-09-28T08:58:49.577Z"
+      },
+      {
+        "id": 38,
+        "productId": 7,
+        "slot": "installation",
+        "label": null,
+        "imageUrl": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Slotted Angle Racks installed in a warehouse",
+        "caption": "Installed in your warehouse",
+        "width": null,
+        "height": null,
+        "displayOrder": 1,
+        "createdAt": "2026-09-28T08:58:49.647Z",
+        "updatedAt": "2026-09-28T08:58:49.647Z"
+      },
+      {
+        "id": 39,
+        "productId": 7,
+        "slot": "close-up",
+        "label": null,
+        "imageUrl": "/assets/images/products/industrial-racking-systems-4d37fd521f.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Close-up of slotted angle racks beams and joints",
+        "caption": "Build detail",
+        "width": null,
+        "height": null,
+        "displayOrder": 2,
+        "createdAt": "2026-09-28T08:58:49.706Z",
+        "updatedAt": "2026-09-28T08:58:49.706Z"
+      },
+      {
+        "id": 40,
+        "productId": 7,
+        "slot": "configurations",
+        "label": null,
+        "imageUrl": "/assets/images/products/slotted-angle-racks-storage-system-13-d9af30c109.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Layout options for slotted angle racks",
+        "caption": "Available configurations",
+        "width": null,
+        "height": null,
+        "displayOrder": 3,
+        "createdAt": "2026-09-28T08:58:49.776Z",
+        "updatedAt": "2026-09-28T08:58:49.776Z"
+      },
+      {
+        "id": 41,
+        "productId": 7,
+        "slot": "heavy-load",
+        "label": null,
+        "imageUrl": "/assets/images/products/medium-duty-shelving-racks-storage-system-9-7efd5fed96.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Slotted Angle Racks loaded with heavy stock",
+        "caption": "Built for heavy loads",
+        "width": null,
+        "height": null,
+        "displayOrder": 4,
+        "createdAt": "2026-09-28T08:58:49.834Z",
+        "updatedAt": "2026-09-28T08:58:49.834Z"
+      },
+      {
+        "id": 42,
+        "productId": 7,
+        "slot": "in-operation",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Slotted Angle Racks in everyday operation",
+        "caption": "In everyday operation",
+        "width": null,
+        "height": null,
+        "displayOrder": 5,
+        "createdAt": "2026-09-28T08:58:49.894Z",
+        "updatedAt": "2026-09-28T08:58:49.894Z"
       }
     ],
     "benefits": [],
@@ -2999,8 +3895,8 @@
         "entityId": null,
         "displayOrder": 0,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 2,
@@ -3010,8 +3906,8 @@
         "entityId": null,
         "displayOrder": 1,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 3,
@@ -3021,8 +3917,8 @@
         "entityId": null,
         "displayOrder": 2,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 4,
@@ -3032,8 +3928,8 @@
         "entityId": null,
         "displayOrder": 3,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       }
     ],
     "related": [
@@ -3071,6 +3967,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Medium Duty Shelving Racks | Rack & Stack",
         "metaDescription": "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
         "keywords": "Medium Duty Shelving Racks, industrial storage systems",
@@ -3081,8 +3989,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.569Z",
-        "updatedAt": "2026-09-19T06:51:25.569Z"
+        "createdAt": "2026-09-28T08:58:37.836Z",
+        "updatedAt": "2026-09-28T08:58:37.836Z"
       },
       {
         "id": 8,
@@ -3118,6 +4026,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Lockers | Rack & Stack",
         "metaDescription": "Tough lockers for workplaces, staff areas and institutions.",
         "keywords": "Lockers, industrial storage systems",
@@ -3128,8 +4048,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.585Z",
-        "updatedAt": "2026-09-19T06:51:25.585Z"
+        "createdAt": "2026-09-28T08:58:38.759Z",
+        "updatedAt": "2026-09-28T08:58:38.759Z"
       }
     ],
     "industries": [
@@ -3156,8 +4076,8 @@
         "displayOrder": 8,
         "metaTitle": "Storage Solutions for Engineering | Rack & Stack",
         "metaDescription": "Storage for tools, parts, consumables and odd-sized items.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 6,
@@ -3182,8 +4102,8 @@
         "displayOrder": 5,
         "metaTitle": "Storage Solutions for Retail | Rack & Stack",
         "metaDescription": "Easy back-of-house storage for cartons, restock items and supplies.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 10,
@@ -3208,8 +4128,8 @@
         "displayOrder": 9,
         "metaTitle": "Storage Solutions for Office & Corporate | Rack & Stack",
         "metaDescription": "Compact storage for records, lockers and office supplies.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       }
     ],
     "projects": []
@@ -3248,6 +4168,18 @@
     "showComponents": true,
     "showFaq": true,
     "showRelated": true,
+    "galleryHeading": null,
+    "featuresHeading": null,
+    "overviewHeading": null,
+    "overviewBody": null,
+    "applicationsHeading": null,
+    "applicationsIntro": null,
+    "ctaTitle": null,
+    "ctaSubtitle": null,
+    "primaryCtaLabel": null,
+    "primaryCtaHref": null,
+    "secondaryCtaLabel": null,
+    "secondaryCtaHref": null,
     "metaTitle": "Lockers | Rack & Stack",
     "metaDescription": "Tough lockers for workplaces, staff areas and institutions.",
     "keywords": "Lockers, industrial storage systems",
@@ -3258,8 +4190,8 @@
     "canonicalUrl": null,
     "robotsIndex": true,
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.585Z",
-    "updatedAt": "2026-09-19T06:51:25.585Z",
+    "createdAt": "2026-09-28T08:58:38.759Z",
+    "updatedAt": "2026-09-28T08:58:38.759Z",
     "features": [
       {
         "id": 31,
@@ -3329,7 +4261,7 @@
         "id": 36,
         "productId": 8,
         "application": "Staff facilities",
-        "title": "Staff facilities",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -3340,7 +4272,7 @@
         "id": 37,
         "productId": 8,
         "application": "Factories",
-        "title": "Factories",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -3351,7 +4283,7 @@
         "id": 38,
         "productId": 8,
         "application": "Offices",
-        "title": "Offices",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -3362,7 +4294,7 @@
         "id": 39,
         "productId": 8,
         "application": "Institutions",
-        "title": "Institutions",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -3373,7 +4305,7 @@
         "id": 40,
         "productId": 8,
         "application": "Tool control",
-        "title": "Tool control",
+        "title": null,
         "description": null,
         "image": null,
         "imagePublicId": null,
@@ -3393,7 +4325,7 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 0,
-        "createdAt": "2026-09-19T06:51:25.591Z"
+        "createdAt": "2026-09-28T08:58:39.006Z"
       },
       {
         "id": 16,
@@ -3406,7 +4338,99 @@
         "height": null,
         "fileSize": null,
         "displayOrder": 1,
-        "createdAt": "2026-09-19T06:51:25.591Z"
+        "createdAt": "2026-09-28T08:58:39.006Z"
+      }
+    ],
+    "gallery": [
+      {
+        "id": 43,
+        "productId": 8,
+        "slot": "main",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Lockers storage system",
+        "caption": "Product overview",
+        "width": null,
+        "height": null,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T08:58:50.011Z",
+        "updatedAt": "2026-09-28T08:58:50.011Z"
+      },
+      {
+        "id": 44,
+        "productId": 8,
+        "slot": "installation",
+        "label": null,
+        "imageUrl": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Lockers installed in a warehouse",
+        "caption": "Installed in your warehouse",
+        "width": null,
+        "height": null,
+        "displayOrder": 1,
+        "createdAt": "2026-09-28T08:58:50.069Z",
+        "updatedAt": "2026-09-28T08:58:50.069Z"
+      },
+      {
+        "id": 45,
+        "productId": 8,
+        "slot": "close-up",
+        "label": null,
+        "imageUrl": "/assets/images/products/industrial-racking-systems-4d37fd521f.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Close-up of lockers beams and joints",
+        "caption": "Build detail",
+        "width": null,
+        "height": null,
+        "displayOrder": 2,
+        "createdAt": "2026-09-28T08:58:50.130Z",
+        "updatedAt": "2026-09-28T08:58:50.130Z"
+      },
+      {
+        "id": 46,
+        "productId": 8,
+        "slot": "configurations",
+        "label": null,
+        "imageUrl": "/assets/images/products/slotted-angle-racks-storage-system-13-d9af30c109.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Layout options for lockers",
+        "caption": "Available configurations",
+        "width": null,
+        "height": null,
+        "displayOrder": 3,
+        "createdAt": "2026-09-28T08:58:50.190Z",
+        "updatedAt": "2026-09-28T08:58:50.190Z"
+      },
+      {
+        "id": 47,
+        "productId": 8,
+        "slot": "heavy-load",
+        "label": null,
+        "imageUrl": "/assets/images/products/medium-duty-shelving-racks-storage-system-9-7efd5fed96.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Lockers loaded with heavy stock",
+        "caption": "Built for heavy loads",
+        "width": null,
+        "height": null,
+        "displayOrder": 4,
+        "createdAt": "2026-09-28T08:58:50.249Z",
+        "updatedAt": "2026-09-28T08:58:50.249Z"
+      },
+      {
+        "id": 48,
+        "productId": 8,
+        "slot": "in-operation",
+        "label": null,
+        "imageUrl": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "cloudinaryPublicId": null,
+        "altText": "Lockers in everyday operation",
+        "caption": "In everyday operation",
+        "width": null,
+        "height": null,
+        "displayOrder": 5,
+        "createdAt": "2026-09-28T08:58:50.309Z",
+        "updatedAt": "2026-09-28T08:58:50.309Z"
       }
     ],
     "benefits": [],
@@ -3424,8 +4448,8 @@
         "entityId": null,
         "displayOrder": 0,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 2,
@@ -3435,8 +4459,8 @@
         "entityId": null,
         "displayOrder": 1,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 3,
@@ -3446,8 +4470,8 @@
         "entityId": null,
         "displayOrder": 2,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       },
       {
         "id": 4,
@@ -3457,8 +4481,8 @@
         "entityId": null,
         "displayOrder": 3,
         "status": "PUBLISHED",
-        "createdAt": "2026-09-19T06:51:25.736Z",
-        "updatedAt": "2026-09-19T06:51:25.736Z"
+        "createdAt": "2026-09-28T08:58:51.359Z",
+        "updatedAt": "2026-09-28T08:58:51.359Z"
       }
     ],
     "related": [
@@ -3496,6 +4520,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Slotted Angle Racks | Rack & Stack",
         "metaDescription": "Simple, practical shelving for light items, records and everyday stockrooms.",
         "keywords": "Slotted Angle Racks, industrial storage systems",
@@ -3506,8 +4542,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.579Z",
-        "updatedAt": "2026-09-19T06:51:25.579Z"
+        "createdAt": "2026-09-28T08:58:38.443Z",
+        "updatedAt": "2026-09-28T08:58:38.443Z"
       },
       {
         "id": 2,
@@ -3543,6 +4579,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mobile Shelving Racks | Rack & Stack",
         "metaDescription": "Store more in less space — without making daily access harder.",
         "keywords": "Mobile Shelving Racks, industrial storage systems",
@@ -3553,8 +4601,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.542Z",
-        "updatedAt": "2026-09-19T06:51:25.542Z"
+        "createdAt": "2026-09-28T08:58:36.916Z",
+        "updatedAt": "2026-09-28T08:58:36.916Z"
       }
     ],
     "industries": [
@@ -3581,8 +4629,8 @@
         "displayOrder": 1,
         "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
         "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 10,
@@ -3607,8 +4655,8 @@
         "displayOrder": 9,
         "metaTitle": "Storage Solutions for Office & Corporate | Rack & Stack",
         "metaDescription": "Compact storage for records, lockers and office supplies.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       },
       {
         "id": 9,
@@ -3633,8 +4681,8 @@
         "displayOrder": 8,
         "metaTitle": "Storage Solutions for Engineering | Rack & Stack",
         "metaDescription": "Storage for tools, parts, consumables and odd-sized items.",
-        "createdAt": "2026-09-19T06:51:25.619Z",
-        "updatedAt": "2026-09-19T06:51:25.619Z"
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-09-28T08:58:40.287Z"
       }
     ],
     "projects": []

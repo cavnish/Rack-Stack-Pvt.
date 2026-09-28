@@ -98,6 +98,23 @@ export const products = pgTable(
     showComponents: boolean("show_components").default(true).notNull(),
     showFaq: boolean("show_faq").default(true).notNull(),
     showRelated: boolean("show_related").default(true).notNull(),
+    /**
+     * Editorial copy for the product page. The page renders a fixed set of
+     * sections, so the headings and the closing call-to-action are stored per
+     * product rather than hardcoded in the renderer.
+     */
+    galleryHeading: text("gallery_heading"),
+    featuresHeading: text("features_heading"),
+    overviewHeading: text("overview_heading"),
+    overviewBody: text("overview_body"),
+    applicationsHeading: text("applications_heading"),
+    applicationsIntro: text("applications_intro"),
+    ctaTitle: text("cta_title"),
+    ctaSubtitle: text("cta_subtitle"),
+    primaryCtaLabel: text("primary_cta_label"),
+    primaryCtaHref: text("primary_cta_href"),
+    secondaryCtaLabel: text("secondary_cta_label"),
+    secondaryCtaHref: text("secondary_cta_href"),
     metaTitle: text("meta_title"),
     metaDescription: text("meta_description"),
     keywords: text("keywords"),
@@ -134,6 +151,42 @@ export const productImages = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [index("product_images_product_idx").on(table.productId)],
+);
+
+/**
+ * The product gallery, as a fixed set of six named slots.
+ *
+ * A product page always shows the same six views in the same order (main shot,
+ * installation, close-up, configurations, heavy load, in operation), so the
+ * gallery is modelled as one row per slot rather than a free-form image list.
+ * That is what lets the admin screen render a fixed, labelled editor and lets
+ * the page address a view by meaning instead of by position.
+ *
+ * The `(productId, slot)` unique index is what makes a slot single-valued, so a
+ * save can upsert by slot and never has to reconcile duplicates by hand.
+ */
+export const productGalleryImages = pgTable(
+  "product_gallery_images",
+  {
+    id: serial("id").primaryKey(),
+    productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+    /** One of the `productGallerySlots` keys. Validated in `lib/validation`. */
+    slot: text("slot").notNull(),
+    /** Editor-facing name of the view, e.g. "Warehouse Installation". */
+    label: text("label"),
+    imageUrl: text("image_url").notNull(),
+    cloudinaryPublicId: text("cloudinary_public_id"),
+    altText: text("alt_text").notNull(),
+    caption: text("caption"),
+    width: integer("width"),
+    height: integer("height"),
+    displayOrder: integer("display_order").default(0).notNull(),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("product_gallery_slot_unique").on(table.productId, table.slot),
+    index("product_gallery_product_idx").on(table.productId),
+  ],
 );
 
 export const productFeatures = pgTable("product_features", {
@@ -241,6 +294,16 @@ export const services = pgTable(
     displayOrder: integer("display_order").default(0).notNull(),
     process: jsonb("process").$type<Array<{ title: string; description: string }>>().default([]),
     deliverables: jsonb("deliverables").$type<string[]>().default([]),
+    heroHeading: text("hero_heading"),
+    introHeading: text("intro_heading"),
+    introDescription: text("intro_description"),
+    introBullets: jsonb("intro_bullets").$type<string[]>().default([]),
+    capabilities: jsonb("capabilities").$type<string[]>().default([]),
+    applications: jsonb("applications").$type<Array<{ title: string; description?: string }>>().default([]),
+    whyChoosePoints: jsonb("why_choose_points").$type<Array<{ title: string; description: string }>>().default([]),
+    locationCoverage: jsonb("location_coverage").$type<{ mumbaiMaharashtra: string[]; panIndia: string[] } | string[]>().default([]),
+    relatedProductSlugs: jsonb("related_product_slugs").$type<string[]>().default([]),
+    galleryImageIds: jsonb("gallery_image_ids").$type<number[]>().default([]),
     metaTitle: text("meta_title"),
     metaDescription: text("meta_description"),
     keywords: text("keywords"),
@@ -445,6 +508,57 @@ export const homepageSections = pgTable(
     ...timestamps,
   },
   (table) => [uniqueIndex("homepage_section_key_unique").on(table.sectionKey)],
+);
+
+/**
+ * The homepage "What We Offer" cards — also the home-page product settings.
+ *
+ * These used to be a hardcoded list of slugs in the homepage, which meant a
+ * card could not be reordered, re-titled, re-pointed or hidden without a
+ * deploy. Each card is now a row so the homepage section is fully editable:
+ * order, visibility, artwork, copy and destination are all CMS-owned.
+ *
+ * A card points at an existing product rather than duplicating one. `productId`
+ * is the relational link for CMS products; `slug` covers the catalogue products
+ * that are defined in code and have no row in `products`, and is kept
+ * populated either way so the reference survives a publish/restore round trip.
+ *
+ * The copy and artwork columns are *overrides*, not copies: leave one empty and
+ * the card shows the product's own value, so renaming a product or swapping its
+ * photo updates the homepage with no second edit. `title` is nullable for the
+ * same reason.
+ */
+export const homeOfferCards = pgTable(
+  "home_offer_cards",
+  {
+    id: serial("id").primaryKey(),
+    /** CMS product shown on the card. Null for catalogue-only products. */
+    productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }),
+    slug: text("slug"),
+    /** Optional home-specific title. Empty means "use the product's name". */
+    title: text("title"),
+    /** Optional home-specific description. Empty means "use the product's". */
+    description: text("description"),
+    /** Optional home-specific image. Empty means "use the product's image". */
+    imageUrl: text("image_url"),
+    imagePublicId: text("image_public_id"),
+    altText: text("alt_text"),
+    /** Optional home-specific badge. Empty means "use the product's category". */
+    category: text("category"),
+    /** Where the card links to. Site-relative paths are validated on write. */
+    href: text("href"),
+    ctaLabel: text("cta_label"),
+    /** Whether the red "Get a Quote" button is offered on this card. */
+    showQuoteButton: boolean("show_quote_button").default(true).notNull(),
+    displayOrder: integer("display_order").default(0).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    ...timestamps,
+  },
+  (table) => [
+    index("home_offer_cards_order_idx").on(table.isActive, table.displayOrder),
+    uniqueIndex("home_offer_cards_slug_unique").on(table.slug),
+    index("home_offer_cards_product_idx").on(table.productId),
+  ],
 );
 
 export const homeSliders = pgTable(

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Download } from "lucide-react";
-import { Breadcrumb, SectionHeading } from "@/components/site/ui";
+import { SectionHeading } from "@/components/site/ui";
 import { SmartImage } from "@/components/site/smart-image";
 import { CatalogueProductBrowser } from "@/components/site/catalogue-product-browser";
+import { TrustedByStrip } from "@/components/site/trusted-by-strip";
 import { ReelShowcase } from "@/components/media/reel-showcase";
 import { catalogueCategories, catalogueProducts } from "@/lib/catalogue";
+import { getPublicClientLogos } from "@/lib/client-assets";
 import { getProductsReelVideos } from "@/lib/data";
 
 export const revalidate = 3600;
@@ -16,7 +18,11 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
-  const [{ category }, reels] = await Promise.all([searchParams, getProductsReelVideos(10)]);
+  const [{ category }, reels, logos] = await Promise.all([
+    searchParams,
+    getProductsReelVideos(10),
+    getPublicClientLogos(),
+  ]);
   return (
     <main>
       <section className="relative isolate overflow-hidden bg-zinc-950 text-white">
@@ -25,8 +31,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         </div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-zinc-950 via-zinc-950/90 to-zinc-950/30" />
         <div className="container-shell flex min-h-[520px] flex-col justify-end py-16">
-          <Breadcrumb items={[{ label: "Products" }]} />
-          <p className="eyebrow mt-8 text-red-400">32-product catalogue</p>
+          <p className="eyebrow text-red-400">32-product catalogue</p>
           <h1 className="hero-heading mt-5 max-w-4xl text-balance">Storage and handling systems, clearly organised</h1>
           <p className="hero-description mt-5 max-w-2xl text-zinc-300">Browse office storage, industrial storage and material-handling equipment by product, application, industry or product type.</p>
           <div className="mt-9 flex flex-wrap gap-3">
@@ -55,6 +60,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           </div>
         </div>
       </section>
+
+      <TrustedByStrip logos={logos} className="border-y border-zinc-200" />
 
       <ReelShowcase
         videos={reels}

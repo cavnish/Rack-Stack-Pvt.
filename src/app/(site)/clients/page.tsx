@@ -14,11 +14,9 @@ export default async function ClientsPage() {
   return (
     <main>
       <PageHero
-        eyebrow="Clients"
         title="Our Valued Clients"
         description="The organizations below are from the official Rack & Stack client list. This is our published roster only — it does not imply any specific project or endorsement."
         image={gallery[0]?.imageUrl}
-        breadcrumb={[{ label: "Clients" }]}
       />
       <section className="bg-[#f4f4f1] py-24">
         <div className="container-shell">

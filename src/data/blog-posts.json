@@ -12,15 +12,15 @@
       "authorId": null,
       "status": "PUBLISHED",
       "featured": true,
-      "publishedAt": "2026-09-19T06:51:25.730Z",
+      "publishedAt": "2026-09-28T08:58:51.376Z",
       "scheduledAt": null,
-      "metaTitle": "Preparing for a Pallet Racking Layout",
-      "metaDescription": "Key information to gather before requesting a warehouse pallet racking layout.",
+      "metaTitle": "Getting Ready for a Pallet Racking Layout",
+      "metaDescription": "Key details to gather before requesting a pallet racking layout.",
       "keywords": null,
       "canonicalUrl": null,
       "deletedAt": null,
-      "createdAt": "2026-09-19T06:51:25.731Z",
-      "updatedAt": "2026-09-19T06:51:25.731Z"
+      "createdAt": "2026-09-28T08:58:51.230Z",
+      "updatedAt": "2026-09-28T08:58:51.230Z"
     },
     "category": {
       "id": 1,
@@ -41,15 +41,15 @@
       "authorId": null,
       "status": "PUBLISHED",
       "featured": false,
-      "publishedAt": "2026-09-19T06:51:25.730Z",
+      "publishedAt": "2026-09-28T08:58:51.376Z",
       "scheduledAt": null,
-      "metaTitle": "Storage Density vs Accessibility",
-      "metaDescription": "How to balance warehouse storage capacity with practical inventory access.",
+      "metaTitle": "Storage Density vs Easy Access",
+      "metaDescription": "How to balance warehouse storage capacity with easy inventory access.",
       "keywords": null,
       "canonicalUrl": null,
       "deletedAt": null,
-      "createdAt": "2026-09-19T06:51:25.731Z",
-      "updatedAt": "2026-09-19T06:51:25.731Z"
+      "createdAt": "2026-09-28T08:58:51.230Z",
+      "updatedAt": "2026-09-28T08:58:51.230Z"
     },
     "category": {
       "id": 2,

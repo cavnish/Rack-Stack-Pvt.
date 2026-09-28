@@ -9,12 +9,12 @@
     "heroImage": "/assets/images/misc/about-349aa7fa21.webp",
     "heroImagePublicId": null,
     "metaTitle": "About Rack & Stack Storage Systems",
-    "metaDescription": "From the first site visit to final setup, we turn your storage needs into practical solutions.",
+    "metaDescription": "Learn about Rack & Stack's practical approach to storage planning and setup.",
     "canonicalUrl": null,
     "status": "PUBLISHED",
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.724Z",
-    "updatedAt": "2026-09-19T06:51:25.724Z"
+    "createdAt": "2026-09-28T08:58:50.865Z",
+    "updatedAt": "2026-09-28T08:58:50.865Z"
   },
   {
     "id": 2,
@@ -26,12 +26,12 @@
     "heroImage": null,
     "heroImagePublicId": null,
     "metaTitle": "Privacy Policy | Rack & Stack",
-    "metaDescription": "How we handle information sent through this website.",
+    "metaDescription": "Rack & Stack website privacy policy.",
     "canonicalUrl": null,
     "status": "PUBLISHED",
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.726Z",
-    "updatedAt": "2026-09-19T06:51:25.726Z"
+    "createdAt": "2026-09-28T08:58:50.931Z",
+    "updatedAt": "2026-09-28T08:58:50.931Z"
   },
   {
     "id": 3,
@@ -43,12 +43,12 @@
     "heroImage": null,
     "heroImagePublicId": null,
     "metaTitle": "Terms and Conditions | Rack & Stack",
-    "metaDescription": "General terms for using this website.",
+    "metaDescription": "Terms governing use of the Rack & Stack website.",
     "canonicalUrl": null,
     "status": "PUBLISHED",
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.727Z",
-    "updatedAt": "2026-09-19T06:51:25.727Z"
+    "createdAt": "2026-09-28T08:58:50.989Z",
+    "updatedAt": "2026-09-28T08:58:50.989Z"
   },
   {
     "id": 4,
@@ -60,11 +60,11 @@
     "heroImage": null,
     "heroImagePublicId": null,
     "metaTitle": "Cookie Policy | Rack & Stack",
-    "metaDescription": "Information about cookies on this website.",
+    "metaDescription": "Rack & Stack website cookie policy.",
     "canonicalUrl": null,
     "status": "PUBLISHED",
     "deletedAt": null,
-    "createdAt": "2026-09-19T06:51:25.728Z",
-    "updatedAt": "2026-09-19T06:51:25.728Z"
+    "createdAt": "2026-09-28T08:58:51.047Z",
+    "updatedAt": "2026-09-28T08:58:51.047Z"
   }
 ]

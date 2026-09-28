@@ -2,9 +2,11 @@
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CloudUpload, Eye, GripVertical, Plus, Save, Trash2 } from "lucide-react";
-import { SmartImage } from "@/components/site/smart-image";
+import { ArrowLeft, Eye, GripVertical, Plus, Save, Trash2 } from "lucide-react";
 import { VideoEditor } from "@/components/admin/video-editor";
+import { ImageUpload, type UploadResult } from "@/components/admin/image-upload";
+import { ProductGalleryEditor, type GalleryRow } from "@/components/admin/product-gallery-editor";
+import { HomepageAboutEditor, HomepageOffersEditor } from "@/components/admin/homepage-section-editor";
 import { slugify } from "@/lib/utils";
 
 type Data = Record<string, unknown>;
@@ -26,23 +28,16 @@ type Field = {
   widthKey?: string;
   heightKey?: string;
 };
-type UploadResult = { imageUrl: string; cloudinaryPublicId?: string | null; width?: number | null; height?: number | null };
-
 const STATUS_OPTIONS = ["DRAFT", "PUBLISHED", "ARCHIVED"];
 
 const configs: Record<string, Field[]> = {
+  // Services uses a dedicated ServiceEditor below — keep a minimal flat config
+  // only for the list / table display labels; full editing goes through ServiceEditor.
   services: [
     { key: "name", label: "Service name", required: true },
     { key: "slug", label: "Slug", required: true },
-    { key: "shortDescription", label: "Short description", type: "textarea", required: true },
-    { key: "description", label: "Full description", type: "textarea", required: true },
-    { key: "heroImage", label: "Hero image URL", type: "url", folder: "services" },
-    { key: "icon", label: "Lucide icon name" },
-    { key: "featured", label: "Featured", type: "checkbox" },
     { key: "status", label: "Publishing status", type: "select", options: STATUS_OPTIONS },
     { key: "displayOrder", label: "Display order", type: "number" },
-    { key: "metaTitle", label: "SEO title" },
-    { key: "metaDescription", label: "SEO description", type: "textarea" },
   ],
   projects: [
     { key: "title", label: "Project title", required: true },
@@ -189,6 +184,19 @@ const configs: Record<string, Field[]> = {
     { key: "status", label: "Status", type: "select", options: STATUS_OPTIONS },
     { key: "sortOrder", label: "Sort order", type: "number" },
   ],
+  "home-offer-cards": [
+    { key: "productId", label: "Product ID", type: "number", help: "Optional. Links this card to a CMS product so it follows that product's edits. Leave empty for a catalogue product and set the slug below." },
+    { key: "slug", label: "Product slug", help: "The product this card shows. Required unless a Product ID is set." },
+    { key: "title", label: "Title override", help: "Optional. Leave empty to use the product's own name." },
+    { key: "description", label: "Description override", type: "textarea", help: "Optional. Leave empty to use the product's own description." },
+    { key: "imageUrl", label: "Image override", type: "url", folder: "home-offer-cards", publicIdKey: "imagePublicId", help: "Optional. Leave empty to use the product's own image." },
+    { key: "altText", label: "Image alt text", help: "Optional. Defaults to the product name." },
+    { key: "category", label: "Badge override", help: "Optional. Leave empty to use the product's category." },
+    { key: "ctaLabel", label: "Quote button label", help: "Optional. Defaults to Get a Quote." },
+    { key: "showQuoteButton", label: "Show Get a Quote button", type: "checkbox" },
+    { key: "displayOrder", label: "Display order", type: "number" },
+    { key: "isActive", label: "Show on homepage", type: "checkbox" },
+  ],
   inquiries: [
     { key: "status", label: "Inquiry status", type: "select", options: ["NEW", "CONTACTED", "QUALIFIED", "QUOTATION_SENT", "WON", "LOST", "SPAM"] },
     { key: "notes", label: "Internal notes", type: "textarea" },
@@ -233,101 +241,6 @@ const configs: Record<string, Field[]> = {
     { key: "isActive", label: "Active", type: "checkbox" },
   ],
 };
-
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
-const MAX_BYTES = 10 * 1024 * 1024;
-
-function ImageUpload({
-  value,
-  folder = "cms",
-  onUploaded,
-  onBusyChange,
-}: {
-  value?: string;
-  folder?: string;
-  onUploaded: (result: UploadResult) => void;
-  onBusyChange?: (busy: boolean) => void;
-}) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [done, setDone] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  async function pick(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setError("");
-    setDone(false);
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError("Use a JPG, PNG, WebP or AVIF image.");
-      if (inputRef.current) inputRef.current.value = "";
-      return;
-    }
-    if (file.size > MAX_BYTES) {
-      setError("Image must be under 10MB.");
-      if (inputRef.current) inputRef.current.value = "";
-      return;
-    }
-    setLoading(true);
-    onBusyChange?.(true);
-    try {
-      const body = new FormData();
-      body.set("file", file);
-      body.set("folder", folder || "cms");
-      const response = await fetch("/api/admin/upload", { method: "POST", body });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        setError(data.error || "Upload failed.");
-        return;
-      }
-      onUploaded({ imageUrl: data.imageUrl, cloudinaryPublicId: data.cloudinaryPublicId, width: data.width, height: data.height });
-      setDone(true);
-    } catch {
-      setError("Network error while uploading.");
-    } finally {
-      setLoading(false);
-      onBusyChange?.(false);
-      if (inputRef.current) inputRef.current.value = "";
-    }
-  }
-
-  return (
-    <div>
-      <div className="flex flex-wrap items-center gap-3">
-        {value ? (
-          <span className="relative block h-14 w-14 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
-             <SmartImage src={value} alt="Selected image preview" fill className="object-contain p-1" sizes="56px" />
-
-          </span>
-        ) : null}
-        <label
-          className={`inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-[.68rem] font-bold text-zinc-800 transition hover:bg-zinc-50 ${
-            loading ? "cursor-wait opacity-60" : "cursor-pointer"
-          }`}
-        >
-          <CloudUpload size={13} />
-          {loading ? "Uploading…" : value ? "Replace image" : "Upload to Cloudinary"}
-          <input ref={inputRef} className="hidden" type="file" accept={ACCEPTED_TYPES.join(",")} disabled={loading} onChange={pick} />
-        </label>
-        {value ? (
-          <button
-            type="button"
-            onClick={() => {
-              onUploaded({ imageUrl: "" });
-              setError("");
-              setDone(false);
-            }}
-            className="text-[.68rem] font-bold text-red-600 hover:underline"
-          >
-            Remove
-          </button>
-        ) : null}
-      </div>
-      {error ? <p className="mt-2 text-[.68rem] font-semibold text-red-600">{error}</p> : null}
-      {done && !error ? <p className="mt-2 text-[.68rem] font-semibold text-green-600">Upload complete.</p> : null}
-    </div>
-  );
-}
 
 function FieldInput({
   field,
@@ -444,6 +357,7 @@ function ProductEditor({
     specifications: initial.specifications || [],
     applications: initial.applications || [],
     images: initial.images || [],
+    gallery: (initial.gallery as GalleryRow[] | undefined) || [],
     benefits: initial.benefits || [],
     components: initial.components || [],
     configurations: initial.configurations || [],
@@ -469,7 +383,7 @@ function ProductEditor({
     showFaq: initial.showFaq ?? true,
     showRelated: initial.showRelated ?? true,
   });
-  const tabs = ["General", "Hero", "Highlights", "Specifications", "Applications", "Configurations", "Components", "Benefits", "Storage", "Story", "Workflow", "Gallery", "Relationships", "FAQs", "Technical", "Sections", "SEO", "Publishing"];
+  const tabs = ["General", "Page content", "Closing CTA", "Hero", "Highlights", "Specifications", "Applications", "Configurations", "Components", "Benefits", "Storage", "Story", "Workflow", "Views", "Gallery", "Relationships", "FAQs", "Technical", "Sections", "SEO", "Publishing"];
 
   function set(key: string, value: unknown) {
     setData((d) => ({ ...d, [key]: value }));
@@ -497,6 +411,22 @@ function ProductEditor({
       { key: "heroTitle", label: "Positioning statement", help: "A short, premium positioning line shown above the product name on the detail page." },
       { key: "heroDescription", label: "Hero description" },
       { key: "specHighlights", label: "Specification highlights (one per line)", type: "lines", help: "Short hero chips such as load capacity, height range or finish." },
+    ],
+    "Page content": [
+      { key: "galleryHeading", label: "Gallery heading", help: "Heading above the six-view gallery." },
+      { key: "overviewHeading", label: "Overview heading" },
+      { key: "overviewBody", label: "Overview paragraph", type: "textarea", help: "The summary shown directly under the gallery. Falls back to the long description when empty." },
+      { key: "featuresHeading", label: "Highlights heading", help: "Heading above the feature list." },
+      { key: "applicationsHeading", label: "Applications heading" },
+      { key: "applicationsIntro", label: "Applications intro", type: "textarea" },
+    ],
+    "Closing CTA": [
+      { key: "ctaTitle", label: "CTA heading", help: "Heading of the closing call-to-action band. The band is hidden when this is empty." },
+      { key: "ctaSubtitle", label: "CTA description", type: "textarea" },
+      { key: "primaryCtaLabel", label: "Primary button label" },
+      { key: "primaryCtaHref", label: "Primary button link", help: "Site-relative path such as /request-a-quote." },
+      { key: "secondaryCtaLabel", label: "Secondary button label" },
+      { key: "secondaryCtaHref", label: "Secondary button link" },
     ],
     Technical: [
       { key: "technicalEnabled", label: "Show technical image block", type: "checkbox" },
@@ -658,6 +588,14 @@ function ProductEditor({
             <p className="text-[.68rem] leading-5 text-zinc-500">Rows save in the order shown. Run a product save after adding or reordering.</p>
           </div>
         ) : null}
+        {tab === "Views" ? (
+          <ProductGalleryEditor
+            gallery={(data.gallery as GalleryRow[]) || []}
+            productName={String(data.name || "Product")}
+            onUploadBusy={onUploadBusy}
+            onChange={(rows) => set("gallery", rows)}
+          />
+        ) : null}
         {tab === "Relationships" ? (
           <div className="grid gap-5 lg:grid-cols-3">
             {relationGroups.map((group) => (
@@ -682,6 +620,208 @@ function ProductEditor({
         <button disabled={busy} className="flex items-center gap-2 rounded-lg bg-zinc-950 px-5 py-2.5 text-xs font-bold text-white disabled:opacity-60">
           <Save size={15} />
           {saving ? "Saving…" : uploading ? "Uploading…" : "Save product"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// ─── Service Editor ────────────────────────────────────────────────────────────
+
+function ServiceEditor({
+  initial,
+  onSave,
+  saving,
+  uploading,
+  error,
+  onUploadBusy,
+}: {
+  initial: Data;
+  onSave: (d: Data) => void;
+  saving: boolean;
+  uploading: boolean;
+  error: string;
+  onUploadBusy: (busy: boolean) => void;
+}) {
+  const [tab, setTab] = useState("General");
+  const [data, setData] = useState<Data>({
+    ...initial,
+    status: initial.status || "DRAFT",
+    featured: Boolean(initial.featured),
+    robotsIndex: initial.robotsIndex ?? true,
+    displayOrder: initial.displayOrder || 0,
+    features: initial.features || [],
+    process: initial.process || [],
+    deliverables: Array.isArray(initial.deliverables) ? initial.deliverables : [],
+    introBullets: Array.isArray(initial.introBullets) ? initial.introBullets : [],
+    capabilities: Array.isArray(initial.capabilities) ? initial.capabilities : [],
+    applications: initial.applications || [],
+    whyChoosePoints: initial.whyChoosePoints || [],
+  });
+
+  const tabs = ["General", "Hero", "Content", "Process", "Features", "Applications", "Capabilities", "Why Choose", "SEO", "Publishing"];
+
+  function set(key: string, value: unknown) {
+    setData((d) => ({ ...d, [key]: value }));
+  }
+  function setMeta(values: Record<string, unknown>) {
+    setData((d) => ({ ...d, ...values }));
+  }
+
+  const groups: Record<string, Field[]> = {
+    General: [
+      { key: "name", label: "Service name", required: true },
+      { key: "slug", label: "Slug", required: true },
+      { key: "icon", label: "Lucide icon name", help: "e.g. Factory, Wrench, HardHat, Truck" },
+      { key: "shortDescription", label: "Short description (card / listing)", type: "textarea", required: true },
+      { key: "description", label: "Full description (detail page intro)", type: "textarea", required: true },
+    ],
+    Hero: [
+      { key: "heroImage", label: "Hero image URL", type: "url", folder: "services", publicIdKey: "heroImagePublicId" },
+      { key: "heroHeading", label: "Hero heading (large headline on page)", type: "textarea" },
+    ],
+    Content: [
+      { key: "introHeading", label: "Intro section heading" },
+      { key: "introDescription", label: "Intro section description", type: "textarea" },
+      { key: "introBullets", label: "Intro bullet points (one per line)", type: "lines" },
+      { key: "deliverables", label: "Deliverables / what you get (one per line)", type: "lines" },
+      { key: "relatedProductSlugs", label: "Related product slugs (one per line)", type: "lines" },
+    ],
+    SEO: [
+      { key: "metaTitle", label: "Meta title" },
+      { key: "metaDescription", label: "Meta description", type: "textarea" },
+      { key: "keywords", label: "Keywords" },
+      { key: "focusKeyword", label: "Focus keyword" },
+      { key: "ogTitle", label: "Open Graph title" },
+      { key: "ogDescription", label: "Open Graph description", type: "textarea" },
+      { key: "ogImage", label: "Open Graph image URL", type: "url", folder: "services" },
+      { key: "canonicalUrl", label: "Canonical URL" },
+      { key: "robotsIndex", label: "Allow search engines to index", type: "checkbox" },
+    ],
+    Publishing: [
+      { key: "status", label: "Status", type: "select", options: STATUS_OPTIONS },
+      { key: "featured", label: "Featured service", type: "checkbox" },
+      { key: "displayOrder", label: "Display order", type: "number" },
+    ],
+  };
+
+  // Array list configs (title + description rows)
+  const arrayListConfig: Record<string, { key: string; fields: Array<[string, string]> }> = {
+    Process: { key: "process", fields: [["title", "Step title"], ["description", "Step description"]] },
+    Features: { key: "features", fields: [["title", "Feature title"], ["description", "Description"], ["icon", "Lucide icon (optional)"]] },
+    Applications: { key: "applications", fields: [["title", "Application"], ["description", "Description (optional)"]] },
+    Capabilities: { key: "capabilities", fields: [["value", "Capability"]] },
+    "Why Choose": { key: "whyChoosePoints", fields: [["title", "Heading"], ["description", "Detail"]] },
+  };
+
+  function arrayUpdate(key: string, index: number, fieldKey: string, value: string) {
+    if (key === "capabilities") {
+      const arr = [...((data.capabilities as string[]) || [])];
+      arr[index] = value;
+      set("capabilities", arr);
+      return;
+    }
+    const arr = [...((data[key] as Data[]) || [])];
+    arr[index] = { ...arr[index], [fieldKey]: value };
+    set(key, arr);
+  }
+  function arrayRemove(key: string, index: number) {
+    if (key === "capabilities") {
+      set("capabilities", ((data.capabilities as string[]) || []).filter((_, i) => i !== index));
+      return;
+    }
+    set(key, ((data[key] as Data[]) || []).filter((_, i) => i !== index));
+  }
+  function arrayAdd(key: string) {
+    if (key === "capabilities") { set("capabilities", [...((data.capabilities as string[]) || []), ""]); return; }
+    const empty: Data =
+      key === "features" ? { title: "", description: "", icon: "CheckCircle2" }
+      : key === "process" ? { title: "", description: "" }
+      : key === "applications" ? { title: "", description: "" }
+      : key === "whyChoosePoints" ? { title: "", description: "" }
+      : { title: "", description: "" };
+    set(key, [...((data[key] as Data[]) || []), empty]);
+  }
+
+  function submit(event: React.FormEvent) {
+    event.preventDefault();
+    // Coerce lines-type fields from textarea strings to arrays
+    const payload = { ...data };
+    for (const field of Object.values(groups).flat()) {
+      if (field.type === "lines" && typeof payload[field.key] === "string") {
+        payload[field.key] = (payload[field.key] as string).split("\n").map((l) => l.trim()).filter(Boolean);
+      }
+    }
+    onSave(payload);
+  }
+
+  const arrayConfig = arrayListConfig[tab] ?? null;
+  const busy = saving || uploading;
+
+  return (
+    <form onSubmit={submit}>
+      <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-zinc-200 px-5 pt-3">
+        {tabs.map((item) => (
+          <button
+            type="button"
+            onClick={() => setTab(item)}
+            key={item}
+            className={`shrink-0 border-b-2 px-4 py-3 text-xs font-bold ${
+              tab === item ? "border-red-600 text-red-600" : "border-transparent text-zinc-600 hover:text-zinc-900"
+            }`}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+      <div className="p-5 sm:p-7">
+        {groups[tab] ? (
+          <div className="grid gap-5 sm:grid-cols-2">
+            {groups[tab].map((field) => (
+              <FieldInput key={field.key} field={field} value={data[field.key]} onChange={(v) => set(field.key, v)} onMeta={setMeta} onUploadBusy={onUploadBusy} />
+            ))}
+          </div>
+        ) : null}
+        {arrayConfig ? (
+          <div className="space-y-3">
+            {tab === "Capabilities"
+              ? ((data.capabilities as string[]) || []).map((cap, i) => (
+                  <div className="flex items-center gap-3 rounded-lg border border-zinc-200 p-4" key={i}>
+                    <GripVertical size={16} className="text-zinc-300" />
+                    <input value={cap} onChange={(e) => arrayUpdate("capabilities", i, "value", e.target.value)} className="admin-field flex-1" placeholder="e.g. Heavy-duty rack manufacturing" />
+                    <button type="button" aria-label="Remove" onClick={() => arrayRemove("capabilities", i)} className="grid h-9 w-9 place-items-center rounded text-red-600 hover:bg-red-50"><Trash2 size={15} /></button>
+                  </div>
+                ))
+              : ((data[arrayConfig.key] as Data[]) || []).map((row, i) => (
+                  <div className="grid items-start gap-3 rounded-lg border border-zinc-200 p-4 sm:grid-cols-[24px_1fr_1fr_auto]" key={i}>
+                    <GripVertical size={16} className="mt-3 text-zinc-300" />
+                    {arrayConfig.fields.map(([key, label]) => (
+                      <div key={key}>
+                        <label className="mb-1 block text-[.65rem] font-bold text-zinc-600">{label}</label>
+                        {key === "description" ? (
+                          <textarea value={String(row[key] || "")} onChange={(e) => arrayUpdate(arrayConfig.key, i, key, e.target.value)} className="admin-field min-h-20" />
+                        ) : (
+                          <input value={String(row[key] || "")} onChange={(e) => arrayUpdate(arrayConfig.key, i, key, e.target.value)} className="admin-field" />
+                        )}
+                      </div>
+                    ))}
+                    {arrayConfig.fields.length === 1 ? <div /> : null}
+                    <button type="button" aria-label="Remove row" onClick={() => arrayRemove(arrayConfig.key, i)} className="mt-5 grid h-9 w-9 place-items-center rounded text-red-600 hover:bg-red-50"><Trash2 size={15} /></button>
+                  </div>
+                ))
+            }
+            <button type="button" onClick={() => arrayAdd(arrayConfig.key)} className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-4 py-2 text-xs font-bold text-zinc-900 hover:bg-zinc-50">
+              <Plus size={14} /> Add row
+            </button>
+            <p className="text-[.68rem] leading-5 text-zinc-500">Rows save in the order shown. Save the service after adding or reordering.</p>
+          </div>
+        ) : null}
+        {error ? <p className="mt-5 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+      </div>
+      <div className="flex justify-end border-t border-zinc-200 bg-zinc-50 p-4">
+        <button disabled={busy} className="flex items-center gap-2 rounded-lg bg-zinc-950 px-5 py-2.5 text-xs font-bold text-white disabled:opacity-60">
+          <Save size={15} />
+          {saving ? "Saving…" : uploading ? "Uploading…" : "Save service"}
         </button>
       </div>
     </form>
@@ -774,6 +914,41 @@ export function EntityEditor({
         <ProductEditor initial={initialData} onSave={save} saving={saving} uploading={uploading > 0} error={error} options={relationOptions} onUploadBusy={markUpload} />
       </EditorFrame>
     );
+  }
+
+  if (entity === "services") {
+    return (
+      <EditorFrame entity={entity} title={title} preview={preview}>
+        <ServiceEditor initial={initialData} onSave={save} saving={saving} uploading={uploading > 0} error={error} onUploadBusy={markUpload} />
+      </EditorFrame>
+    );
+  }
+
+  if (entity === "homepage") {
+    // Two homepage sections model their own fields: the About section and the
+    // offer-card heading are both edited regularly, and burying them in a JSON
+    // textarea makes a routine copy or photo change a mistake waiting to happen.
+    if (String(initialData.sectionKey) === "about") {
+      return (
+        <EditorFrame entity={entity} title={title} preview="/#home-about">
+          <HomepageAboutEditor
+            initial={initialData}
+            onSave={save}
+            saving={saving}
+            uploading={uploading > 0}
+            error={error}
+            onUploadBusy={markUpload}
+          />
+        </EditorFrame>
+      );
+    }
+    if (String(initialData.sectionKey) === "offers") {
+      return (
+        <EditorFrame entity={entity} title={title} preview="/">
+          <HomepageOffersEditor initial={initialData} onSave={save} saving={saving} error={error} />
+        </EditorFrame>
+      );
+    }
   }
 
   if (entity === "videos") {

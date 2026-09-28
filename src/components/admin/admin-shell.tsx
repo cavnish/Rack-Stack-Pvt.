@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Activity, BadgeCheck, BookOpen, BriefcaseBusiness, ChevronLeft, ChevronRight, Files, GalleryHorizontal, Home,
-  Image as ImageIcon, LayoutDashboard, LogOut, Menu, MessageSquare, PanelsTopLeft, Play, Search, Settings, ShieldCheck,
+  Image as ImageIcon, LayoutDashboard, LayoutGrid, LogOut, Menu, MessageSquare, PanelsTopLeft, Play, Search, Settings, ShieldCheck,
   SlidersHorizontal, Star, Users, X,
 } from "lucide-react";
 import { useState } from "react";
@@ -14,6 +14,7 @@ const nav = [
   ["Dashboard", "/admin", LayoutDashboard],
   ["Homepage", "/admin/homepage", Home],
   ["Home Slider", "/admin/home-slider", SlidersHorizontal],
+  ["Home Products", "/admin/home-offer-cards", LayoutGrid],
   ["Pages", "/admin/pages", Files],
   ["Products", "/admin/products", PanelsTopLeft],
   ["Services", "/admin/services", Settings],

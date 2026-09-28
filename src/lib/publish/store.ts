@@ -7,6 +7,7 @@ export const collections = {
   site: "settings.json",
   seo: "seo.json",
   homepage: "homepage.json",
+  homeOfferCards: "home-offer-cards.json",
   sliders: "home-sliders.json",
   products: "products.json",
   services: "services.json",

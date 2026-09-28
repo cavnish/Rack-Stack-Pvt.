@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Check, ChevronRight, Download } from "lucide-react";
+import { ArrowRight, Check, Download } from "lucide-react";
 import { SmartImage } from "./smart-image";
 import type { products, services } from "@/db/schema";
 
@@ -38,13 +38,13 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
       variants={staggerParent}
     >
       {eyebrow ? (
-        <motion.p variants={anim ? fadeUp : undefined} className={`eyebrow ${align === "center" ? "justify-center before:hidden" : ""}`}>
+        <motion.p variants={anim ? fadeUp : undefined} className={`eyebrow ${align === "center" ? "text-center" : ""}`}>
           {eyebrow}
         </motion.p>
       ) : null}
       <motion.h2
         variants={anim ? fadeUp : undefined}
-        className={`${gap} text-balance ${headingClass} ${
+        className={`${eyebrow ? gap : ""} text-balance ${headingClass} ${
           light ? "text-white" : compact ? "text-zinc-900" : "text-zinc-950"
         }`}
       >
@@ -62,21 +62,16 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
   );
 }
 
-export function Breadcrumb({ items }: { items: Array<{ label: string; href?: string }> }) {
-  return (
-    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-[.7rem] font-bold uppercase tracking-[.1em] text-zinc-500">
-      <Link href="/">Home</Link>
-      {items.map((item, i) => (
-        <span className="flex items-center gap-2" key={`${item.label}-${i}`}>
-          <ChevronRight size={12} />
-          {item.href ? <Link href={item.href}>{item.label}</Link> : <span className="text-zinc-300">{item.label}</span>}
-        </span>
-      ))}
-    </nav>
-  );
-}
-
-export function PageHero({ eyebrow, title, description, image, breadcrumb }: { eyebrow: string; title: string; description?: string | null; image?: string | null; breadcrumb?: Array<{ label: string; href?: string }> }) {
+/**
+ * The site hero.
+ *
+ * It used to take an `eyebrow` and a `breadcrumb` trail. Both are gone: the
+ * eyebrow repeated the section or the brand name that the H1 already carries,
+ * and a visible trail above a page title only restates the URL bar. Page-level
+ * hierarchy is now just the H1, its description and the media. `BreadcrumbList`
+ * structured data is emitted by each route separately, so the schema survives.
+ */
+export function PageHero({ title, description, image }: { title: string; description?: string | null; image?: string | null }) {
   const reduced = useReducedMotion();
   const anim = !reduced;
   return (
@@ -90,28 +85,11 @@ export function PageHero({ eyebrow, title, description, image, breadcrumb }: { e
           animate={anim ? { opacity: 1 } : undefined}
           transition={{ duration: 0.7, ease: EASE }}
         >
-          {breadcrumb && (
-            <motion.div
-              initial={anim ? { opacity: 0, y: 16 } : false}
-              animate={anim ? { opacity: 1, y: 0 } : undefined}
-              transition={{ duration: 0.55, delay: 0.1, ease: EASE }}
-            >
-              <Breadcrumb items={breadcrumb} />
-            </motion.div>
-          )}
-          <motion.p
-            initial={anim ? { opacity: 0, y: 16 } : false}
-            animate={anim ? { opacity: 1, y: 0 } : undefined}
-            transition={{ duration: 0.55, delay: 0.2, ease: EASE }}
-            className="eyebrow mt-8 text-red-400"
-          >
-            {eyebrow}
-          </motion.p>
           <motion.h1
             initial={anim ? { opacity: 0, y: 20 } : false}
             animate={anim ? { opacity: 1, y: 0 } : undefined}
-            transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
-            className="hero-heading mt-5 text-balance"
+            transition={{ duration: 0.6, delay: 0.2, ease: EASE }}
+            className="hero-heading text-balance"
           >
             {title}
           </motion.h1>
@@ -119,7 +97,7 @@ export function PageHero({ eyebrow, title, description, image, breadcrumb }: { e
             <motion.p
               initial={anim ? { opacity: 0, y: 20 } : false}
               animate={anim ? { opacity: 1, y: 0 } : undefined}
-              transition={{ duration: 0.6, delay: 0.42, ease: EASE }}
+              transition={{ duration: 0.6, delay: 0.32, ease: EASE }}
               className="hero-description mt-5 text-zinc-300"
             >
               {description}

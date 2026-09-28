@@ -15,8 +15,8 @@
     },
     "enabled": true,
     "displayOrder": 0,
-    "createdAt": "2026-09-19T06:51:25.713Z",
-    "updatedAt": "2026-09-19T06:51:25.713Z"
+    "createdAt": "2026-09-28T08:58:45.701Z",
+    "updatedAt": "2026-09-28T08:58:45.701Z"
   },
   {
     "id": 3,
@@ -29,8 +29,8 @@
     },
     "enabled": true,
     "displayOrder": 1,
-    "createdAt": "2026-09-19T06:51:25.715Z",
-    "updatedAt": "2026-09-24T13:21:21.995Z"
+    "createdAt": "2026-09-28T08:58:45.827Z",
+    "updatedAt": "2026-09-28T08:58:45.827Z"
   },
   {
     "id": 2,
@@ -59,11 +59,11 @@
     },
     "enabled": true,
     "displayOrder": 2,
-    "createdAt": "2026-09-19T06:51:25.715Z",
-    "updatedAt": "2026-09-19T06:51:25.715Z"
+    "createdAt": "2026-09-28T08:58:45.767Z",
+    "updatedAt": "2026-09-28T08:58:45.767Z"
   },
   {
-    "id": 4,
+    "id": 6,
     "sectionKey": "why",
     "title": "The Rack & Stack Difference",
     "subtitle": "A simple, honest approach to space, load, access and setup.",
@@ -89,11 +89,25 @@
     },
     "enabled": true,
     "displayOrder": 4,
-    "createdAt": "2026-09-19T06:51:25.716Z",
-    "updatedAt": "2026-09-19T06:51:25.716Z"
+    "createdAt": "2026-09-28T08:58:46.009Z",
+    "updatedAt": "2026-09-28T08:58:46.009Z"
   },
   {
     "id": 5,
+    "sectionKey": "offers",
+    "title": "What We Offer",
+    "subtitle": "We offer great service at a very competitive price and never compromise on quality.",
+    "content": {
+      "ctaHref": "/products",
+      "ctaLabel": "View All Systems"
+    },
+    "enabled": true,
+    "displayOrder": 5,
+    "createdAt": "2026-09-28T08:58:45.950Z",
+    "updatedAt": "2026-09-28T08:58:45.950Z"
+  },
+  {
+    "id": 7,
     "sectionKey": "process",
     "title": "How We Work",
     "subtitle": "A simple, clear process from the first call to final handover.",
@@ -123,11 +137,11 @@
     },
     "enabled": true,
     "displayOrder": 8,
-    "createdAt": "2026-09-19T06:51:25.716Z",
-    "updatedAt": "2026-09-19T06:51:25.716Z"
+    "createdAt": "2026-09-28T08:58:46.069Z",
+    "updatedAt": "2026-09-28T08:58:46.069Z"
   },
   {
-    "id": 6,
+    "id": 8,
     "sectionKey": "manufacturing",
     "title": "Built for Your Needs",
     "subtitle": "Materials, build and finish all match the design we agree with you.",
@@ -137,11 +151,11 @@
     },
     "enabled": true,
     "displayOrder": 9,
-    "createdAt": "2026-09-19T06:51:25.717Z",
-    "updatedAt": "2026-09-19T06:51:25.717Z"
+    "createdAt": "2026-09-28T08:58:46.128Z",
+    "updatedAt": "2026-09-28T08:58:46.128Z"
   },
   {
-    "id": 7,
+    "id": 9,
     "sectionKey": "cta",
     "title": "Setting Up a New Warehouse or Improving an Old One?",
     "subtitle": "Tell us about your space and storage needs. We'll help you take the next step.",
@@ -151,7 +165,7 @@
     },
     "enabled": true,
     "displayOrder": 14,
-    "createdAt": "2026-09-19T06:51:25.717Z",
-    "updatedAt": "2026-09-19T06:51:25.717Z"
+    "createdAt": "2026-09-28T08:58:46.193Z",
+    "updatedAt": "2026-09-28T08:58:46.193Z"
   }
 ]

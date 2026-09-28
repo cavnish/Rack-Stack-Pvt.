@@ -22,8 +22,8 @@
     "displayOrder": 0,
     "metaTitle": "Storage Solutions for Warehousing | Rack & Stack",
     "metaDescription": "Storage that balances pallet space, picking access and smooth movement.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 4,
@@ -59,6 +59,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Pallet Racking | Rack & Stack",
         "metaDescription": "Strong pallet racking planned around your loads, equipment and warehouse flow.",
         "keywords": "Heavy Duty Pallet Racking, industrial storage systems",
@@ -69,8 +81,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.561Z",
-        "updatedAt": "2026-09-21T08:40:04.471Z"
+        "createdAt": "2026-09-28T08:58:37.526Z",
+        "updatedAt": "2026-09-28T08:58:37.526Z"
       },
       {
         "id": 6,
@@ -106,6 +118,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mezzanine Floor | Rack & Stack",
         "metaDescription": "Extra floors that turn empty height into usable space.",
         "keywords": "Mezzanine Floor, industrial storage systems",
@@ -116,11 +140,65 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.574Z",
-        "updatedAt": "2026-09-19T06:51:25.574Z"
+        "createdAt": "2026-09-28T08:58:38.140Z",
+        "updatedAt": "2026-09-28T08:58:38.140Z"
       }
     ],
     "services": [
+      {
+        "id": 1,
+        "name": "Storage Planning",
+        "slug": "storage-planning",
+        "shortDescription": "A clear storage plan before you buy anything.",
+        "description": "We look at your stock, space and growth plans, then suggest the right storage approach.",
+        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
+        "heroImagePublicId": null,
+        "icon": "ClipboardList",
+        "featured": true,
+        "status": "PUBLISHED",
+        "displayOrder": 0,
+        "process": [
+          {
+            "title": "Understand",
+            "description": "We learn your needs and limits."
+          },
+          {
+            "title": "Develop",
+            "description": "We prepare the right system or layout."
+          },
+          {
+            "title": "Coordinate",
+            "description": "We align the scope and plan the setup."
+          }
+        ],
+        "deliverables": [
+          "Review of your requirements",
+          "A recommended approach",
+          "A clear project plan"
+        ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
+        "metaTitle": "Storage Planning | Rack & Stack",
+        "metaDescription": "A clear storage plan before you buy anything.",
+        "keywords": null,
+        "focusKeyword": null,
+        "ogTitle": null,
+        "ogDescription": null,
+        "ogImage": null,
+        "canonicalUrl": null,
+        "robotsIndex": true,
+        "deletedAt": null,
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
+      },
       {
         "id": 2,
         "name": "Site Survey",
@@ -152,6 +230,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -162,8 +250,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -196,6 +284,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -206,8 +304,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       },
       {
         "id": 4,
@@ -240,6 +338,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Warehouse Layout Planning | Rack & Stack",
         "metaDescription": "A warehouse layout that flows well.",
         "keywords": null,
@@ -250,52 +358,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.603Z",
-        "updatedAt": "2026-09-19T06:51:25.603Z"
-      },
-      {
-        "id": 5,
-        "name": "Installation",
-        "slug": "installation",
-        "shortDescription": "Clean, safe installation on site.",
-        "description": "Our team installs your system on schedule and hands it over ready to use.",
-        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
-        "heroImagePublicId": null,
-        "icon": "HardHat",
-        "featured": true,
-        "status": "PUBLISHED",
-        "displayOrder": 4,
-        "process": [
-          {
-            "title": "Understand",
-            "description": "We learn your needs and limits."
-          },
-          {
-            "title": "Develop",
-            "description": "We prepare the right system or layout."
-          },
-          {
-            "title": "Coordinate",
-            "description": "We align the scope and plan the setup."
-          }
-        ],
-        "deliverables": [
-          "Review of your requirements",
-          "A recommended approach",
-          "A clear project plan"
-        ],
-        "metaTitle": "Installation | Rack & Stack",
-        "metaDescription": "Clean, safe installation on site.",
-        "keywords": null,
-        "focusKeyword": null,
-        "ogTitle": null,
-        "ogDescription": null,
-        "ogImage": null,
-        "canonicalUrl": null,
-        "robotsIndex": true,
-        "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.605Z",
-        "updatedAt": "2026-09-19T06:51:25.605Z"
+        "createdAt": "2026-09-28T08:58:39.563Z",
+        "updatedAt": "2026-09-28T08:58:39.563Z"
       }
     ]
   },
@@ -322,8 +386,8 @@
     "displayOrder": 1,
     "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
     "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 8,
@@ -359,6 +423,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Lockers | Rack & Stack",
         "metaDescription": "Tough lockers for workplaces, staff areas and institutions.",
         "keywords": "Lockers, industrial storage systems",
@@ -369,8 +445,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.585Z",
-        "updatedAt": "2026-09-19T06:51:25.585Z"
+        "createdAt": "2026-09-28T08:58:38.759Z",
+        "updatedAt": "2026-09-28T08:58:38.759Z"
       },
       {
         "id": 3,
@@ -406,6 +482,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Long Span Racks | Rack & Stack",
         "metaDescription": "Strong hand-loaded racks for cartons, bins, tools and bulky items.",
         "keywords": "Heavy Duty Long Span Racks, industrial storage systems",
@@ -416,8 +504,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.553Z",
-        "updatedAt": "2026-09-19T06:51:25.553Z"
+        "createdAt": "2026-09-28T08:58:37.224Z",
+        "updatedAt": "2026-09-28T08:58:37.224Z"
       },
       {
         "id": 6,
@@ -453,6 +541,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mezzanine Floor | Rack & Stack",
         "metaDescription": "Extra floors that turn empty height into usable space.",
         "keywords": "Mezzanine Floor, industrial storage systems",
@@ -463,8 +563,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.574Z",
-        "updatedAt": "2026-09-19T06:51:25.574Z"
+        "createdAt": "2026-09-28T08:58:38.140Z",
+        "updatedAt": "2026-09-28T08:58:38.140Z"
       },
       {
         "id": 5,
@@ -500,6 +600,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Medium Duty Shelving Racks | Rack & Stack",
         "metaDescription": "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
         "keywords": "Medium Duty Shelving Racks, industrial storage systems",
@@ -510,8 +622,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.569Z",
-        "updatedAt": "2026-09-19T06:51:25.569Z"
+        "createdAt": "2026-09-28T08:58:37.836Z",
+        "updatedAt": "2026-09-28T08:58:37.836Z"
       },
       {
         "id": 4,
@@ -547,6 +659,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Pallet Racking | Rack & Stack",
         "metaDescription": "Strong pallet racking planned around your loads, equipment and warehouse flow.",
         "keywords": "Heavy Duty Pallet Racking, industrial storage systems",
@@ -557,11 +681,65 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.561Z",
-        "updatedAt": "2026-09-21T08:40:04.471Z"
+        "createdAt": "2026-09-28T08:58:37.526Z",
+        "updatedAt": "2026-09-28T08:58:37.526Z"
       }
     ],
     "services": [
+      {
+        "id": 1,
+        "name": "Storage Planning",
+        "slug": "storage-planning",
+        "shortDescription": "A clear storage plan before you buy anything.",
+        "description": "We look at your stock, space and growth plans, then suggest the right storage approach.",
+        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
+        "heroImagePublicId": null,
+        "icon": "ClipboardList",
+        "featured": true,
+        "status": "PUBLISHED",
+        "displayOrder": 0,
+        "process": [
+          {
+            "title": "Understand",
+            "description": "We learn your needs and limits."
+          },
+          {
+            "title": "Develop",
+            "description": "We prepare the right system or layout."
+          },
+          {
+            "title": "Coordinate",
+            "description": "We align the scope and plan the setup."
+          }
+        ],
+        "deliverables": [
+          "Review of your requirements",
+          "A recommended approach",
+          "A clear project plan"
+        ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
+        "metaTitle": "Storage Planning | Rack & Stack",
+        "metaDescription": "A clear storage plan before you buy anything.",
+        "keywords": null,
+        "focusKeyword": null,
+        "ogTitle": null,
+        "ogDescription": null,
+        "ogImage": null,
+        "canonicalUrl": null,
+        "robotsIndex": true,
+        "deletedAt": null,
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
+      },
       {
         "id": 2,
         "name": "Site Survey",
@@ -593,6 +771,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -603,8 +791,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -637,6 +825,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -647,8 +845,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       },
       {
         "id": 4,
@@ -681,6 +879,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Warehouse Layout Planning | Rack & Stack",
         "metaDescription": "A warehouse layout that flows well.",
         "keywords": null,
@@ -691,52 +899,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.603Z",
-        "updatedAt": "2026-09-19T06:51:25.603Z"
-      },
-      {
-        "id": 5,
-        "name": "Installation",
-        "slug": "installation",
-        "shortDescription": "Clean, safe installation on site.",
-        "description": "Our team installs your system on schedule and hands it over ready to use.",
-        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
-        "heroImagePublicId": null,
-        "icon": "HardHat",
-        "featured": true,
-        "status": "PUBLISHED",
-        "displayOrder": 4,
-        "process": [
-          {
-            "title": "Understand",
-            "description": "We learn your needs and limits."
-          },
-          {
-            "title": "Develop",
-            "description": "We prepare the right system or layout."
-          },
-          {
-            "title": "Coordinate",
-            "description": "We align the scope and plan the setup."
-          }
-        ],
-        "deliverables": [
-          "Review of your requirements",
-          "A recommended approach",
-          "A clear project plan"
-        ],
-        "metaTitle": "Installation | Rack & Stack",
-        "metaDescription": "Clean, safe installation on site.",
-        "keywords": null,
-        "focusKeyword": null,
-        "ogTitle": null,
-        "ogDescription": null,
-        "ogImage": null,
-        "canonicalUrl": null,
-        "robotsIndex": true,
-        "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.605Z",
-        "updatedAt": "2026-09-19T06:51:25.605Z"
+        "createdAt": "2026-09-28T08:58:39.563Z",
+        "updatedAt": "2026-09-28T08:58:39.563Z"
       }
     ]
   },
@@ -763,8 +927,8 @@
     "displayOrder": 2,
     "metaTitle": "Storage Solutions for Automotive | Rack & Stack",
     "metaDescription": "Flexible storage for parts, spares and stock kept near the line.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 3,
@@ -800,6 +964,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Long Span Racks | Rack & Stack",
         "metaDescription": "Strong hand-loaded racks for cartons, bins, tools and bulky items.",
         "keywords": "Heavy Duty Long Span Racks, industrial storage systems",
@@ -810,8 +986,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.553Z",
-        "updatedAt": "2026-09-19T06:51:25.553Z"
+        "createdAt": "2026-09-28T08:58:37.224Z",
+        "updatedAt": "2026-09-28T08:58:37.224Z"
       }
     ],
     "services": [
@@ -846,6 +1022,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Storage Planning | Rack & Stack",
         "metaDescription": "A clear storage plan before you buy anything.",
         "keywords": null,
@@ -856,8 +1042,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.594Z",
-        "updatedAt": "2026-09-19T06:51:25.594Z"
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
       },
       {
         "id": 2,
@@ -890,6 +1076,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -900,8 +1096,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -934,6 +1130,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -944,8 +1150,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       }
     ]
   },
@@ -972,8 +1178,8 @@
     "displayOrder": 3,
     "metaTitle": "Storage Solutions for Pharmaceuticals | Rack & Stack",
     "metaDescription": "Well-organized storage that supports clean, controlled workflows.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 1,
@@ -1009,6 +1215,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Compactor Storage Systems | Rack & Stack",
         "metaDescription": "Space-saving movable storage that frees up floor space and keeps your records tidy.",
         "keywords": "Compactor Storage Systems, industrial storage systems",
@@ -1019,8 +1237,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.512Z",
-        "updatedAt": "2026-09-19T06:51:25.512Z"
+        "createdAt": "2026-09-28T08:58:36.580Z",
+        "updatedAt": "2026-09-28T08:58:36.580Z"
       }
     ],
     "services": [
@@ -1055,6 +1273,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Storage Planning | Rack & Stack",
         "metaDescription": "A clear storage plan before you buy anything.",
         "keywords": null,
@@ -1065,8 +1293,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.594Z",
-        "updatedAt": "2026-09-19T06:51:25.594Z"
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
       },
       {
         "id": 2,
@@ -1099,6 +1327,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -1109,8 +1347,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -1143,6 +1381,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -1153,8 +1401,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       }
     ]
   },
@@ -1181,8 +1429,8 @@
     "displayOrder": 4,
     "metaTitle": "Storage Solutions for E-commerce | Rack & Stack",
     "metaDescription": "Easy picking storage for large product ranges and changing orders.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 5,
@@ -1218,6 +1466,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Medium Duty Shelving Racks | Rack & Stack",
         "metaDescription": "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
         "keywords": "Medium Duty Shelving Racks, industrial storage systems",
@@ -1228,8 +1488,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.569Z",
-        "updatedAt": "2026-09-19T06:51:25.569Z"
+        "createdAt": "2026-09-28T08:58:37.836Z",
+        "updatedAt": "2026-09-28T08:58:37.836Z"
       },
       {
         "id": 3,
@@ -1265,6 +1525,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Long Span Racks | Rack & Stack",
         "metaDescription": "Strong hand-loaded racks for cartons, bins, tools and bulky items.",
         "keywords": "Heavy Duty Long Span Racks, industrial storage systems",
@@ -1275,8 +1547,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.553Z",
-        "updatedAt": "2026-09-19T06:51:25.553Z"
+        "createdAt": "2026-09-28T08:58:37.224Z",
+        "updatedAt": "2026-09-28T08:58:37.224Z"
       },
       {
         "id": 6,
@@ -1312,6 +1584,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mezzanine Floor | Rack & Stack",
         "metaDescription": "Extra floors that turn empty height into usable space.",
         "keywords": "Mezzanine Floor, industrial storage systems",
@@ -1322,11 +1606,65 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.574Z",
-        "updatedAt": "2026-09-19T06:51:25.574Z"
+        "createdAt": "2026-09-28T08:58:38.140Z",
+        "updatedAt": "2026-09-28T08:58:38.140Z"
       }
     ],
     "services": [
+      {
+        "id": 1,
+        "name": "Storage Planning",
+        "slug": "storage-planning",
+        "shortDescription": "A clear storage plan before you buy anything.",
+        "description": "We look at your stock, space and growth plans, then suggest the right storage approach.",
+        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
+        "heroImagePublicId": null,
+        "icon": "ClipboardList",
+        "featured": true,
+        "status": "PUBLISHED",
+        "displayOrder": 0,
+        "process": [
+          {
+            "title": "Understand",
+            "description": "We learn your needs and limits."
+          },
+          {
+            "title": "Develop",
+            "description": "We prepare the right system or layout."
+          },
+          {
+            "title": "Coordinate",
+            "description": "We align the scope and plan the setup."
+          }
+        ],
+        "deliverables": [
+          "Review of your requirements",
+          "A recommended approach",
+          "A clear project plan"
+        ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
+        "metaTitle": "Storage Planning | Rack & Stack",
+        "metaDescription": "A clear storage plan before you buy anything.",
+        "keywords": null,
+        "focusKeyword": null,
+        "ogTitle": null,
+        "ogDescription": null,
+        "ogImage": null,
+        "canonicalUrl": null,
+        "robotsIndex": true,
+        "deletedAt": null,
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
+      },
       {
         "id": 2,
         "name": "Site Survey",
@@ -1358,6 +1696,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -1368,8 +1716,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -1402,6 +1750,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -1412,8 +1770,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       },
       {
         "id": 4,
@@ -1446,6 +1804,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Warehouse Layout Planning | Rack & Stack",
         "metaDescription": "A warehouse layout that flows well.",
         "keywords": null,
@@ -1456,52 +1824,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.603Z",
-        "updatedAt": "2026-09-19T06:51:25.603Z"
-      },
-      {
-        "id": 5,
-        "name": "Installation",
-        "slug": "installation",
-        "shortDescription": "Clean, safe installation on site.",
-        "description": "Our team installs your system on schedule and hands it over ready to use.",
-        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
-        "heroImagePublicId": null,
-        "icon": "HardHat",
-        "featured": true,
-        "status": "PUBLISHED",
-        "displayOrder": 4,
-        "process": [
-          {
-            "title": "Understand",
-            "description": "We learn your needs and limits."
-          },
-          {
-            "title": "Develop",
-            "description": "We prepare the right system or layout."
-          },
-          {
-            "title": "Coordinate",
-            "description": "We align the scope and plan the setup."
-          }
-        ],
-        "deliverables": [
-          "Review of your requirements",
-          "A recommended approach",
-          "A clear project plan"
-        ],
-        "metaTitle": "Installation | Rack & Stack",
-        "metaDescription": "Clean, safe installation on site.",
-        "keywords": null,
-        "focusKeyword": null,
-        "ogTitle": null,
-        "ogDescription": null,
-        "ogImage": null,
-        "canonicalUrl": null,
-        "robotsIndex": true,
-        "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.605Z",
-        "updatedAt": "2026-09-19T06:51:25.605Z"
+        "createdAt": "2026-09-28T08:58:39.563Z",
+        "updatedAt": "2026-09-28T08:58:39.563Z"
       }
     ]
   },
@@ -1528,8 +1852,8 @@
     "displayOrder": 5,
     "metaTitle": "Storage Solutions for Retail | Rack & Stack",
     "metaDescription": "Easy back-of-house storage for cartons, restock items and supplies.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 7,
@@ -1565,6 +1889,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Slotted Angle Racks | Rack & Stack",
         "metaDescription": "Simple, practical shelving for light items, records and everyday stockrooms.",
         "keywords": "Slotted Angle Racks, industrial storage systems",
@@ -1575,8 +1911,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.579Z",
-        "updatedAt": "2026-09-19T06:51:25.579Z"
+        "createdAt": "2026-09-28T08:58:38.443Z",
+        "updatedAt": "2026-09-28T08:58:38.443Z"
       },
       {
         "id": 5,
@@ -1612,6 +1948,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Medium Duty Shelving Racks | Rack & Stack",
         "metaDescription": "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
         "keywords": "Medium Duty Shelving Racks, industrial storage systems",
@@ -1622,8 +1970,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.569Z",
-        "updatedAt": "2026-09-19T06:51:25.569Z"
+        "createdAt": "2026-09-28T08:58:37.836Z",
+        "updatedAt": "2026-09-28T08:58:37.836Z"
       },
       {
         "id": 2,
@@ -1659,6 +2007,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mobile Shelving Racks | Rack & Stack",
         "metaDescription": "Store more in less space — without making daily access harder.",
         "keywords": "Mobile Shelving Racks, industrial storage systems",
@@ -1669,8 +2029,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.542Z",
-        "updatedAt": "2026-09-19T06:51:25.542Z"
+        "createdAt": "2026-09-28T08:58:36.916Z",
+        "updatedAt": "2026-09-28T08:58:36.916Z"
       }
     ],
     "services": [
@@ -1705,6 +2065,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Storage Planning | Rack & Stack",
         "metaDescription": "A clear storage plan before you buy anything.",
         "keywords": null,
@@ -1715,8 +2085,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.594Z",
-        "updatedAt": "2026-09-19T06:51:25.594Z"
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
       },
       {
         "id": 2,
@@ -1749,6 +2119,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -1759,8 +2139,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -1793,6 +2173,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -1803,8 +2193,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       }
     ]
   },
@@ -1831,8 +2221,8 @@
     "displayOrder": 6,
     "metaTitle": "Storage Solutions for FMCG | Rack & Stack",
     "metaDescription": "Pallet and carton storage planned around fast stock movement.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 4,
@@ -1868,6 +2258,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Pallet Racking | Rack & Stack",
         "metaDescription": "Strong pallet racking planned around your loads, equipment and warehouse flow.",
         "keywords": "Heavy Duty Pallet Racking, industrial storage systems",
@@ -1878,8 +2280,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.561Z",
-        "updatedAt": "2026-09-21T08:40:04.471Z"
+        "createdAt": "2026-09-28T08:58:37.526Z",
+        "updatedAt": "2026-09-28T08:58:37.526Z"
       }
     ],
     "services": [
@@ -1914,6 +2316,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Storage Planning | Rack & Stack",
         "metaDescription": "A clear storage plan before you buy anything.",
         "keywords": null,
@@ -1924,8 +2336,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.594Z",
-        "updatedAt": "2026-09-19T06:51:25.594Z"
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
       },
       {
         "id": 2,
@@ -1958,6 +2370,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -1968,8 +2390,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -2002,6 +2424,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -2012,8 +2444,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       }
     ]
   },
@@ -2040,8 +2472,8 @@
     "displayOrder": 7,
     "metaTitle": "Storage Solutions for Logistics | Rack & Stack",
     "metaDescription": "Flexible storage for receiving, staging, picking and dispatch.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 4,
@@ -2077,6 +2509,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Pallet Racking | Rack & Stack",
         "metaDescription": "Strong pallet racking planned around your loads, equipment and warehouse flow.",
         "keywords": "Heavy Duty Pallet Racking, industrial storage systems",
@@ -2087,8 +2531,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.561Z",
-        "updatedAt": "2026-09-21T08:40:04.471Z"
+        "createdAt": "2026-09-28T08:58:37.526Z",
+        "updatedAt": "2026-09-28T08:58:37.526Z"
       },
       {
         "id": 6,
@@ -2124,6 +2568,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mezzanine Floor | Rack & Stack",
         "metaDescription": "Extra floors that turn empty height into usable space.",
         "keywords": "Mezzanine Floor, industrial storage systems",
@@ -2134,11 +2590,65 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.574Z",
-        "updatedAt": "2026-09-19T06:51:25.574Z"
+        "createdAt": "2026-09-28T08:58:38.140Z",
+        "updatedAt": "2026-09-28T08:58:38.140Z"
       }
     ],
     "services": [
+      {
+        "id": 1,
+        "name": "Storage Planning",
+        "slug": "storage-planning",
+        "shortDescription": "A clear storage plan before you buy anything.",
+        "description": "We look at your stock, space and growth plans, then suggest the right storage approach.",
+        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
+        "heroImagePublicId": null,
+        "icon": "ClipboardList",
+        "featured": true,
+        "status": "PUBLISHED",
+        "displayOrder": 0,
+        "process": [
+          {
+            "title": "Understand",
+            "description": "We learn your needs and limits."
+          },
+          {
+            "title": "Develop",
+            "description": "We prepare the right system or layout."
+          },
+          {
+            "title": "Coordinate",
+            "description": "We align the scope and plan the setup."
+          }
+        ],
+        "deliverables": [
+          "Review of your requirements",
+          "A recommended approach",
+          "A clear project plan"
+        ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
+        "metaTitle": "Storage Planning | Rack & Stack",
+        "metaDescription": "A clear storage plan before you buy anything.",
+        "keywords": null,
+        "focusKeyword": null,
+        "ogTitle": null,
+        "ogDescription": null,
+        "ogImage": null,
+        "canonicalUrl": null,
+        "robotsIndex": true,
+        "deletedAt": null,
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
+      },
       {
         "id": 2,
         "name": "Site Survey",
@@ -2170,6 +2680,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -2180,8 +2700,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -2214,6 +2734,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -2224,8 +2754,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       },
       {
         "id": 4,
@@ -2258,6 +2788,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Warehouse Layout Planning | Rack & Stack",
         "metaDescription": "A warehouse layout that flows well.",
         "keywords": null,
@@ -2268,52 +2808,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.603Z",
-        "updatedAt": "2026-09-19T06:51:25.603Z"
-      },
-      {
-        "id": 5,
-        "name": "Installation",
-        "slug": "installation",
-        "shortDescription": "Clean, safe installation on site.",
-        "description": "Our team installs your system on schedule and hands it over ready to use.",
-        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
-        "heroImagePublicId": null,
-        "icon": "HardHat",
-        "featured": true,
-        "status": "PUBLISHED",
-        "displayOrder": 4,
-        "process": [
-          {
-            "title": "Understand",
-            "description": "We learn your needs and limits."
-          },
-          {
-            "title": "Develop",
-            "description": "We prepare the right system or layout."
-          },
-          {
-            "title": "Coordinate",
-            "description": "We align the scope and plan the setup."
-          }
-        ],
-        "deliverables": [
-          "Review of your requirements",
-          "A recommended approach",
-          "A clear project plan"
-        ],
-        "metaTitle": "Installation | Rack & Stack",
-        "metaDescription": "Clean, safe installation on site.",
-        "keywords": null,
-        "focusKeyword": null,
-        "ogTitle": null,
-        "ogDescription": null,
-        "ogImage": null,
-        "canonicalUrl": null,
-        "robotsIndex": true,
-        "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.605Z",
-        "updatedAt": "2026-09-19T06:51:25.605Z"
+        "createdAt": "2026-09-28T08:58:39.563Z",
+        "updatedAt": "2026-09-28T08:58:39.563Z"
       }
     ]
   },
@@ -2340,8 +2836,8 @@
     "displayOrder": 8,
     "metaTitle": "Storage Solutions for Engineering | Rack & Stack",
     "metaDescription": "Storage for tools, parts, consumables and odd-sized items.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 7,
@@ -2377,6 +2873,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Slotted Angle Racks | Rack & Stack",
         "metaDescription": "Simple, practical shelving for light items, records and everyday stockrooms.",
         "keywords": "Slotted Angle Racks, industrial storage systems",
@@ -2387,8 +2895,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.579Z",
-        "updatedAt": "2026-09-19T06:51:25.579Z"
+        "createdAt": "2026-09-28T08:58:38.443Z",
+        "updatedAt": "2026-09-28T08:58:38.443Z"
       },
       {
         "id": 3,
@@ -2424,6 +2932,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Long Span Racks | Rack & Stack",
         "metaDescription": "Strong hand-loaded racks for cartons, bins, tools and bulky items.",
         "keywords": "Heavy Duty Long Span Racks, industrial storage systems",
@@ -2434,8 +2954,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.553Z",
-        "updatedAt": "2026-09-19T06:51:25.553Z"
+        "createdAt": "2026-09-28T08:58:37.224Z",
+        "updatedAt": "2026-09-28T08:58:37.224Z"
       },
       {
         "id": 5,
@@ -2471,6 +2991,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Medium Duty Shelving Racks | Rack & Stack",
         "metaDescription": "Adjustable shelving for easy hand-picking of cartons, bins and parts.",
         "keywords": "Medium Duty Shelving Racks, industrial storage systems",
@@ -2481,8 +3013,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.569Z",
-        "updatedAt": "2026-09-19T06:51:25.569Z"
+        "createdAt": "2026-09-28T08:58:37.836Z",
+        "updatedAt": "2026-09-28T08:58:37.836Z"
       },
       {
         "id": 8,
@@ -2518,6 +3050,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Lockers | Rack & Stack",
         "metaDescription": "Tough lockers for workplaces, staff areas and institutions.",
         "keywords": "Lockers, industrial storage systems",
@@ -2528,11 +3072,65 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.585Z",
-        "updatedAt": "2026-09-19T06:51:25.585Z"
+        "createdAt": "2026-09-28T08:58:38.759Z",
+        "updatedAt": "2026-09-28T08:58:38.759Z"
       }
     ],
     "services": [
+      {
+        "id": 1,
+        "name": "Storage Planning",
+        "slug": "storage-planning",
+        "shortDescription": "A clear storage plan before you buy anything.",
+        "description": "We look at your stock, space and growth plans, then suggest the right storage approach.",
+        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
+        "heroImagePublicId": null,
+        "icon": "ClipboardList",
+        "featured": true,
+        "status": "PUBLISHED",
+        "displayOrder": 0,
+        "process": [
+          {
+            "title": "Understand",
+            "description": "We learn your needs and limits."
+          },
+          {
+            "title": "Develop",
+            "description": "We prepare the right system or layout."
+          },
+          {
+            "title": "Coordinate",
+            "description": "We align the scope and plan the setup."
+          }
+        ],
+        "deliverables": [
+          "Review of your requirements",
+          "A recommended approach",
+          "A clear project plan"
+        ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
+        "metaTitle": "Storage Planning | Rack & Stack",
+        "metaDescription": "A clear storage plan before you buy anything.",
+        "keywords": null,
+        "focusKeyword": null,
+        "ogTitle": null,
+        "ogDescription": null,
+        "ogImage": null,
+        "canonicalUrl": null,
+        "robotsIndex": true,
+        "deletedAt": null,
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
+      },
       {
         "id": 2,
         "name": "Site Survey",
@@ -2564,6 +3162,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -2574,8 +3182,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -2608,6 +3216,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -2618,8 +3236,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       },
       {
         "id": 4,
@@ -2652,6 +3270,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Warehouse Layout Planning | Rack & Stack",
         "metaDescription": "A warehouse layout that flows well.",
         "keywords": null,
@@ -2662,52 +3290,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.603Z",
-        "updatedAt": "2026-09-19T06:51:25.603Z"
-      },
-      {
-        "id": 5,
-        "name": "Installation",
-        "slug": "installation",
-        "shortDescription": "Clean, safe installation on site.",
-        "description": "Our team installs your system on schedule and hands it over ready to use.",
-        "heroImage": "/assets/images/services/storage-planning-hero-dea9106a76.webp",
-        "heroImagePublicId": null,
-        "icon": "HardHat",
-        "featured": true,
-        "status": "PUBLISHED",
-        "displayOrder": 4,
-        "process": [
-          {
-            "title": "Understand",
-            "description": "We learn your needs and limits."
-          },
-          {
-            "title": "Develop",
-            "description": "We prepare the right system or layout."
-          },
-          {
-            "title": "Coordinate",
-            "description": "We align the scope and plan the setup."
-          }
-        ],
-        "deliverables": [
-          "Review of your requirements",
-          "A recommended approach",
-          "A clear project plan"
-        ],
-        "metaTitle": "Installation | Rack & Stack",
-        "metaDescription": "Clean, safe installation on site.",
-        "keywords": null,
-        "focusKeyword": null,
-        "ogTitle": null,
-        "ogDescription": null,
-        "ogImage": null,
-        "canonicalUrl": null,
-        "robotsIndex": true,
-        "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.605Z",
-        "updatedAt": "2026-09-19T06:51:25.605Z"
+        "createdAt": "2026-09-28T08:58:39.563Z",
+        "updatedAt": "2026-09-28T08:58:39.563Z"
       }
     ]
   },
@@ -2734,8 +3318,8 @@
     "displayOrder": 9,
     "metaTitle": "Storage Solutions for Office & Corporate | Rack & Stack",
     "metaDescription": "Compact storage for records, lockers and office supplies.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 2,
@@ -2771,6 +3355,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mobile Shelving Racks | Rack & Stack",
         "metaDescription": "Store more in less space — without making daily access harder.",
         "keywords": "Mobile Shelving Racks, industrial storage systems",
@@ -2781,55 +3377,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.542Z",
-        "updatedAt": "2026-09-19T06:51:25.542Z"
-      },
-      {
-        "id": 1,
-        "name": "Compactor Storage Systems",
-        "slug": "compactor-storage-systems",
-        "shortDescription": "Space-saving movable storage that frees up floor space and keeps your records tidy.",
-        "description": "Compactor systems place storage bays on movable bases, so an aisle opens only where you need it. We plan the layout around your room, how often you retrieve items and your load weight.",
-        "longDescription": "Great for records, files, components and stock that needs controlled access. Rack & Stack plans the rails, bays, safety features and enclosures to fit your space.",
-        "category": "Space Optimization",
-        "featured": true,
-        "status": "PUBLISHED",
-        "displayOrder": 0,
-        "heroImage": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
-        "heroImagePublicId": null,
-        "thumbnail": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
-        "thumbnailPublicId": null,
-        "heroTitle": null,
-        "heroDescription": null,
-        "specHighlights": [],
-        "technicalImage": null,
-        "technicalImagePublicId": null,
-        "technicalDescription": null,
-        "technicalEnabled": false,
-        "showGallery": true,
-        "showFeatures": true,
-        "showSpecifications": true,
-        "showConfigurations": true,
-        "showApplications": true,
-        "showStoredMaterials": true,
-        "showStories": true,
-        "showWorkflow": true,
-        "showBenefits": true,
-        "showComponents": true,
-        "showFaq": true,
-        "showRelated": true,
-        "metaTitle": "Compactor Storage Systems | Rack & Stack",
-        "metaDescription": "Space-saving movable storage that frees up floor space and keeps your records tidy.",
-        "keywords": "Compactor Storage Systems, industrial storage systems",
-        "focusKeyword": "compactor storage systems",
-        "ogTitle": null,
-        "ogDescription": null,
-        "ogImage": null,
-        "canonicalUrl": null,
-        "robotsIndex": true,
-        "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.512Z",
-        "updatedAt": "2026-09-19T06:51:25.512Z"
+        "createdAt": "2026-09-28T08:58:36.916Z",
+        "updatedAt": "2026-09-28T08:58:36.916Z"
       },
       {
         "id": 8,
@@ -2865,6 +3414,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Lockers | Rack & Stack",
         "metaDescription": "Tough lockers for workplaces, staff areas and institutions.",
         "keywords": "Lockers, industrial storage systems",
@@ -2875,8 +3436,67 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.585Z",
-        "updatedAt": "2026-09-19T06:51:25.585Z"
+        "createdAt": "2026-09-28T08:58:38.759Z",
+        "updatedAt": "2026-09-28T08:58:38.759Z"
+      },
+      {
+        "id": 1,
+        "name": "Compactor Storage Systems",
+        "slug": "compactor-storage-systems",
+        "shortDescription": "Space-saving movable storage that frees up floor space and keeps your records tidy.",
+        "description": "Compactor systems place storage bays on movable bases, so an aisle opens only where you need it. We plan the layout around your room, how often you retrieve items and your load weight.",
+        "longDescription": "Great for records, files, components and stock that needs controlled access. Rack & Stack plans the rails, bays, safety features and enclosures to fit your space.",
+        "category": "Space Optimization",
+        "featured": true,
+        "status": "PUBLISHED",
+        "displayOrder": 0,
+        "heroImage": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "heroImagePublicId": null,
+        "thumbnail": "/assets/images/products/compactor-storage-systems-storage-system-1-493d731ca3.webp",
+        "thumbnailPublicId": null,
+        "heroTitle": null,
+        "heroDescription": null,
+        "specHighlights": [],
+        "technicalImage": null,
+        "technicalImagePublicId": null,
+        "technicalDescription": null,
+        "technicalEnabled": false,
+        "showGallery": true,
+        "showFeatures": true,
+        "showSpecifications": true,
+        "showConfigurations": true,
+        "showApplications": true,
+        "showStoredMaterials": true,
+        "showStories": true,
+        "showWorkflow": true,
+        "showBenefits": true,
+        "showComponents": true,
+        "showFaq": true,
+        "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
+        "metaTitle": "Compactor Storage Systems | Rack & Stack",
+        "metaDescription": "Space-saving movable storage that frees up floor space and keeps your records tidy.",
+        "keywords": "Compactor Storage Systems, industrial storage systems",
+        "focusKeyword": "compactor storage systems",
+        "ogTitle": null,
+        "ogDescription": null,
+        "ogImage": null,
+        "canonicalUrl": null,
+        "robotsIndex": true,
+        "deletedAt": null,
+        "createdAt": "2026-09-28T08:58:36.580Z",
+        "updatedAt": "2026-09-28T08:58:36.580Z"
       },
       {
         "id": 7,
@@ -2912,6 +3532,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Slotted Angle Racks | Rack & Stack",
         "metaDescription": "Simple, practical shelving for light items, records and everyday stockrooms.",
         "keywords": "Slotted Angle Racks, industrial storage systems",
@@ -2922,8 +3554,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.579Z",
-        "updatedAt": "2026-09-19T06:51:25.579Z"
+        "createdAt": "2026-09-28T08:58:38.443Z",
+        "updatedAt": "2026-09-28T08:58:38.443Z"
       }
     ],
     "services": [
@@ -2958,6 +3590,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Storage Planning | Rack & Stack",
         "metaDescription": "A clear storage plan before you buy anything.",
         "keywords": null,
@@ -2968,8 +3610,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.594Z",
-        "updatedAt": "2026-09-19T06:51:25.594Z"
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
       },
       {
         "id": 2,
@@ -3002,6 +3644,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -3012,8 +3664,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -3046,6 +3698,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -3056,8 +3718,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       }
     ]
   },
@@ -3084,8 +3746,8 @@
     "displayOrder": 10,
     "metaTitle": "Storage Solutions for Archives & Records | Rack & Stack",
     "metaDescription": "Dense, organized storage for files, documents and record boxes.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 2,
@@ -3121,6 +3783,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Mobile Shelving Racks | Rack & Stack",
         "metaDescription": "Store more in less space — without making daily access harder.",
         "keywords": "Mobile Shelving Racks, industrial storage systems",
@@ -3131,8 +3805,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.542Z",
-        "updatedAt": "2026-09-19T06:51:25.542Z"
+        "createdAt": "2026-09-28T08:58:36.916Z",
+        "updatedAt": "2026-09-28T08:58:36.916Z"
       },
       {
         "id": 1,
@@ -3168,6 +3842,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Compactor Storage Systems | Rack & Stack",
         "metaDescription": "Space-saving movable storage that frees up floor space and keeps your records tidy.",
         "keywords": "Compactor Storage Systems, industrial storage systems",
@@ -3178,8 +3864,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.512Z",
-        "updatedAt": "2026-09-19T06:51:25.512Z"
+        "createdAt": "2026-09-28T08:58:36.580Z",
+        "updatedAt": "2026-09-28T08:58:36.580Z"
       }
     ],
     "services": [
@@ -3214,6 +3900,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Storage Planning | Rack & Stack",
         "metaDescription": "A clear storage plan before you buy anything.",
         "keywords": null,
@@ -3224,8 +3920,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.594Z",
-        "updatedAt": "2026-09-19T06:51:25.594Z"
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
       },
       {
         "id": 2,
@@ -3258,6 +3954,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -3268,8 +3974,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -3302,6 +4008,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -3312,8 +4028,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       }
     ]
   },
@@ -3340,8 +4056,8 @@
     "displayOrder": 11,
     "metaTitle": "Storage Solutions for Distribution Centers | Rack & Stack",
     "metaDescription": "Pallet and picking systems that keep orders moving.",
-    "createdAt": "2026-09-19T06:51:25.619Z",
-    "updatedAt": "2026-09-19T06:51:25.619Z",
+    "createdAt": "2026-09-28T08:58:40.287Z",
+    "updatedAt": "2026-09-28T08:58:40.287Z",
     "products": [
       {
         "id": 4,
@@ -3377,6 +4093,18 @@
         "showComponents": true,
         "showFaq": true,
         "showRelated": true,
+        "galleryHeading": null,
+        "featuresHeading": null,
+        "overviewHeading": null,
+        "overviewBody": null,
+        "applicationsHeading": null,
+        "applicationsIntro": null,
+        "ctaTitle": null,
+        "ctaSubtitle": null,
+        "primaryCtaLabel": null,
+        "primaryCtaHref": null,
+        "secondaryCtaLabel": null,
+        "secondaryCtaHref": null,
         "metaTitle": "Heavy Duty Pallet Racking | Rack & Stack",
         "metaDescription": "Strong pallet racking planned around your loads, equipment and warehouse flow.",
         "keywords": "Heavy Duty Pallet Racking, industrial storage systems",
@@ -3387,8 +4115,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.561Z",
-        "updatedAt": "2026-09-21T08:40:04.471Z"
+        "createdAt": "2026-09-28T08:58:37.526Z",
+        "updatedAt": "2026-09-28T08:58:37.526Z"
       }
     ],
     "services": [
@@ -3423,6 +4151,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Storage Planning | Rack & Stack",
         "metaDescription": "A clear storage plan before you buy anything.",
         "keywords": null,
@@ -3433,8 +4171,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.594Z",
-        "updatedAt": "2026-09-19T06:51:25.594Z"
+        "createdAt": "2026-09-28T08:58:39.191Z",
+        "updatedAt": "2026-09-28T08:58:39.191Z"
       },
       {
         "id": 2,
@@ -3467,6 +4205,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Site Survey | Rack & Stack",
         "metaDescription": "Accurate site details for a layout that fits.",
         "keywords": null,
@@ -3477,8 +4225,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.598Z",
-        "updatedAt": "2026-09-19T06:51:25.598Z"
+        "createdAt": "2026-09-28T08:58:39.319Z",
+        "updatedAt": "2026-09-28T08:58:39.319Z"
       },
       {
         "id": 3,
@@ -3511,6 +4259,16 @@
           "A recommended approach",
           "A clear project plan"
         ],
+        "heroHeading": null,
+        "introHeading": null,
+        "introDescription": null,
+        "introBullets": [],
+        "capabilities": [],
+        "applications": [],
+        "whyChoosePoints": [],
+        "locationCoverage": [],
+        "relatedProductSlugs": [],
+        "galleryImageIds": [],
         "metaTitle": "Rack Design | Rack & Stack",
         "metaDescription": "Rack designs made for your loads.",
         "keywords": null,
@@ -3521,8 +4279,8 @@
         "canonicalUrl": null,
         "robotsIndex": true,
         "deletedAt": null,
-        "createdAt": "2026-09-19T06:51:25.601Z",
-        "updatedAt": "2026-09-19T06:51:25.601Z"
+        "createdAt": "2026-09-28T08:58:39.439Z",
+        "updatedAt": "2026-09-28T08:58:39.439Z"
       }
     ]
   }

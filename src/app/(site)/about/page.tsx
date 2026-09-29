@@ -1,9 +1,63 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight,CheckCircle2 } from "lucide-react";
-import { getPage,getServices } from "@/lib/data";
-import { CTASection,PageHero,SectionHeading } from "@/components/site/ui";
-import { Stagger,StaggerItem } from "@/components/site/reveal";
-import { notFound } from "next/navigation";
-export const metadata:Metadata={title:"About Rack & Stack",description:"Rack & Stack plans and delivers storage systems around your space, loads and workflow."};
-export default async function AboutPage(){const [page,services]=await Promise.all([getPage("about"),getServices()]);if(!page)notFound();return <main><PageHero title={page.heroTitle||page.title} description={page.heroDescription} image={page.heroImage}/><section className="py-14"><div className="container-shell grid gap-14 lg:grid-cols-[.7fr_1.3fr]"><SectionHeading eyebrow="Company profile" title="A Practical Partner for Your Storage Needs"/><div className="prose-copy text-lg">{page.content.split(/\n\n+/).map((p,i)=><p key={i}>{p}</p>)}</div></div></section><section className="surface-grid bg-[#f4f4f1] py-14"><div className="container-shell"><SectionHeading eyebrow="What we do" title="Help From First Plan to Final Setup"/><Stagger className="mt-10 grid gap-px bg-zinc-300 md:grid-cols-2 lg:grid-cols-4">{services.slice(0,8).map((s,i)=><StaggerItem key={s.id} className="h-full"><Link href={`/services/${s.slug}`} className="group flex h-full flex-col bg-white p-6 hover:bg-zinc-950 hover:text-white"><span className="text-xs font-bold text-red-600">{String(i+1).padStart(2,"0")}</span><h3 className="mt-3 text-lg font-semibold">{s.name}</h3><p className="mt-2 text-sm leading-6 text-zinc-500">{s.shortDescription}</p><ArrowRight className="mt-4 text-red-600" size={16}/></Link></StaggerItem>)}</Stagger></div></section><section className="bg-zinc-950 py-14 text-white"><div className="container-shell grid gap-14 lg:grid-cols-2"><SectionHeading eyebrow="Our approach" title="Good Decisions Start With Good Information" description="We don't believe in one-size-fits-all. The right answer comes from understanding how you work." light/><Stagger className="grid gap-px bg-white/10 sm:grid-cols-2">{["What you store and its size","Your actual load weights","How you access and pick items","Building and equipment limits","Site and installation needs","Future changes to your operation"].map(item=><StaggerItem key={item} className="flex gap-3 bg-zinc-950 p-5 text-sm"><CheckCircle2 size={17} className="shrink-0 text-red-500"/>{item}</StaggerItem>)}</Stagger></div></section><CTASection title="Let’s Understand Your Needs Before Choosing a System."/></main>}
+
+import { AboutHero } from "@/components/site/about-hero";
+import {
+  AboutApproach,
+  AboutClosingCta,
+  AboutEquipment,
+  AboutIntroduction,
+  AboutPillars,
+  AboutStrengths,
+} from "@/components/site/about-sections";
+import { ABOUT_IMAGES } from "@/lib/about-page";
+
+/**
+ * The About page.
+ *
+ * Written as a purpose-built page rather than an edit of the CMS `about` record.
+ * The content it needed — the manufacturing and exporting scope, the seven-step
+ * approach, the stated strengths, vision/mission/commitment — has no equivalent
+ * editable field, and modelling it as one long CMS body would mean the only two
+ * options were a wall of unstructured text or a pile of one-off fields. The copy
+ * lives in `src/lib/about-page.ts` instead, where it is structured and reviewable.
+ *
+ * The page is now entirely static apart from the layout, so it is no longer an
+ * async component — the featured-product showcase it used to build here is gone,
+ * and nothing else on it needs to await anything.
+ */
+
+export const metadata: Metadata = {
+  title: "About Rack & Stack | Storage Systems & Material Handling Equipment Manufacturer",
+  description:
+    "Rack and Stack Systems manufactures and exports compactor storage systems, heavy duty pallet racks, mezzanine floors, slotted angle and cantilever racks, and in-plant material handling equipment.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About Rack & Stack | Storage Systems & Material Handling Equipment Manufacturer",
+    description:
+      "Rack and Stack Systems manufactures and exports compactor storage systems, heavy duty pallet racks, mezzanine floors, slotted angle and cantilever racks, and in-plant material handling equipment.",
+    url: "/about",
+    type: "website",
+    images: [{ url: ABOUT_IMAGES.hero, alt: "Rack & Stack storage systems in an industrial warehouse" }],
+  },
+};
+
+export default function AboutPage() {
+  return (
+    <main>
+      <AboutHero
+        image={ABOUT_IMAGES.hero}
+        title="Future Leaders in Storage & Material Handling"
+        description="We deliver engineered storage and material-handling solutions designed around your space, requirements and operational needs."
+        primary={{ label: "Explore Our Solutions", href: "/products" }}
+        secondary={{ label: "Get in Touch", href: "/contact" }}
+      />
+
+      <AboutIntroduction />
+      <AboutEquipment />
+      <AboutApproach />
+      <AboutStrengths />
+      <AboutPillars />
+      <AboutClosingCta />
+    </main>
+  );
+}

@@ -42,7 +42,7 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
   const headingRef = useFitHeading<HTMLHeadingElement>(singleLine ? 20 : 0);
   return (
     <motion.div
-      className={`${align === "center" ? "mx-auto text-center" : ""}`}
+      className={`min-w-0 ${align === "center" ? "mx-auto text-center" : ""}`}
       initial={anim ? "hidden" : false}
       whileInView={anim ? "show" : undefined}
       viewport={{ once: true, margin: "-60px" }}

@@ -243,20 +243,20 @@ export function ProductHero({ product }: { product: ProductDetail }) {
     <section className="border-b border-zinc-200 bg-white">
       <div className="container-shell grid gap-10 py-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14 lg:py-14 items-start">
         {/* Left Column: Interactive 6-Image Product Gallery */}
-        <div>
+        <div className="min-w-0">
           <ProductGallery images={curatedImages} productTitle={product.name} />
         </div>
 
         {/* Right Column: Product Information & Action Panel */}
-        <div className="flex flex-col justify-center">
+        <div className="flex min-w-0 flex-col justify-center">
           {product.status !== "PUBLISHED" ? (
             <span className="w-fit bg-amber-300 px-3 py-1 text-xs font-bold text-black rounded">Draft preview</span>
           ) : null}
 
           {/* Product Title */}
-          <h1 className="section-heading text-balance text-zinc-900">
+          <FitHeading as="h1" minPx={14} className="section-heading text-balance text-zinc-900">
             {heroTitle}
-          </h1>
+          </FitHeading>
 
           {/* Highlight Subtitle */}
           {heroDescription ? (

@@ -92,16 +92,16 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardProduc
             )}
           </div>
         )}
-        <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-200 pt-3">
+        <div className="mt-4 flex items-center justify-between gap-2 border-t border-zinc-200 pt-3">
           {showQuoteButton ? (
-            <Link href={quoteHref} className="btn-primary shrink-0 px-4 py-2 text-[.68rem]">
+            <Link href={quoteHref} className="btn-primary shrink-0 px-3 py-2 text-[.65rem] sm:px-4 sm:text-[.68rem]">
               {product.ctaLabel || "Get a Quote"}
             </Link>
           ) : (
             <span aria-hidden className="hidden sm:block" />
           )}
-          <Link href={productHref} className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs font-bold uppercase tracking-[.14em] transition-colors hover:text-red-600">
-            View Product <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+          <Link href={productHref} className="flex shrink-0 items-center gap-1 text-[.65rem] font-bold uppercase tracking-[.12em] transition-colors hover:text-red-600 sm:text-xs sm:tracking-[.14em]">
+            View <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>

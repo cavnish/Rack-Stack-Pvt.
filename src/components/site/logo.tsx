@@ -44,7 +44,7 @@ export function Logo({
 
       {/* Company Name */}
       {!compact && (
-        <span className="leading-none whitespace-nowrap">
+        <span className="hidden min-w-0 leading-none whitespace-nowrap min-[420px]:block">
           <strong
             className={`
               block text-[1.05rem] lg:text-[1.12rem]

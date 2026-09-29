@@ -56,7 +56,7 @@ img,video,svg { max-width:100%; }
    the unlikely event a heading ever exceeds the floor, the text is cut at the
    box edge rather than widening the page. `clip` rather than `hidden` so no
    scroll container is created. */
-.fit-heading { overflow-x:clip; max-width:100%; }
+.fit-heading { overflow-x:clip; max-width:100%; min-width:0; }
 .card-title { font-size:clamp(1.25rem,1vw + 1.0625rem,1.5rem); line-height:1.3; letter-spacing:-.01em; font-weight:600; }
 .btn-primary,.btn-secondary,.btn-light { min-height:3.15rem; display:inline-flex; align-items:center; justify-content:center; gap:.7rem; padding:.8rem 1.15rem; font-size:.875rem; font-weight:650; letter-spacing:.02em; transition:all .22s ease; }
 .btn-primary { background:var(--red); color:white; border:1px solid var(--red); }
@@ -169,6 +169,38 @@ textarea.admin-field { color:#18181b; }
 @media (prefers-reduced-motion:reduce){
   .india-reveal-host[data-inview] .india-map,
   .india-reveal-host[data-inview] .india-label { animation:none; opacity:1; transform:none; }
+}
+
+/* ============ PRODUCT NAME NO-WRAP ============
+   Product names must stay on one line across all viewports.
+   Applied to navigation items, product cards, and dropdown entries. */
+.product-name-nowrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============ MOBILE MENU SCROLL LOCK ============
+   Prevent horizontal scroll when mobile menu is open. */
+body.menu-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* ============ RESPONSIVE SAFETY ============
+   Ensure no element causes horizontal page overflow. */
+html, body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+/* ============ TABLET NAVIGATION ============
+   Between 768px and 1024px, ensure nav doesn't overflow. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container-shell {
+    width: min(100% - 2rem, 1280px);
+  }
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important;animation-iteration-count:1!important}}
 

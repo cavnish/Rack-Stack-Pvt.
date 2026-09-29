@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { stableImageUrl, toPublicFilePath } from "@/lib/public-asset-paths";
 
 export type AssetGroup =
   | "hero"
@@ -224,7 +225,14 @@ export type CacheImageOptions = {
  * Downloads a remote asset once, optimizes it to WebP, and stores it under
  * public/assets/images/<group>/<name>-<hash>.webp. Repeat calls for the same
  * source reuse the cached file, so admin edits never re-download unchanged media.
- * Local paths are passed through untouched (only measured for dimensions).
+ *
+ * Local paths are passed through untouched (only measured for dimensions), and
+ * they are written back exactly as they came in. That matters: the product
+ * photographs in `public/` live in folders with spaces, and decoding the stored
+ * path to read the file would emit `/HEAVY DUTY PALLET RACKING/x.jpg` into
+ * `products.json` — a URL with literal spaces, which is not the address the file
+ * is served from and which no cache will match. `stableImageUrl` keeps the
+ * percent-encoding the database stored.
  */
 export async function cacheImage(source: string | null | undefined, options: CacheImageOptions): Promise<CachedAsset | null> {
   const raw = typeof source === "string" ? source.trim() : "";
@@ -233,13 +241,15 @@ export async function cacheImage(source: string | null | undefined, options: Cac
   const limitWidth = MAX_WIDTH[options.group];
 
   if (isLocalAsset(raw)) {
-    const relative = decodeURIComponent(raw.split("?")[0].split("#")[0]);
-    const absolute = path.join(process.cwd(), "public", relative.replace(/^\/+/, ""));
+    const relative = toPublicFilePath(raw);
+    const absolute = path.join(process.cwd(), "public", relative);
     if (!(await fileExists(absolute))) return null;
     const local = await readLocalFile(absolute).catch(() => null);
     if (!local) return null;
+    // `stableImageUrl` re-appends the leading slash and keeps `%20` encoded, so
+    // the published URL is the same string the CMS stored.
     return {
-      url: relative.startsWith("/") ? relative : `/${relative}`,
+      url: stableImageUrl(raw),
       width: local.width,
       height: local.height,
       aspectRatio: local.width && local.height ? Number((local.width / local.height).toFixed(4)) : 0,

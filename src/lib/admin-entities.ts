@@ -3,14 +3,14 @@ import { db } from "@/db";
 import {
   activityLogs, blogPosts, clientLogos, clients, contactMessages, faqs, gallery, homeOfferCards, homeSliders, homepageSections, industries, inquiries,
   media, pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productGalleryImages, productImages, productIndustries, productProjects,
-  productRelatedProducts, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projects, redirects, seoSettings,
+  productRelatedProducts, productSections, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projects, redirects, seoSettings,
   serviceFeatures, services, siteSettings, testimonials, users, videoProducts, videos, videoServices,
 } from "@/db/schema";
 import { hash } from "bcryptjs";
 import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
-import { clientLogoAdminSchema, homeOfferCardSchema, productAdminSchema, UserFacingError } from "./validation";
-import { defaultGalleryAltText, defaultGalleryCaption, getProductGallerySlot, productGalleryOrder } from "./product-gallery-slots";
+import { productAdminSchema, clientLogoAdminSchema, homeOfferCardSchema, UserFacingError } from "./validation";
 import { requireInstagramUrl } from "./instagram";
+import { getPrimaryGalleryImageUrl, isDeletableUpload, normalizeGalleryPrimaries } from "./product-primary-image";
 
 export const adminEntities = ["products", "services", "projects", "clients", "client-logos", "testimonials", "gallery", "pages", "industries", "faqs", "blog", "homepage", "home-offer-cards", "home-slider", "inquiries", "contact-messages", "media", "videos", "seo", "settings", "users", "activity"] as const;
 
@@ -53,7 +53,7 @@ export async function getEntity(entity: AdminEntity, id: number) {
   if (entity === "products") {
     const item = (await db.select().from(products).where(eq(products.id, id)).limit(1))[0];
     if (!item) return null;
-    const [features, specifications, applications, images, galleryRows, benefits, components, configurations, storedMaterials, stories, workflows, relatedRows, industryRows, projectRows, productFaqs] = await Promise.all([
+    const [features, specifications, applications, images, galleryRows, benefits, components, configurations, storedMaterials, stories, workflows, relatedRows, industryRows, projectRows, productFaqs, sectionRows] = await Promise.all([
       db.select().from(productFeatures).where(eq(productFeatures.productId, id)).orderBy(asc(productFeatures.displayOrder)),
       db.select().from(productSpecifications).where(eq(productSpecifications.productId, id)).orderBy(asc(productSpecifications.displayOrder)),
       db.select().from(productApplications).where(eq(productApplications.productId, id)).orderBy(asc(productApplications.displayOrder)),
@@ -69,8 +69,9 @@ export async function getEntity(entity: AdminEntity, id: number) {
       db.select().from(productIndustries).where(eq(productIndustries.productId, id)).orderBy(asc(productIndustries.displayOrder)),
       db.select().from(productProjects).where(eq(productProjects.productId, id)).orderBy(asc(productProjects.displayOrder)),
       db.select().from(faqs).where(and(eq(faqs.entityType, "PRODUCT"), eq(faqs.entityId, id))).orderBy(asc(faqs.displayOrder)),
+      db.select().from(productSections).where(eq(productSections.productId, id)).orderBy(asc(productSections.displayOrder)),
     ]);
-    return { ...item, features, specifications, applications, images, gallery: galleryRows, benefits, components, configurations, storedMaterials, stories, workflows, relatedProductIds: relatedRows.map((row) => row.relatedProductId), industryIds: industryRows.map((row) => row.industryId), projectIds: projectRows.map((row) => row.projectId), faqs: productFaqs };
+    return { ...item, features, specifications, applications, images, gallery: galleryRows, sections: sectionRows, benefits, components, configurations, storedMaterials, stories, workflows, relatedProductIds: relatedRows.map((row) => row.relatedProductId), industryIds: industryRows.map((row) => row.industryId), projectIds: projectRows.map((row) => row.projectId), faqs: productFaqs };
   }
   if (entity === "services") {
     const item = (await db.select().from(services).where(eq(services.id, id)).limit(1))[0];
@@ -214,13 +215,31 @@ function productContentValues(data: ReturnType<typeof productAdminSchema.parse>)
 }
 
 /**
- * Replaces a product's gallery with the submitted slots.
+ * Replaces a product's gallery with the submitted list.
  *
- * Slots are written in the canonical order and any slot without a photo is
- * deleted rather than stored as a broken row, so the renderer never has to guess
- * whether an empty slot means "empty" or "missing". Alt text and caption fall
- * back to slot-derived copy, because a gallery image with no alt text is an
- * accessibility defect rather than a blank the renderer should paper over.
+ * Order is the position in the submitted array, full stop. This used to re-sort
+ * every row through the canonical six-slot order, which meant an editor could
+ * never choose where a photo sat — and, because the table had a unique index on
+ * `(productId, slot)`, could never hold more than six in the first place.
+ *
+ * Rows are rewritten rather than diffed because the editor sends the whole list
+ * on every save. That is safe: `pruneProductGallery` in the route handler diffs
+ * the previous and submitted `imageUrl` values first and destroys the remote
+ * originals of anything dropped, so a save can never leak an orphaned asset.
+ * Local `public/` files are exempt from that pruning, because a file in the
+ * repository is not the CMS's to delete.
+ *
+ * A row with no `isActive` is treated as active, so a payload written before
+ * this field existed does not blank out an entire gallery on its first save.
+ * Alt text falls back to the row's own title, and then to the product name,
+ * because an image with no alt text is an accessibility defect rather than a
+ * blank the renderer should paper over.
+ *
+ * The `isPrimary` flag is normalised rather than trusted: whatever the client
+ * sent, exactly one active row ends up flagged, and when the client flagged
+ * nothing the row the page would lead with is flagged instead. That keeps the
+ * admin badge, the hero, the cards and the social image showing one photograph
+ * instead of four different ones.
  */
 async function syncProductGallery(
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
@@ -230,23 +249,103 @@ async function syncProductGallery(
 ) {
   await tx.delete(productGalleryImages).where(eq(productGalleryImages.productId, productId));
   if (!gallery.length) return;
+  // The position in the array is the order; the flag is decided from it.
+  const ordered = gallery.map((item, index) => ({ ...item, displayOrder: index }));
+  const normalized = normalizeGalleryPrimaries(ordered);
   await tx.insert(productGalleryImages).values(
-    gallery
-      .map((item) => ({ item, order: productGalleryOrder(item.slot) }))
-      .sort((left, right) => left.order - right.order)
-      .map(({ item, order }) => ({
-        productId,
-        slot: item.slot,
-        label: item.label ?? getProductGallerySlot(item.slot)?.label ?? null,
-        imageUrl: item.imageUrl,
-        cloudinaryPublicId: item.cloudinaryPublicId || null,
-        altText: item.altText || defaultGalleryAltText(item.slot, productName),
-        caption: item.caption || defaultGalleryCaption(item.slot, productName),
-        width: item.width ?? null,
-        height: item.height ?? null,
-        displayOrder: order,
-      })),
+    normalized.map((item) => ({
+      productId,
+      // Retained when the client still sends one, so provenance from the
+      // six-slot release survives. Never used to order or validate anything.
+      slot: item.slot ?? null,
+      label: item.label || null,
+      imageUrl: item.imageUrl,
+      // Never carries a public id for a `public/` path: that flag is what tells
+      // the upload pruner this row does not own a removable remote file.
+      cloudinaryPublicId: isDeletableUpload(item.imageUrl, item.cloudinaryPublicId) ? item.cloudinaryPublicId : null,
+      altText: item.altText || (item.label ? `${productName}: ${item.label}` : productName),
+      caption: item.caption || null,
+      width: item.width ?? null,
+      height: item.height ?? null,
+      isActive: item.isActive ?? true,
+      isPrimary: Boolean(item.isPrimary),
+      displayOrder: item.displayOrder ?? 0,
+    })),
   );
+}
+
+/**
+ * Replaces a product's free-form content sections with the submitted list.
+ *
+ * Mirrors `syncProductGallery`: whole-list replace, position is the array index,
+ * and a blank `key` is derived from the heading so an editor who never touches
+ * the field still gets a working `#anchor`. Keys are de-duplicated rather than
+ * trusted, because the column is unique per product and a repeated key would
+ * otherwise fail the whole save with a constraint error the editor cannot act on.
+ */
+async function syncProductSections(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  productId: number,
+  sections: ReturnType<typeof productAdminSchema.parse>["sections"],
+) {
+  await tx.delete(productSections).where(eq(productSections.productId, productId));
+  if (!sections.length) return;
+  const used = new Set<string>();
+  const rows = sections.flatMap((section, displayOrder) => {
+    const key = slugifySectionKey(section.key || section.title);
+    if (!key || used.has(key)) return [];
+    used.add(key);
+    return [{
+      productId,
+      key,
+      eyebrow: section.eyebrow || null,
+      title: section.title,
+      body: section.body || null,
+      layout: section.layout || "text",
+      imageUrl: section.imageUrl || null,
+      imagePublicId: isDeletableUpload(section.imageUrl, section.imagePublicId) ? section.imagePublicId : null,
+      altText: section.altText || null,
+      ctaLabel: section.ctaLabel || null,
+      ctaHref: section.ctaHref || null,
+      isActive: section.isActive ?? true,
+      displayOrder,
+    }];
+  });
+  if (rows.length) await tx.insert(productSections).values(rows);
+}
+
+/** A heading turned into a URL fragment, or an empty string if nothing survives. */
+function slugifySectionKey(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+/**
+ * The product's hero image and thumbnail, taken from the chosen primary.
+ *
+ * These two columns are what the homepage tile, the related-product cards and
+ * the schema.org markup read, and they used to be maintained by hand — which is
+ * how a product ended up with a Pexels placeholder in its card while its gallery
+ * held the real photograph. Deriving them from the primary keeps a single
+ * choice in the admin in charge of the whole page.
+ *
+ * An explicit value still wins. Overwriting a hand-picked hero on every save
+ * would be a different kind of drift, and an editor who wants a different card
+ * image can set the primary to match instead.
+ */
+function productImageValues(
+  gallery: ReturnType<typeof productAdminSchema.parse>["gallery"],
+  heroImage: string | undefined,
+  thumbnail: string | undefined,
+) {
+  const primary = getPrimaryGalleryImageUrl(gallery);
+  return {
+    heroImage: heroImage || primary || null,
+    thumbnail: thumbnail || primary || null,
+  };
 }
 
 export async function createEntity(entity: AdminEntity, input: Record<string, unknown>, currentUserId: number) {
@@ -261,7 +360,8 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
     return db.transaction(async (tx) => {
       const [item] = await tx.insert(products).values({
         name: data.name, slug: data.slug, shortDescription: data.shortDescription, description: data.description, longDescription: data.longDescription, category: data.category, featured: data.featured, status: data.status, displayOrder: data.displayOrder,
-        heroImage: data.heroImage || null, heroImagePublicId: data.heroImagePublicId || null, thumbnail: data.thumbnail || null, thumbnailPublicId: data.thumbnailPublicId || null,
+        ...productImageValues(data.gallery, data.heroImage, data.thumbnail),
+        heroImagePublicId: data.heroImagePublicId || null, thumbnailPublicId: data.thumbnailPublicId || null,
         heroTitle: data.heroTitle || null, heroDescription: data.heroDescription || null, specHighlights: data.specHighlights,
         technicalImage: data.technicalImage || null, technicalImagePublicId: data.technicalImagePublicId || null, technicalDescription: data.technicalDescription || null, technicalEnabled: data.technicalEnabled,
         showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated,
@@ -270,6 +370,7 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
       }).returning();
       const productId = item.id;
       await syncProductGallery(tx, productId, data.name, data.gallery);
+      await syncProductSections(tx, productId, data.sections);
       if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId, title: x.title, description: x.description, icon: x.icon || "CheckCircle2", displayOrder: i })));
       if (data.specifications.length) await tx.insert(productSpecifications).values(data.specifications.map((x, i) => ({ productId, ...x, displayOrder: i })));
       if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId, application: x.title, title: x.title || null, description: x.description || null, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
@@ -362,7 +463,8 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
       const previous = (await tx.select({ slug: products.slug }).from(products).where(eq(products.id, id)))[0];
       const [item] = await tx.update(products).set({
         name: data.name, slug: data.slug, shortDescription: data.shortDescription, description: data.description, longDescription: data.longDescription, category: data.category, featured: data.featured, status: data.status, displayOrder: data.displayOrder,
-        heroImage: data.heroImage || null, heroImagePublicId: data.heroImagePublicId || null, thumbnail: data.thumbnail || null, thumbnailPublicId: data.thumbnailPublicId || null,
+        ...productImageValues(data.gallery, data.heroImage, data.thumbnail),
+        heroImagePublicId: data.heroImagePublicId || null, thumbnailPublicId: data.thumbnailPublicId || null,
         heroTitle: data.heroTitle || null, heroDescription: data.heroDescription || null, specHighlights: data.specHighlights,
         technicalImage: data.technicalImage || null, technicalImagePublicId: data.technicalImagePublicId || null, technicalDescription: data.technicalDescription || null, technicalEnabled: data.technicalEnabled,
         showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated,
@@ -371,6 +473,7 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
       }).where(eq(products.id, id)).returning();
       if (!item) throw new Error("Product not found");
       await syncProductGallery(tx, id, data.name, data.gallery);
+      await syncProductSections(tx, id, data.sections);
       await Promise.all([
         tx.delete(productFeatures).where(eq(productFeatures.productId, id)),
         tx.delete(productSpecifications).where(eq(productSpecifications.productId, id)),

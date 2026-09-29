@@ -58,8 +58,8 @@ export function WorkflowSteps() {
 
             <div className="min-w-0 xl:mt-2.5">
               <span className="block font-mono text-[.65rem] font-bold tracking-wider text-zinc-500">0{i + 1}</span>
-              <h3 className="mt-0.5 text-sm font-semibold leading-snug text-white xl:mt-1.5">{step.title}</h3>
-              <p className="mt-1 text-[.78rem] leading-5 text-zinc-400 xl:mt-1.5 xl:text-balance">{step.description}</p>
+<h3 className="mt-0.5 text-sm font-semibold leading-snug text-white xl:mt-1">{step.title}</h3>
+<p className="mt-0.5 text-[.78rem] leading-5 text-zinc-400 xl:mt-1 xl:text-balance">{step.description}</p>
             </div>
           </motion.li>
         );

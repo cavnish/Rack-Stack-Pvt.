@@ -18,7 +18,7 @@ export default async function ClientsPage() {
         description="The organizations below are from the official Rack & Stack client list. This is our published roster only — it does not imply any specific project or endorsement."
         image={gallery[0]?.imageUrl}
       />
-      <section className="bg-[#f4f4f1] py-24">
+      <section className="bg-[#f4f4f1] py-14">
         <div className="container-shell">
           <SectionHeading
             eyebrow="Official client list"

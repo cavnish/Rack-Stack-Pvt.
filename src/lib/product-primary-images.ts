@@ -25,8 +25,8 @@
  */
 
 import { db, dbConfigured } from "@/db";
-import { productImages } from "@/db/schema";
-import { asc, inArray } from "drizzle-orm";
+import { productGalleryImages, productImages } from "@/db/schema";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { getProductFolderImages, type ProductFolderImage } from "@/lib/product-image-assets";
 import { getPrimaryProductImage } from "@/lib/product-page";
 import { logServer } from "@/lib/logger";
@@ -78,14 +78,36 @@ export async function getPrimaryProductImages(
    * on the site.
    */
   let imageRows: Array<{ productId: number; imageUrl: string | null }> = [];
+  /**
+   * The admin-managed gallery, in the same single batched query shape.
+   *
+   * This is the list `getPrimaryProductImage` consults first, so without it every
+   * card on the site would resolve to an image the editor cannot see or reorder.
+   */
+  let galleryRows: Array<{ productId: number; imageUrl: string | null; isActive: boolean }> = [];
   if (dbConfigured) {
     try {
-      const rows = await db
-        .select({ productId: productImages.productId, imageUrl: productImages.imageUrl })
-        .from(productImages)
-        .where(inArray(productImages.productId, ids))
-        .orderBy(asc(productImages.displayOrder));
-      imageRows = rows;
+      [imageRows, galleryRows] = await Promise.all([
+        db
+          .select({ productId: productImages.productId, imageUrl: productImages.imageUrl })
+          .from(productImages)
+          .where(inArray(productImages.productId, ids))
+          .orderBy(asc(productImages.displayOrder)),
+        db
+          .select({
+            productId: productGalleryImages.productId,
+            imageUrl: productGalleryImages.imageUrl,
+            isActive: productGalleryImages.isActive,
+          })
+          .from(productGalleryImages)
+          .where(
+            and(
+              inArray(productGalleryImages.productId, ids),
+              eq(productGalleryImages.isActive, true),
+            ),
+          )
+          .orderBy(asc(productGalleryImages.displayOrder)),
+      ]);
     } catch (error) {
       logServer("warn", "product_images.fetch.failed", {
         message: error instanceof Error ? error.message : "unknown",
@@ -99,6 +121,13 @@ export async function getPrimaryProductImages(
     const list = rowsByProduct.get(row.productId);
     if (list) list.push(row);
     else rowsByProduct.set(row.productId, [row]);
+  }
+
+  const galleryByProduct = new Map<number, Array<{ imageUrl: string | null }>>();
+  for (const row of galleryRows) {
+    const list = galleryByProduct.get(row.productId);
+    if (list) list.push(row);
+    else galleryByProduct.set(row.productId, [row]);
   }
 
   await Promise.all(
@@ -117,7 +146,12 @@ export async function getPrimaryProductImages(
 
       const images = rowsByProduct.get(product.id) ?? [];
       const image = getPrimaryProductImage(
-        { heroImage: product.heroImage, thumbnail: product.thumbnail, images },
+        {
+          heroImage: product.heroImage,
+          thumbnail: product.thumbnail,
+          images,
+          gallery: galleryByProduct.get(product.id) ?? [],
+        },
         folderImages,
       );
       resolved.set(product.id, image || columnFallback(product));

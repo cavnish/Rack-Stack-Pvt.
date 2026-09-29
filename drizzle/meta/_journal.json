@@ -78,6 +78,27 @@
       "when": 1790591623101,
       "tag": "0010_stormy_tarot",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790679255503,
+      "tag": "0011_fresh_mac_gargan",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790681100411,
+      "tag": "0012_product_primary_and_sections",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790682657904,
+      "tag": "0013_bright_cyclops",
+      "breakpoints": true
     }
   ]
 }

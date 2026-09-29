@@ -448,8 +448,12 @@ export async function generateProducts() {
 
   // Gallery filenames are keyed on the slot, so replacing one slot rewrites one
   // file instead of churning every asset the product owns.
+  // The local filename keeps the legacy `slot` prefix for rows that predate the
+  // unlimited gallery, so their already-downloaded files are reused. `slot` is
+  // now nullable and no longer written, so `${row.slot}` on its own would name
+  // every new upload `null-<id>`; the row id keeps the name unique either way.
   const cachedGallery = await mapImageColumns(galleryRows, [
-    { key: "imageUrl", group: "products", name: (row) => `${row.slot}-${row.id}`, entityKey: (row) => `product-gallery:${row.id}` },
+    { key: "imageUrl", group: "products", name: (row) => `${row.slot ?? "gallery"}-${row.id}`, entityKey: (row) => `product-gallery:${row.id}` },
   ]);
   const cachedGalleryById = new Map(cachedGallery.map((row) => [row.id, row]));
 

@@ -116,7 +116,7 @@ function text(value: string | null | undefined): string {
  * reintroduce a second answer to "which image is this product's primary one" —
  * that regression is exactly what the homepage had before: it read `thumbnail`
  * off the product row, while the detail page took the head of
- * `[...folderImages, ...product.images]`, and the two showed different
+ * `[...gallery, ...product.images, ...folderImages]`, and the two showed different
  * photographs for the same product.
  */
 function toOption(

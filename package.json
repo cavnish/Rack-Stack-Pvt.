@@ -18,6 +18,7 @@
     "db:local:stop": "node scripts/db-local.mjs stop",
     "publish": "tsx scripts/publish.ts",
     "publish:force": "tsx scripts/publish.ts all --force",
+    "images:import": "tsx scripts/import-public-product-images.ts",
     "assets:sync": "tsx scripts/sync-assets.ts",
     "verify:queue": "tsx scripts/verify-publish-queue.ts"
   },

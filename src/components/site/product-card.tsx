@@ -63,30 +63,21 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardProduc
   const quoteHref = `/request-a-quote?product=${encodeURIComponent(product.slug)}`;
   const showQuoteButton = product.showQuoteButton !== false;
   return (
-    <div className="group flex h-full min-h-[520px] flex-col overflow-hidden border border-zinc-200 bg-white transition-colors duration-300 hover:border-zinc-800">
+    <div className="group flex h-full flex-col overflow-hidden border border-zinc-200 bg-white transition-colors duration-300 hover:border-zinc-800">
       <Link href={productHref} className="relative block aspect-[4/3] shrink-0 overflow-hidden bg-zinc-200">
         <SmartImage src={optimizeImage(image, 760)} alt={product.alt || product.name} fill className="object-cover object-center transition duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/55 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-        {product.category ? (
-          <span className="absolute left-4 top-4 max-w-[70%] truncate bg-red-600 px-2.5 py-1 text-[.6rem] font-bold uppercase tracking-[.14em] text-white">{product.category}</span>
-        ) : null}
-        <span className="absolute right-4 top-4 bg-zinc-950/80 px-2 py-1 text-[.6rem] font-bold text-white/80 backdrop-blur">{String(index + 1).padStart(2, "0")}</span>
         <span className="absolute inset-x-0 bottom-0 flex translate-y-2 items-center justify-center gap-2 py-5 text-xs font-bold uppercase tracking-[.16em] text-white opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
           View Product <ArrowRight size={15} />
         </span>
       </Link>
-      <div className="flex grow flex-col p-6">
-        {/*
-          `min-h` reserves two lines of title whether or not the name needs them.
-          Without it a one-line name sits in half the space of a two-line one and
-          the descriptions below start at different heights.
-        */}
-        <Link href={productHref} className="card-title line-clamp-2 min-h-[2.6em] transition-colors group-hover:text-red-600">
+      <div className="flex grow flex-col p-4 sm:p-5">
+        <Link href={productHref} className="card-title line-clamp-2 transition-colors group-hover:text-red-600">
           {product.name}
         </Link>
-        <p className="mt-3 line-clamp-3 min-h-[4.5em] text-sm leading-6 text-zinc-600">{product.shortDescription}</p>
+        <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-600">{product.shortDescription}</p>
         {(product.keySpec?.name || product.application) && (
-          <div className="mt-5 grid gap-2 border-t border-zinc-200 pt-5 text-xs text-zinc-600">
+          <div className="mt-4 grid gap-1.5 border-t border-zinc-200 pt-3 text-xs text-zinc-600">
             {product.keySpec?.name && (
               <p className="flex gap-2">
                 <span className="font-bold uppercase tracking-[.12em] text-zinc-400">{product.keySpec.name}</span>
@@ -101,7 +92,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardProduc
             )}
           </div>
         )}
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-zinc-200 pt-5">
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-200 pt-3">
           {showQuoteButton ? (
             <Link href={quoteHref} className="btn-primary shrink-0 px-4 py-2 text-[.68rem]">
               {product.ctaLabel || "Get a Quote"}

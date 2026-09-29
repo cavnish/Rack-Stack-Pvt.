@@ -90,7 +90,7 @@ export function Header({ phone, whatsapp }: { phone: string; whatsapp: string })
               </div>
             ) : null}
           </div>
-          {[['Services', '/services'], ['Industries', '/industries'], ['Projects', '/projects'], ['About', '/about'], ['Resources', '/blog']].map(([label, href]) => (
+          {[['Services', '/services'], ['Industries', '/industries'], ['Projects', '/projects'], ['About', '/about'], ['Contact', '/contact']].map(([label, href]) => (
             <Link key={href} href={href} className="text-sm font-bold text-zinc-700 hover:text-red-700">{label}</Link>
           ))}
         </nav>

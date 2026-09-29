@@ -87,7 +87,7 @@ export default async function ServicePage({
         </div>
       </section>
 
-      <section className="py-24">
+      <section className="py-14">
         <div className="container-shell grid gap-14 lg:grid-cols-[.7fr_1.3fr]">
           <SectionHeading eyebrow="The challenge" title="We Start With Your Real Problem." />
           <div>
@@ -100,7 +100,7 @@ export default async function ServicePage({
       </section>
 
       {item.features.length > 0 && (
-        <section className="surface-grid bg-[#f4f4f1] py-24">
+        <section className="surface-grid bg-[#f4f4f1] py-14">
           <div className="container-shell">
             <SectionHeading eyebrow="Our approach" title="Clear Plans You Can Actually Use" />
             <Stagger className="mt-10 grid gap-px bg-zinc-300 md:grid-cols-3">
@@ -108,8 +108,8 @@ export default async function ServicePage({
                 <StaggerItem key={f.id} className="h-full">
                   <div className="h-full bg-white p-7">
                     <CheckCircle2 className="text-red-600" size={22} />
-                    <h3 className="mt-8 text-xl font-semibold">{f.title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-zinc-500">{f.description}</p>
+                    <h3 className="mt-3 text-xl font-semibold">{f.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-zinc-500">{f.description}</p>
                   </div>
                 </StaggerItem>
               ))}
@@ -129,7 +129,7 @@ export default async function ServicePage({
         />
       ) : null}
 
-      <section className="py-24">
+      <section className="py-14">
         <div className="container-shell grid gap-14 lg:grid-cols-2">
           <div>
             <SectionHeading eyebrow="Process" title="Simple Steps. Better Decisions." />
@@ -160,7 +160,7 @@ export default async function ServicePage({
         </div>
       </section>
 
-      <section className="bg-[#f4f4f1] py-24">
+      <section className="bg-[#f4f4f1] py-14">
         <div className="container-shell">
           <SectionHeading eyebrow="Industries" title="We Work Across Many Businesses." />
           <Stagger className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -171,7 +171,7 @@ export default async function ServicePage({
                   className="flex h-full flex-col border border-zinc-300 bg-white p-6"
                 >
                   <h3 className="font-semibold">{x.name}</h3>
-                  <p className="mt-3 text-sm leading-6 text-zinc-500">{x.shortDescription}</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500">{x.shortDescription}</p>
                 </Link>
               </StaggerItem>
             ))}
@@ -180,7 +180,7 @@ export default async function ServicePage({
       </section>
 
       {item.faqs.length > 0 && (
-        <section className="py-24">
+        <section className="py-14">
           <div className="container-shell grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
             <SectionHeading eyebrow="FAQs" title="What Customers Usually Ask." />
             <FAQ items={item.faqs} />
@@ -192,7 +192,7 @@ export default async function ServicePage({
 
       {/* Capped and centred to match the quote and product enquiry sections, so
           the same form reads identically wherever a visitor meets it. */}
-      <section className="py-20">
+      <section className="py-14">
         <div className="container-shell">
           <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[.7fr_1.3fr] lg:gap-12">
             <SectionHeading compact eyebrow="Get in touch" title="Tell Us What You Need." />

@@ -124,6 +124,24 @@ export const products = pgTable(
     ogImage: text("og_image"),
     canonicalUrl: text("canonical_url"),
     robotsIndex: boolean("robots_index").default(true).notNull(),
+    /**
+     * Whether the product is switched on, independently of its status.
+     *
+     * `status` answers "has this been written yet?" — DRAFT, PUBLISHED, ARCHIVED.
+     * `isActive` answers "should this product be visible on the public site
+     * right now?". They are different questions, and before this column the only
+     * way to take a product off the site was to set it back to DRAFT, which
+     * silently also threw away the fact that it had once been published and made
+     * it indistinguishable from a product that had never been finished.
+     *
+     * A disabled product keeps its place in the menu, its URL, its images and its
+     * SEO; it simply stops appearing in listings, the homepage and the sitemap.
+     * The publish generator filters on this column, so a disabled product is
+     * absent from `products.json` and the public site cannot show it even if a
+     * stale request to a page that had already been statically generated is
+     * replayed from cache.
+     */
+    isActive: boolean("is_active").default(true).notNull(),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     ...timestamps,
   },
@@ -154,38 +172,108 @@ export const productImages = pgTable(
 );
 
 /**
- * The product gallery, as a fixed set of six named slots.
+ * The product gallery: a free, editor-ordered list of images per product.
  *
- * A product page always shows the same six views in the same order (main shot,
- * installation, close-up, configurations, heavy load, in operation), so the
- * gallery is modelled as one row per slot rather than a free-form image list.
- * That is what lets the admin screen render a fixed, labelled editor and lets
- * the page address a view by meaning instead of by position.
+ * This was a fixed set of six named slots. The six-view layout is a reasonable
+ * default, not a rule — an editor with seven real photographs of one product
+ * should be able to upload all seven, and the page should show all seven in the
+ * order they were arranged. So the gallery is now an ordinary ordered list:
+ * `displayOrder` is the only position, and `label` is free text rather than a
+ * key drawn from a closed set.
  *
- * The `(productId, slot)` unique index is what makes a slot single-valued, so a
- * save can upsert by slot and never has to reconcile duplicates by hand.
+ * `slot` is kept, nullable and no longer read by the renderer, so rows written
+ * by the previous six-slot release keep their provenance instead of being
+ * rewritten. The `(productId, slot)` unique index is gone: it was the reason a
+ * product could never have more than six images, and Postgres allows repeated
+ * NULLs in a unique index, so dropping the constraint is what actually lifts
+ * the ceiling.
+ *
+ * `isActive` lets an editor park an image without deleting it, which is the
+ * difference between a reorder and an upload you have to do again.
+ *
+ * `isPrimary` is the explicit answer to "which photo is this product?". It used
+ * to be implied — the first active row won, so choosing a different main image
+ * meant dragging a row to the top, and any accidental reorder silently changed
+ * the hero, the product card, the homepage tile and the social share image. One
+ * row per product carries the flag, and the first active row remains the
+ * fallback so a product that predates the column behaves as it did.
  */
 export const productGalleryImages = pgTable(
   "product_gallery_images",
   {
     id: serial("id").primaryKey(),
     productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
-    /** One of the `productGallerySlots` keys. Validated in `lib/validation`. */
-    slot: text("slot").notNull(),
-    /** Editor-facing name of the view, e.g. "Warehouse Installation". */
+    /**
+     * Legacy six-slot key, e.g. "main" / "close-up". Retained for provenance
+     * only: it is no longer validated, no longer unique and no longer read by
+     * the page renderer, which orders by `displayOrder` alone.
+     */
+    slot: text("slot"),
+    /** Editor-facing title for this image, e.g. "Warehouse Installation". */
     label: text("label"),
     imageUrl: text("image_url").notNull(),
+    /**
+     * Set only for an image uploaded through the media host. A row pointing at
+     * a file in `public/` has no public id, which is what tells the upload
+     * pruner that removing the row must not delete a file the repository owns.
+     */
     cloudinaryPublicId: text("cloudinary_public_id"),
     altText: text("alt_text").notNull(),
     caption: text("caption"),
     width: integer("width"),
     height: integer("height"),
+    isActive: boolean("is_active").default(true).notNull(),
+    isPrimary: boolean("is_primary").default(false).notNull(),
+    displayOrder: integer("display_order").default(0).notNull(),
+    ...timestamps,
+  },
+  (table) => [index("product_gallery_product_idx").on(table.productId)],
+);
+
+/**
+ * Free-form content blocks on a product page.
+ *
+ * Every other product table here is a purpose-built section — features,
+ * specifications, benefits, workflows. Those are correct for the content the
+ * business always has, and they render as a fixed component each. What they
+ * cannot do is hold a block that exists for one product only: an installation
+ * note, a compliance paragraph, a second call to action, a case study write-up.
+ * Previously that copy had nowhere to go, so the only way to add it was to
+ * repurpose a fixed section, which then read as filler on the seven other
+ * products that did not need it.
+ *
+ * A section is an ordered heading + body with an optional image, laid out one of
+ * four ways. `key` is the anchor used for links, and it is unique per product so
+ * a section can be linked to directly. `isActive` parks a block without deleting
+ * it, matching the gallery: undoing a reorder should not mean retyping content.
+ */
+export const productSections = pgTable(
+  "product_sections",
+  {
+    id: serial("id").primaryKey(),
+    productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+    /** Anchor for `#key`. Unique per product; derived from the title when blank. */
+    key: text("key").notNull(),
+    /** Small line above the heading, e.g. "Installation". */
+    eyebrow: text("eyebrow"),
+    title: text("title").notNull(),
+    body: text("body"),
+    /** text | image-left | image-right | image-top */
+    layout: text("layout").default("text").notNull(),
+    /** May be a `public/` path or a media-host URL; null renders text only. */
+    imageUrl: text("image_url"),
+    /** Set only for a real upload, so the pruner never deletes a repository file. */
+    imagePublicId: text("image_public_id"),
+    altText: text("alt_text"),
+    ctaLabel: text("cta_label"),
+    ctaHref: text("cta_href"),
+    isActive: boolean("is_active").default(true).notNull(),
     displayOrder: integer("display_order").default(0).notNull(),
     ...timestamps,
   },
   (table) => [
-    uniqueIndex("product_gallery_slot_unique").on(table.productId, table.slot),
-    index("product_gallery_product_idx").on(table.productId),
+    index("product_sections_product_idx").on(table.productId),
+    uniqueIndex("product_sections_key_unique").on(table.productId, table.key),
   ],
 );
 
@@ -193,8 +281,25 @@ export const productFeatures = pgTable("product_features", {
   id: serial("id").primaryKey(),
   productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
   title: text("title").notNull(),
+  /**
+   * The one-line promise shown on the feature card.
+   *
+   * A card that has to carry both a headline and a full explanation ends up
+   * with a headline that is really a paragraph, so the two are stored
+   * separately: `shortDescription` is what appears next to the icon, and
+   * `description` is the fuller text shown when the card is expanded. `description`
+   * was previously the only field, so an editor who wrote a long explanation had
+   * nowhere to put a short one and every card read at the same length.
+   */
+  shortDescription: text("short_description"),
   description: text("description").notNull(),
   icon: text("icon").default("CheckCircle2"),
+  /**
+   * Parks a feature without deleting it. Removing a feature card that an editor
+   * had just written because it was not ready yet meant retyping it, so hiding
+   * is now the reversible option and deletion is the deliberate one.
+   */
+  isActive: boolean("is_active").default(true).notNull(),
   displayOrder: integer("display_order").default(0).notNull(),
 });
 
@@ -203,6 +308,18 @@ export const productSpecifications = pgTable("product_specifications", {
   productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
   specificationName: text("specification_name").notNull(),
   specificationValue: text("specification_value").notNull(),
+  /**
+   * Rendered next to the value, e.g. `mm`, `kg`, `m`.
+   *
+   * Kept separate from `specificationValue` so the renderer can style a unit
+   * differently from the value and so sorting or comparing values is not
+   * defeated by a unit baked into a free-text string.
+   */
+  unit: text("unit"),
+  /** Optional supporting line shown under the row. */
+  description: text("description"),
+  /** Parks a row without deleting it, matching the gallery and the features. */
+  isActive: boolean("is_active").default(true).notNull(),
   displayOrder: integer("display_order").default(0).notNull(),
 });
 
@@ -837,6 +954,16 @@ export const productRelatedProducts = pgTable(
     id: serial("id").primaryKey(),
     productId: integer("product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
     relatedProductId: integer("related_product_id").references(() => products.id, { onDelete: "cascade" }).notNull(),
+    /**
+     * Parks a cross-sell link without removing it.
+     *
+     * Related products are seasonal: a product that pairs well during a project
+     * may not for the next one, and dropping the row entirely loses the ordering
+     * the editor chose. Hidden rows are filtered out of the published payload,
+     * so the relationship disappears from the page but is one click away in the
+     * admin.
+     */
+    isActive: boolean("is_active").default(true).notNull(),
     displayOrder: integer("display_order").default(0).notNull(),
   },
   (table) => [

@@ -1,6 +1,42 @@
 import { z } from "zod";
 import { isValidPhone } from "./contact-format";
-import { productGallerySlotKeys } from "./product-gallery-slots";
+import { isStorableImageUrl } from "./public-asset-paths";
+
+/**
+ * An image field on a product.
+ *
+ * This accepts two things and rejects everything else:
+ *
+ *  - an absolute `https://` URL, which is what an upload to the media host
+ *    returns, and
+ *  - a site-relative path into `public/`, which is how the product photographs
+ *    that already ship with the site are addressed — `/LOCKERS/abc.jpg`.
+ *
+ * The second form used to be rejected, which was the single reason the real
+ * product photography could not be managed from the admin at all: the editor
+ * could see the files on disk but every attempt to save one failed validation,
+ * and the only way to get a product image into the CMS was to upload it again to
+ * a CDN. A file that is already in the repository is stable, costs nothing to
+ * serve and cannot expire, so it is a first-class way to point at an image.
+ *
+ * `javascript:` and protocol-relative values are excluded, and an empty value
+ * is allowed on the optional fields so "no image" stays expressible.
+ */
+const productImageUrl = z
+  .string()
+  .trim()
+  .refine((value) => value === "" || isStorableImageUrl(value), {
+    message: "Enter a full image URL or a path such as /products/racks/photo.jpg",
+  });
+
+/** The same rule for a field where an image is mandatory. */
+const requiredProductImageUrl = z
+  .string()
+  .trim()
+  .min(1, "Add an image")
+  .refine((value) => isStorableImageUrl(value), {
+    message: "Enter a full image URL or a path such as /products/racks/photo.jpg",
+  });
 
 /**
  * A failure whose message was written for the person filling in the admin form.
@@ -59,23 +95,37 @@ export const inquirySchema = z.object({
 });
 export const contactSchema = z.object({ name: z.string().trim().min(2).max(100), email: z.email(), phone: z.string().trim().max(30).optional(), company: z.string().trim().max(150).optional(), subject: z.string().trim().min(3).max(200), message: z.string().trim().min(10).max(3000), website: z.string().max(0).optional() });
 export const newsletterSchema = z.object({ email: z.email(), website: z.string().max(0).optional() });
-export const productAdminSchema = z.object({ name: z.string().min(2).max(160), slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), shortDescription: z.string().min(10).max(500), description: z.string().min(20), longDescription: z.string().nullable().optional(), category: z.string().min(2), featured: z.boolean().default(false), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), displayOrder: z.coerce.number().int().default(0), heroImage: z.url().nullable().optional().or(z.literal("")), heroImagePublicId: z.string().nullable().optional().or(z.literal("")), thumbnail: z.url().nullable().optional().or(z.literal("")), thumbnailPublicId: z.string().nullable().optional().or(z.literal("")), heroTitle: z.string().nullable().optional(), heroDescription: z.string().nullable().optional(), specHighlights: z.array(z.string()).default([]), technicalImage: z.url().nullable().optional().or(z.literal("")), technicalImagePublicId: z.string().nullable().optional().or(z.literal("")), technicalDescription: z.string().nullable().optional(), technicalEnabled: z.boolean().default(false),
+export const productAdminSchema = z.object({ name: z.string().min(2).max(160), slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), shortDescription: z.string().min(10).max(500), description: z.string().min(20), longDescription: z.string().nullable().optional(), category: z.string().min(2), featured: z.boolean().default(false), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), displayOrder: z.coerce.number().int().default(0), heroImage: productImageUrl.nullable().optional().or(z.literal("")), heroImagePublicId: z.string().nullable().optional().or(z.literal("")), thumbnail: productImageUrl.nullable().optional().or(z.literal("")), thumbnailPublicId: z.string().nullable().optional().or(z.literal("")), heroTitle: z.string().nullable().optional(), heroDescription: z.string().nullable().optional(), specHighlights: z.array(z.string()).default([]), technicalImage: productImageUrl.nullable().optional().or(z.literal("")), technicalImagePublicId: z.string().nullable().optional().or(z.literal("")), technicalDescription: z.string().nullable().optional(), technicalEnabled: z.boolean().default(false),
   showGallery: z.boolean().default(true), showFeatures: z.boolean().default(true), showSpecifications: z.boolean().default(true), showConfigurations: z.boolean().default(true), showApplications: z.boolean().default(true), showStoredMaterials: z.boolean().default(true), showStories: z.boolean().default(true), showWorkflow: z.boolean().default(true), showBenefits: z.boolean().default(true), showComponents: z.boolean().default(true), showFaq: z.boolean().default(true), showRelated: z.boolean().default(true),
-  metaTitle: z.string().max(70).nullable().optional(), metaDescription: z.string().max(180).nullable().optional(), keywords: z.string().nullable().optional(), focusKeyword: z.string().nullable().optional(), ogTitle: z.string().nullable().optional(), ogDescription: z.string().nullable().optional(), ogImage: z.url().nullable().optional().or(z.literal("")), canonicalUrl: z.string().nullable().optional(), robotsIndex: z.boolean().default(true),
+  metaTitle: z.string().max(70).nullable().optional(), metaDescription: z.string().max(180).nullable().optional(), keywords: z.string().nullable().optional(), focusKeyword: z.string().nullable().optional(), ogTitle: z.string().nullable().optional(), ogDescription: z.string().nullable().optional(), ogImage: productImageUrl.nullable().optional().or(z.literal("")), canonicalUrl: z.string().nullable().optional(), robotsIndex: z.boolean().default(true),
   galleryHeading: z.string().max(160).nullable().optional(), featuresHeading: z.string().max(160).nullable().optional(), overviewHeading: z.string().max(160).nullable().optional(), overviewBody: z.string().max(4000).nullable().optional(), applicationsHeading: z.string().max(160).nullable().optional(), applicationsIntro: z.string().max(600).nullable().optional(),
   ctaTitle: z.string().max(160).nullable().optional(), ctaSubtitle: z.string().max(600).nullable().optional(),
   primaryCtaLabel: z.string().max(80).nullable().optional(), primaryCtaHref: z.string().max(300).nullable().optional(), secondaryCtaLabel: z.string().max(80).nullable().optional(), secondaryCtaHref: z.string().max(300).nullable().optional(),
   /**
-   * The six-slot gallery. Slots are validated against the shared definition so
-   * an unknown or duplicated slot is rejected here rather than silently dropped
-   * by the database unique index, and a slot is only kept when it actually has
-   * an image — an empty slot means "no photo for this view", not "no image".
+   * The product gallery, as a free ordered list.
+   *
+   * This used to be six named slots validated against a closed key set, with a
+   * refinement rejecting a repeated slot. Both are gone: a product may have any
+   * number of images, and the order is simply the order they appear in this
+   * array. `slot` survives as optional legacy provenance so a row written by the
+   * six-slot release still round-trips, but it no longer gates anything.
+   *
+   * `isActive` lets an editor hide an image without deleting it, so a parked
+   * photo keeps its asset and its caption. `isPrimary` is the explicit choice
+   * of which image leads the product: the first active row is used when no row
+   * claims the flag, so a payload that predates the field still behaves.
+   *
+   * `imageUrl` may be a `public/` path, which is how the product photographs
+   * that already ship with the site are stored. `cloudinaryPublicId` is only
+   * ever set for a real upload, and the upload pruner skips any row without
+   * one — a file in this repository must never be deleted because a row that
+   * referenced it was removed from the CMS.
    */
-  gallery: z.array(z.object({ slot: z.enum(productGallerySlotKeys as [string, ...string[]]), imageUrl: z.url(), label: z.string().max(120).nullable().optional(), altText: z.string().min(2).max(240), caption: z.string().max(240).nullable().optional(), cloudinaryPublicId: z.string().max(300).nullable().optional(), width: z.coerce.number().int().positive().nullable().optional(), height: z.coerce.number().int().positive().nullable().optional() })).default([]).refine((items) => new Set(items.map((item) => item.slot)).size === items.length, { message: "Each gallery slot can only be used once." }),
+  gallery: z.array(z.object({ slot: z.string().max(60).nullable().optional(), imageUrl: requiredProductImageUrl, label: z.string().max(120).nullable().optional(), altText: z.string().min(2).max(240), caption: z.string().max(240).nullable().optional(), cloudinaryPublicId: z.string().max(300).nullable().optional(), width: z.coerce.number().int().positive().nullable().optional(), height: z.coerce.number().int().positive().nullable().optional(), isActive: z.boolean().default(true), isPrimary: z.boolean().default(false) })).default([]).refine((items) => new Set(items.map((item) => item.imageUrl)).size === items.length, { message: "The same image cannot be added to a gallery twice." }),
   features: z.array(z.object({ title: z.string().min(1), description: z.string().min(1), icon: z.string().nullable().optional() })).default([]),
   specifications: z.array(z.object({ specificationName: z.string().min(1), specificationValue: z.string().min(1) })).default([]),
   applications: z.array(z.object({ title: z.string().min(1), description: z.string().nullable().optional(), image: z.string().nullable().optional(), imagePublicId: z.string().nullable().optional(), altText: z.string().nullable().optional() })).default([]),
-  images: z.array(z.object({ imageUrl: z.url(), altText: z.string().min(2), caption: z.string().nullable().optional() })).default([]),
+  images: z.array(z.object({ imageUrl: requiredProductImageUrl, altText: z.string().min(2), caption: z.string().nullable().optional() })).default([]),
   benefits: z.array(z.object({ title: z.string().min(1), description: z.string().min(1) })).default([]),
   components: z.array(z.object({ title: z.string().min(1), description: z.string().min(1), image: z.string().nullable().optional(), imagePublicId: z.string().nullable().optional(), altText: z.string().nullable().optional() })).default([]),
   configurations: z.array(z.object({ title: z.string().min(1), description: z.string().min(1), image: z.string().nullable().optional(), imagePublicId: z.string().nullable().optional(), altText: z.string().nullable().optional() })).default([]),
@@ -86,6 +136,44 @@ export const productAdminSchema = z.object({ name: z.string().min(2).max(160), s
   industryIds: z.array(z.coerce.number().int().positive()).default([]),
   projectIds: z.array(z.coerce.number().int().positive()).default([]),
   faqs: z.array(z.object({ question: z.string().min(3), answer: z.string().min(3) })).default([]),
+  /**
+   * Free-form content blocks, rendered after the structured sections.
+   *
+   * Everything above this list is a fixed, purpose-built section: a gallery, a
+   * specification table, a benefits grid. Those are the right shape for the
+   * things the business always needs, but they cannot express a one-off block —
+   * an installation note, a compliance paragraph, a second call to action — so
+   * those had nowhere to live and the only option was editing a fixed section
+   * and hoping it still applied to every other product.
+   *
+   * A section is therefore an arbitrary number of ordered blocks with a heading,
+   * a body, an optional image and a layout. `key` is a stable anchor derived
+   * from the heading when the editor does not supply one, so a link to a section
+   * survives a rename of the body copy. `isActive` parks a block without
+   * deleting it. There is no upper limit, and the order is the order they appear
+   * in this array.
+   */
+  sections: z
+    .array(
+      z.object({
+        key: z.string().trim().max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).nullable().optional(),
+        eyebrow: z.string().trim().max(120).nullable().optional(),
+        title: z.string().trim().min(1).max(200),
+        body: z.string().trim().max(6000).nullable().optional(),
+        layout: z.enum(["text", "image-left", "image-right", "image-top"]).default("text"),
+        imageUrl: productImageUrl.nullable().optional().or(z.literal("")),
+        imagePublicId: z.string().trim().max(300).nullable().optional(),
+        altText: z.string().trim().max(240).nullable().optional(),
+        ctaLabel: z.string().trim().max(80).nullable().optional(),
+        ctaHref: z.string().trim().max(300).nullable().optional(),
+        isActive: z.boolean().default(true),
+      }),
+    )
+    .default([])
+    .refine(
+      (items) => new Set(items.map((item, index) => item.key || String(index))).size === items.length,
+      { message: "Each content section needs its own key." },
+    ),
 });
 export const genericContentSchema = z.record(z.string(), z.unknown());
 export const clientLogoAdminSchema = z.object({

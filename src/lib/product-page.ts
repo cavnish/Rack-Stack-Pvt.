@@ -97,6 +97,15 @@ export type ProductPageProduct = {
   longDescription: string | null;
   heroImage: string | null;
   thumbnail: string | null;
+  /**
+   * The admin-managed gallery, active rows only, in editor order.
+   *
+   * This is the list the product page renders as its gallery and the head of
+   * which is the product's main image. It is empty for catalogue products,
+   * which have no CMS record, and for a CMS product whose editor has not added
+   * any images yet.
+   */
+  gallery: ProductPageImage[];
   images: ProductPageImage[];
   features: ProductPageFeature[];
   specifications: ProductPageSpecification[];
@@ -226,6 +235,7 @@ export function adaptCatalogueProduct(product: CatalogueProduct, relatedProducts
     longDescription: product.longDescription,
     heroImage: firstImage,
     thumbnail: firstImage,
+    gallery: [],
     images: sourceImages.map((image, index) => ({
       id: image.id,
       imageUrl: image.imageUrl,
@@ -273,35 +283,68 @@ export function adaptCatalogueProduct(product: CatalogueProduct, relatedProducts
 /**
  * Image #1 for a product — the single definition of a product's primary image.
  *
- * A product's images live in one ordered list: the media assets in its product
- * folder first, then the images on its record. The product page renders the head
- * of that list as the primary image, and the homepage card asks this function for
- * the same value, so the two cannot drift apart.
+ * A product's images live in one ordered list: the admin-managed gallery first,
+ * then the images on its record, then — only for a product with neither — the
+ * media assets in its product folder. The product page renders the head of that
+ * list as the primary image, and the homepage card asks this function for the
+ * same value, so the two cannot drift apart.
  *
- * The list is ordered by `sortOrder` on the images table, so reordering a
- * product's gallery in the admin changes image #1 on the product page and on the
- * homepage card at the same time. `heroImage`/`thumbnail` are consulted only once
- * a product has no images at all.
+ * `gallery` leads deliberately. It is the list an editor reorders in the admin,
+ * so moving an image to the top must move the main image on the hero, the card
+ * and the homepage at the same time — which is only true if that list is
+ * consulted first. `product_images` is the older, narrower list kept for
+ * compatibility, and `folderImages` is a last resort that keeps a product with
+ * no CMS images from rendering a blank card.
+ *
+ * `heroImage`/`thumbnail` are consulted before `folderImages` for the same
+ * reason: an explicit column is a deliberate choice, a scanned folder is not.
  */
 export function getPrimaryProductImage(
   product: {
     heroImage?: string | null;
     thumbnail?: string | null;
     images?: readonly { imageUrl?: string | null }[] | null;
+    gallery?: readonly { imageUrl?: string | null }[] | null;
   },
   folderImages: readonly { imageUrl?: string | null }[] = [],
 ): string {
-  const ordered = [...folderImages, ...(product.images ?? [])];
+  const ordered = [...(product.gallery ?? []), ...(product.images ?? [])];
   for (const image of ordered) {
     const url = typeof image?.imageUrl === "string" ? image.imageUrl.trim() : "";
     if (url) return url;
   }
   const hero = typeof product.heroImage === "string" ? product.heroImage.trim() : "";
   if (hero) return hero;
-  return typeof product.thumbnail === "string" ? product.thumbnail.trim() : "";
+  const thumbnail = typeof product.thumbnail === "string" ? product.thumbnail.trim() : "";
+  if (thumbnail) return thumbnail;
+  for (const image of folderImages) {
+    const url = typeof image?.imageUrl === "string" ? image.imageUrl.trim() : "";
+    if (url) return url;
+  }
+  return "";
+}
+
+/**
+ * The admin-managed gallery as renderable images.
+ *
+ * Only active rows reach the page, and `displayOrder` — which is the position
+ * the editor arranged them in — is the order they appear in. A row is dropped
+ * only if it has no URL, which cannot happen for a stored row but guards a
+ * half-filled row an editor has typed into and not yet uploaded.
+ */
+function toGalleryImages(rows: LegacyProductDetail["gallery"]): ProductPageImage[] {
+  return rows
+    .filter((row) => row.isActive !== false && row.imageUrl.trim())
+    .map((row) => ({
+      id: row.id,
+      imageUrl: row.imageUrl,
+      altText: row.altText,
+      caption: row.caption,
+    }));
 }
 
 export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages: ProductPageImage[] = []): ProductPageProduct {
+  const gallery = toGalleryImages(product.gallery);
   const sourceImages: ProductPageImage[] = [
     ...folderImages,
     ...product.images.map((image) => ({
@@ -311,7 +354,7 @@ export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages:
       caption: image.caption,
     })),
   ];
-  const firstImage = getPrimaryProductImage(product, folderImages);
+  const firstImage = getPrimaryProductImage({ ...product, gallery }, folderImages);
   return {
     id: product.id,
     name: product.name,
@@ -329,6 +372,7 @@ export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages:
     longDescription: product.longDescription,
     heroImage: firstImage,
     thumbnail: firstImage,
+    gallery,
     images: sourceImages.map((image) => ({
       id: image.id,
       imageUrl: image.imageUrl,

@@ -77,43 +77,77 @@ function iconFor(name?: string | null): LucideIcon {
   return ShieldCheck;
 }
 
+/**
+ * The slides the product hero shows, in the order the editor arranged them.
+ *
+ * This used to return exactly six images: it walked a fixed list of six named
+ * slots and pulled `product.images[idx]` into each one, so a seventh uploaded
+ * image was stored, published and then silently dropped here, and every caption
+ * was a hardcoded slot label rather than anything an editor had written. The
+ * admin could add a photo and the page would not show it.
+ *
+ * The order of preference is now:
+ *
+ *  1. the admin-managed gallery, active rows only, in editor order — every row
+ *     renders, there is no cap, and each keeps its own alt text and caption;
+ *  2. `product.images`, which for a CMS product is its `product_images` rows
+ *     followed by the assets in its product folder, and for a catalogue product
+ *     is that folder plus the catalogue's own images;
+ *  3. the hero image on its own, so a product with a hero but no gallery still
+ *     has something to show;
+ *  4. a stock placeholder, only when the product genuinely has no imagery at all.
+ *
+ * Only the last case invents an image, so a real photo is never overwritten by a
+ * placeholder and a real caption is never replaced by a slot label.
+ */
 export function getProductCuratedImages(product: ProductDetail) {
-  const defaultSlots = [
-    { label: "Warehouse Installation", alt: `Warehouse installation of ${product.name}`, url: "https://images.pexels.com/photos/1797415/pexels-photo-1797415.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
-    { label: "Close-Up View", alt: `Close-up view of ${product.name}`, url: "https://images.pexels.com/photos/36126305/pexels-photo-36126305.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
-    { label: "Many Configurations", alt: `Multiple configurations of ${product.name}`, url: "https://images.pexels.com/photos/4170172/pexels-photo-4170172.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
-    { label: "Heavy Load Storage", alt: `Heavy load storage using ${product.name}`, url: "https://images.pexels.com/photos/4483610/pexels-photo-4483610.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
-    { label: "Organized Storage", alt: `Organized warehouse storage with ${product.name}`, url: "https://images.pexels.com/photos/36126272/pexels-photo-36126272.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
-    { label: "In Operation", alt: `${product.name} in operation inside warehouse`, url: "https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600" },
-  ];
+  const managed = product.gallery ?? [];
+  if (managed.length > 0) {
+    return managed.map((image) => ({
+      id: image.id,
+      imageUrl: image.imageUrl,
+      altText: image.altText || `${product.name} product image`,
+      caption: image.caption,
+      label: image.caption ?? "",
+    }));
+  }
 
-  return defaultSlots.map((slot, idx) => {
-    if (product.images[idx]?.imageUrl.trim()) {
-      return {
-        id: product.images[idx].id,
-        imageUrl: product.images[idx].imageUrl,
-        altText: product.images[idx].altText || slot.alt,
-        caption: slot.label,
-        label: slot.label,
-      };
-    }
-    if (idx === 0 && (product.heroImage || product.thumbnail)) {
-      return {
+  const images = (product.images ?? []).filter((image) => image.imageUrl?.trim());
+  if (images.length > 0) {
+    return images.map((image) => ({
+      id: image.id,
+      imageUrl: image.imageUrl,
+      altText: image.altText || `${product.name} product image`,
+      caption: image.caption,
+      label: image.caption ?? "",
+    }));
+  }
+
+  const hero = (product.heroImage || product.thumbnail || "").trim();
+  if (hero) {
+    return [
+      {
         id: -1,
-        imageUrl: product.heroImage || product.thumbnail || slot.url,
+        imageUrl: hero,
         altText: `${product.name} overview`,
-        caption: slot.label,
-        label: slot.label,
-      };
-    }
-    return {
-      id: 1000 + idx,
-      imageUrl: localAssetFor(slot.url, "products") ?? slot.url,
-      altText: slot.alt,
-      caption: slot.label,
-      label: slot.label,
-    };
-  });
+        caption: null,
+        label: "",
+      },
+    ];
+  }
+
+  // No imagery anywhere: one stock frame, so the gallery component still renders
+  // its chrome and the page keeps its layout instead of collapsing.
+  const placeholder = "https://images.pexels.com/photos/1797415/pexels-photo-1797415.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600";
+  return [
+    {
+      id: -1,
+      imageUrl: localAssetFor(placeholder, "products") ?? placeholder,
+      altText: `${product.name} storage system`,
+      caption: null,
+      label: "",
+    },
+  ];
 }
 
 export function getProductKeyFeatures(product: ProductDetail) {
@@ -306,7 +340,7 @@ export function FeaturesSection({
         </div>
 
         {/* 6 Key Feature Cards Grid */}
-        <div className="mt-10 sm:mt-12 grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 sm:mt-10 grid gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
           {featureList.map((item, index) => {
             const Icon = item.icon || iconFor(item.title);
             return (
@@ -318,7 +352,7 @@ export function FeaturesSection({
                   <div className="min-w-0">
                     <h3 className="text-base sm:text-lg font-bold text-zinc-900">{item.title}</h3>
                     {item.description && (
-                      <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-zinc-500">
+                      <p className="mt-2 text-xs sm:text-sm leading-relaxed text-zinc-500">
                         {item.description}
                       </p>
                     )}
@@ -329,12 +363,12 @@ export function FeaturesSection({
           })}
         </div>
 
-        {/* 6 Visual Showcase Photo Cards directly below feature cards */}
+        {/* A fixed six-up strip below the feature cards. */}
         {showcasePhotos.length > 0 ? (
           <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-            {showcasePhotos.map((photo, i) => (
+            {showcasePhotos.slice(0, 6).map((photo, i) => (
               <div
-                key={`${photo.label}-${i}`}
+                key={`${photo.id}-${i}`}
                 className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 shadow-sm"
               >
                 <SmartImage
@@ -346,9 +380,11 @@ export function FeaturesSection({
 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                <span className="absolute bottom-2.5 left-2.5 right-2.5 text-xs font-semibold text-white drop-shadow">
-                  {photo.label}
-                </span>
+                {photo.label ? (
+                  <span className="absolute bottom-2.5 left-2.5 right-2.5 text-xs font-semibold text-white drop-shadow">
+                    {photo.label}
+                  </span>
+                ) : null}
               </div>
             ))}
           </div>
@@ -362,10 +398,10 @@ export function ProductShowcaseSection({ product }: { product: ProductDetail }) 
   const showcaseImages = product.images.filter((image) => image.imageUrl.trim().length > 0);
   if (!showcaseImages.length) return null;
   return (
-    <section className="py-24">
+    <section className="py-16">
       <div className="container-shell">
         <SectionHeading eyebrow="Product photos" title="See the System Up Close" description="See the system installed, loaded and in detail." align="center" />
-        <div className="mt-12">
+        <div className="mt-8">
           <ProductShowcase images={showcaseImages} />
         </div>
       </div>
@@ -378,12 +414,12 @@ export function OverviewSection({ product }: { product: ProductDetail }) {
   if (!body) return null;
   const overviewImage = product.thumbnail || product.images[0]?.imageUrl;
   return (
-    <section className="py-24">
-      <div className="container-shell grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+    <section className="py-16">
+      <div className="container-shell grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
         <div>
           <FitHeading className="section-heading text-balance">Built for Efficient Storage</FitHeading>
-          <p className="section-description mt-5 text-zinc-700">{body}</p>
-          <p className="mt-6 flex items-start gap-3 text-sm leading-7 text-zinc-500"><Ruler size={17} className="mt-0.5 shrink-0 text-red-600" />Final sizes, loads and engineering are confirmed against your layout and project proposal.</p>
+          <p className="section-description mt-3 text-zinc-700">{body}</p>
+          <p className="mt-4 flex items-start gap-3 text-sm leading-7 text-zinc-500"><Ruler size={17} className="mt-0.5 shrink-0 text-red-600" />Final sizes, loads and engineering are confirmed against your layout and project proposal.</p>
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-200">
           {overviewImage ? <SmartImage src={optimizeImage(overviewImage, 1300)} alt={product.name} fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" /> : <div className="absolute inset-0 grid place-items-center bg-zinc-900 text-zinc-600"><Layers size={50} /></div>}
@@ -400,7 +436,7 @@ export function TechnicalSpecificationsSection({ product }: { product: ProductDe
     <section id="specifications" className="border-y border-zinc-200 bg-white py-14 lg:py-20">
       <div className="container-shell">
         {/* Header */}
-        <div className="mb-10 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-8 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <FitHeading className="section-heading">
               Specifications at a Glance
@@ -518,12 +554,12 @@ export function ApplicationsSection({ items, product }: { items: ProductDetail["
           <FitHeading className="section-heading text-balance">
             Where It&apos;s Used
           </FitHeading>
-          <p className="section-description mt-5 mx-auto text-zinc-500">
+          <p className="section-description mt-3 mx-auto text-zinc-500">
             Common places where this storage system is installed and used every day.
           </p>
         </div>
         {items.length ? (
-          <div className="mt-10 sm:mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((app) => {
               const title = app.title || app.application;
               const desc = app.description || "";
@@ -542,7 +578,7 @@ export function ApplicationsSection({ items, product }: { items: ProductDetail["
                     <span className="absolute bottom-3 left-4 text-sm font-bold text-white drop-shadow-sm">{title}</span>
                   </div>
                   {desc && (
-                    <div className="p-5">
+                    <div className="p-4">
                       <p className="text-sm leading-6 text-zinc-600">{desc}</p>
                     </div>
                   )}
@@ -552,7 +588,7 @@ export function ApplicationsSection({ items, product }: { items: ProductDetail["
           </div>
         ) : null}
         {product?.industries.length ? (
-          <div className="mt-12 border-t border-zinc-300 pt-8">
+          <div className="mt-8 border-t border-zinc-300 pt-6">
             <h3 className="text-lg font-bold text-zinc-900">Industries Served</h3>
             <div className="mt-5 flex flex-wrap gap-2">
               {product.industries.map((industry) => (
@@ -572,18 +608,18 @@ export function BenefitsSection({ items }: { items: ProductDetail["benefits"] })
     <section className="py-24">
       <div className="container-shell">
         <SectionHeading eyebrow="Benefits" title="Practical Benefits for Your Team" description="Real advantages for operators, supervisors and managers." />
-        <div className="mt-12 grid gap-px bg-zinc-300 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-px bg-zinc-300 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item, i) => {
             const Icon = iconFor(item.title);
             return (
-              <article key={item.id} className="min-h-60 bg-white p-7">
-                <div className="flex items-center justify-between">
-                  <span className="grid h-11 w-11 place-items-center bg-red-600 text-white"><Icon size={20} /></span>
-                  <span className="text-xs font-bold text-zinc-300">0{i + 1}</span>
-                </div>
-                <h3 className="card-title mt-6">{item.title}</h3>
-                {item.description && <p className="mt-3 text-sm leading-6 text-zinc-500">{item.description}</p>}
-              </article>
+<article key={item.id} className="bg-white p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="grid h-9 w-9 place-items-center bg-red-600 text-white"><Icon size={18} /></span>
+                    <span className="text-xs font-bold text-zinc-300">0{i + 1}</span>
+                  </div>
+                  <h3 className="card-title mt-2">{item.title}</h3>
+                  {item.description && <p className="mt-2 text-sm leading-6 text-zinc-500">{item.description}</p>}
+                </article>
             );
           })}
         </div>
@@ -622,7 +658,7 @@ export function RealWorldSection({ projects, images }: { projects: ProductDetail
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/45 via-transparent to-transparent" />
                   <span className="absolute left-4 top-4 bg-red-600 px-2.5 py-1 text-[.6rem] font-bold uppercase tracking-[.14em] text-white">{project.industry || "Project"}</span>
                 </div>
-                <div className="p-6">
+                <div className="p-4">
                   <h3 className="card-title transition-colors group-hover:text-red-600">{project.title}</h3>
                   {project.description && <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">{project.description}</p>}
                   <p className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.14em] transition-colors group-hover:text-red-600">View Project <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></p>
@@ -647,12 +683,12 @@ export function RealWorldSection({ projects, images }: { projects: ProductDetail
 export function FaqSection({ items }: { items: ProductDetail["faqs"] }) {
   if (!items.length) return null;
   return (
-    <section className="py-24">
-      <div className="container-shell grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
+    <section className="py-16">
+      <div className="container-shell grid gap-10 lg:grid-cols-[.7fr_1.3fr]">
         <div>
           <SectionHeading compact eyebrow="FAQs" title="Questions We Hear Often" />
-          <p className="mt-6 text-sm leading-7 text-zinc-500">Anything not covered here will be answered in your proposal — or by our team.</p>
-          <Link href="/contact" className="btn-secondary mt-8">Talk to Our Team <ArrowRight size={16} /></Link>
+          <p className="mt-4 text-sm leading-7 text-zinc-500">Anything not covered here will be answered in your proposal — or by our team.</p>
+          <Link href="/contact" className="btn-secondary mt-6">Talk to Our Team <ArrowRight size={16} /></Link>
         </div>
         <FAQ items={items} />
       </div>
@@ -679,10 +715,10 @@ export async function RelatedSection({ items }: { items: ProductDetail["related"
   if (!items.length) return null;
   const images = await getRelatedProductImages(items);
   return (
-    <section className="border-t border-zinc-200 bg-[#f4f4f1] py-24">
+    <section className="border-t border-zinc-200 bg-[#f4f4f1] py-16">
       <div className="container-shell">
         <SectionHeading compact singleLine title="Related Storage Systems" description="Other systems that work well alongside this one." />
-        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item, i) => (
             <ProductCard
               key={item.id}

@@ -36,15 +36,15 @@ export function CatalogueProductCard({ product }: CatalogueProductCardProps) {
           </span>
         ) : null}
       </Link>
-      <div className="flex grow flex-col p-6">
+      <div className="flex grow flex-col p-4 sm:p-5">
         <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-red-600">{productType}</p>
-        <h2 className="card-title mt-3 text-balance">
+        <h2 className="card-title mt-2 text-balance">
           <Link href={href} className="transition-colors hover:text-red-600">
             {product.name}
           </Link>
         </h2>
-        <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-600">{product.shortDescription}</p>
-        <div className="mt-auto flex flex-col gap-3 border-t border-zinc-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-600">{product.shortDescription}</p>
+        <div className="mt-4 flex flex-col gap-2 border-t border-zinc-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
           <QuoteButton product={product} label="Request Quote" className="btn-primary w-full sm:w-auto" />
           <Link
             href={href}

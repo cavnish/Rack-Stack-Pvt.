@@ -12,7 +12,7 @@ import { CTASection } from "@/components/site/ui";
 export default function SiteNotFound() {
   return (
     <main>
-      <section className="bg-zinc-950 py-24 text-white">
+      <section className="bg-zinc-950 py-14 text-white">
         <div className="container-shell max-w-3xl">
           <p className="eyebrow text-red-400">Error 404</p>
           <h1 className="hero-heading mt-5">Page Not Found</h1>

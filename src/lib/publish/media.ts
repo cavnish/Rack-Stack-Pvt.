@@ -136,16 +136,30 @@ async function readLocalFile(absolutePath: string) {
   };
 }
 
+/**
+ * Delivery URL for a Cloudinary original, narrowed to the width the group needs.
+ *
+ * Only the part *after* `/upload/` is rebuilt. Everything before it identifies
+ * the account and the resource type — `https://res.cloudinary.com/<cloud_name>
+ * /image/upload/...` — and assigning a bare `/upload/...` pathname drops both,
+ * which produces a URL Cloudinary answers with 404. That failure is silent from
+ * the caller's point of view: the download throws, `cacheImage` returns null and
+ * the record publishes without an image even though the asset is perfectly
+ * fine. Any existing transformation segments (`f_auto`, `w_1200`, `v<version>`)
+ * are stripped so a size variant resolves to the same underlying photo.
+ */
 function buildFetchUrl(source: string, limitWidth: number) {
   try {
     const url = new URL(source);
-    if (url.hostname.endsWith("res.cloudinary.com") && url.pathname.includes("/upload/")) {
-      const [, afterUpload] = url.pathname.split("/upload/");
+    const uploadAt = url.pathname.indexOf("/upload/");
+    if (url.hostname.endsWith("res.cloudinary.com") && uploadAt !== -1) {
+      const prefix = url.pathname.slice(0, uploadAt);
+      const afterUpload = url.pathname.slice(uploadAt + "/upload/".length);
       const cleaned = afterUpload
         .split("/")
-        .filter((segment) => segment && !/^(f_auto|q_auto|c_limit|w_\d+|dpr_\S+|fl_\S+)$/.test(segment) && !/^v\d+$/.test(segment))
+        .filter((segment) => segment && !/^(f_auto|q_auto(:\S+)?|c_limit|w_\d+|dpr_\S+|fl_\S+)$/.test(segment) && !/^v\d+$/.test(segment))
         .join("/");
-      url.pathname = `/upload/f_jpg,q_auto:best,c_limit,w_${Math.min(limitWidth, 2000)}/${cleaned}`;
+      url.pathname = `${prefix}/upload/f_jpg,q_auto:best,c_limit,w_${Math.min(limitWidth, 2000)}/${cleaned}`;
       url.search = "";
       return url.toString();
     }
@@ -155,17 +169,78 @@ function buildFetchUrl(source: string, limitWidth: number) {
   }
 }
 
+export type SourceProbe = { ok: boolean; status: number; bytes: number };
+
+/**
+ * Confirms a remote image URL actually serves bytes right now.
+ *
+ * Used before a record is published so a URL that no longer resolves fails the
+ * save with a readable message instead of quietly publishing an image-less
+ * page. A HEAD is tried first because it is cheap; some CDNs answer HEAD with an
+ * error while serving GET perfectly well, so a failed HEAD falls back to a
+ * one-byte ranged GET rather than being taken as proof the file is gone.
+ */
+export async function probeImageSource(source: string, timeoutMs = 10_000): Promise<SourceProbe> {
+  const attempts: Array<{ method: "HEAD" | "GET"; headers: Record<string, string> }> = [
+    { method: "HEAD", headers: {} },
+    { method: "GET", headers: { range: "bytes=0-0" } },
+  ];
+  let status = 0;
+  for (const attempt of attempts) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(source, {
+        method: attempt.method,
+        headers: attempt.headers,
+        signal: controller.signal,
+        redirect: "follow",
+      });
+      status = response.status;
+      if (!response.ok) continue;
+      let bytes = Number(response.headers.get("content-length") ?? "0");
+      if (attempt.method === "GET" && bytes === 0) {
+        const body = await response.arrayBuffer();
+        bytes = body.byteLength;
+      }
+      return { ok: bytes > 0, status: response.status, bytes };
+    } catch {
+      // A timeout or DNS failure is retried with the next method.
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return { ok: false, status, bytes: 0 };
+}
+
+/**
+ * `probeImageSource` with a second attempt, for checks that run immediately
+ * after an upload. A freshly created Cloudinary asset is normally live at once,
+ * but the CDN is not a transactional store and a save that races it would
+ * otherwise store a URL the visitor cannot load.
+ */
+export async function verifyImageSource(source: string, timeoutMs = 10_000): Promise<SourceProbe> {
+  const first = await probeImageSource(source, timeoutMs);
+  if (first.ok) return first;
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  return probeImageSource(source, timeoutMs);
+}
+
 async function download(source: string, limitWidth: number) {
+  const target = buildFetchUrl(source, limitWidth);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30_000);
   try {
-    const response = await fetch(buildFetchUrl(source, limitWidth), {
+    const response = await fetch(target, {
       signal: controller.signal,
       headers: { accept: "image/*,*/*" },
     });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    // The rewritten URL is quoted because it is the one thing that can be wrong:
+    // a malformed transformation address reports a bare "404" that looks like a
+    // missing asset and is not one.
+    if (!response.ok) throw new Error(`HTTP ${response.status} for ${target}`);
     const arrayBuffer = await response.arrayBuffer();
-    if (arrayBuffer.byteLength === 0) throw new Error("Empty response body");
+    if (arrayBuffer.byteLength === 0) throw new Error(`Empty response body from ${target}`);
     return Buffer.from(arrayBuffer);
   } finally {
     clearTimeout(timer);
@@ -175,7 +250,13 @@ async function download(source: string, limitWidth: number) {
 /**
  * Cheap revalidation for an already-cached remote asset. Cloudinary keeps the URL
  * stable when a file is overwritten, so identity alone would serve a stale image.
- * Returns false when the origin cannot be reached, which keeps the cached copy.
+ *
+ * A HEAD that *fails* must report "changed", not "unchanged": that is the case
+ * where the original has been deleted (a Cloudinary `destroy` from a replaced
+ * upload) or the account is unreachable, and keeping the copy is exactly the
+ * "site silently serves the old image" behaviour this layer exists to prevent.
+ * A HEAD that succeeds without a validator header still proves the asset is
+ * there, so the cached copy is kept rather than re-downloaded on every publish.
  */
 async function remoteUnchanged(source: string, etag: string | null) {
   if (!etag) return true;
@@ -184,14 +265,14 @@ async function remoteUnchanged(source: string, etag: string | null) {
     const timer = setTimeout(() => controller.abort(), 8000);
     try {
       const response = await fetch(source, { method: "HEAD", signal: controller.signal, redirect: "follow" });
-      if (!response.ok) return true;
+      if (!response.ok) return false;
       const current = response.headers.get("etag") ?? response.headers.get("last-modified");
       return current === etag;
     } finally {
       clearTimeout(timer);
     }
   } catch {
-    return true;
+    return false;
   }
 }
 
@@ -310,7 +391,9 @@ export async function cacheImage(source: string | null | undefined, options: Cac
     return asset;
   } catch (error) {
     // Never swallow the reason: a silent null here looks identical to "already
-    // cached" and hides broken remote URLs during publishing.
+    // cached" and hides broken remote URLs during publishing. The rewritten
+    // delivery URL is in the message, so the fault is identifiable from the log
+    // alone without re-deriving the transformation.
     console.error(
       `[media] failed to cache ${options.group}/${options.name} <- ${raw}: ${
         error instanceof Error ? error.message : String(error)

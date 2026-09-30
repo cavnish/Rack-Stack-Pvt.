@@ -26,6 +26,7 @@ export type ProductFolderImage = {
   imageUrl: string;
   altText: string;
   caption: string;
+  label: string;
 };
 
 export type ProductAssetFile = {
@@ -59,6 +60,19 @@ const nonProductFolders = new Set([
   "brand",
   "documents",
   "files",
+  // Real folders in this repository that are not a product's photography.
+  // `rack-and-stack-clients` holds the client logo set — the single largest
+  // image folder in `public/` — and `textures` holds page backgrounds. Neither
+  // is a product, so both must be excluded here; without them the discovery
+  // list reports them as products and the importer tries to attach every client
+  // logo to a product gallery.
+  "rack-and-stack-clients",
+  "clients",
+  "textures",
+  "logos",
+  "fonts",
+  "downloads",
+  "catalogue-downloads",
 ]);
 
 /**
@@ -144,6 +158,30 @@ function byNaturalName(left: string, right: string) {
 }
 
 /**
+ * Filenames that are a brand mark or a graphic rather than a photograph of the
+ * product, and so do not belong in a product gallery.
+ *
+ * `public/Mobile Compactor Storage System/` contains a `logo.png` alongside
+ * seven photographs. A brand mark in a gallery is not just a distraction — a
+ * logo has no product detail to show, and as the primary image it would put a
+ * flat graphic at the top of the product page. It is filtered here, at
+ * discovery, rather than in the import script so that the admin's image picker
+ * offers the same list the importer would have used and a logo cannot be
+ * re-added by mistake.
+ *
+ * Matched on the stem so `logo.png`, `rack-and-stack-logo.png` and
+ * `logo@2x.jpg` are all excluded, and anchored so a photograph that merely
+ * contains the word — `catalogue.jpg` is not a match, but a file genuinely
+ * called `logo.jpg` is. An editor who wants one of these on a page can still
+ * add it from the media library by URL.
+ */
+const graphicFileStem = /^(logo|logos|brand|watermark|icon|banner|thumb|thumbnail|favicon)([-_@ ].*)?$/i;
+
+function isProductPhotograph(file: string): boolean {
+  return !graphicFileStem.test(path.basename(file, path.extname(file)));
+}
+
+/**
  * The images directly inside a `public/` folder, in a stable order.
  *
  * Nothing is deleted, renamed or moved: this only reads. A missing folder yields
@@ -156,7 +194,12 @@ export function scanProductFolder(folder: string): Promise<ProductAssetFile[]> {
   const result = readdir(path.join(process.cwd(), "public", folder), { withFileTypes: true })
     .then((entries) =>
       entries
-        .filter((entry) => entry.isFile() && imageExtensions.has(path.extname(entry.name).toLowerCase()))
+        .filter(
+          (entry) =>
+            entry.isFile() &&
+            imageExtensions.has(path.extname(entry.name).toLowerCase()) &&
+            isProductPhotograph(entry.name),
+        )
         .map((entry) => entry.name)
         .sort(byNaturalName)
         .map((file) => ({ file, imageUrl: toPublicAssetUrl(folder, file) })),

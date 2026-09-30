@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { allowedImageTypes, cloudinaryClient, isCloudinaryConfigured, MAX_IMAGE_SIZE } from "@/lib/cloudinary";
+import { allowedImageTypes, cloudinaryClient, destroyRemote, isCloudinaryConfigured, MAX_IMAGE_SIZE } from "@/lib/cloudinary";
 import { db } from "@/db";
 import { media } from "@/db/schema";
 import { hasValidOrigin, rateLimit, requestKey } from "@/lib/rate-limit";
-import { logActivity } from "@/lib/logger";
-import { cacheImage, flushMediaManifest, type AssetGroup } from "@/lib/publish/media";
+import { logActivity, logServer } from "@/lib/logger";
+import { cacheImage, flushMediaManifest, verifyImageSource, type AssetGroup } from "@/lib/publish/media";
 export const runtime = "nodejs";
 
 const FOLDER_GROUPS: Array<[RegExp, AssetGroup]> = [
@@ -51,19 +51,53 @@ export async function POST(request: Request) {
       );
       stream.end(buffer);
     });
+    // The URL that goes in the database is the one Cloudinary reports. Building
+    // one by hand from the public id and folder looks equivalent and is not:
+    // `fetch_format: "auto"` makes the delivered format differ from the uploaded
+    // one, so a hand-assembled address can name a file that was never written.
+    const secureUrl = result.secure_url;
+    logServer("info", "media.cloudinary_uploaded", {
+      publicId: result.public_id,
+      secureUrl,
+      folder: `rack-stack/${folder}`,
+      bytes: result.bytes,
+      format: result.format,
+    });
+
+    // Confirm the asset actually serves bytes before anything is written. A URL
+    // that cannot be loaded must not reach a record: the record is what the
+    // publish engine downloads from, so a bad address here becomes a blank
+    // image on the site with no error anywhere in the admin.
+    const probe = await verifyImageSource(secureUrl);
+    if (!probe.ok) {
+      // The asset is unreachable, so it is an orphan by definition: nothing
+      // will ever reference it, and leaving it would fill the account with
+      // images no record points at.
+      await destroyRemote(result.public_id, "image");
+      logServer("error", "media.cloudinary_unreachable", { publicId: result.public_id, secureUrl, status: probe.status });
+      throw new Error(
+        `The image was uploaded as "${result.public_id}" but could not be read back from Cloudinary (HTTP ${
+          probe.status || "no response"
+        }). Nothing was saved — please try again.`,
+      );
+    }
+
     const fallbackAlt = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || "Uploaded image";
     // Cache the upload into the local asset library right away, so the image is
     // available as a local WebP even before it is attached to a record.
-    const localAsset = await cacheImage(result.secure_url, {
+    const localAsset = await cacheImage(secureUrl, {
       group: groupForFolder(folder),
       name: `${folder.split("/").filter(Boolean).pop() ?? "media"}-${item_slug(result.public_id)}`,
       alt: altText || fallbackAlt,
     });
+    if (!localAsset) {
+      logServer("warn", "media.local_cache_unavailable", { publicId: result.public_id, secureUrl });
+    }
     const [item] = await db
       .insert(media)
       .values({
         filename: file.name,
-        imageUrl: result.secure_url,
+        imageUrl: secureUrl,
         cloudinaryPublicId: result.public_id,
         altText: altText || fallbackAlt,
         folder,
@@ -76,7 +110,20 @@ export async function POST(request: Request) {
       .returning();
     await flushMediaManifest();
     await logActivity("IMAGE_UPLOADED", "MEDIA", item.id, user.id, { folder });
-    return NextResponse.json({ ...item, localUrl: localAsset?.url ?? null }, { status: 201 });
+    return NextResponse.json(
+      {
+        ...item,
+        // Spelled out rather than left to the media row shape: the editor binds
+        // these two names, and an upload that stored a URL under a different key
+        // would save an empty image field while reporting success.
+        imageUrl: secureUrl,
+        cloudinaryPublicId: result.public_id,
+        width: localAsset?.width ?? result.width,
+        height: localAsset?.height ?? result.height,
+        localUrl: localAsset?.url ?? null,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Upload failed" }, { status: 400 });
   }

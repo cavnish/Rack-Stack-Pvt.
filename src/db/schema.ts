@@ -115,6 +115,26 @@ export const products = pgTable(
     primaryCtaHref: text("primary_cta_href"),
     secondaryCtaLabel: text("secondary_cta_label"),
     secondaryCtaHref: text("secondary_cta_href"),
+    /**
+     * Copy for the "Recommended systems" section at the foot of the page.
+     *
+     * The section used to say "Related Storage Systems" on every product, with
+     * one fixed description. That is true of the *layout* and false of the
+     * content: what a reader wants to know on a pallet racking page is not
+     * "other systems", it is which systems work for this kind of storage. The
+     * words are stored per product so an editor can name the use — "Systems
+     * That Work for Warehousing", "…for Cold Storage" — rather than every page
+     * claiming the same relevance.
+     *
+     * All three are nullable and the defaults are applied at render time
+     * (`relatedSectionDefaults`). A product written before these columns
+     * existed therefore shows the correct copy rather than an empty heading, and
+     * the default is a function of the product's own category, so it is right
+     * for that product without anyone having to fill anything in.
+     */
+    relatedHeading: text("related_heading"),
+    relatedSubheading: text("related_subheading"),
+    relatedDescription: text("related_description"),
     metaTitle: text("meta_title"),
     metaDescription: text("meta_description"),
     keywords: text("keywords"),
@@ -333,6 +353,12 @@ export const productApplications = pgTable("product_applications", {
   imagePublicId: text("image_public_id"),
   altText: text("alt_text"),
   displayOrder: integer("display_order").default(0).notNull(),
+  /**
+   * Parks a "Where it's used" card without deleting it, so a card written ahead
+   * of its photograph can be switched off until the image exists. Every other
+   * toggleable product list already had this; applications was the exception.
+   */
+  isActive: boolean("is_active").default(true).notNull(),
 });
 
 export const productBenefits = pgTable("product_benefits", {

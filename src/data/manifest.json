@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-29T10:36:17.706Z",
+  "generatedAt": "2026-09-30T11:20:51.467Z",
   "collections": {
     "blogPosts": {
       "hash": "c0f553ffb6c41b00",
@@ -13,8 +13,8 @@
       "count": 5
     },
     "routes": {
-      "hash": "2daca771d52ae1bc",
-      "generatedAt": "2026-09-29T10:36:17.706Z",
+      "hash": "e7e89eafa4793762",
+      "generatedAt": "2026-09-30T11:20:51.467Z",
       "count": 1
     },
     "site": {
@@ -33,18 +33,18 @@
       "count": 8
     },
     "products": {
-      "hash": "67557b4713e67d4b",
-      "generatedAt": "2026-09-28T12:17:59.023Z",
-      "count": 8
+      "hash": "a3007ba818af61fa",
+      "generatedAt": "2026-09-30T11:20:51.445Z",
+      "count": 37
     },
     "industries": {
-      "hash": "2e989a79220b2b33",
-      "generatedAt": "2026-09-28T09:00:09.497Z",
+      "hash": "7872403aab6797ae",
+      "generatedAt": "2026-09-30T11:16:28.944Z",
       "count": 12
     },
     "sliders": {
-      "hash": "78ddf72c56821d8c",
-      "generatedAt": "2026-09-28T09:00:03.442Z",
+      "hash": "3719011f0ea91f95",
+      "generatedAt": "2026-09-30T07:43:01.401Z",
       "count": 3
     },
     "pages": {
@@ -83,8 +83,8 @@
       "count": 2
     },
     "homeOfferCards": {
-      "hash": "a01a107393576012",
-      "generatedAt": "2026-09-29T10:36:17.540Z",
+      "hash": "82a86246b3088637",
+      "generatedAt": "2026-09-30T10:59:52.337Z",
       "count": 9
     }
   },

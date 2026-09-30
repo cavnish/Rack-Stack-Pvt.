@@ -116,9 +116,33 @@ export type StaticProductDetail = StaticProduct & {
   stories: StaticProductStory[];
   workflows: StaticProductWorkflow[];
   faqs: StaticFaq[];
+  /**
+   * Editor-built content sections. Optional because a payload published before
+   * this existed has no such key, and the public page must keep rendering from
+   * an older file rather than treating the gap as an error.
+   */
+  sections?: StaticProductSection[];
   related: StaticProduct[];
   industries: StaticIndustry[];
   projects: StaticProject[];
+};
+
+/** One row of the `product_sections` table, as published. */
+export type StaticProductSection = {
+  id: number;
+  productId: number;
+  key: string;
+  eyebrow: string | null;
+  title: string;
+  body: string | null;
+  layout: string;
+  imageUrl: string | null;
+  imagePublicId: string | null;
+  altText: string | null;
+  ctaLabel: string | null;
+  ctaHref: string | null;
+  isActive: boolean;
+  displayOrder: number;
 };
 
 export type StaticServiceDetail = StaticService & {

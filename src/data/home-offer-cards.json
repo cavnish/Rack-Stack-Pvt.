@@ -95,8 +95,8 @@
     "slug": "mobile-compactor-storage-system",
     "title": null,
     "description": "Mobile shelving that opens a single aisle at a time and reclaims floor space.",
-    "imageUrl": null,
-    "imagePublicId": null,
+    "imageUrl": "/assets/images/misc/home-offer-cards-gapccwtzjl5ivvbaohh2-58f191fd3f.webp",
+    "imagePublicId": "rack-stack/home-offer-cards/gapccwtzjl5ivvbaohh2",
     "altText": null,
     "category": "Space Optimization",
     "href": null,
@@ -105,7 +105,7 @@
     "displayOrder": 5,
     "isActive": true,
     "createdAt": "2026-09-28T08:58:46.549Z",
-    "updatedAt": "2026-09-28T12:17:08.854Z"
+    "updatedAt": "2026-09-30T09:36:54.987Z"
   },
   {
     "id": 7,
@@ -123,7 +123,7 @@
     "displayOrder": 6,
     "isActive": true,
     "createdAt": "2026-09-28T08:58:46.612Z",
-    "updatedAt": "2026-09-28T12:17:08.993Z"
+    "updatedAt": "2026-09-30T10:06:04.593Z"
   },
   {
     "id": 8,

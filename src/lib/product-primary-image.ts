@@ -55,14 +55,15 @@ function position<T extends PrimaryCandidate>(row: T) {
   return [row.displayOrder ?? 0, typeof row.id === "number" ? row.id : 0] as const;
 }
 
-function isEarlier<T extends PrimaryCandidate>(left: T, right: T) {
+/** Orders rows the way the editor sees them. Negative when `left` comes first. */
+function compareOrder<T extends PrimaryCandidate>(left: T, right: T) {
   const [leftOrder, leftId] = position(left);
   const [rightOrder, rightId] = position(right);
-  return leftOrder < rightOrder || (leftOrder === rightOrder && leftId < rightId);
+  return leftOrder - rightOrder || leftId - rightId;
 }
 
 /** A row that could be shown at all. */
-export function isRenderableGalleryImage(row: PrimaryCandidate | null | undefined): row is PrimaryCandidate {
+export function isRenderableGalleryImage<T extends PrimaryCandidate>(row: T | null | undefined): row is T {
   if (!row) return false;
   if (row.isActive === false) return false;
   const url = typeof row.imageUrl === "string" ? row.imageUrl.trim() : "";
@@ -80,7 +81,7 @@ export function resolvePrimaryGalleryImage<T extends PrimaryCandidate>(rows: rea
   const candidates = rows.filter(isRenderableGalleryImage);
   if (!candidates.length) return null;
 
-  const sorted = [...candidates].sort(isEarlier);
+  const sorted = [...candidates].sort(compareOrder);
   const claimed = sorted.find((row) => row.isPrimary === true);
   // The first active row is the fallback, so a product that never chose a
   // primary — or one written by an older release — still leads with a real
@@ -104,8 +105,11 @@ export function getPrimaryGalleryImageUrl<T extends PrimaryCandidate>(rows: read
  * lead with is flagged, which is what makes an old client that only reorders
  * still produce a correct result.
  */
-export function normalizeGalleryPrimaries<T extends GalleryImageInput>(rows: readonly T[]): T[] {
+export function normalizeGalleryPrimaries<T extends GalleryImageInput>(rows: readonly T[]): (T & { isPrimary: boolean })[] {
   const primary = resolvePrimaryGalleryImage(rows);
+  // Every returned row carries a decided `isPrimary`, so the type says so:
+  // typed as a bare `T` the flag was invisible to every caller that reads it
+  // back out to write the database.
   return rows.map((row) => ({
     ...row,
     isPrimary: Boolean(primary && row === primary),

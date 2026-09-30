@@ -26,6 +26,7 @@ function result(scope: PublishScope, extra: Partial<PublishResult> = {}): Publis
     assetsCached: 0,
     assetsReused: 0,
     assetsFailed: 0,
+    failedAssets: [],
     durationMs: 0,
     skipped: false,
     ...extra,

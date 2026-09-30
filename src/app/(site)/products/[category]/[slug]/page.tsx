@@ -1,29 +1,39 @@
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  catalogueCategorySlugs,
-  catalogueProducts,
-  getCatalogueProductBySlug,
-  getRelatedCatalogueProducts,
-} from "@/lib/catalogue";
-import { CatalogueProductDetail, getCatalogueProductMetadata } from "@/components/site/catalogue-product-detail";
+import { getCurrentUser } from "@/lib/auth";
+import { getProductBySlug } from "@/lib/data";
+import { slugifySegment } from "@/lib/publish/media";
+import { ProductPageView, buildProductMetadata, productStaticParams } from "@/components/site/product-page-view";
 
-export function generateStaticParams() {
-  return catalogueProducts.map((product) => ({ category: product.category, slug: product.slug }));
+/**
+ * `/products/<category>/<slug>` — the address the mega menu, the product
+ * listing, the catalogue and every product card link to.
+ *
+ * This used to render a separate, hardcoded page built from the array in
+ * `src/lib/catalogue.ts`, which is why `/products/office-storage/mobile-compactor-storage-system`
+ * and `/products/mobile-compactor-storage-system` were two different pages for
+ * one product, and only the second one showed the CMS content. It now resolves
+ * the same CMS product and renders the same view, so the route the business
+ * uses shows the real, editable record.
+ *
+ * The category is still checked, so `/products/office-storage/lockers` is a 404
+ * rather than quietly serving lockers from the wrong shelf.
+ */
+export async function generateStaticParams() {
+  return productStaticParams();
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ category: string; slug: string }> }): Promise<Metadata> {
-  const { category, slug } = await params;
-  const product = getCatalogueProductBySlug(slug);
-  if (!product || product.category !== category) return {};
-  return getCatalogueProductMetadata(product);
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ category: string; slug: string }>; searchParams: Promise<{ preview?: string }> }) {
+  const [{ slug }, { preview }] = await Promise.all([params, searchParams]);
+  const allowPreview = preview === "1" && Boolean(await getCurrentUser());
+  return buildProductMetadata(slug, allowPreview);
 }
 
-export default async function CatalogueProductPage({ params }: { params: Promise<{ category: string; slug: string }> }) {
-  const { category, slug } = await params;
-  const validCategory = catalogueCategorySlugs.find((item) => item === category);
-  const product = getCatalogueProductBySlug(slug);
-  if (!validCategory || !product || product.category !== validCategory) notFound();
+export default async function ProductCategoryPage({ params, searchParams }: { params: Promise<{ category: string; slug: string }>; searchParams: Promise<{ preview?: string }> }) {
+  const [{ category, slug }, { preview }] = await Promise.all([params, searchParams]);
+  const allowPreview = preview === "1" && Boolean(await getCurrentUser());
 
-  return <CatalogueProductDetail product={product} relatedProducts={getRelatedCatalogueProducts(product, 3)} />;
+  const product = await getProductBySlug(slug, allowPreview);
+  if (!product || slugifySegment(product.category) !== category) notFound();
+
+  return <ProductPageView slug={slug} allowPreview={allowPreview} />;
 }

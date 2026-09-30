@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowDown, ArrowUp, Eye, EyeOff, ImagePlus, Info, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowDown, ArrowUp, Eye, EyeOff, GripVertical, ImagePlus, Images, Info, Star, Trash2 } from "lucide-react";
 import { SmartImage } from "@/components/site/smart-image";
 import { optimizeImage } from "@/lib/image-utils";
+import { ProductImagePicker, type ExistingProductImage } from "@/components/admin/product-image-picker";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 
@@ -28,6 +29,15 @@ export type GalleryRow = {
   height?: number | null;
   /** Hidden from the page without being deleted. */
   isActive?: boolean;
+  /**
+   * The editor's explicit choice of main image.
+   *
+   * `undefined` means "not set", which is why this is optional: a row saved by an
+   * older release has no such column, and the server derives the primary from
+   * position for those. Sending `false` explicitly means "not this one", which
+   * stops a reordering from silently handing the hero to a different photo.
+   */
+  isPrimary?: boolean;
 };
 
 type UploadResult = {
@@ -51,24 +61,31 @@ function emptyRow(): GalleryRow {
  * So the editor renders exactly the rows that exist, appends on demand, and lets
  * the order be changed explicitly.
  *
- * Ordering is done with up/down buttons rather than drag-and-drop on purpose:
- * a keyboard user and a mouse user get the same affordance, and a list that only
- * reorders by dragging is unusable on a touch screen without a lot of extra work.
- * The first *active* row is the primary image for the hero, the product card and
- * the homepage, so the "Primary" badge marks what a reorder will actually change.
+ * Ordering is available three ways, and all three write the same thing — the
+ * array order. Dragging is what most people reach for, but it is unusable with a
+ * keyboard and awkward on a touch screen, so the up/down buttons remain and do
+ * not merely duplicate it: they are the accessible path to the same result. The
+ * primary image can likewise be chosen explicitly or by moving a row to the
+ * top, and the two agree because the server normalises a single primary.
  */
 export function ProductGalleryEditor({
   gallery,
   productName,
+  productSlug,
   onChange,
   onUploadBusy,
 }: {
   gallery: GalleryRow[];
   productName: string;
+  productSlug?: string;
   onChange: (rows: GalleryRow[]) => void;
   onUploadBusy?: (busy: boolean) => void;
 }) {
   const [busyIndex, setBusyIndex] = useState<number | null>(null);
+  const [pickerFor, setPickerFor] = useState<number | "all" | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+  const dragFrom = useRef<number | null>(null);
 
   function setBusy(index: number | null, busy: boolean) {
     setBusyIndex(busy ? index : null);
@@ -79,13 +96,18 @@ export function ProductGalleryEditor({
     onChange(gallery.map((row, position) => (position === index ? { ...row, ...changes } : row)));
   }
 
-  function move(index: number, direction: -1 | 1) {
-    const target = index + direction;
-    if (target < 0 || target >= gallery.length) return;
+  /** Moves one row to an absolute position, used by drag-and-drop. */
+  function moveTo(from: number, to: number) {
+    if (to < 0 || to >= gallery.length || from === to) return;
     const next = [...gallery];
-    const [row] = next.splice(index, 1);
-    next.splice(target, 0, row);
+    const [row] = next.splice(from, 1);
+    next.splice(to, 0, row);
     onChange(next);
+  }
+
+  /** Moves one row one place up or down, used by the buttons. */
+  function nudge(index: number, direction: -1 | 1) {
+    moveTo(index, index + direction);
   }
 
   function remove(index: number) {
@@ -96,18 +118,53 @@ export function ProductGalleryEditor({
     onChange([...gallery, emptyRow()]);
   }
 
-  // The first row the page will actually show. A hidden row at position 0 must
-  // not steal the primary slot from the first visible image below it.
-  const primaryIndex = gallery.findIndex((row) => row.isActive !== false && Boolean(row.imageUrl));
+  /**
+   * Makes one row the explicit primary and clears the flag on the others.
+   *
+   * Clearing rather than only setting matters: two rows flagged primary would
+   * leave which one leads up to array order, so a later reorder would change the
+   * hero without the editor doing anything that looks like changing it.
+   */
+  function setPrimary(index: number) {
+    onChange(gallery.map((row, position) => ({ ...row, isPrimary: position === index ? true : false })));
+  }
+
+  /**
+   * Applies a picked repository image to a row.
+   *
+   * `cloudinaryPublicId` is left null on purpose. A file that lives in `public/`
+   * is not an upload, and a public id is the marker the pruner uses to decide an
+   * image may be destroyed on save — setting one here would let a later edit
+   * delete a photograph straight out of the repository.
+   */
+  function applyPicked(index: number, image: ExistingProductImage) {
+    patch(index, {
+      imageUrl: image.imageUrl,
+      cloudinaryPublicId: null,
+      label: image.label || null,
+      altText: image.altText || image.label || "",
+      isActive: gallery[index]?.isActive !== false,
+    });
+  }
+
+  // The row the page will actually show. A hidden row at position 0 must not
+  // steal the primary slot from the first visible image below it, and an
+  // explicit flag is honoured ahead of position.
+  const primaryIndex = (() => {
+    const flagged = gallery.findIndex((row) => row.isPrimary === true && row.isActive !== false && Boolean(row.imageUrl));
+    if (flagged >= 0) return flagged;
+    return gallery.findIndex((row) => row.isActive !== false && Boolean(row.imageUrl));
+  })();
 
   return (
     <div className="space-y-4">
       <p className="flex items-start gap-2 rounded-lg bg-zinc-50 p-3 text-[.68rem] leading-5 text-zinc-600">
         <Info size={14} className="mt-0.5 shrink-0 text-zinc-400" aria-hidden="true" />
         <span>
-          Add as many images as the product needs — there is no upper limit. They appear on the page in
-          the order shown here, and the first active image is used as the product&apos;s main image on
-          the hero, its card and the homepage. Save the product to publish a change.
+          Add as many images as the product needs — there is no upper limit. Drag a row, or use Move up/down, to
+          change the order it appears on the page. The image marked <strong>Primary</strong> is used as the
+          product&apos;s main image on the hero, its card and the homepage, so you can choose it directly instead of
+          relying on position. Save the product to publish a change.
         </span>
       </p>
 
@@ -121,13 +178,59 @@ export function ProductGalleryEditor({
         const filled = Boolean(row.imageUrl);
         const busy = busyIndex === index;
         const isPrimary = index === primaryIndex;
+        const isDropTarget = dropIndex === index && dragIndex !== null && dragIndex !== index;
 
         return (
           <fieldset
             key={index}
-            className={`rounded-xl border p-4 ${filled ? (row.isActive === false ? "border-zinc-200 bg-zinc-50/60" : "border-zinc-200 bg-white") : "border-dashed border-zinc-300 bg-zinc-50/60"}`}
+            draggable={filled}
+            onDragStart={(event) => {
+              dragFrom.current = index;
+              setDragIndex(index);
+              event.dataTransfer.effectAllowed = "move";
+              // Firefox refuses to start a drag unless some data is set.
+              event.dataTransfer.setData("text/plain", String(index));
+            }}
+            onDragOver={(event) => {
+              if (dragIndex === null) return;
+              event.preventDefault();
+              event.dataTransfer.dropEffect = "move";
+              if (dropIndex !== index) setDropIndex(index);
+            }}
+            onDragLeave={() => setDropIndex((current) => (current === index ? null : current))}
+            onDrop={(event) => {
+              event.preventDefault();
+              const from = dragFrom.current ?? Number(event.dataTransfer.getData("text/plain"));
+              setDropIndex(null);
+              setDragIndex(null);
+              dragFrom.current = null;
+              if (Number.isInteger(from)) moveTo(from, index);
+            }}
+            onDragEnd={() => {
+              setDropIndex(null);
+              setDragIndex(null);
+              dragFrom.current = null;
+            }}
+            className={`rounded-xl border p-4 transition ${
+              isDropTarget
+                ? "border-zinc-900 ring-2 ring-zinc-900/10"
+                : filled
+                  ? row.isActive === false
+                    ? "border-zinc-200 bg-zinc-50/60"
+                    : "border-zinc-200 bg-white"
+                  : "border-dashed border-zinc-300 bg-zinc-50/60"
+            } ${dragIndex === index ? "opacity-50" : ""}`}
           >
             <legend className="flex flex-wrap items-center gap-2 px-1">
+              {filled ? (
+                <span
+                  className="cursor-grab text-zinc-300 active:cursor-grabbing"
+                  title="Drag to reorder"
+                  aria-hidden="true"
+                >
+                  <GripVertical size={14} />
+                </span>
+              ) : null}
               <span className="text-[.62rem] font-bold uppercase tracking-[.14em] text-zinc-400">
                 {String(index + 1).padStart(2, "0")}
               </span>
@@ -164,23 +267,33 @@ export function ProductGalleryEditor({
               <div className="min-w-0 space-y-3">
                 <div>
                   <label className="mb-1.5 block text-[.68rem] font-bold text-zinc-700">Gallery image</label>
-                  <RowUpload
-                    busy={busy}
-                    onBusy={(next) => setBusy(index, next)}
-                    onUploaded={(result) => {
-                      if (!result.imageUrl) {
-                        remove(index);
-                        return;
-                      }
-                      patch(index, {
-                        imageUrl: result.imageUrl,
-                        cloudinaryPublicId: result.cloudinaryPublicId ?? null,
-                        width: result.width ?? null,
-                        height: result.height ?? null,
-                        isActive: row.isActive !== false,
-                      });
-                    }}
-                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <RowUpload
+                      busy={busy}
+                      onBusy={(next) => setBusy(index, next)}
+                      onUploaded={(result) => {
+                        if (!result.imageUrl) {
+                          remove(index);
+                          return;
+                        }
+                        patch(index, {
+                          imageUrl: result.imageUrl,
+                          cloudinaryPublicId: result.cloudinaryPublicId ?? null,
+                          width: result.width ?? null,
+                          height: result.height ?? null,
+                          isActive: row.isActive !== false,
+                        });
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPickerFor(index)}
+                      className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-[.68rem] font-bold text-zinc-800 hover:bg-zinc-50"
+                    >
+                      <Images size={13} aria-hidden="true" />
+                      Choose existing
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -218,7 +331,7 @@ export function ProductGalleryEditor({
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
-                      onClick={() => move(index, -1)}
+                      onClick={() => nudge(index, -1)}
                       disabled={index === 0}
                       className="inline-flex items-center gap-1 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-[.65rem] font-bold text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
                     >
@@ -227,7 +340,7 @@ export function ProductGalleryEditor({
                     </button>
                     <button
                       type="button"
-                      onClick={() => move(index, 1)}
+                      onClick={() => nudge(index, 1)}
                       disabled={index === gallery.length - 1}
                       className="inline-flex items-center gap-1 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-[.65rem] font-bold text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
                     >
@@ -235,6 +348,16 @@ export function ProductGalleryEditor({
                       Move down
                     </button>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setPrimary(index)}
+                    disabled={!filled || isPrimary}
+                    className="inline-flex items-center gap-1.5 text-[.68rem] font-bold text-zinc-700 hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:no-underline"
+                  >
+                    <Star size={13} aria-hidden="true" />
+                    {isPrimary ? "Main image" : "Set as main image"}
+                  </button>
 
                   <button
                     type="button"
@@ -261,19 +384,61 @@ export function ProductGalleryEditor({
         );
       })}
 
-      <button
-        type="button"
-        onClick={append}
-        className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3.5 py-2.5 text-[.7rem] font-bold text-zinc-800 hover:bg-zinc-50"
-      >
-        <ImagePlus size={14} aria-hidden="true" />
-        Add image
-      </button>
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={append}
+          className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3.5 py-2.5 text-[.7rem] font-bold text-zinc-800 hover:bg-zinc-50"
+        >
+          <ImagePlus size={14} aria-hidden="true" />
+          Add image
+        </button>
+        <button
+          type="button"
+          onClick={() => setPickerFor("all")}
+          className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3.5 py-2.5 text-[.7rem] font-bold text-zinc-800 hover:bg-zinc-50"
+        >
+          <Images size={14} aria-hidden="true" />
+          Add from existing images
+        </button>
+      </div>
 
       <p className="text-[.68rem] leading-5 text-zinc-500">
-        Uploads go to Cloudinary under <code className="font-mono">rack-stack/products</code>. Replacing
-        or removing an image deletes the previous file when you save.
+        Images already in the project are reused as-is and never re-uploaded. New uploads go to Cloudinary under{" "}
+        <code className="font-mono">rack-stack/products</code>; replacing or removing one deletes the previous file when
+        you save.
       </p>
+
+      <ProductImagePicker
+        open={pickerFor !== null}
+        slug={pickerFor === "all" ? undefined : productSlug}
+        onClose={() => setPickerFor(null)}
+        onSelect={(image) => {
+          /**
+           * Opened from "add" appends a new row; opened from a row replaces that
+           * row. Appending rather than overwriting the last row means the buttons
+           * behave the same when the gallery is empty and when it is full.
+           */
+          if (pickerFor === "all") {
+            onChange([
+              ...gallery,
+              {
+                slot: null,
+                imageUrl: image.imageUrl,
+                cloudinaryPublicId: null,
+                label: image.label || null,
+                altText: image.altText || image.label || "",
+                caption: "",
+                width: null,
+                height: null,
+                isActive: true,
+              },
+            ]);
+            return;
+          }
+          if (pickerFor !== null) applyPicked(pickerFor, image);
+        }}
+      />
     </div>
   );
 }

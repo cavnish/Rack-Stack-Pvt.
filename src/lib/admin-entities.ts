@@ -11,6 +11,7 @@ import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 import { productAdminSchema, clientLogoAdminSchema, homeOfferCardSchema, UserFacingError } from "./validation";
 import { requireInstagramUrl } from "./instagram";
 import { getPrimaryGalleryImageUrl, isDeletableUpload, normalizeGalleryPrimaries } from "./product-primary-image";
+import { isRemoteImageUrl } from "./public-asset-paths";
 
 export const adminEntities = ["products", "services", "projects", "clients", "client-logos", "testimonials", "gallery", "pages", "industries", "faqs", "blog", "homepage", "home-offer-cards", "home-slider", "inquiries", "contact-messages", "media", "videos", "seo", "settings", "users", "activity"] as const;
 
@@ -21,6 +22,67 @@ const num = (v: unknown, fallback = 0) => Number.isFinite(Number(v)) ? Number(v)
 const text = (v: unknown) => typeof v === "string" ? v.trim() : "";
 const nullable = (v: unknown) => text(v) || null;
 const status = (v: unknown): "DRAFT" | "PUBLISHED" | "ARCHIVED" => ["DRAFT", "PUBLISHED", "ARCHIVED"].includes(String(v)) ? v as "DRAFT" | "PUBLISHED" | "ARCHIVED" : "DRAFT";
+
+/**
+ * The "Recommended systems" rows to write for a product, in editor order.
+ *
+ * Three things happen here, each of which used to be a bug or a lost feature:
+ *
+ * - A product is never recommended on its own page. Self-referencing a row
+ *   renders the product you are already looking at, and it is a click that goes
+ *   nowhere, so it is dropped rather than stored.
+ * - Duplicates collapse to the first occurrence. The table has no unique
+ *   constraint on the pair, so without this a double-clicked "add" saves two
+ *   identical rows and the product appears twice in the section.
+ * - A missing `relatedProducts` array falls back to the legacy id list, all
+ *   active. That is what keeps an older admin client, or the import script,
+ *   working: it still says "these products are related" and gets exactly that,
+ *   instead of quietly saving no recommendations at all.
+ */
+function recommendedProductRows(data: { relatedProducts?: Array<{ productId: number; isActive: boolean }>; relatedProductIds?: number[] }, productId: number) {
+  const explicit = data.relatedProducts;
+  const rows: Array<{ productId: number; isActive: boolean }> =
+    explicit && explicit.length ? explicit : (data.relatedProductIds ?? []).map((id) => ({ productId: id, isActive: true }));
+  const seen = new Set<number>();
+  return rows.filter((row) => {
+    if (row.productId === productId || seen.has(row.productId)) return false;
+    seen.add(row.productId);
+    return true;
+  });
+}
+
+/**
+ * Writes an image URL and the Cloudinary public id that belongs to it as one unit.
+ *
+ * The two are only meaningful together: the public id is what the save handler
+ * destroys once the record stops pointing at that asset. Stored independently,
+ * a cleared image keeps the id of the file it used to show, and the next save
+ * that touches either column can delete an original the record is still using —
+ * leaving a row whose URL 404s, which is exactly how a replaced hero slide ends
+ * up blank. A local `/assets/...` path has no original to own, so it never
+ * carries a public id.
+ */
+function managedImagePair(url: unknown, publicId: unknown) {
+  const imageUrl = nullable(url);
+  return { imageUrl, imagePublicId: isRemoteImageUrl(imageUrl ?? "") ? nullable(publicId) : null };
+}
+
+/** The same rule as `managedImagePair`, for the second image column on a slider row. */
+function managedMobileImagePair(url: unknown, publicId: unknown) {
+  const imageUrl = nullable(url);
+  return { mobileImageUrl: imageUrl, mobileImagePublicId: isRemoteImageUrl(imageUrl ?? "") ? nullable(publicId) : null };
+}
+
+/**
+ * Slide duration. The admin number input submits `0` for an empty field, which
+ * would otherwise be clamped up to the 2s floor and make the slider race; a
+ * missing or non-positive value keeps the authored default instead.
+ */
+function slideDuration(v: unknown) {
+  const parsed = Number(v);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 3500;
+  return Math.max(2000, Math.round(parsed));
+}
 
 export async function listEntity(entity: AdminEntity) {
   switch (entity) {
@@ -71,7 +133,7 @@ export async function getEntity(entity: AdminEntity, id: number) {
       db.select().from(faqs).where(and(eq(faqs.entityType, "PRODUCT"), eq(faqs.entityId, id))).orderBy(asc(faqs.displayOrder)),
       db.select().from(productSections).where(eq(productSections.productId, id)).orderBy(asc(productSections.displayOrder)),
     ]);
-    return { ...item, features, specifications, applications, images, gallery: galleryRows, sections: sectionRows, benefits, components, configurations, storedMaterials, stories, workflows, relatedProductIds: relatedRows.map((row) => row.relatedProductId), industryIds: industryRows.map((row) => row.industryId), projectIds: projectRows.map((row) => row.projectId), faqs: productFaqs };
+    return { ...item, features, specifications, applications, images, gallery: galleryRows, sections: sectionRows, benefits, components, configurations, storedMaterials, stories, workflows, relatedProducts: relatedRows.map((row) => ({ productId: row.relatedProductId, isActive: row.isActive })), relatedProductIds: relatedRows.map((row) => row.relatedProductId), industryIds: industryRows.map((row) => row.industryId), projectIds: projectRows.map((row) => row.projectId), faqs: productFaqs };
   }
   if (entity === "services") {
     const item = (await db.select().from(services).where(eq(services.id, id)).limit(1))[0];
@@ -188,6 +250,19 @@ async function syncVideoRelations(
 
   if (productIds.length) await tx.insert(videoProducts).values(productIds.map((productId) => ({ videoId, productId })));
   if (serviceIds.length) await tx.insert(videoServices).values(serviceIds.map((serviceId) => ({ videoId, serviceId })));
+}
+
+/**
+ * The required `application` value for a product application row.
+ *
+ * `product_applications.application` is `notNull` while `title` is a nullable
+ * display label, and rows seeded before the title field existed carry only
+ * `application`. Preferring `title` and falling back to `application` — in that
+ * order — means an edited row keeps its own label while a legacy row survives a
+ * save it would otherwise be unable to complete.
+ */
+function applicationLabel(row: { application?: string | null; title?: string | null }): string {
+  return (row.title ?? "").trim() || (row.application ?? "").trim();
 }
 
 /**
@@ -332,19 +407,31 @@ function slugifySectionKey(value: string) {
  * held the real photograph. Deriving them from the primary keeps a single
  * choice in the admin in charge of the whole page.
  *
- * An explicit value still wins. Overwriting a hand-picked hero on every save
- * would be a different kind of drift, and an editor who wants a different card
- * image can set the primary to match instead.
+ * An explicit value is only a fallback for a product with no gallery at all.
+ *
+ * Preferring the submitted column here was wrong in a way the admin UI could not
+ * work around: the product form always posts `heroImage` and `thumbnail`, because
+ * they are inputs on the product carrying whatever was loaded into the form. So
+ * choosing a different main image updated the gallery flag and the hero row but
+ * left the column pointing at the old photograph — and the product page, the
+ * card and the social share image all read the column, so "Set as main image"
+ * appeared to do nothing.
+ *
+ * The gallery is settled to a single primary by `normalizeGalleryPrimaries`
+ * before this runs, so its first active row is the whole answer.
  */
 function productImageValues(
   gallery: ReturnType<typeof productAdminSchema.parse>["gallery"],
-  heroImage: string | undefined,
-  thumbnail: string | undefined,
+  // The schema types these as `string | null | undefined`: an omitted field and
+  // a field explicitly cleared both reach here, and the `||` below already
+  // treats them the same, so the parameter has to say so too.
+  heroImage: string | null | undefined,
+  thumbnail: string | null | undefined,
 ) {
   const primary = getPrimaryGalleryImageUrl(gallery);
   return {
-    heroImage: heroImage || primary || null,
-    thumbnail: thumbnail || primary || null,
+    heroImage: primary || heroImage || null,
+    thumbnail: primary || thumbnail || null,
   };
 }
 
@@ -364,16 +451,16 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
         heroImagePublicId: data.heroImagePublicId || null, thumbnailPublicId: data.thumbnailPublicId || null,
         heroTitle: data.heroTitle || null, heroDescription: data.heroDescription || null, specHighlights: data.specHighlights,
         technicalImage: data.technicalImage || null, technicalImagePublicId: data.technicalImagePublicId || null, technicalDescription: data.technicalDescription || null, technicalEnabled: data.technicalEnabled,
-        showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated,
+        showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated, relatedHeading: nullable(data.relatedHeading), relatedSubheading: nullable(data.relatedSubheading), relatedDescription: nullable(data.relatedDescription),
         ...productContentValues(data),
         metaTitle: data.metaTitle || null, metaDescription: data.metaDescription || null, keywords: data.keywords || null, focusKeyword: data.focusKeyword || null, ogTitle: data.ogTitle || null, ogDescription: data.ogDescription || null, ogImage: data.ogImage || null, canonicalUrl: data.canonicalUrl || null, robotsIndex: data.robotsIndex,
       }).returning();
       const productId = item.id;
       await syncProductGallery(tx, productId, data.name, data.gallery);
       await syncProductSections(tx, productId, data.sections);
-      if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId, title: x.title, description: x.description, icon: x.icon || "CheckCircle2", displayOrder: i })));
+      if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId, title: x.title, description: x.description, icon: x.icon || "CheckCircle2", isActive: x.isActive ?? true, displayOrder: i })));
       if (data.specifications.length) await tx.insert(productSpecifications).values(data.specifications.map((x, i) => ({ productId, ...x, displayOrder: i })));
-      if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId, application: x.title, title: x.title || null, description: x.description || null, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId, application: applicationLabel(x), title: x.title || null, description: x.description || null, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, isActive: x.isActive ?? true, displayOrder: i })));
       if (data.images.length) await tx.insert(productImages).values(data.images.map((x, i) => ({ productId, imageUrl: x.imageUrl, altText: x.altText, caption: x.caption || null, displayOrder: i })));
       if (data.benefits.length) await tx.insert(productBenefits).values(data.benefits.map((x, i) => ({ productId, title: x.title, description: x.description, displayOrder: i })));
       if (data.components.length) await tx.insert(productComponents).values(data.components.map((x, i) => ({ productId, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
@@ -381,8 +468,8 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
       if (data.storedMaterials.length) await tx.insert(productStoredMaterials).values(data.storedMaterials.map((x, i) => ({ productId, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
       if (data.stories.length) await tx.insert(productStories).values(data.stories.map((x, i) => ({ productId, title: x.title || null, description: x.description, image: x.image, imagePublicId: x.imagePublicId || null, altText: x.altText || `${item.name} in operation`, displayOrder: i })));
       if (data.workflows.length) await tx.insert(productWorkflows).values(data.workflows.map((x, i) => ({ productId, title: x.title, description: x.description, displayOrder: i })));
-      const relatedIds = Array.from(new Set(data.relatedProductIds)).filter((relatedId) => relatedId !== item.id);
-      if (relatedIds.length) await tx.insert(productRelatedProducts).values(relatedIds.map((relatedProductId, displayOrder) => ({ productId: item.id, relatedProductId, displayOrder })));
+      const relatedRows = recommendedProductRows(data, item.id);
+      if (relatedRows.length) await tx.insert(productRelatedProducts).values(relatedRows.map((related, displayOrder) => ({ productId: item.id, relatedProductId: related.productId, isActive: related.isActive, displayOrder })));
       if (data.industryIds.length) await tx.insert(productIndustries).values(Array.from(new Set(data.industryIds)).map((industryId, displayOrder) => ({ productId: item.id, industryId, displayOrder })));
       if (data.projectIds.length) await tx.insert(productProjects).values(Array.from(new Set(data.projectIds)).map((projectId, displayOrder) => ({ productId: item.id, projectId, displayOrder })));
       if (data.faqs.length) await tx.insert(faqs).values(data.faqs.map((x, displayOrder) => ({ question: x.question, answer: x.answer, entityType: "PRODUCT", entityId: item.id, displayOrder, status: "PUBLISHED" as const })));
@@ -443,7 +530,7 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
       const { id: _ignored, createdAt: _igna, updatedAt: _ignb, startAt: _ignc, endAt: _ignd, ...rest } = source;
       input = { ...rest, title: rest.title ? `${rest.title} (Copy)` : rest.title, status: "DRAFT", startAt: null, endAt: null, sortOrder: num(input.sortOrder, source.sortOrder + 1) as unknown };
     }
-    return (await db.insert(homeSliders).values({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), description: nullable(input.description), imageUrl: nullable(input.imageUrl), imagePublicId: nullable(input.imagePublicId), mobileImageUrl: nullable(input.mobileImageUrl), mobileImagePublicId: nullable(input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: Math.max(2000, num(input.duration, 3500)), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null }).returning())[0];
+    return (await db.insert(homeSliders).values({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), description: nullable(input.description), ...managedImagePair(input.imageUrl, input.imagePublicId), ...managedMobileImagePair(input.mobileImageUrl, input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: slideDuration(input.duration), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null }).returning())[0];
   }
   if (entity === "users") { const password = text(input.password); if (password.length < 12) throw new Error("Password must be at least 12 characters"); return (await db.insert(users).values({ name: text(input.name), email: text(input.email).toLowerCase(), passwordHash: await hash(password, 12), role: ["SUPER_ADMIN", "ADMIN", "EDITOR"].includes(String(input.role)) ? input.role as "SUPER_ADMIN" | "ADMIN" | "EDITOR" : "EDITOR", isActive: true }).returning({ id: users.id, name: users.name, email: users.email }))[0]; }
   if (entity === "videos") {
@@ -467,7 +554,7 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
         heroImagePublicId: data.heroImagePublicId || null, thumbnailPublicId: data.thumbnailPublicId || null,
         heroTitle: data.heroTitle || null, heroDescription: data.heroDescription || null, specHighlights: data.specHighlights,
         technicalImage: data.technicalImage || null, technicalImagePublicId: data.technicalImagePublicId || null, technicalDescription: data.technicalDescription || null, technicalEnabled: data.technicalEnabled,
-        showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated,
+        showGallery: data.showGallery, showFeatures: data.showFeatures, showSpecifications: data.showSpecifications, showConfigurations: data.showConfigurations, showApplications: data.showApplications, showStoredMaterials: data.showStoredMaterials, showStories: data.showStories, showWorkflow: data.showWorkflow, showBenefits: data.showBenefits, showComponents: data.showComponents, showFaq: data.showFaq, showRelated: data.showRelated, relatedHeading: nullable(data.relatedHeading), relatedSubheading: nullable(data.relatedSubheading), relatedDescription: nullable(data.relatedDescription),
         ...productContentValues(data),
         metaTitle: data.metaTitle || null, metaDescription: data.metaDescription || null, keywords: data.keywords || null, focusKeyword: data.focusKeyword || null, ogTitle: data.ogTitle || null, ogDescription: data.ogDescription || null, ogImage: data.ogImage || null, canonicalUrl: data.canonicalUrl || null, robotsIndex: data.robotsIndex, updatedAt: new Date(),
       }).where(eq(products.id, id)).returning();
@@ -490,9 +577,9 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
         tx.delete(productProjects).where(eq(productProjects.productId, id)),
         tx.delete(faqs).where(and(eq(faqs.entityType, "PRODUCT"), eq(faqs.entityId, id))),
       ]);
-      if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId: id, title: x.title, description: x.description, icon: x.icon || "CheckCircle2", displayOrder: i })));
+      if (data.features.length) await tx.insert(productFeatures).values(data.features.map((x, i) => ({ productId: id, title: x.title, description: x.description, icon: x.icon || "CheckCircle2", isActive: x.isActive ?? true, displayOrder: i })));
       if (data.specifications.length) await tx.insert(productSpecifications).values(data.specifications.map((x, i) => ({ productId: id, ...x, displayOrder: i })));
-      if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId: id, application: x.title, title: x.title || null, description: x.description || null, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
+      if (data.applications.length) await tx.insert(productApplications).values(data.applications.map((x, i) => ({ productId: id, application: applicationLabel(x), title: x.title || null, description: x.description || null, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, isActive: x.isActive ?? true, displayOrder: i })));
       if (data.images.length) await tx.insert(productImages).values(data.images.map((x, i) => ({ productId: id, imageUrl: x.imageUrl, altText: x.altText, caption: x.caption || null, displayOrder: i })));
       if (data.benefits.length) await tx.insert(productBenefits).values(data.benefits.map((x, i) => ({ productId: id, title: x.title, description: x.description, displayOrder: i })));
       if (data.components.length) await tx.insert(productComponents).values(data.components.map((x, i) => ({ productId: id, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
@@ -500,8 +587,8 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
       if (data.storedMaterials.length) await tx.insert(productStoredMaterials).values(data.storedMaterials.map((x, i) => ({ productId: id, title: x.title, description: x.description, image: x.image || null, imagePublicId: x.imagePublicId || null, altText: x.altText || null, displayOrder: i })));
       if (data.stories.length) await tx.insert(productStories).values(data.stories.map((x, i) => ({ productId: id, title: x.title || null, description: x.description, image: x.image, imagePublicId: x.imagePublicId || null, altText: x.altText || `${data.name} in operation`, displayOrder: i })));
       if (data.workflows.length) await tx.insert(productWorkflows).values(data.workflows.map((x, i) => ({ productId: id, title: x.title, description: x.description, displayOrder: i })));
-      const relatedIds = Array.from(new Set(data.relatedProductIds)).filter((relatedId) => relatedId !== id);
-      if (relatedIds.length) await tx.insert(productRelatedProducts).values(relatedIds.map((relatedProductId, displayOrder) => ({ productId: id, relatedProductId, displayOrder })));
+      const relatedRows = recommendedProductRows(data, id);
+      if (relatedRows.length) await tx.insert(productRelatedProducts).values(relatedRows.map((related, displayOrder) => ({ productId: id, relatedProductId: related.productId, isActive: related.isActive, displayOrder })));
       if (data.industryIds.length) await tx.insert(productIndustries).values(Array.from(new Set(data.industryIds)).map((industryId, displayOrder) => ({ productId: id, industryId, displayOrder })));
       if (data.projectIds.length) await tx.insert(productProjects).values(Array.from(new Set(data.projectIds)).map((projectId, displayOrder) => ({ productId: id, projectId, displayOrder })));
       if (data.faqs.length) await tx.insert(faqs).values(data.faqs.map((x, displayOrder) => ({ question: x.question, answer: x.answer, entityType: "PRODUCT", entityId: id, displayOrder, status: "PUBLISHED" as const })));
@@ -558,7 +645,7 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
       displayOrder: data.displayOrder, isActive: data.isActive, updatedAt: new Date(),
     }).where(eq(homeOfferCards.id, id)).returning())[0];
   }
-  if (entity === "home-slider") return (await db.update(homeSliders).set({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), description: nullable(input.description), imageUrl: nullable(input.imageUrl), imagePublicId: nullable(input.imagePublicId), mobileImageUrl: nullable(input.mobileImageUrl), mobileImagePublicId: nullable(input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: Math.max(2000, num(input.duration, 3500)), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null, updatedAt: new Date() }).where(eq(homeSliders.id, id)).returning())[0];
+  if (entity === "home-slider") return (await db.update(homeSliders).set({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), description: nullable(input.description), ...managedImagePair(input.imageUrl, input.imagePublicId), ...managedMobileImagePair(input.mobileImageUrl, input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: slideDuration(input.duration), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null, updatedAt: new Date() }).where(eq(homeSliders.id, id)).returning())[0];
   if (entity === "inquiries") return (await db.update(inquiries).set({ status: ["NEW", "CONTACTED", "QUALIFIED", "QUOTATION_SENT", "WON", "LOST", "SPAM"].includes(String(input.status)) ? input.status as "NEW" | "CONTACTED" | "QUALIFIED" | "QUOTATION_SENT" | "WON" | "LOST" | "SPAM" : "NEW", notes: nullable(input.notes), assignedTo: input.assignedTo ? num(input.assignedTo) : null, updatedAt: new Date() }).where(eq(inquiries.id, id)).returning())[0];
   if (entity === "contact-messages") return (await db.update(contactMessages).set({ status: ["NEW", "READ", "REPLIED", "ARCHIVED", "SPAM"].includes(String(input.status)) ? input.status as "NEW" | "READ" | "REPLIED" | "ARCHIVED" | "SPAM" : "NEW", updatedAt: new Date() }).where(eq(contactMessages.id, id)).returning())[0];
   if (entity === "seo") return (await db.update(seoSettings).set({ siteTitle: text(input.siteTitle), defaultMetaDescription: text(input.defaultMetaDescription), keywords: nullable(input.keywords), ogImage: nullable(input.ogImage), twitterImage: nullable(input.twitterImage), robotsSettings: nullable(input.robotsSettings), googleVerification: nullable(input.googleVerification), canonicalBaseUrl: nullable(input.canonicalBaseUrl), organizationSchema: typeof input.organizationSchema === "object" ? input.organizationSchema as Record<string, unknown> : {}, socialLinks: typeof input.socialLinks === "object" ? input.socialLinks as Record<string, string> : {}, updatedAt: new Date() }).where(eq(seoSettings.id, id)).returning())[0];

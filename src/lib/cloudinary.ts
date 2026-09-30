@@ -8,8 +8,32 @@ export function cloudinaryClient() {
   if (!isCloudinaryConfigured()) {
     throw new Error("Cloudinary is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET.");
   }
-  cloudinary.config({ cloud_name: process.env.CLOUDINARY_CLOUD_NAME, api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET, secure: true });
+  // Trimmed because a trailing space in a `.env` value is invisible in the file
+  // and produces a signature Cloudinary rejects with a 401 that reads as bad
+  // credentials rather than as a formatting mistake.
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
+    api_key: process.env.CLOUDINARY_API_KEY?.trim(),
+    api_secret: process.env.CLOUDINARY_API_SECRET?.trim(),
+    secure: true,
+  });
   return cloudinary;
+}
+
+/**
+ * Removes an uploaded original and clears its CDN copy.
+ *
+ * `invalidate` is the part that is easy to leave out: without it Cloudinary
+ * drops the origin but the edge keeps answering `200` for the retired URL, so a
+ * replaced image goes on being served from cache long after the save reported it
+ * replaced. Failures are swallowed on purpose — a cleanup that cannot reach
+ * Cloudinary must not roll back a save that already succeeded, and the asset
+ * being left behind is a storage problem rather than a correctness one.
+ */
+export async function destroyRemote(publicId: string, resourceType: "image" | "video" = "image") {
+  await cloudinaryClient()
+    .uploader.destroy(publicId, { resource_type: resourceType, invalidate: true })
+    .catch(() => {});
 }
 export function transformCloudinaryUrl(url: string, width = 1200) {
   if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;

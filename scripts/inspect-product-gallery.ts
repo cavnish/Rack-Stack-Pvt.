@@ -22,7 +22,7 @@ async function main() {
     console.log(`  heroImage : ${product.heroImage ?? "null"}`);
     console.log(`  thumbnail : ${product.thumbnail ?? "null"}`);
     images.forEach((im, i) =>
-      console.log(`  images[${i}] : ${im.imageUrl}  publicId=${im.imagePublicId ?? "null"}`),
+      console.log(`  images[${i}] : ${im.imageUrl}  publicId=${im.cloudinaryPublicId ?? "null"}`),
     );
     gallery.forEach((g, i) =>
       console.log(

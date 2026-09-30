@@ -29,12 +29,11 @@ import { SmartImage } from "@/components/site/smart-image";
 import { ProductGallery } from "@/components/site/product-experience";
 import { ProductShowcase } from "@/components/site/product-showcase";
 import { FAQ } from "@/components/site/faq";
-import { ProductCard, type ProductCardProduct } from "@/components/site/product-card";
+import { ProductRecommendations } from "@/components/site/product-recommendations";
 import { FitHeading } from "@/components/site/fit-heading";
 import { InquiryForm } from "@/components/site/inquiry-form";
 import { SectionHeading } from "@/components/site/ui";
 import { MobileProductActions } from "@/components/site/product-experience";
-import { getRelatedProductImages } from "@/lib/product-primary-images";
 import { EventTracker } from "@/components/site/event-tracker";
 import { Reveal } from "@/components/site/reveal";
 import { WorkflowSteps } from "@/components/site/workflow-steps";
@@ -42,6 +41,7 @@ import { TrustedByStrip } from "@/components/site/trusted-by-strip";
 import { ReelShowcase } from "@/components/media/reel-showcase";
 import { optimizeImage } from "@/lib/image-utils";
 import { localAssetFor } from "@/lib/local-assets";
+import { catalogueCategoryNames } from "@/lib/catalogue";
 import type { ClientLogo } from "@/lib/data";
 import type { getServices } from "@/lib/data";
 import type { ReelVideoItem } from "@/lib/reel-video";
@@ -429,6 +429,77 @@ export function OverviewSection({ product }: { product: ProductDetail }) {
   );
 }
 
+/**
+ * The editor's reusable content sections.
+ *
+ * A section is a heading, some copy, optionally a photograph and optionally a
+ * small note above the heading. That is the shape of every block on a product
+ * page that is not the hero, the gallery or a list, which is why the admin needs
+ * one list of them rather than a tab per block.
+ *
+ * Layout is chosen per section so an editor can alternate image-left and
+ * image-right down the page instead of getting the same arrangement every time.
+ * A section with no image renders as a full-width band of text, so text-only
+ * content never leaves an empty column.
+ */
+export function ContentSectionsBlock({ sections }: { sections: ProductDetail["sections"] }) {
+  const active = sections.filter((section) => section.isActive !== false && section.title);
+  if (active.length === 0) return null;
+  return (
+    <>
+      {active.map((section, index) => {
+        const image = section.imageUrl;
+        const text = (
+          <div>
+            {section.eyebrow ? (
+              <p className="mb-2 text-[.6rem] font-bold uppercase tracking-[.2em] text-red-600">{section.eyebrow}</p>
+            ) : null}
+            <FitHeading className="section-heading text-balance">{section.title}</FitHeading>
+            {section.body ? <p className="section-description mt-3 text-zinc-700">{section.body}</p> : null}
+            {section.ctaLabel && section.ctaHref ? (
+              <Link
+                href={section.ctaHref}
+                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-zinc-950 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-zinc-800"
+              >
+                {section.ctaLabel}
+                <ArrowRight size={14} />
+              </Link>
+            ) : null}
+          </div>
+        );
+        const picture = image ? (
+          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-200">
+            <SmartImage
+              src={optimizeImage(image, 1300)}
+              alt={section.altText || section.title}
+              fill
+              className="object-cover object-center"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+          </div>
+        ) : null;
+
+        return (
+          <section key={section.key || `${section.title}-${index}`} id={section.key || undefined} className="py-14">
+            {picture ? (
+              <div
+                className={`container-shell grid items-center gap-10 lg:grid-cols-2 lg:gap-14 ${
+                  section.layout === "image-left" ? "[&>*:first-child]:order-2" : ""
+                }`}
+              >
+                {text}
+                {picture}
+              </div>
+            ) : (
+              <div className="container-shell">{text}</div>
+            )}
+          </section>
+        );
+      })}
+    </>
+  );
+}
+
 export function TechnicalSpecificationsSection({ product }: { product: ProductDetail }) {
   if (!product.specifications.length) return null;
   const productImage = product.heroImage || product.thumbnail || product.images[0]?.imageUrl || "";
@@ -471,7 +542,9 @@ export function TechnicalSpecificationsSection({ product }: { product: ProductDe
               <p className="mt-0.5 text-base font-bold text-white">{product.name}</p>
               {product.category && (
                 <span className="mt-2 inline-block rounded bg-[#d11f2f] px-2 py-0.5 text-[.6rem] font-bold uppercase tracking-[.12em] text-white">
-                  {product.category}
+                  {/* The stored category is a slug, because it is what the URL
+                      and the mega menu are built from. Visitors see the name. */}
+                  {catalogueCategoryNames[product.category] ?? product.category}
                 </span>
               )}
             </div>
@@ -697,38 +770,35 @@ export function FaqSection({ items }: { items: ProductDetail["faqs"] }) {
 }
 
 /**
- * "Related Storage Systems".
+ * "Recommended systems" on a product page.
  *
- * The grid is one-per-row on phones, two on tablets and three on desktop, which
- * is the same `1 / 2 / 3` progression the homepage "What We Offer" grid uses, so
- * the two sections stay visually identical.
+ * A thin wrapper, and that is the point. The section's markup, its four-across
+ * grid and its card all live in {@link ProductRecommendations}, which the
+ * industry pages render too, so a product page and an industry page cannot end
+ * up presenting recommended products differently. This function's only job is to
+ * hand that component the right copy for *this* product: the three columns an
+ * editor may have written, and otherwise the defaults derived from the product's
+ * own category.
  *
- * Async because each card's image is resolved here rather than trusted from the
- * `related` row. `adaptDatabaseRelated` only has the product's legacy
- * `thumbnail`/`heroImage` columns to work with, but a product page leads with the
- * first of `[...folderImages, ...product_images]`. Reading the column here would
- * mean the card shows a different photograph from the page it links to and stops
- * following the admin the moment the gallery is reordered. `getRelatedProductImages`
- * answers the same question the product page answers, for every row in one batch.
+ * Which products appear is the existing `productRelatedProducts` relationship,
+ * in editor order, with disabled rows left out. Nothing here is hardcoded, and
+ * the images are the recommended products' own primary images, resolved by
+ * `ProductRecommendations` the same way the product page resolves its own.
  */
-export async function RelatedSection({ items }: { items: ProductDetail["related"] }) {
-  if (!items.length) return null;
-  const images = await getRelatedProductImages(items);
+export async function RelatedSection({ product }: { product: ProductPageProduct }) {
+  if (!product.showRelated || !product.related.length) return null;
   return (
-    <section className="border-t border-zinc-200 bg-[#f4f4f1] py-16">
-      <div className="container-shell">
-        <SectionHeading compact singleLine title="Related Storage Systems" description="Other systems that work well alongside this one." />
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item, i) => (
-            <ProductCard
-              key={item.id}
-              product={{ ...item, image: images.get(String(item.id)) ?? null } as ProductCardProduct}
-              index={i}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
+    <Reveal>
+      <ProductRecommendations
+        products={product.related}
+        copy={{
+          heading: product.relatedHeading,
+          subheading: product.relatedSubheading,
+          description: product.relatedDescription,
+        }}
+        category={product.category}
+      />
+    </Reveal>
   );
 }
 
@@ -884,6 +954,13 @@ export function ProductSectionsLayout({
       {product.showFeatures ? <Reveal><FeaturesSection items={product.features} product={product} /></Reveal> : null}
       {product.showGallery && !product.showFeatures ? <Reveal><ProductShowcaseSection product={product} /></Reveal> : null}
       <Reveal><OverviewSection product={product} /></Reveal>
+      {/*
+        Editor-built sections sit between the gallery and "Where it's used",
+        which is where the long-form explanation of the system belongs. The
+        block renders nothing when a product has no sections, so every product
+        page that has not opted in is byte-for-byte what it was before.
+      */}
+      <ContentSectionsBlock sections={product.sections} />
       {product.showApplications ? <Reveal><ApplicationsSection items={product.applications} product={product} /></Reveal> : null}
       {/*
         The Reel section hides itself when this product has no Reels of its own,
@@ -904,7 +981,7 @@ export function ProductSectionsLayout({
       <Reveal><WorkflowSection /></Reveal>
       {product.projects.length > 0 ? <Reveal><RealWorldSection projects={product.projects} images={product.images} /></Reveal> : null}
       {product.showFaq ? <Reveal><FaqSection items={product.faqs} /></Reveal> : null}
-      {product.showRelated ? <Reveal><RelatedSection items={product.related} /></Reveal> : null}
+      {product.showRelated ? <RelatedSection product={product} /> : null}
       <Reveal><FinalCtaSection product={product} /></Reveal>
       <FinalEnquirySection product={product} allProducts={allProducts} allServices={allServices} />
     </>

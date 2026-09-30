@@ -25,6 +25,7 @@ import {
   productIndustries,
   productProjects,
   productRelatedProducts,
+  productSections,
   productSpecifications,
   productStoredMaterials,
   productStories,
@@ -87,12 +88,18 @@ export type PublishResult = {
   assetsCached: number;
   assetsReused: number;
   assetsFailed: number;
+  /**
+   * Sources that could not be localized, so the caller can say *which* record
+   * lost its image instead of only that something did. A count alone reads as
+   * a number nobody has to act on; a URL is something that can be fixed.
+   */
+  failedAssets: string[];
   durationMs: number;
   skipped: boolean;
   error?: string;
 };
 
-type Counters = { cached: number; reused: number; failed: number; unresolved: number };
+type Counters = { cached: number; reused: number; failed: number; unresolved: number; failures: string[] };
 
 /**
  * Media counters belong to a single publish run, not to the module. Scopes are
@@ -103,7 +110,7 @@ type Counters = { cached: number; reused: number; failed: number; unresolved: nu
 const runStorage = new AsyncLocalStorage<Counters>();
 
 function activeCounters(): Counters {
-  return runStorage.getStore() ?? { cached: 0, reused: 0, failed: 0, unresolved: 0 };
+  return runStorage.getStore() ?? { cached: 0, reused: 0, failed: 0, unresolved: 0, failures: [] };
 }
 
 function fingerprint(value: unknown) {
@@ -122,7 +129,14 @@ async function asset(group: AssetGroup, name: string, source: string | null | un
   const result = await cacheImage(source, { group, name: slugifySegment(`${name}`), entityKey });
   const counters = activeCounters();
   if (!result) {
-    if (source) counters.failed += 1;
+    if (source) {
+      counters.failed += 1;
+      // Recorded, not just counted. The record publishes without this image and
+      // the page renders a placeholder, so a run that quietly drops a hero
+      // picture is indistinguishable from a successful one unless it says which
+      // source went missing.
+      if (counters.failures.length < 25) counters.failures.push(source);
+    }
     return null;
   }
   if (result.cached) counters.reused += 1;
@@ -296,6 +310,17 @@ async function generateHomeOfferCards() {
   return serialize(rows);
 }
 
+/**
+ * Publishes the hero slides.
+ *
+ * `imageUrl` becomes a local WebP whenever the stored source is one the media
+ * cache can read, and `null` when it cannot — a remote URL is never published
+ * as-is, because the local asset layer is what the rest of the site resolves
+ * against. The `null` case is therefore a real defect, so it is logged with the
+ * slide it belongs to and the exact source, and counted in the run's
+ * `failedAssets`: a hero slide that loses its photograph must be visible in the
+ * publish result, not visible only as a missing hero on the homepage.
+ */
 async function generateSliders() {
   const now = new Date();
   const rows = await db
@@ -316,6 +341,14 @@ async function generateSliders() {
     const mobile = row.mobileImageUrl
       ? await asset("hero", `slide-${row.sortOrder}-mobile`, row.mobileImageUrl, `slider:${row.id}:mobile`)
       : null;
+    if (row.imageUrl && !desktop) {
+      logServer("error", "publish.slider_image_unresolved", {
+        slideId: row.id,
+        sortOrder: row.sortOrder,
+        publicId: row.imagePublicId,
+        source: row.imageUrl,
+      });
+    }
     output.push(
       serializeOne({
         ...row,
@@ -374,6 +407,7 @@ export async function generateProducts() {
     relatedRows,
     industryRows,
     projectRows,
+    sectionRows,
   ] = await Promise.all([
     db.select().from(productFeatures).where(inArray(productFeatures.productId, ids)).orderBy(order(productFeatures.displayOrder)),
     db.select().from(productSpecifications).where(inArray(productSpecifications.productId, ids)).orderBy(order(productSpecifications.displayOrder)),
@@ -399,6 +433,16 @@ export async function generateProducts() {
       .where(
         and(
           inArray(productRelatedProducts.productId, ids),
+          // A parked recommendation is not published. The column existed but no
+          // query read it, so "enable/disable" in the admin did nothing: the
+          // product stayed on the page either way. Filtering here is what makes
+          // the switch mean something, and it also keeps the row in the
+          // database so re-enabling is one click rather than a re-pick.
+          eq(productRelatedProducts.isActive, true),
+          // The recommended product is a product like any other: if an editor
+          // has switched it off, it must not be advertised on someone else's
+          // page just because this relationship is still switched on.
+          eq(products.isActive, true),
           eq(products.status, "PUBLISHED"),
           isNull(products.deletedAt),
         ),
@@ -416,6 +460,7 @@ export async function generateProducts() {
       .innerJoin(projects, eq(productProjects.projectId, projects.id))
       .where(and(inArray(productProjects.productId, ids), eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt)))
       .orderBy(order(productProjects.displayOrder)),
+    db.select().from(productSections).where(inArray(productSections.productId, ids)).orderBy(order(productSections.displayOrder)),
   ]);
 
   const byFeature = groupByProductId(features);
@@ -432,6 +477,7 @@ export async function generateProducts() {
   const byRelated = groupByProductId(relatedRows);
   const byIndustry = groupByProductId(industryRows);
   const byProject = groupByProductId(projectRows);
+  const bySection = groupByProductId(sectionRows);
 
   const faqGroups = new Map<number | null, typeof productFaqs>();
   for (const faq of productFaqs) {
@@ -478,6 +524,14 @@ export async function generateProducts() {
   ]);
   const localizedProjectById = new Map(nestedProjects.map((row) => [row.id, row]));
 
+  // Content sections carry their own image, so they are localized through the
+  // same media pipeline as the gallery. A `public/` path is passed through
+  // untouched; only a real Cloudinary upload is downloaded and rewritten.
+  const cachedSections = await mapImageColumns(sectionRows, [
+    { key: "imageUrl", group: "products", name: (row) => `${row.key}-section`, entityKey: (row) => `product-section:${row.id}` },
+  ]);
+  const localizedSectionById = new Map(cachedSections.map((row) => [row.id, row]));
+
   const output = base.map((row) => {
     const related = (byRelated.get(row.id) ?? []).map((entry) => localizedProductById.get(entry.item.id) ?? entry.item);
     const sameCategory = base.filter((item) => item.id !== row.id && item.category === row.category).slice(0, 3);
@@ -488,6 +542,7 @@ export async function generateProducts() {
       applications: byApplication.get(row.id) ?? [],
       images: (byImage.get(row.id) ?? []).map((entry) => cachedImageById.get(entry.id) ?? entry),
       gallery: (byGallery.get(row.id) ?? []).map((entry) => cachedGalleryById.get(entry.id) ?? entry),
+      sections: (bySection.get(row.id) ?? []).map((entry) => localizedSectionById.get(entry.id) ?? entry),
       benefits: byBenefit.get(row.id) ?? [],
       components: byComponent.get(row.id) ?? [],
       configurations: byConfiguration.get(row.id) ?? [],
@@ -902,6 +957,7 @@ export async function loadProductDetail(slug: string) {
     relatedRows,
     industryRows,
     projectRows,
+    sectionRows,
   ] = await Promise.all([
     db.select().from(productFeatures).where(eq(productFeatures.productId, product.id)).orderBy(asc(productFeatures.displayOrder)),
     db.select().from(productSpecifications).where(eq(productSpecifications.productId, product.id)).orderBy(asc(productSpecifications.displayOrder)),
@@ -928,7 +984,7 @@ export async function loadProductDetail(slug: string) {
       .select({ item: products })
       .from(productRelatedProducts)
       .innerJoin(products, eq(productRelatedProducts.relatedProductId, products.id))
-      .where(and(eq(productRelatedProducts.productId, product.id), eq(products.status, "PUBLISHED"), isNull(products.deletedAt)))
+      .where(and(eq(productRelatedProducts.productId, product.id), eq(productRelatedProducts.isActive, true), eq(products.isActive, true), eq(products.status, "PUBLISHED"), isNull(products.deletedAt)))
       .orderBy(asc(productRelatedProducts.displayOrder)),
     db
       .select({ item: industries })
@@ -942,8 +998,9 @@ export async function loadProductDetail(slug: string) {
       .innerJoin(projects, eq(productProjects.projectId, projects.id))
       .where(and(eq(productProjects.productId, product.id), eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt)))
       .orderBy(asc(productProjects.displayOrder)),
+    db.select().from(productSections).where(eq(productSections.productId, product.id)).orderBy(asc(productSections.displayOrder)),
   ]);
-  return { product, features, specifications, applications, images, gallery: galleryRows, benefits, components, configurations, storedMaterials, stories, workflows, faqs: productFaqs, related: relatedRows.map((row) => row.item), industries: industryRows.map((row) => row.item), projects: projectRows.map((row) => row.item) };
+  return { product, features, specifications, applications, images, gallery: galleryRows, sections: sectionRows, benefits, components, configurations, storedMaterials, stories, workflows, faqs: productFaqs, related: relatedRows.map((row) => row.item), industries: industryRows.map((row) => row.item), projects: projectRows.map((row) => row.item) };
 }
 
 export async function loadServiceDetail(slug: string) {
@@ -1180,7 +1237,7 @@ async function readPublished<T>(key: CollectionKey): Promise<T> {
  */
 export async function publish(scope: PublishScope = "all", options: { force?: boolean } = {}): Promise<PublishResult> {
   const started = Date.now();
-  const counters: Counters = { cached: 0, reused: 0, failed: 0, unresolved: 0 };
+  const counters: Counters = { cached: 0, reused: 0, failed: 0, unresolved: 0, failures: [] };
   const collections = collectionsForScope(scope);
   const written: CollectionKey[] = [];
 
@@ -1191,6 +1248,7 @@ export async function publish(scope: PublishScope = "all", options: { force?: bo
       assetsCached: 0,
       assetsReused: 0,
       assetsFailed: 0,
+      failedAssets: [],
       durationMs: Date.now() - started,
       skipped: true,
       error: "DATABASE_URL is not configured",
@@ -1254,6 +1312,9 @@ async function publishWithinScope(
       assetsCached: counters.cached,
       assetsReused: counters.reused,
       assetsUnresolved: counters.unresolved,
+      // Logged whenever it is non-empty, not only on failure, because "assets
+      // failed" with no source is not something anyone can act on.
+      ...(counters.failures.length ? { assetsFailed: counters.failures } : {}),
       durationMs: Date.now() - started,
     });
   }
@@ -1264,6 +1325,7 @@ async function publishWithinScope(
     assetsCached: counters.cached,
     assetsReused: counters.reused,
     assetsFailed: counters.failed,
+    failedAssets: counters.failures,
     durationMs: Date.now() - started,
     skipped: written.length === 0,
   };
@@ -1309,6 +1371,7 @@ export function createPublishQueue(run: (scope: PublishScope, options: { force?:
             assetsCached: 0,
             assetsReused: 0,
             assetsFailed: 0,
+            failedAssets: [],
             durationMs: 0,
             skipped: true,
             error: message,
@@ -1327,5 +1390,32 @@ export function createPublishQueue(run: (scope: PublishScope, options: { force?:
 
 /** Serializes concurrent publish requests so two admin saves cannot interleave writes. */
 export const publishSerialized = createPublishQueue((scope, options) => publish(scope, options));
+
+/**
+ * Runs the publish an admin save needs and shapes it for the API response.
+ *
+ * Shared by the create and update routes so the two cannot report differently:
+ * an admin that is told "published" must always be able to see whether the
+ * images made it, because a record whose photo could not be localized publishes
+ * successfully and renders a placeholder.
+ */
+export async function publishEntitySummary(entity: string) {
+  try {
+    const result = await publishSerialized(scopeForAdminEntity(entity));
+    return {
+      scope: result.scope,
+      collections: result.collections,
+      assetsCached: result.assetsCached,
+      assetsReused: result.assetsReused,
+      assetsFailed: result.assetsFailed,
+      failedAssets: result.failedAssets,
+      skipped: result.skipped,
+      ...(result.error ? { error: result.error } : {}),
+    };
+  } catch (error) {
+    logServer("warn", "admin.publish_failed", { entity, message: error instanceof Error ? error.message : "unknown" });
+    return { scope: null, error: "static publish failed" };
+  }
+}
 
 export type { CachedAsset };

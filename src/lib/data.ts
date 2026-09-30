@@ -4,7 +4,7 @@ import {
   activityLogs, blogCategories, blogPosts, catalogDownloads, clientLogos, clients, contactMessages, faqs, gallery, homeOfferCards, homeSliders, homepageSections, industries, inquiries,
   pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productGalleryImages, productImages, productIndustries, productProjects,
 
-  productRelatedProducts, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projectImages, projects, redirects,
+  productRelatedProducts, productSections, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projectImages, projects, redirects,
   seoSettings, serviceFeatures, serviceIndustries, serviceProjects, services, siteSettings, testimonials, videoProducts, videos, videoServices,
 } from "@/db/schema";
 import { and, asc, desc, eq, gte, ilike, isNull, lte, or, sql } from "drizzle-orm";
@@ -100,6 +100,29 @@ async function resolve<T>(
 }
 
 const notEmptyArray = (value: unknown) => (Array.isArray(value) ? value.length === 0 : value === null || value === undefined);
+
+/**
+ * True when a published payload is structurally usable.
+ *
+ * The static layer is preferred over the database precisely so the site keeps
+ * serving content while Neon is paused, so a broken published file would
+ * otherwise win forever. A slider list that no longer carries a single
+ * photograph is exactly that: it is the fingerprint of a publish run whose
+ * downloads all failed, and honouring it would leave the hero permanently
+ * blank while the CMS row in front of it holds a perfectly good image. Treating
+ * it as unusable falls through to the database, which re-publishes and repairs
+ * the file, and a genuine outage still ends at the curated bootstrap content.
+ */
+function slidesWithoutImages(value: unknown) {
+  if (!Array.isArray(value)) return notEmptyArray(value);
+  if (value.length === 0) return true;
+  return value.every((slide) => {
+    const row = isPlainRecord(slide) ? slide : {};
+    return !text(row.imageUrl) && !text(row.mobileImageUrl) && !text(row.videoUrl);
+  });
+}
+
+const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
 
 export const DEFAULT_SITE_SETTINGS: typeof siteSettings.$inferSelect = {
@@ -273,6 +296,7 @@ export type ProductDetail = typeof products.$inferSelect & {
   stories: Array<typeof productStories.$inferSelect>;
   workflows: Array<typeof productWorkflows.$inferSelect>;
   faqs: Array<typeof faqs.$inferSelect>;
+  sections: Array<typeof productSections.$inferSelect>;
   related: Array<typeof products.$inferSelect>;
   industries: Array<typeof industries.$inferSelect>;
   projects: Array<typeof projects.$inferSelect>;
@@ -317,7 +341,7 @@ export async function getHomeSliders(): Promise<HomeSlide[]> {
         )
         .orderBy(asc(homeSliders.sortOrder)),
     () => bootstrapSliders(),
-    { scope: "sliders", isEmpty: notEmptyArray },
+    { scope: "sliders", isEmpty: slidesWithoutImages },
   );
   return value;
 }
@@ -409,6 +433,7 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
         relatedRows,
         industryRows,
         projectRows,
+        sectionRows,
       ] = await Promise.all([
         db.select().from(productFeatures).where(eq(productFeatures.productId, product.id)).orderBy(asc(productFeatures.displayOrder)),
         db.select().from(productSpecifications).where(eq(productSpecifications.productId, product.id)).orderBy(asc(productSpecifications.displayOrder)),
@@ -436,7 +461,7 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
           .select({ item: products })
           .from(productRelatedProducts)
           .innerJoin(products, eq(productRelatedProducts.relatedProductId, products.id))
-          .where(and(eq(productRelatedProducts.productId, product.id), eq(products.status, "PUBLISHED"), isNull(products.deletedAt)))
+          .where(and(eq(productRelatedProducts.productId, product.id), eq(productRelatedProducts.isActive, true), eq(products.isActive, true), eq(products.status, "PUBLISHED"), isNull(products.deletedAt)))
           .orderBy(asc(productRelatedProducts.displayOrder)),
         db
           .select({ item: industries })
@@ -450,6 +475,7 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
           .innerJoin(projects, eq(productProjects.projectId, projects.id))
           .where(and(eq(productProjects.productId, product.id), eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt)))
           .orderBy(asc(productProjects.displayOrder)),
+        db.select().from(productSections).where(eq(productSections.productId, product.id)).orderBy(asc(productSections.displayOrder)),
       ]);
       const allProducts = await getProducts();
       const related = relatedRows.length
@@ -471,6 +497,7 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
         stories,
         workflows,
         faqs: productFaqs,
+        sections: sectionRows,
         related,
         industries: industryRows.map((row) => row.item),
         projects: projectRows.map((row) => row.item),
@@ -500,6 +527,7 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
     stories: [],
     workflows: [],
     faqs: [],
+    sections: [],
     related: children.related
       .map((id) => allProducts.find((item) => item.id === id))
       .filter((item): item is NonNullable<typeof item> => Boolean(item))
@@ -528,6 +556,7 @@ function reviveProductDetail(detail: StaticProductDetail): ProductDetail {
     configurations: detail.configurations.map(revive) as unknown as ProductDetail["configurations"],
     storedMaterials: detail.storedMaterials.map(revive) as unknown as ProductDetail["storedMaterials"],
     stories: detail.stories.map(revive) as unknown as ProductDetail["stories"],
+    sections: ((detail.sections ?? []) as unknown[]).map(revive) as unknown as ProductDetail["sections"],
     workflows: detail.workflows.map(revive) as unknown as ProductDetail["workflows"],
     faqs: detail.faqs.map(revive) as unknown as ProductDetail["faqs"],
     related: detail.related.map(revive) as unknown as ProductDetail["related"],

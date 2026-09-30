@@ -18,6 +18,12 @@ export type ProductPageImage = {
   imageUrl: string;
   altText: string;
   caption: string | null;
+  /**
+   * The editor's explicit primary flag. Carried all the way from the gallery
+   * row so the hero, the homepage card and the related strip can all agree on
+   * one image without re-deriving it.
+   */
+  isPrimary?: boolean;
 };
 
 export type ProductPageFeature = {
@@ -39,6 +45,21 @@ export type ProductPageApplication = {
   description: string | null;
   image: string | null;
   altText: string | null;
+};
+
+/** One editor-built content section. Mirrors the `product_sections` row. */
+export type ProductPageSection = {
+  id: string | number;
+  key: string | null;
+  eyebrow: string | null;
+  title: string;
+  body: string | null;
+  layout: string;
+  imageUrl: string | null;
+  altText: string | null;
+  ctaLabel: string | null;
+  ctaHref: string | null;
+  isActive: boolean;
 };
 
 export type ProductPageConfiguration = {
@@ -112,6 +133,14 @@ export type ProductPageProduct = {
   applications: ProductPageApplication[];
   configurations: ProductPageConfiguration[];
   benefits: ProductPageBenefit[];
+  /**
+   * Editor-built content sections, active rows only, in editor order.
+   *
+   * This is the one list that replaces what used to be a tab per page block.
+   * It is empty for catalogue products and for a CMS product whose editor has
+   * not built any yet, in which case the page renders exactly as it did before.
+   */
+  sections: ProductPageSection[];
   projects: ProductPageProject[];
   faqs: ProductPageFaq[];
   related: ProductPageRelated[];
@@ -126,6 +155,18 @@ export type ProductPageProduct = {
   showBenefits: boolean;
   showFaq: boolean;
   showRelated: boolean;
+  /**
+   * Copy for the "Recommended systems" section, from the product's own columns.
+   *
+   * All three are nullable and defaulted at render time
+   * (`resolveRecommendationCopy`), so a product that has never had this section
+   * written for it still reads correctly — the subheading falls back to the
+   * product's category. Absent on the catalogue fallback, where the section's
+   * copy is derived the same way from the catalogue product's category.
+   */
+  relatedHeading?: string | null;
+  relatedSubheading?: string | null;
+  relatedDescription?: string | null;
 };
 
 export type ProductOption = {
@@ -263,6 +304,7 @@ export function adaptCatalogueProduct(product: CatalogueProduct, relatedProducts
       image: null,
     })),
     benefits: [],
+    sections: [],
     projects: [],
     faqs: [],
     related: relatedProducts.map(adaptCatalogueRelated),
@@ -286,15 +328,28 @@ export function adaptCatalogueProduct(product: CatalogueProduct, relatedProducts
  * A product's images live in one ordered list: the admin-managed gallery first,
  * then the images on its record, then — only for a product with neither — the
  * media assets in its product folder. The product page renders the head of that
- * list as the primary image, and the homepage card asks this function for the
- * same value, so the two cannot drift apart.
+ * list as the primary image, and the homepage card, the listing card and the
+ * related-product strip all ask this function for the same value, so they
+ * cannot drift apart.
+ *
+ * The editor's explicit `isPrimary` flag wins over position. It used to be
+ * ignored here, which meant the "Set as primary" control in the admin saved
+ * successfully and changed nothing: the hero, the homepage card and the
+ * listing card all took the first row by position instead. Honouring the flag
+ * here is what makes that control mean what it says, and doing it in one place
+ * is what keeps every surface in agreement.
+ *
+ * A flagged row that is switched off is ignored, because a hidden image cannot
+ * be the one the page leads with. When no row claims primary — an older record,
+ * or one where the editor cleared the flag — the fallback is simply the top of
+ * the same order, so behaviour is unchanged for every product that has not used
+ * the flag yet.
  *
  * `gallery` leads deliberately. It is the list an editor reorders in the admin,
  * so moving an image to the top must move the main image on the hero, the card
- * and the homepage at the same time — which is only true if that list is
- * consulted first. `product_images` is the older, narrower list kept for
- * compatibility, and `folderImages` is a last resort that keeps a product with
- * no CMS images from rendering a blank card.
+ * and the homepage at the same time. `product_images` is the older, narrower
+ * list kept for compatibility, and `folderImages` is a last resort that keeps a
+ * product with no CMS images from rendering a blank card.
  *
  * `heroImage`/`thumbnail` are consulted before `folderImages` for the same
  * reason: an explicit column is a deliberate choice, a scanned folder is not.
@@ -303,22 +358,39 @@ export function getPrimaryProductImage(
   product: {
     heroImage?: string | null;
     thumbnail?: string | null;
-    images?: readonly { imageUrl?: string | null }[] | null;
-    gallery?: readonly { imageUrl?: string | null }[] | null;
+    images?: readonly { imageUrl?: string | null; isPrimary?: boolean | null; isActive?: boolean | null }[] | null;
+    gallery?: readonly { imageUrl?: string | null; isPrimary?: boolean | null; isActive?: boolean | null }[] | null;
   },
   folderImages: readonly { imageUrl?: string | null }[] = [],
 ): string {
-  const ordered = [...(product.gallery ?? []), ...(product.images ?? [])];
-  for (const image of ordered) {
-    const url = typeof image?.imageUrl === "string" ? image.imageUrl.trim() : "";
-    if (url) return url;
+  const urlOf = (image: { imageUrl?: string | null } | null | undefined) =>
+    typeof image?.imageUrl === "string" ? image.imageUrl.trim() : "";
+
+  // A row hidden in the admin is not a candidate for leading the page, and a
+  // row with no URL cannot be rendered at all.
+  const usable = (image: { imageUrl?: string | null; isActive?: boolean | null }) =>
+    image.isActive !== false && urlOf(image) !== "";
+
+  const gallery = (product.gallery ?? []).filter(usable);
+  const images = (product.images ?? []).filter(usable);
+
+  // The editor's explicit choice, searched across both lists because a product
+  // can flag a primary in either.
+  for (const image of [...gallery, ...images]) {
+    if (image.isPrimary === true) return urlOf(image);
   }
+  // No flag set: the top of the editor's own order, which is what the flag would
+  // have pointed at had they used it.
+  for (const image of [...gallery, ...images]) {
+    return urlOf(image);
+  }
+
   const hero = typeof product.heroImage === "string" ? product.heroImage.trim() : "";
   if (hero) return hero;
   const thumbnail = typeof product.thumbnail === "string" ? product.thumbnail.trim() : "";
   if (thumbnail) return thumbnail;
   for (const image of folderImages) {
-    const url = typeof image?.imageUrl === "string" ? image.imageUrl.trim() : "";
+    const url = urlOf(image);
     if (url) return url;
   }
   return "";
@@ -340,6 +412,9 @@ function toGalleryImages(rows: LegacyProductDetail["gallery"]): ProductPageImage
       imageUrl: row.imageUrl,
       altText: row.altText,
       caption: row.caption,
+      // Carried through so the admin's "Set as primary" flag reaches
+      // `getPrimaryProductImage`, which is what actually decides the hero.
+      isPrimary: row.isPrimary,
     }));
 }
 
@@ -347,6 +422,8 @@ export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages:
   const gallery = toGalleryImages(product.gallery);
   const sourceImages: ProductPageImage[] = [
     ...folderImages,
+    // The legacy `product_images` table has no primary flag of its own; the
+    // gallery is the list that carries the editor's decision.
     ...product.images.map((image) => ({
       id: image.id,
       imageUrl: image.imageUrl,
@@ -354,7 +431,10 @@ export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages:
       caption: image.caption,
     })),
   ];
-  const firstImage = getPrimaryProductImage({ ...product, gallery }, folderImages);
+  // Asked with the raw gallery rows rather than the mapped ones: `toGalleryImages`
+  // has already dropped the rows an editor switched off, and the primary decision
+  // needs `isPrimary`, which the render type carries but a hidden row does not.
+  const firstImage = getPrimaryProductImage(product, folderImages);
   return {
     id: product.id,
     name: product.name,
@@ -379,20 +459,24 @@ export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages:
       altText: image.altText,
       caption: image.caption,
     })),
-    features: product.features.map((feature) => ({ id: feature.id, title: feature.title, description: feature.description })),
+    features: product.features
+      .filter((feature) => feature.isActive !== false)
+      .map((feature) => ({ id: feature.id, title: feature.title, description: feature.description })),
     specifications: product.specifications.map((specification) => ({
       id: specification.id,
       specificationName: specification.specificationName,
       specificationValue: specification.specificationValue,
     })),
-    applications: product.applications.map((application) => ({
-      id: application.id,
-      application: application.application,
-      title: application.title,
-      description: application.description,
-      image: application.image,
-      altText: application.altText,
-    })),
+    applications: product.applications
+      .filter((application) => application.isActive !== false)
+      .map((application) => ({
+        id: application.id,
+        application: application.application,
+        title: application.title,
+        description: application.description,
+        image: application.image,
+        altText: application.altText,
+      })),
     configurations: product.configurations.map((configuration) => ({
       id: configuration.id,
       title: configuration.title,
@@ -400,6 +484,19 @@ export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages:
       image: configuration.image,
     })),
     benefits: product.benefits.map((benefit) => ({ id: benefit.id, title: benefit.title, description: benefit.description })),
+    sections: product.sections.map((section) => ({
+      id: section.id,
+      key: section.key,
+      eyebrow: section.eyebrow,
+      title: section.title,
+      body: section.body,
+      layout: section.layout,
+      imageUrl: section.imageUrl,
+      altText: section.altText,
+      ctaLabel: section.ctaLabel,
+      ctaHref: section.ctaHref,
+      isActive: section.isActive,
+    })),
     projects: product.projects.map((project) => ({
       id: project.id,
       slug: project.slug,
@@ -421,6 +518,9 @@ export function adaptDatabaseProduct(product: LegacyProductDetail, folderImages:
     showBenefits: product.showBenefits,
     showFaq: product.showFaq,
     showRelated: product.showRelated,
+    relatedHeading: product.relatedHeading,
+    relatedSubheading: product.relatedSubheading,
+    relatedDescription: product.relatedDescription,
   };
 }
 

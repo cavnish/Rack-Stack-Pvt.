@@ -103,17 +103,55 @@ function describeImage(productName: string, index: number): { label: string; alt
 type Report = {
   slug: string;
   folder: string | null;
-  added: number;
+  imported: number;
   kept: number;
+  droppedForeign: number;
   placeholdersRemoved: number;
   total: number;
   primary: string;
 };
 
+/**
+ * Works out which of a product's existing gallery rows are genuinely its own.
+ *
+ * The seeded galleries were padded to six slots with photographs of *other*
+ * products — `lockers` was given the compactor image as its hero and five more
+ * unrelated photographs besides it, so the page led with a mobile compactor.
+ * Those rows cannot be told apart by their filename: `long-span-storage-…`
+ * belongs to `heavy-duty-long-span-racks` and `forklift-alongside-pallet-racking-…`
+ * to `mezzanine-floor`, and neither filename contains its product's name.
+ *
+ * The database is the only reliable authority, so ownership is read off it
+ * rather than guessed at: a row is a product's own image if it is that product's
+ * `heroImage` or `thumbnail`. The one extra rule is that an image claimed by
+ * more than one product is nobody's — the compactor photograph is the hero of
+ * both `compactor-storage-systems` and `lockers`, which is precisely how the
+ * wrong image got there, so a contested row is dropped from both.
+ *
+ * Everything else is the padding, and is reported rather than silently kept.
+ */
+function buildOwnAssetIndex(rows: typeof products.$inferSelect[]) {
+  const claims = new Map<string, Set<string>>();
+  const claim = (url: string | null | undefined, slug: string) => {
+    if (!url) return;
+    const key = stableImageUrl(url);
+    if (!key) return;
+    const slugs = claims.get(key);
+    if (slugs) slugs.add(slug);
+    else claims.set(key, new Set([slug]));
+  };
+  for (const row of rows) {
+    claim(row.heroImage, row.slug);
+    claim(row.thumbnail, row.slug);
+  }
+  return claims;
+}
+
 async function main() {
   resetProductAssetCache();
   const folders = await listProductAssetFolders();
   const rows = await db.select().from(products).orderBy(asc(products.displayOrder));
+  const claims = buildOwnAssetIndex(rows);
   const reports: Report[] = [];
 
   for (const product of rows) {
@@ -125,12 +163,23 @@ async function main() {
       .where(eq(productGalleryImages.productId, product.id))
       .orderBy(asc(productGalleryImages.displayOrder));
 
+    /**
+     * True when the row is this product's own established image, and no other
+     * product claims the same file.
+     */
+    const isOwnAsset = (url: string) => {
+      const key = stableImageUrl(url);
+      const slugs = claims.get(key);
+      return slugs?.has(product.slug) === true && slugs.size === 1;
+    };
+
     if (!folder) {
       reports.push({
         slug: product.slug,
         folder: null,
-        added: 0,
+        imported: 0,
         kept: existing.length,
+        droppedForeign: 0,
         placeholdersRemoved: 0,
         total: existing.length,
         primary: getPrimaryGalleryImageUrl(existing),
@@ -138,64 +187,91 @@ async function main() {
       continue;
     }
 
+    const discoveredUrls = new Set(discovered.map((item) => stableImageUrl(item.imageUrl)));
+
     /**
-     * Existing rows keyed by their normalised URL.
+     * The product's real photography leads, in the folder's own natural order.
      *
-     * Normalising matters: the database may hold a row written with a
-     * differently-encoded but equivalent path, and matching the raw string would
-     * import the same photograph twice.
+     * Order matters as much as membership here: the first row becomes the
+     * primary image, so putting the folder first is what replaces a wrong hero
+     * with a real photograph of this product. The rows the product already had
+     * are appended behind it rather than in front, which is the opposite of the
+     * previous merge and the reason the wrong image survived it.
      */
-    const byUrl = new Map(existing.map((row) => [stableImageUrl(row.imageUrl), row]));
+    const merged: Array<{
+      imageUrl: string;
+      label: string | null;
+      altText: string;
+      caption: string | null;
+      isActive: boolean;
+      slot: string | null;
+    }> = [];
 
-    // Preserve the editor's existing order, then append newly discovered images.
-    const merged: Array<{ imageUrl: string; label: string | null; altText: string; caption: string | null; isActive: boolean; slot: string | null }> = [];
-
-    for (const row of existing) {
-      const url = stableImageUrl(row.imageUrl);
-      const isDiscovered = discovered.some((item) => stableImageUrl(item.imageUrl) === url);
-      // A stock placeholder is dropped: the photograph it stood in for is about
-      // to be registered from `public/`. A row the editor uploaded or chose is
-      // kept whether or not a folder image duplicates it.
-      if (isPlaceholder(row.imageUrl) && !isDiscovered) {
-        continue;
-      }
-      merged.push({
-        imageUrl: row.imageUrl,
-        label: row.label,
-        altText: row.altText,
-        caption: row.caption,
-        isActive: row.isActive,
-        slot: row.slot,
-      });
-    }
-
-    let added = 0;
-    const mergedUrls = new Set(merged.map((item) => stableImageUrl(item.imageUrl)));
-    for (const item of discovered) {
-      if (mergedUrls.has(stableImageUrl(item.imageUrl))) continue;
-      const defaults = describeImage(product.name, merged.length);
+    let imported = 0;
+    for (const [index, item] of discovered.entries()) {
+      const defaults = describeImage(product.name, index);
       merged.push({
         imageUrl: item.imageUrl,
-        // A caption or title the editor already wrote for a discovered image is
-        // not overwritten: this only fills in a blank.
         label: item.label || defaults.label,
         altText: item.altText || defaults.altText,
         caption: item.caption || defaults.caption,
         isActive: true,
         slot: null,
       });
-      mergedUrls.add(stableImageUrl(item.imageUrl));
-      added += 1;
+      imported += 1;
     }
+
+    /**
+     * An already-imported folder image keeps whatever the editor wrote for it,
+     * so a caption or alt text is not clobbered by the default copy.
+     */
+    const existingByUrl = new Map(existing.map((row) => [stableImageUrl(row.imageUrl), row]));
+    for (let index = 0; index < merged.length; index += 1) {
+      const prior = existingByUrl.get(stableImageUrl(merged[index].imageUrl));
+      if (!prior) continue;
+      merged[index] = {
+        ...merged[index],
+        label: prior.label || merged[index].label,
+        altText: prior.altText || merged[index].altText,
+        caption: prior.caption || merged[index].caption,
+        isActive: prior.isActive,
+        slot: prior.slot,
+      };
+    }
+
+    /**
+     * Rows that are neither a folder image nor the product's own established
+     * image are the cross-product padding, and are dropped. The files stay on
+     * disk untouched — this only stops a product from displaying a photograph of
+     * something else, and any of them can be re-added from the media library.
+     */
+    let droppedForeign = 0;
+    let kept = 0;
+    for (const row of existing) {
+      const key = stableImageUrl(row.imageUrl);
+      if (discoveredUrls.has(key)) continue;
+      if (isPlaceholder(row.imageUrl)) continue;
+      if (isOwnAsset(row.imageUrl)) {
+        merged.push({
+          imageUrl: row.imageUrl,
+          label: row.label,
+          altText: row.altText,
+          caption: row.caption,
+          isActive: row.isActive,
+          slot: row.slot,
+        });
+        kept += 1;
+        continue;
+      }
+      droppedForeign += 1;
+    }
+
+    const placeholdersRemoved = existing.filter((row) => isPlaceholder(row.imageUrl)).length;
 
     const normalized = normalizeGalleryPrimaries(
       merged.map((item, index) => ({ ...item, displayOrder: index })),
     );
     const primary = getPrimaryGalleryImageUrl(normalized);
-
-    const placeholdersRemoved = existing.filter(
-      (row) => isPlaceholder(row.imageUrl) && !discovered.some((item) => stableImageUrl(item.imageUrl) === stableImageUrl(row.imageUrl)),
-    ).length;
 
     if (!dryRun) {
       await db.transaction(async (tx) => {
@@ -264,8 +340,9 @@ async function main() {
     reports.push({
       slug: product.slug,
       folder: folder.folder,
-      added,
-      kept: merged.length - added,
+      imported,
+      kept,
+      droppedForeign,
       placeholdersRemoved,
       total: merged.length,
       primary,
@@ -275,9 +352,8 @@ async function main() {
   console.log(`\n${dryRun ? "[dry run] " : ""}Product image import\n`);
   console.table(reports);
 
-  const withSections = await db.select({ slug: products.slug }).from(products);
   const sectionCount = await db.select({ id: productSections.id }).from(productSections);
-  console.log(`\nProducts: ${withSections.length}`);
+  console.log(`\nProducts: ${rows.length}`);
   console.log(`Content section rows currently in the database: ${sectionCount.length}`);
   console.log(`Folders discovered under public/: ${folders.length}`);
   for (const entry of folders) {

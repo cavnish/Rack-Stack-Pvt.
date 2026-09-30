@@ -4,14 +4,13 @@
  *
  * Why this exists
  * ---------------
- * The product detail page builds its image list in
- * `src/lib/product-page.ts` as `[...folderImages, ...product.images]` and takes
- * the head of that list, with `heroImage`/`thumbnail` consulted only when the
- * product has no images at all. The homepage used to read `thumbnail` directly
- * off the product row instead, so the two resolved independently and the card
- * could show a completely different photograph from the page it linked to — in
- * practice a shared stock image, because `lockers` and `compactor-storage-systems`
- * share the same `thumbnail` value.
+ * The product detail page builds its image list in `src/lib/product-page.ts`
+ * and takes the head of that list, with `heroImage`/`thumbnail` consulted only
+ * when the product has no images at all. The homepage used to read `thumbnail`
+ * directly off the product row instead, so the two resolved independently and
+ * the card could show a completely different photograph from the page it linked
+ * to — in practice a shared stock image, because `lockers` and
+ * `compactor-storage-systems` share the same `thumbnail` value.
  *
  * This module is the batch form of that same resolution, so the homepage, the
  * category listings and the admin preview all ask one question in one place and
@@ -19,16 +18,29 @@
  * reimplementing the order — an ordering rule that exists in two places is an
  * ordering rule that will eventually exist in two different orders.
  *
- * Reordering a product's gallery in the admin changes the head of the list, so
- * the product page and the homepage card move to the new first image together
- * with no second edit.
+ * Reordering a product's gallery, or flagging a different row as primary, moves
+ * the head of the list — so the product page and the homepage card move to the
+ * new image together with no second edit.
+ *
+ * Why it reads published data and not the database
+ * ------------------------------------------------
+ * This runs while rendering public pages. Reading `product_images` and
+ * `product_gallery_images` here made every homepage render and every product
+ * page's related-products strip issue two extra queries, which meant the site
+ * needed the database to display content it had already published. The published
+ * JSON already contains both lists, localisation has already been applied to
+ * them, and the publish step is the only thing that is allowed to write it — so
+ * reading it here is both cheaper and what makes the site work with the database
+ * switched off. The database is consulted when no published file exists yet (a
+ * first run before the first publish), which keeps a fresh checkout working.
  */
 
 import { db, dbConfigured } from "@/db";
 import { productGalleryImages, productImages } from "@/db/schema";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { asc, inArray } from "drizzle-orm";
 import { getProductFolderImages, type ProductFolderImage } from "@/lib/product-image-assets";
 import { getPrimaryProductImage } from "@/lib/product-page";
+import { readCollection } from "@/lib/publish/store";
 import { logServer } from "@/lib/logger";
 
 /** The product columns the primary image can come from. */
@@ -38,6 +50,13 @@ export type PrimaryImageCandidate = {
   name: string;
   heroImage?: string | null;
   thumbnail?: string | null;
+};
+
+/** One row of either image table, reduced to what the ordering rule needs. */
+type ImageRow = {
+  imageUrl: string | null;
+  isActive?: boolean | null;
+  isPrimary?: boolean | null;
 };
 
 function text(value: string | null | undefined): string {
@@ -57,34 +76,59 @@ function columnFallback(product: PrimaryImageCandidate): string {
 }
 
 /**
- * Primary image per product, keyed by product id.
+ * Gallery and image rows for many products, read from the published JSON.
  *
- * Never throws: a database or filesystem problem degrades to the product's own
- * `thumbnail`/`heroImage` rather than taking the page down, because a card with
- * a slightly wrong image is far better than a homepage that will not render.
+ * Returns `null` when there is no published file, which is the signal for the
+ * caller to fall back to the database: that is a first-run checkout that has
+ * never published, not a broken site.
  */
-export async function getPrimaryProductImages(
-  products: readonly PrimaryImageCandidate[],
-): Promise<Map<number, string>> {
-  const resolved = new Map<number, string>();
-  if (products.length === 0) return resolved;
+type PublishedProductImages = {
+  images: Map<number, ImageRow[]>;
+  gallery: Map<number, ImageRow[]>;
+};
 
-  const ids = products.map((product) => product.id);
+async function readPublishedProductImages(): Promise<PublishedProductImages | null> {
+  const published = await readCollection<Array<Record<string, unknown>>>("products");
+  if (!Array.isArray(published)) return null;
+  const images = new Map<number, ImageRow[]>();
+  const gallery = new Map<number, ImageRow[]>();
+  for (const record of published) {
+    const id = Number(record?.id);
+    if (!Number.isFinite(id)) continue;
+    const list = record.images;
+    if (Array.isArray(list)) {
+      images.set(
+        id,
+        list
+          .filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === "object")
+          .map((row) => ({ imageUrl: (row.imageUrl as string | null) ?? null })),
+      );
+    }
+    const galleryList = record.gallery;
+    if (Array.isArray(galleryList)) {
+      gallery.set(
+        id,
+        galleryList
+          .filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === "object")
+          .map((row) => ({
+            imageUrl: (row.imageUrl as string | null) ?? null,
+            isActive: row.isActive as boolean | null,
+            isPrimary: row.isPrimary as boolean | null,
+          })),
+      );
+    }
+  }
+  return { images, gallery };
+}
 
-  /**
-   * `product_images` for every product in one query rather than one each. A
-   * homepage shows a row of cards, and the per-product query pattern used by
-   * `getProductBySlug` would make this N round trips on the most requested page
-   * on the site.
-   */
+/**
+ * The database form of the same read, for a checkout that has not published yet.
+ */
+async function readDatabaseProductImages(ids: number[]): Promise<PublishedProductImages> {
+  const images = new Map<number, ImageRow[]>();
+  const gallery = new Map<number, ImageRow[]>();
   let imageRows: Array<{ productId: number; imageUrl: string | null }> = [];
-  /**
-   * The admin-managed gallery, in the same single batched query shape.
-   *
-   * This is the list `getPrimaryProductImage` consults first, so without it every
-   * card on the site would resolve to an image the editor cannot see or reorder.
-   */
-  let galleryRows: Array<{ productId: number; imageUrl: string | null; isActive: boolean }> = [];
+  let galleryRows: Array<{ productId: number; imageUrl: string | null; isActive: boolean; isPrimary: boolean }> = [];
   if (dbConfigured) {
     try {
       [imageRows, galleryRows] = await Promise.all([
@@ -98,14 +142,10 @@ export async function getPrimaryProductImages(
             productId: productGalleryImages.productId,
             imageUrl: productGalleryImages.imageUrl,
             isActive: productGalleryImages.isActive,
+            isPrimary: productGalleryImages.isPrimary,
           })
           .from(productGalleryImages)
-          .where(
-            and(
-              inArray(productGalleryImages.productId, ids),
-              eq(productGalleryImages.isActive, true),
-            ),
-          )
+          .where(inArray(productGalleryImages.productId, ids))
           .orderBy(asc(productGalleryImages.displayOrder)),
       ]);
     } catch (error) {
@@ -115,20 +155,38 @@ export async function getPrimaryProductImages(
       });
     }
   }
-
-  const rowsByProduct = new Map<number, Array<{ imageUrl: string | null }>>();
   for (const row of imageRows) {
-    const list = rowsByProduct.get(row.productId);
+    const list = images.get(row.productId);
     if (list) list.push(row);
-    else rowsByProduct.set(row.productId, [row]);
+    else images.set(row.productId, [row]);
   }
-
-  const galleryByProduct = new Map<number, Array<{ imageUrl: string | null }>>();
   for (const row of galleryRows) {
-    const list = galleryByProduct.get(row.productId);
+    const list = gallery.get(row.productId);
     if (list) list.push(row);
-    else galleryByProduct.set(row.productId, [row]);
+    else gallery.set(row.productId, [row]);
   }
+  return { images, gallery };
+}
+
+/**
+ * Primary image per product, keyed by product id.
+ *
+ * Never throws: a published-data or filesystem problem degrades to the product's
+ * own `thumbnail`/`heroImage` rather than taking the page down, because a card
+ * with a slightly wrong image is far better than a homepage that will not render.
+ */
+export async function getPrimaryProductImages(
+  products: readonly PrimaryImageCandidate[],
+): Promise<Map<number, string>> {
+  const resolved = new Map<number, string>();
+  if (products.length === 0) return resolved;
+
+  const ids = products.map((product) => product.id);
+  const published = await readPublishedProductImages();
+  const source = published ?? (await readDatabaseProductImages(ids));
+
+  const rowsByProduct = source.images;
+  const galleryByProduct = source.gallery;
 
   await Promise.all(
     products.map(async (product) => {

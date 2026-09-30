@@ -4,5 +4,14 @@ import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
 export default defineConfig([
   // Keep the starter on the flat config export that actually runs under the pinned ESLint/Next toolchain.
   ...nextCoreWebVitals,
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    // Local git worktrees hold a second checkout of this same project. They are
+    // not part of it, and linting them reports errors against code this
+    // repository never built.
+    ".kilo/worktrees/**",
+  ]),
 ]);

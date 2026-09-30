@@ -53,7 +53,7 @@ async function main() {
 
   const publishedRaw = JSON.parse(
     await import("node:fs/promises").then((fs) => fs.readFile("src/data/products.json", "utf8")),
-  ) as PublishedProduct[];
+  ) as PublishedProduct[] | { products: PublishedProduct[] };
   const publishedList = (Array.isArray(publishedRaw) ? publishedRaw : publishedRaw.products) as PublishedProduct[];
   const publishedBySlug = new Map(publishedList.map((row) => [row.slug, row]));
 
@@ -124,9 +124,10 @@ async function main() {
         .update(productImages)
         .set({
           imageUrl: asset.url,
-          imagePublicId: asset.publicId,
+          cloudinaryPublicId: asset.publicId,
           altText: wanted.altText,
-          updatedAt: new Date(),
+          // `product_images` carries no `updated_at`; the row's identity and
+          // position are the only history it keeps.
         })
         .where(eq(productImages.id, row.id));
     }

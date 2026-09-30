@@ -122,9 +122,19 @@ export const productAdminSchema = z.object({ name: z.string().min(2).max(160), s
    * referenced it was removed from the CMS.
    */
   gallery: z.array(z.object({ slot: z.string().max(60).nullable().optional(), imageUrl: requiredProductImageUrl, label: z.string().max(120).nullable().optional(), altText: z.string().min(2).max(240), caption: z.string().max(240).nullable().optional(), cloudinaryPublicId: z.string().max(300).nullable().optional(), width: z.coerce.number().int().positive().nullable().optional(), height: z.coerce.number().int().positive().nullable().optional(), isActive: z.boolean().default(true), isPrimary: z.boolean().default(false) })).default([]).refine((items) => new Set(items.map((item) => item.imageUrl)).size === items.length, { message: "The same image cannot be added to a gallery twice." }),
-  features: z.array(z.object({ title: z.string().min(1), description: z.string().min(1), icon: z.string().nullable().optional() })).default([]),
+  features: z.array(z.object({ title: z.string().min(1), description: z.string().min(1), icon: z.string().nullable().optional(), isActive: z.boolean().default(true) })).default([]),
   specifications: z.array(z.object({ specificationName: z.string().min(1), specificationValue: z.string().min(1) })).default([]),
-  applications: z.array(z.object({ title: z.string().min(1), description: z.string().nullable().optional(), image: z.string().nullable().optional(), imagePublicId: z.string().nullable().optional(), altText: z.string().nullable().optional() })).default([]),
+  /**
+   * A product application.
+   *
+   * The table's `application` column is the required one and `title` is a
+   * nullable display label, so this accepts either. Validating `title` as the
+   * required field made every product seeded with a bare application fail to
+   * save: the API rejected its own stored data with a generic "check required
+   * fields" error, which made those products impossible to edit at all until
+   * the stray nulls were removed by hand.
+   */
+  applications: z.array(z.object({ application: z.string().min(1).optional(), title: z.string().min(1).nullable().optional(), description: z.string().nullable().optional(), image: z.string().nullable().optional(), imagePublicId: z.string().nullable().optional(), altText: z.string().nullable().optional(), isActive: z.boolean().default(true) }).refine((row) => Boolean((row.application ?? "").trim() || (row.title ?? "").trim()), { message: "Add an application name" })).default([]),
   images: z.array(z.object({ imageUrl: requiredProductImageUrl, altText: z.string().min(2), caption: z.string().nullable().optional() })).default([]),
   benefits: z.array(z.object({ title: z.string().min(1), description: z.string().min(1) })).default([]),
   components: z.array(z.object({ title: z.string().min(1), description: z.string().min(1), image: z.string().nullable().optional(), imagePublicId: z.string().nullable().optional(), altText: z.string().nullable().optional() })).default([]),
@@ -132,7 +142,36 @@ export const productAdminSchema = z.object({ name: z.string().min(2).max(160), s
   storedMaterials: z.array(z.object({ title: z.string().min(1), description: z.string().min(1), image: z.string().nullable().optional(), imagePublicId: z.string().nullable().optional(), altText: z.string().nullable().optional() })).default([]),
   stories: z.array(z.object({ title: z.string().nullable().optional(), description: z.string().min(1), image: z.string().min(1), imagePublicId: z.string().nullable().optional(), altText: z.string().min(1).nullable().optional() })).default([]),
   workflows: z.array(z.object({ title: z.string().min(1), description: z.string().min(1) })).default([]),
+  /**
+   * Recommended systems, in editor order, with each row's own switch.
+   *
+   * `relatedProductIds` was a bare id list, which could only say "this product
+   * is related". It could not say "this product is related but currently not
+   * shown", so the `isActive` column on `productRelatedProducts` was never set
+   * by the admin and never read by any query. Keeping the row and flipping the
+   * flag is the difference between hiding a recommendation and deleting it: the
+   * relationship, its place in the order, and the product's own wording all
+   * survive, and re-enabling is one click.
+   */
+  relatedProducts: z.array(z.object({ productId: z.coerce.number().int().positive(), isActive: z.boolean().default(true) })).default([]),
+  /**
+   * Legacy related list, kept so an older client can still save a product.
+   *
+   * Saved as all-active `relatedProducts` rows, so an existing caller behaves
+   * exactly as it did before rather than silently dropping its choices.
+   */
   relatedProductIds: z.array(z.coerce.number().int().positive()).default([]),
+  /**
+   * Copy for the "Recommended systems" section, per product.
+   *
+   * All optional, and all defaulted at render time: an empty field means "use
+   * the sensible default for this product's category", not "render an empty
+   * heading". That is what lets a 40-product catalogue be correct without
+   * anyone writing this out 40 times.
+   */
+  relatedHeading: z.string().nullable().optional(),
+  relatedSubheading: z.string().nullable().optional(),
+  relatedDescription: z.string().nullable().optional(),
   industryIds: z.array(z.coerce.number().int().positive()).default([]),
   projectIds: z.array(z.coerce.number().int().positive()).default([]),
   faqs: z.array(z.object({ question: z.string().min(3), answer: z.string().min(3) })).default([]),

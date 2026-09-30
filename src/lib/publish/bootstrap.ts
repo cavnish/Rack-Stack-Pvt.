@@ -121,6 +121,9 @@ export async function bootstrapProducts(): Promise<StaticProduct[]> {
     category: product.category,
     featured: product.featured,
     status: "PUBLISHED",
+    // Every catalogue entry is live, and the serialized shape the rest of the
+    // site consumes requires the flag to be present rather than undefined.
+    isActive: true,
     displayOrder: product.order ?? displayOrder,
     heroImage: images.racks,
     heroImagePublicId: null,
@@ -145,6 +148,12 @@ export async function bootstrapProducts(): Promise<StaticProduct[]> {
     showComponents: true,
     showFaq: true,
     showRelated: true,
+    // Seeded null on purpose. The catalogue has no per-product wording for this
+    // section, and inventing 37 near-identical paragraphs in a fixture would only
+    // hide the fact that the page derives the title from the product's category.
+    relatedHeading: null,
+    relatedSubheading: null,
+    relatedDescription: null,
     metaTitle: product.seo?.title ?? `${product.name} | Rack & Stack`,
     metaDescription: product.seo?.description ?? product.shortDescription,
     keywords: [product.name, ...product.applications].join(", "),

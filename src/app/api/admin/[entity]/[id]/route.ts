@@ -4,21 +4,11 @@ import { deleteEntity, getEntity, isAdminEntity, updateEntity, type AdminEntity 
 import { hasValidOrigin } from "@/lib/rate-limit";
 import { logActivity, logServer } from "@/lib/logger";
 import { revalidatePath } from "next/cache";
-import { cloudinaryClient } from "@/lib/cloudinary";
-import { publishSerialized, scopeForAdminEntity } from "@/lib/publish";
+import { destroyRemote } from "@/lib/cloudinary";
+import { isRemoteUrl, verifyImageSource } from "@/lib/publish/media";
+import { publishEntitySummary } from "@/lib/publish";
 import { InstagramValidationError } from "@/lib/instagram";
 import { UserFacingError } from "@/lib/validation";
-
-/** Rebuilds the static layer for the changed entity and reports failures without blocking the admin. */
-async function publishEntity(entity: string) {
-  try {
-    const result = await publishSerialized(scopeForAdminEntity(entity));
-    return { scope: result.scope, collections: result.collections, assetsCached: result.assetsCached, assetsReused: result.assetsReused, skipped: result.skipped };
-  } catch (error) {
-    logServer("warn", "admin.publish_failed", { entity, message: error instanceof Error ? error.message : "unknown" });
-    return { scope: null, error: "static publish failed" };
-  }
-}
 export async function GET(_: Request, context: { params: Promise<{ entity: string; id: string }> }) { const user = await getCurrentUser(); if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); const { entity, id } = await context.params; if (!isAdminEntity(entity)) return NextResponse.json({ error: "Unknown collection" }, { status: 404 }); const item = await getEntity(entity, Number(id)); return item ? NextResponse.json(item) : NextResponse.json({ error: "Not found" }, { status: 404 }); }
 type ManagedImage = Record<string, string | null | undefined>;
 
@@ -47,12 +37,42 @@ const managedVideos: Partial<Record<AdminEntity, { url: string; publicId: string
 type ManagedAsset = Record<string, string | null | undefined>;
 
 /** Cloudinary needs an explicit resource type to remove a video original. */
-async function destroyRemote(publicId: string, resourceType: "video" | "image") {
-  await cloudinaryClient()
-    .uploader.destroy(publicId, resourceType === "video" ? { resource_type: "video", invalidate: true } : {})
-    .catch(() => { });
+/**
+ * Rejects the save when a newly supplied image URL does not actually serve an
+ * image, so a record can never end up pointing at a file the site cannot load.
+ *
+ * Only changed URLs are checked: an unchanged one was verified when it was
+ * first saved, and re-probing it would turn a routine copy edit into a
+ * dependency on the image host. A local `/assets/...` path is skipped for the
+ * same reason — there is no host to ask.
+ */
+async function assertImagesAvailable(entity: AdminEntity, previous: ManagedImage | null, body: Record<string, unknown>) {
+  const fields = managedImages[entity];
+  if (!fields) return;
+  for (const field of fields) {
+    const after = body[field.url];
+    if (typeof after !== "string" || !after.trim() || !isRemoteUrl(after.trim())) continue;
+    if (previous?.[field.url] === after) continue;
+    const url = after.trim();
+    const probe = await verifyImageSource(url);
+    if (probe.ok) {
+      logServer("info", "admin.image_verified", { entity, field: field.url, url, status: probe.status, bytes: probe.bytes });
+      continue;
+    }
+    logServer("error", "admin.image_unavailable", {
+      entity,
+      field: field.url,
+      url,
+      publicId: typeof body[field.publicId] === "string" ? body[field.publicId] : null,
+      status: probe.status,
+    });
+    throw new UserFacingError(
+      `The new image could not be loaded from the image host (HTTP ${probe.status || "no response"}). ` +
+        "Nothing was saved — the image host rejected the URL, so saving it would leave the page without a picture. " +
+        "Please upload the image again.",
+    );
+  }
 }
-
 
 /**
  * Deletes the Cloudinary originals that the save replaced, and clears the now
@@ -60,26 +80,43 @@ async function destroyRemote(publicId: string, resourceType: "video" | "image") 
  *
  * Runs only after the database update succeeded: destroying the asset first and
  * then failing validation would leave the row pointing at a deleted image.
+ *
+ * A previous original is only removed when the field genuinely points somewhere
+ * else now, and never when the saved row still names that same public id — the
+ * desktop and mobile fields can share one upload, and destroying it there would
+ * blank an image the record is still using.
  */
-async function pruneReplacedImages(entity: AdminEntity, id: number, previous: ManagedImage | null, body: Record<string, unknown>) {
+async function pruneReplacedImages(
+  entity: AdminEntity,
+  previous: ManagedImage | null,
+  body: Record<string, unknown>,
+  saved: ManagedImage | null,
+) {
   const fields = managedImages[entity];
   if (!fields || !previous || !process.env.CLOUDINARY_CLOUD_NAME) return;
+  const stillReferenced = new Set<string>();
+  for (const field of fields) {
+    const id = saved?.[field.publicId];
+    if (typeof id === "string" && id) stillReferenced.add(id);
+  }
   const doomed: string[] = [];
   for (const field of fields) {
     const before = previous[field.url];
-    const after = body[field.url];
     const beforeId = previous[field.publicId];
-    // Only a real replacement counts; an unchanged value keeps its asset.
-    if (typeof before !== "string" || before !== after || typeof beforeId !== "string" || !beforeId) continue;
+    if (typeof before !== "string" || !before || typeof beforeId !== "string" || !beforeId) continue;
+    // An unchanged value still points at this original, so it is not a
+    // replacement and the asset has to survive.
+    if (before === body[field.url]) continue;
+    if (stillReferenced.has(beforeId)) continue;
     doomed.push(beforeId);
-    if (after === undefined || body[field.publicId] === beforeId) body[field.publicId] = null;
   }
   if (entity === "client-logos" && doomed.length) {
     body.width = null;
     body.height = null;
   }
   if (doomed.length) {
-    await Promise.all(doomed.map((publicId) => cloudinaryClient().uploader.destroy(publicId).catch(() => { })));
+    await Promise.all(doomed.map((publicId) => destroyRemote(publicId, "image")));
+    logServer("info", "admin.replaced_images_destroyed", { entity, publicIds: doomed });
   }
 }
 
@@ -130,7 +167,7 @@ async function pruneProductGallery(entity: AdminEntity, previous: ManagedImage |
     if (!kept.has(String(item.imageUrl ?? ""))) doomed.add(publicId);
   }
   if (doomed.size) {
-    await Promise.all([...doomed].map((publicId) => cloudinaryClient().uploader.destroy(publicId).catch(() => { })));
+    await Promise.all([...doomed].map((publicId) => destroyRemote(publicId, "image")));
   }
 }
 
@@ -146,12 +183,14 @@ export async function PUT(request: Request, context: { params: Promise<{ entity:
     const previous = (managedImages[entity] || managedVideos[entity] || entity === "products"
       ? ((await getEntity(entity, Number(id))) as ManagedImage | null)
       : null) as ManagedImage | null;
+    // Before the write, not after: a URL that cannot be loaded must leave no trace.
+    await assertImagesAvailable(entity, previous, body);
     const item = await updateEntity(entity, Number(id), body, user.id);
-    await pruneReplacedImages(entity, Number(id), previous, body);
+    await pruneReplacedImages(entity, previous, body, item as unknown as ManagedImage | null);
     await pruneReplacedVideos(entity, previous, body);
     await pruneProductGallery(entity, previous, body);
     await logActivity(entity === "inquiries" ? "INQUIRY_STATUS_CHANGED" : `${entity.toUpperCase()}_UPDATED`, entity, id, user.id);
-    const publish = await publishEntity(entity);
+    const publish = await publishEntitySummary(entity);
     revalidatePath("/", "layout");
     return NextResponse.json({ ...(item as object), publish });
   } catch (error) {
@@ -187,7 +226,7 @@ export async function DELETE(request: Request, context: { params: Promise<{ enti
       }
     }
     if (doomed.size) {
-      await Promise.all([...doomed].map((publicId) => cloudinaryClient().uploader.destroy(publicId).catch(() => { })));
+      await Promise.all([...doomed].map((publicId) => destroyRemote(publicId, "image")));
     }
     // Videos are deleted with their explicit resource type, and a poster whose
     // own public id was never stored is a derived frame, so it dies with the
@@ -198,7 +237,7 @@ export async function DELETE(request: Request, context: { params: Promise<{ enti
     }
     await deleteEntity(entity, Number(id));
     await logActivity(`${entity.toUpperCase()}_DELETED`, entity, id, user.id);
-    const publish = await publishEntity(entity);
+    const publish = await publishEntitySummary(entity);
     revalidatePath("/", "layout");
     return NextResponse.json({ ok: true, publish });
   } catch (error) {

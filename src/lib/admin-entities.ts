@@ -9,8 +9,9 @@ import {
 } from "@/db/schema";
 import { hash } from "bcryptjs";
 import { and, asc, desc, eq, isNull, not, sql } from "drizzle-orm";
-import { productAdminSchema, clientLogoAdminSchema, homeOfferCardSchema, aboutSectionSchema, parseForEditor, testimonialAdminSchema, type TestimonialAdminInput, UserFacingError } from "./validation";
+import { productAdminSchema, clientLogoAdminSchema, homeOfferCardSchema, aboutSectionSchema, homepageSectionValues, parseForEditor, testimonialAdminSchema, type TestimonialAdminInput, UserFacingError } from "./validation";
 import { requireInstagramUrl } from "./instagram";
+import { isHomepageBandKey, HOMEPAGE_BAND_LABELS } from "./homepage-bands";
 import { getPrimaryGalleryImageUrl, isDeletableUpload, normalizeGalleryPrimaries } from "./product-primary-image";
 import { isRemoteImageUrl } from "./public-asset-paths";
 
@@ -613,7 +614,21 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
   if (entity === "industries") return (await db.insert(industries).values({ name: text(input.name), slug: text(input.slug), shortDescription: text(input.shortDescription), description: text(input.description), challenges: Array.isArray(input.challenges) ? input.challenges.map(String) : [], benefits: Array.isArray(input.benefits) ? input.benefits.map(String) : [], heroImage: nullable(input.heroImage), icon: text(input.icon) || "Factory", status: status(input.status), featured: bool(input.featured), displayOrder: num(input.displayOrder), metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription) }).returning())[0];
   if (entity === "faqs") return (await db.insert(faqs).values({ question: text(input.question), answer: text(input.answer), entityType: text(input.entityType) || "GLOBAL", entityId: input.entityId ? num(input.entityId) : null, displayOrder: num(input.displayOrder), status: status(input.status) }).returning())[0];
   if (entity === "blog") return (await db.insert(blogPosts).values({ title: text(input.title), slug: text(input.slug), excerpt: text(input.excerpt), content: text(input.content), featuredImage: nullable(input.featuredImage), status: status(input.status), featured: bool(input.featured), publishedAt: status(input.status) === "PUBLISHED" ? new Date() : null, metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), keywords: nullable(input.keywords), canonicalUrl: nullable(input.canonicalUrl), authorId: currentUserId }).returning())[0];
-  if (entity === "homepage") return (await db.insert(homepageSections).values({ sectionKey: text(input.sectionKey), title: nullable(input.title), subtitle: nullable(input.subtitle), content: typeof input.content === "object" && input.content ? input.content as Record<string, unknown> : {}, enabled: input.enabled === undefined ? true : bool(input.enabled), displayOrder: num(input.displayOrder) }).returning())[0];
+  if (entity === "homepage") {
+    const values = homepageSectionValues(input);
+    /* Checked before the insert so a duplicate key is reported as something an
+       editor can act on. Left to the unique index it surfaces as a bare
+       constraint violation, which reads as "the server is broken" and gives no
+       indication that the key is the thing that is already taken. */
+    const clash = (
+      await db
+        .select({ id: homepageSections.id })
+        .from(homepageSections)
+        .where(eq(homepageSections.sectionKey, values.sectionKey))
+    ).length;
+    if (clash) throw new UserFacingError(`Another homepage section already uses the key "${values.sectionKey}".`);
+    return (await db.insert(homepageSections).values(values).returning())[0];
+  }
   if (entity === "home-offer-cards") {
     const data = homeOfferCardSchema.parse(input);
     return (await db.insert(homeOfferCards).values({
@@ -747,7 +762,28 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
   if (entity === "industries") return (await db.update(industries).set({ name: text(input.name), slug: text(input.slug), shortDescription: text(input.shortDescription), description: text(input.description), challenges: Array.isArray(input.challenges) ? input.challenges.map(String) : [], benefits: Array.isArray(input.benefits) ? input.benefits.map(String) : [], heroImage: nullable(input.heroImage), icon: text(input.icon) || "Factory", status: status(input.status), featured: bool(input.featured), displayOrder: num(input.displayOrder), metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), updatedAt: new Date() }).where(eq(industries.id, id)).returning())[0];
   if (entity === "faqs") return (await db.update(faqs).set({ question: text(input.question), answer: text(input.answer), entityType: text(input.entityType) || "GLOBAL", entityId: input.entityId ? num(input.entityId) : null, displayOrder: num(input.displayOrder), status: status(input.status), updatedAt: new Date() }).where(eq(faqs.id, id)).returning())[0];
   if (entity === "blog") return (await db.update(blogPosts).set({ title: text(input.title), slug: text(input.slug), excerpt: text(input.excerpt), content: text(input.content), featuredImage: nullable(input.featuredImage), status: status(input.status), featured: bool(input.featured), publishedAt: status(input.status) === "PUBLISHED" ? new Date() : null, metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), keywords: nullable(input.keywords), canonicalUrl: nullable(input.canonicalUrl), updatedAt: new Date() }).where(eq(blogPosts.id, id)).returning())[0];
-  if (entity === "homepage") return (await db.update(homepageSections).set({ sectionKey: text(input.sectionKey), title: nullable(input.title), subtitle: nullable(input.subtitle), content: typeof input.content === "object" && input.content ? input.content as Record<string, unknown> : {}, enabled: bool(input.enabled), displayOrder: num(input.displayOrder), updatedAt: new Date() }).where(eq(homepageSections.id, id)).returning())[0];
+  if (entity === "homepage") {
+    const current = (await db.select().from(homepageSections).where(eq(homepageSections.id, id)).limit(1))[0];
+    if (!current) throw new UserFacingError("That homepage section no longer exists. Reload the list and try again.");
+    /* `current` is passed so a payload that omits `enabled` keeps the stored value.
+       Without it the flag fell through `bool(undefined)` and every partial save —
+       a reorder, a copy edit from a screen that does not render the switch —
+       wrote `false`, and the publish generator filters on `enabled`, so the band
+       vanished from the published homepage with nothing reporting an error. */
+    const values = homepageSectionValues(input, current);
+    // Only checked when the key actually moves, so an ordinary copy edit cannot
+    // trip the unique index against the row's own stored value.
+    if (values.sectionKey !== current.sectionKey) {
+      const clash = (
+        await db
+          .select({ id: homepageSections.id })
+          .from(homepageSections)
+          .where(and(eq(homepageSections.sectionKey, values.sectionKey), not(eq(homepageSections.id, id))))
+      ).length;
+      if (clash) throw new UserFacingError(`Another homepage section already uses the key "${values.sectionKey}".`);
+    }
+    return (await db.update(homepageSections).set({ ...values, updatedAt: new Date() }).where(eq(homepageSections.id, id)).returning())[0];
+  }
   if (entity === "home-offer-cards") {
     const data = homeOfferCardSchema.parse(input);
     return (await db.update(homeOfferCards).set({
@@ -795,7 +831,30 @@ export async function deleteEntity(entity: AdminEntity, id: number) {
   if (entity === "gallery") return db.delete(gallery).where(eq(gallery.id, id));
   if (entity === "industries") return db.delete(industries).where(eq(industries.id, id));
   if (entity === "faqs") return db.delete(faqs).where(eq(faqs.id, id));
-  if (entity === "homepage") return db.delete(homepageSections).where(eq(homepageSections.id, id));
+  if (entity === "homepage") {
+    /* Only a row the public homepage does not use can be deleted.
+     *
+     * This is the difference between the two kinds of homepage row. A *band* —
+     `hero`, `about`, `trust`, `services`, `why`, `offers`, `process`,
+     `manufacturing`, `cta` — is a fixed part of the front page: the renderer
+     looks each key up by name, so deleting one removes that band entirely and no
+     editor can put it back without writing the row again by hand. A *custom* row
+     is a key the renderer has no case for, so its content is not on the page at
+     all and the row is dead weight.
+
+     * Previously any row could be deleted, so a single click on `about` took the
+     About section off the live site and the publish reported success.
+     */
+    const row = (await db.select().from(homepageSections).where(eq(homepageSections.id, id)).limit(1))[0];
+    if (!row) throw new UserFacingError("That homepage section no longer exists. Reload the list and try again.");
+    if (isHomepageBandKey(row.sectionKey)) {
+      throw new UserFacingError(
+        `“${HOMEPAGE_BAND_LABELS[row.sectionKey]}” is part of the public homepage and cannot be deleted. ` +
+          "Switch it off instead — that takes it off the page while keeping its content, and you can switch it back on at any time.",
+      );
+    }
+    return db.delete(homepageSections).where(eq(homepageSections.id, id));
+  }
   if (entity === "home-offer-cards") return db.delete(homeOfferCards).where(eq(homeOfferCards.id, id));
   if (entity === "home-slider") return db.delete(homeSliders).where(eq(homeSliders.id, id));
   if (entity === "media") return db.delete(media).where(eq(media.id, id));

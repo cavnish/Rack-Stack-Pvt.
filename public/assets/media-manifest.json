@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T11:27:11.649Z",
+  "updatedAt": "2026-10-01T13:38:51.818Z",
   "assets": {
     "hero:https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000": {
       "url": "/assets/images/hero/warehouse-pallet-storage-hero-374ec6e177.webp",
@@ -861,6 +861,97 @@
       "group": "misc",
       "name": "home-offer-cards-jdc2v1zsqksrs4rdnd1m",
       "etag": "\"687377705bd6eaee93981cf4905af7d3\""
+    },
+    "about:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790859098/rack-stack/home-about/na6ekckpv1j2pjnbfaa7.jpg": {
+      "url": "/assets/images/about/home-about-na6ekckpv1j2pjnbfaa7-25b39608ab.webp",
+      "width": 625,
+      "height": 500,
+      "aspectRatio": 1.25,
+      "bytes": 97198,
+      "hash": "25b39608ab",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1790859098/rack-stack/home-about/na6ekckpv1j2pjnbfaa7.jpg",
+      "cached": false,
+      "group": "about",
+      "name": "home-about-na6ekckpv1j2pjnbfaa7",
+      "etag": "\"c05c178f3b32a78d1187f74e04612bae\""
+    },
+    "about:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790859167/rack-stack/home-about/jkdqpdx5kxik5e9d2b3r.jpg": {
+      "url": "/assets/images/about/home-about-jkdqpdx5kxik5e9d2b3r-76212bcd7a.webp",
+      "width": 625,
+      "height": 500,
+      "aspectRatio": 1.25,
+      "bytes": 97198,
+      "hash": "76212bcd7a",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1790859167/rack-stack/home-about/jkdqpdx5kxik5e9d2b3r.jpg",
+      "cached": false,
+      "group": "about",
+      "name": "home-about-jkdqpdx5kxik5e9d2b3r",
+      "etag": "\"c05c178f3b32a78d1187f74e04612bae\""
+    },
+    "about:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861611/rack-stack/home-about/mimgqgkbbiiuadhgovvq.jpg": {
+      "url": "/assets/images/about/home-about-mimgqgkbbiiuadhgovvq-769f950bc7.webp",
+      "width": 736,
+      "height": 736,
+      "aspectRatio": 1,
+      "bytes": 141438,
+      "hash": "769f950bc7",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861611/rack-stack/home-about/mimgqgkbbiiuadhgovvq.jpg",
+      "cached": false,
+      "group": "about",
+      "name": "home-about-mimgqgkbbiiuadhgovvq",
+      "etag": "\"a02f821918b3029920f56f6bc9bd429d\""
+    },
+    "hero:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861701/rack-stack/home-sliders/m8ludcapaoisa13cjndk.jpg": {
+      "url": "/assets/images/hero/home-sliders-m8ludcapaoisa13cjndk-1e9f7d6fd0.webp",
+      "width": 736,
+      "height": 736,
+      "aspectRatio": 1,
+      "bytes": 141438,
+      "hash": "1e9f7d6fd0",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861701/rack-stack/home-sliders/m8ludcapaoisa13cjndk.jpg",
+      "cached": false,
+      "group": "hero",
+      "name": "home-sliders-m8ludcapaoisa13cjndk",
+      "etag": "\"a02f821918b3029920f56f6bc9bd429d\""
+    },
+    "clients:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861789/rack-stack/client-logos/bjpac5kjjm00qv55rdvm.jpg": {
+      "url": "/assets/images/clients/client-logos-bjpac5kjjm00qv55rdvm-e8e9b5e42c.webp",
+      "width": 600,
+      "height": 210,
+      "aspectRatio": 2.8571,
+      "bytes": 6580,
+      "hash": "e8e9b5e42c",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861789/rack-stack/client-logos/bjpac5kjjm00qv55rdvm.jpg",
+      "cached": false,
+      "group": "clients",
+      "name": "client-logos-bjpac5kjjm00qv55rdvm",
+      "etag": "\"11922b8e9da605939c086b152793fc8e\""
+    },
+    "misc:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861860/rack-stack/testimonials/dcim2uq2pfgmxozgg79u.jpg": {
+      "url": "/assets/images/misc/testimonials-dcim2uq2pfgmxozgg79u-4504c3b591.webp",
+      "width": 547,
+      "height": 456,
+      "aspectRatio": 1.1996,
+      "bytes": 6608,
+      "hash": "4504c3b591",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861860/rack-stack/testimonials/dcim2uq2pfgmxozgg79u.jpg",
+      "cached": false,
+      "group": "misc",
+      "name": "testimonials-dcim2uq2pfgmxozgg79u",
+      "etag": "\"abd7c73db682bc46b1fcf79ef897ecd5\""
+    },
+    "misc:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861928/rack-stack/testimonials/oi8ewbtkxy03iyot22ib.jpg": {
+      "url": "/assets/images/misc/testimonials-oi8ewbtkxy03iyot22ib-2299c3cf85.webp",
+      "width": 1400,
+      "height": 1050,
+      "aspectRatio": 1.3333,
+      "bytes": 169460,
+      "hash": "2299c3cf85",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1790861928/rack-stack/testimonials/oi8ewbtkxy03iyot22ib.jpg",
+      "cached": false,
+      "group": "misc",
+      "name": "testimonials-oi8ewbtkxy03iyot22ib",
+      "etag": "\"809a69c4be2d09398e43390beb6619f6\""
     }
   }
 }

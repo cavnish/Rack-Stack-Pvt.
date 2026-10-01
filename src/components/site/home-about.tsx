@@ -150,12 +150,20 @@ export function HomeAbout({ content }: { content: HomeAboutContent }) {
             variants={group(0.05)}
           >
             {/*
-              The CMS section title used to render here as an eyebrow above the
-              H2. On the homepage it only restated the brand name, so it is
-              intentionally not rendered: the H2 below is the section heading.
-              `content.label` stays on the type and in the editor so existing
-              published content is not dropped.
+              The eyebrow is the CMS `label`, resolved upstream: a label that
+              merely restates the heading is blanked so the two do not print the
+              same words twice, and anything an editor actually writes shows here.
+              It used to be omitted entirely, which left the admin's "Eyebrow
+              label" field saving to the database and rendering nowhere.
             */}
+            {content.eyebrow ? (
+              <motion.p
+                variants={anim ? fadeUp : undefined}
+                className="mb-3 text-[.6875rem] font-bold uppercase tracking-[.16em] text-[var(--red)] sm:mb-4"
+              >
+                {content.eyebrow}
+              </motion.p>
+            ) : null}
             <motion.h2
               id="home-about-heading"
               variants={anim ? fadeUp : undefined}

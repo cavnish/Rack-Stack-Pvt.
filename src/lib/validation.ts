@@ -472,3 +472,208 @@ export const aboutSectionSchema = z
   });
 export type AboutSectionAdminInput = z.infer<typeof aboutSectionSchema>;
 
+/* ------------------------------------------------------------------ *
+ * Homepage sections
+ * ------------------------------------------------------------------ */
+
+/** A trimmed string, or `null` when it is blank. Mirrors the entity helpers. */
+function nullable(value: unknown): string | null {
+  return (typeof value === "string" ? value.trim() : "") || null;
+}
+
+/** Reads a `Record<string, unknown>` out of the untyped JSONB column. */
+function dict(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
+/**
+ * An image a homepage band may point at: a real remote URL or a `public/` path.
+ *
+ * Both forms are accepted for the same reason `productImageUrl` accepts both — a
+ * file already in the repository is stable and free to serve, and rejecting it
+ * meant the shipped About photography could not be managed from the admin at all.
+ */
+const homepageImageUrl = z
+  .string()
+  .trim()
+  .max(1000)
+  .refine((value) => value === "" || isStorableImageUrl(value), {
+    message: "Enter a full image URL or a path such as /assets/images/photo.webp",
+  })
+  .nullable()
+  .optional();
+
+/**
+ * A link a homepage band renders into an `href`.
+ *
+ * Every CTA on the homepage is rendered straight into an `href` on a public page,
+ * so a CMS-authored `javascript:` or `data:` value would be script injection into
+ * the front page. Constrained to a site-relative path or an in-page anchor;
+ * anything else is refused at the door rather than sanitised at render.
+ */
+const homepageLink = z
+  .string()
+  .trim()
+  .max(500)
+  .refine((value) => value === "" || value.startsWith("/") || value.startsWith("#"), {
+    message: "Use a site-relative link such as /products",
+  })
+  .nullable()
+  .optional();
+
+const homepageFeature = z.object({
+  title: z.string().trim().max(200).nullable().optional(),
+  description: z.string().trim().max(400).nullable().optional(),
+  /**
+   * Length-bounded but not checked against an icon list.
+   *
+   * The renderer maps an unrecognised name to a neutral check mark rather than
+   * failing, and the nine bands do not share one icon vocabulary — the About
+   * grid has its own picker while the service chips use a longer list. An
+   * allowlist here would reject a name a band is already storing and already
+   * rendering, turning a working row into an unsaveable one.
+   */
+  icon: z.string().trim().max(60).nullable().optional(),
+});
+
+const homepageGallerySlot = z.object({
+  image: homepageImageUrl,
+  imagePublicId: z.string().trim().max(300).nullable().optional(),
+  alt: z.string().trim().max(300).nullable().optional(),
+});
+
+const homepageContentSchema = z
+  .object({
+    // Hero
+    eyebrow: z.string().trim().max(160).nullable().optional(),
+    badge: z.string().trim().max(160).nullable().optional(),
+    highlight: z.string().trim().max(160).nullable().optional(),
+    image: homepageImageUrl,
+    /** The Cloudinary asset `image` came from; see the save route's pruner. */
+    imagePublicId: z.string().trim().max(300).nullable().optional(),
+    imageAlt: z.string().trim().max(300).nullable().optional(),
+    primaryCta: z.string().trim().max(80).nullable().optional(),
+    primaryCtaHref: homepageLink,
+    secondaryCta: z.string().trim().max(80).nullable().optional(),
+    secondaryCtaHref: homepageLink,
+    tertiaryCta: z.string().trim().max(80).nullable().optional(),
+    tertiaryCtaHref: homepageLink,
+    // About
+    label: z.string().trim().max(160).nullable().optional(),
+    cta: z.string().trim().max(80).nullable().optional(),
+    ctaHref: homepageLink,
+    ctaLabel: z.string().trim().max(80).nullable().optional(),
+    features: z.array(homepageFeature).max(24).default([]),
+    gallery: z.array(homepageGallerySlot).max(12).default([]),
+    // Services
+    kicker: z.string().trim().max(200).nullable().optional(),
+    items: z.array(homepageFeature).max(12).default([]),
+    // Why
+    cards: z.array(homepageFeature).max(12).default([]),
+    stats: z
+      .array(
+        z.object({
+          value: z.string().trim().max(80).nullable().optional(),
+          suffix: z.string().trim().max(8).nullable().optional(),
+          label: z.string().trim().max(80).nullable().optional(),
+        }),
+      )
+      .max(12)
+      .default([]),
+    // Process
+    steps: z
+      .array(
+        z.object({
+          number: z.string().trim().max(8).nullable().optional(),
+          title: z.string().trim().max(200).nullable().optional(),
+          description: z.string().trim().max(400).nullable().optional(),
+        }),
+      )
+      .max(12)
+      .default([]),
+    // Closing CTA
+    background: homepageImageUrl,
+    backgroundPublicId: z.string().trim().max(300).nullable().optional(),
+  })
+  /**
+   * Unknown keys survive.
+   *
+   * `.loose()` has to come before `.default()`: `.default()` returns a wrapper
+   * that exposes no object methods, so the reverse order does not compile. This
+   * order also matters at runtime — stripping unknown keys would delete a band
+   * field added by a newer release the first time an editor touched an older
+   * section, which is a silent data loss with no error anywhere.
+   */
+  .loose()
+  .default({
+    features: [],
+    gallery: [],
+    items: [],
+    cards: [],
+    stats: [],
+    steps: [],
+  });
+
+/**
+ * One homepage band, as the admin submits it.
+ *
+ * The `content` column is JSONB and was previously written by
+ * `typeof input.content === "object"` and nothing else, so nothing about it was
+ * checked: an image URL could be any string at all, a CTA could be
+ * `javascript:alert(1)`, a feature list could hold a thousand rows, and a
+ * duplicate `sectionKey` failed as a bare unique-constraint violation the editor
+ * could not act on.
+ */
+export const homepageSectionSchema = z.object({
+  sectionKey: z
+    .string()
+    .trim()
+    .min(1, "Add a section key")
+    .max(80)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase words separated by hyphens"),
+  title: z.string().trim().max(300).nullable().optional(),
+  subtitle: z.string().trim().max(4000).nullable().optional(),
+  content: homepageContentSchema,
+  enabled: z.boolean().default(true),
+  displayOrder: z.coerce.number().int().default(0),
+});
+export type HomepageSectionInput = z.infer<typeof homepageSectionSchema>;
+
+/**
+ * Normalised column values for a homepage band, shared by create and update.
+ *
+ * A create and an update that disagree here is how a field ends up saved by one
+ * screen and silently dropped by the other, so both go through this.
+ */
+export function homepageSectionValues(
+  input: Record<string, unknown>,
+  current?: { enabled?: boolean; content?: unknown },
+) {
+  const data = parseForEditor(homepageSectionSchema, input);
+
+  // `content` is replaced wholesale rather than merged key by key. Every admin
+  // screen for this entity sends the whole object, and a partial merge is where a
+  // cleared field survives: the third hero button was removed in the form, absent
+  // from the payload, and therefore never overwritten. A payload with no
+  // `content` at all is a caller managing only the flags, and that one leaves the
+  // stored copy alone.
+  const content = input.content === undefined && current ? dict(current.content) : data.content;
+
+  // `enabled` only falls back to the stored value when the payload genuinely
+  // omits it. `data.enabled` cannot be used on its own: the schema defaults the
+  // field to `true`, so a caller that sent only a copy edit would switch a hidden
+  // band back on — and a `bool(undefined)` wrote `false`, which took a live band
+  // off the published site without anybody touching the switch.
+  const enabled =
+    input.enabled === undefined && current ? (current.enabled ?? true) : data.enabled;
+
+  return {
+    sectionKey: data.sectionKey,
+    title: nullable(data.title),
+    subtitle: nullable(data.subtitle),
+    content,
+    enabled,
+    displayOrder: data.displayOrder,
+  };
+}
+

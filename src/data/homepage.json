@@ -25,11 +25,15 @@
     "subtitle": "Rack & Stack designs and installs complete storage systems — industrial racking, shelving, mezzanine floors, material handling and workplace storage. We start from how you actually operate, then plan the space, the system and the setup as one connected solution.\n\nWe plan around what you store, how you access it and how your team moves it — so the result handles capacity, safety and growth without making daily work harder.",
     "content": {
       "cta": "Explore Our Solutions",
-      "image": "/assets/images/about/organised-storage-aisle-b1f2342d4e.webp",
+      "cards": [],
+      "image": "/assets/images/about/home-about-mimgqgkbbiiuadhgovvq-769f950bc7.webp",
+      "items": [],
+      "stats": [],
+      "steps": [],
       "gallery": [
         {
           "alt": "Rack manufacturing in progress, storage racks built in-house",
-          "image": "/assets/images/about/home-about-x5o587ju7gwwklioqkzz-962d85330f.webp"
+          "image": "/assets/images/about/home-about-jkdqpdx5kxik5e9d2b3r-76212bcd7a.webp"
         },
         {
           "alt": "Rack installation of industrial racking solutions inside a warehouse",
@@ -57,42 +61,13 @@
           "title": "Reliable Support",
           "description": "Service and maintenance after installation"
         }
-      ]
+      ],
+      "imageAlt": "Industrial storage racks and warehouse racking in an organised storage aisle"
     },
     "enabled": true,
     "displayOrder": 1,
     "createdAt": "2026-09-28T08:58:45.827Z",
-    "updatedAt": "2026-09-30T14:35:55.292Z"
-  },
-  {
-    "id": 2,
-    "sectionKey": "trust",
-    "title": "What You Can Count On",
-    "subtitle": "Every plan starts with your space, your loads and the way your team works.",
-    "content": {
-      "metrics": [
-        {
-          "label": "Planning",
-          "value": "Site-Based"
-        },
-        {
-          "label": "Configuration",
-          "value": "Load-Based"
-        },
-        {
-          "label": "Layout",
-          "value": "Workflow-Based"
-        },
-        {
-          "label": "Support",
-          "value": "End-to-End"
-        }
-      ]
-    },
-    "enabled": true,
-    "displayOrder": 2,
-    "createdAt": "2026-09-28T08:58:45.767Z",
-    "updatedAt": "2026-09-28T08:58:45.767Z"
+    "updatedAt": "2026-10-01T13:33:49.054Z"
   },
   {
     "id": 4,

@@ -20,6 +20,30 @@ const managedImages: Partial<Record<AdminEntity, { url: string; publicId: string
     { url: "mobileImageUrl", publicId: "mobileImagePublicId" },
   ],
   "home-offer-cards": [{ url: "imageUrl", publicId: "imagePublicId" }],
+  /**
+   * The homepage bands.
+   *
+   * Their images live inside the JSONB `content` column rather than in a column
+   * of their own, so these are dotted paths: `content.image` is the About lead
+   * photograph and `content.gallery.0.image` is the first supporting thumbnail.
+   * Both are verified before the write and both originals are destroyed after it
+   * when the editor swaps them — which is the leak this closes. Every About
+   * re-upload used to leave its previous Cloudinary original on the account
+   * forever, because `homepage` was not in this map at all, so `previous` came
+   * back null and no pruner ever ran.
+   *
+   * `content.background` is the closing CTA's texture: a third image slot on the
+   * same rows rather than a column of its own, registered the same way.
+   *
+   * The `publicId` paths are optional — a file already in `public/` has no
+   * Cloudinary asset behind it and must never be destroyed.
+   */
+  homepage: [
+    { url: "content.image", publicId: "content.imagePublicId" },
+    { url: "content.background", publicId: "content.backgroundPublicId" },
+    { url: "content.gallery.0.image", publicId: "content.gallery.0.imagePublicId" },
+    { url: "content.gallery.1.image", publicId: "content.gallery.1.imagePublicId" },
+  ],
   // A testimonial avatar has no public-id column, so nothing is ever destroyed
   // for it — but the pre-write probe is still worth having. The value is pasted
   // into the homepage carousel, and an unreachable or wrong-type URL is a card
@@ -41,6 +65,25 @@ const managedVideos: Partial<Record<AdminEntity, { url: string; publicId: string
 
 type ManagedAsset = Record<string, string | null | undefined>;
 
+/**
+ * Reads a possibly dotted field path off a row.
+ *
+ * Most collections store an image in a column of its own, so `body[field.url]` is
+ * the whole of it. The homepage bands keep theirs inside the JSONB `content`
+ * object, which is why their entries above are written as `content.gallery.0.image`.
+ * Splitting on `.` and walking the segments handles both, and an index that does
+ * not exist — a section with one gallery image rather than two — yields
+ * `undefined` instead of throwing.
+ */
+function readField(row: unknown, path: string): unknown {
+  let current: unknown = row;
+  for (const segment of path.split(".")) {
+    if (!current || typeof current !== "object") return undefined;
+    current = (current as Record<string, unknown>)[segment];
+  }
+  return current;
+}
+
 /** Cloudinary needs an explicit resource type to remove a video original. */
 /**
  * Rejects the save when a newly supplied image URL does not actually serve an
@@ -55,10 +98,10 @@ async function assertImagesAvailable(entity: AdminEntity, previous: ManagedImage
   const fields = managedImages[entity];
   if (!fields) return;
   for (const field of fields) {
-    const after = body[field.url];
-    if (typeof after !== "string" || !after.trim() || !isRemoteUrl(after.trim())) continue;
-    if (previous?.[field.url] === after) continue;
-    const url = after.trim();
+    const raw = readField(body, field.url);
+    if (typeof raw !== "string" || !raw.trim() || !isRemoteUrl(raw.trim())) continue;
+    if (readField(previous, field.url) === raw) continue;
+    const url = raw.trim();
     const probe = await verifyImageSource(url);
     if (probe.ok) {
       logServer("info", "admin.image_verified", { entity, field: field.url, url, status: probe.status, bytes: probe.bytes });
@@ -68,7 +111,7 @@ async function assertImagesAvailable(entity: AdminEntity, previous: ManagedImage
       entity,
       field: field.url,
       url,
-      publicId: typeof body[field.publicId] === "string" ? body[field.publicId] : null,
+      publicId: readField(body, field.publicId) ?? null,
       status: probe.status,
     });
     throw new UserFacingError(
@@ -94,7 +137,7 @@ const dimensionColumns: Partial<Record<AdminEntity, { url: string; keys: string[
 
 function clearStaleDimensions(entity: AdminEntity, previous: ManagedImage | null, body: Record<string, unknown>) {
   for (const field of dimensionColumns[entity] ?? []) {
-    if (previous?.[field.url] === body[field.url]) continue;
+    if (readField(previous, field.url) === readField(body, field.url)) continue;
     for (const key of field.keys) {
       if (body[key] === undefined) body[key] = null;
     }
@@ -123,17 +166,17 @@ async function pruneReplacedImages(
   if (!fields || !previous || !process.env.CLOUDINARY_CLOUD_NAME) return;
   const stillReferenced = new Set<string>();
   for (const field of fields) {
-    const id = saved?.[field.publicId];
+    const id = readField(saved, field.publicId);
     if (typeof id === "string" && id) stillReferenced.add(id);
   }
   const doomed: string[] = [];
   for (const field of fields) {
-    const before = previous[field.url];
-    const beforeId = previous[field.publicId];
+    const before = readField(previous, field.url);
+    const beforeId = readField(previous, field.publicId);
     if (typeof before !== "string" || !before || typeof beforeId !== "string" || !beforeId) continue;
     // An unchanged value still points at this original, so it is not a
     // replacement and the asset has to survive.
-    if (before === body[field.url]) continue;
+    if (before === readField(body, field.url)) continue;
     if (stillReferenced.has(beforeId)) continue;
     doomed.push(beforeId);
   }
@@ -153,13 +196,13 @@ async function pruneReplacedVideos(entity: AdminEntity, previous: ManagedAsset |
   if (!fields || !previous || !process.env.CLOUDINARY_CLOUD_NAME) return;
   const doomed: Array<{ publicId: string; resourceType: "video" | "image" }> = [];
   for (const field of fields) {
-    const before = previous[field.url];
-    const beforeId = previous[field.publicId];
+    const before = readField(previous, field.url);
+    const beforeId = readField(previous, field.publicId);
     // The derived poster is not stored as its own public id, so a swapped video
     // takes its generated poster with it and nothing needs to be cleaned up.
-    if (typeof before !== "string" || !beforeId) continue;
-    if (field.resourceType === "video" && before !== body[field.url]) continue;
-    if (field.resourceType === "image" && before === body[field.url]) continue;
+    if (typeof before !== "string" || typeof beforeId !== "string" || !beforeId) continue;
+    if (field.resourceType === "video" && before !== readField(body, field.url)) continue;
+    if (field.resourceType === "image" && before === readField(body, field.url)) continue;
     doomed.push({ publicId: beforeId, resourceType: field.resourceType });
   }
   await Promise.all(doomed.map((item) => destroyRemote(item.publicId, item.resourceType)));
@@ -243,9 +286,11 @@ export async function DELETE(request: Request, context: { params: Promise<{ enti
     // Read the row once, then remove the remote originals it owns.
     const current = (await getEntity(entity, Number(id))) as Record<string, unknown> | null;
     if (current && process.env.CLOUDINARY_CLOUD_NAME) {
-      const fields = entity === "media" ? ["cloudinaryPublicId"] : (managedImages[entity] ?? []).map((f) => f.publicId);
-      for (const field of fields) {
-        const publicId = current[field];
+      // `homepage` stores its images as dotted paths inside `content`, so the
+      // same reader serves both shapes here.
+      const paths = entity === "media" ? ["cloudinaryPublicId"] : (managedImages[entity] ?? []).map((f) => f.publicId);
+      for (const path of paths) {
+        const publicId = readField(current, path);
         if (typeof publicId === "string" && publicId) doomed.add(publicId);
       }
     }
@@ -256,7 +301,7 @@ export async function DELETE(request: Request, context: { params: Promise<{ enti
     // own public id was never stored is a derived frame, so it dies with the
     // video original rather than lingering as an orphan.
     for (const field of managedVideos[entity] ?? []) {
-      const publicId = current?.[field.publicId];
+      const publicId = readField(current, field.publicId);
       if (typeof publicId === "string" && publicId) await destroyRemote(publicId, field.resourceType);
     }
     await deleteEntity(entity, Number(id));

@@ -262,32 +262,121 @@ async function generateSeo() {
   ]);
 }
 
+/**
+ * The asset group a band's photographs belong to.
+ *
+ * Keyed by section rather than decided per branch, so the hero, the About band
+ * and the manufacturing band cannot drift onto the wrong group — which matters
+ * because the group decides the local path, and a band re-pointing at another
+ * band's file would render the wrong picture after a republish.
+ */
+function homepageAssetGroup(sectionKey: string): AssetGroup {
+  if (sectionKey === "hero") return "hero";
+  if (sectionKey === "manufacturing") return "services";
+  return "about";
+}
+
+/**
+ * Publishes the homepage sections.
+ *
+ * `content` is a JSONB column, so its images are not columns the generator can
+ * enumerate. Every image slot a renderer actually reads is resolved explicitly
+ * here — `content.image`, `content.background` and each `content.gallery[n].image`
+ * — because `localizeSerialized` would otherwise pick them up on its generic
+ * path: correct, but it files them under `misc/` with a hashed name
+ * (`unresolved-1f3a…`), so a new About upload landed beside the two shipped
+ * photographs in a third directory with a filename no editor would recognise.
+ * Naming the slots here gives all three About images one group and one readable
+ * name, which is what makes the published `content` predictable enough to diff.
+ *
+ * A photograph that cannot be made local is published as `null` and logged with
+ * its section: a band that loses its picture must show up in the publish result
+ * rather than only as a blank panel on the live page.
+ *
+ * An empty result is published as `[]`, not skipped. Returning `null` left the
+ * previous `homepage.json` on disk, and because the homepage prefers the static
+ * file over the database, switching the last band off left it rendering on the
+ * live site indefinitely while the publish reported success. This is the same
+ * defect `generateHomeOfferCards` already fixed for its own collection.
+ */
 async function generateHomepage() {
   const rows = await db
     .select()
     .from(homepageSections)
     .where(eq(homepageSections.enabled, true))
     .orderBy(asc(homepageSections.displayOrder));
-  if (rows.length === 0) return null;
   const output: Record<string, unknown>[] = [];
   for (const row of rows) {
-    const content = (row.content ?? {}) as Record<string, unknown>;
-    const imageKey = typeof content.image === "string" ? content.image : null;
-    if (!imageKey) {
-      output.push(serializeOne(row) as unknown as Record<string, unknown>);
-      continue;
+    const content = { ...((row.content ?? {}) as Record<string, unknown>) };
+    const group = homepageAssetGroup(row.sectionKey);
+
+    const localize = async (value: unknown, slot: string) => {
+      if (typeof value !== "string" || !value.trim()) return value;
+      const cached = await asset(group, `homepage-${row.sectionKey}-${slot}`, value, `homepage:${row.id}:${slot}`);
+      if (!cached) {
+        logServer("error", "publish.homepage_image_unresolved", {
+          sectionKey: row.sectionKey,
+          sectionId: row.id,
+          slot,
+          source: value,
+        });
+      }
+      return pickAsset(cached, value) ?? localOrNull(value);
+    };
+
+    if ("image" in content) content.image = await localize(content.image, "image");
+    if ("background" in content) content.background = await localize(content.background, "background");
+
+    if (Array.isArray(content.gallery)) {
+      const gallery: unknown[] = [];
+      for (const [index, slot] of content.gallery.entries()) {
+        // Named `entry`, not `row`: the section row is also called `row` in this
+        // scope, and shadowing it here silently fed `undefined` into the asset
+        // name and the manifest's entity key, so every About thumbnail cached
+        // under the same broken identifier.
+        const entry = (slot ?? {}) as Record<string, unknown>;
+        gallery.push({
+          ...entry,
+          image: await localize(entry.image, `gallery-${index}`),
+        });
+      }
+      content.gallery = gallery;
     }
-    const group: AssetGroup = row.sectionKey === "hero" ? "hero" : row.sectionKey === "manufacturing" ? "services" : "about";
-    const cached = await asset(group, `homepage-${row.sectionKey}`, imageKey, `homepage:${row.sectionKey}`);
-    const image = pickAsset(cached, imageKey) ?? localOrNull(imageKey);
-    output.push(
-      serializeOne({ ...row, content: image ? { ...content, image } : { ...content, image: null } }) as unknown as Record<
-        string,
-        unknown
-      >,
-    );
+
+    output.push(serializeOne({ ...row, content: withoutPublicId(content) }) as unknown as Record<string, unknown>);
   }
   return output;
+}
+
+/**
+ * Drops the Cloudinary public ids from a published band.
+ *
+ * They exist so the admin can destroy a replaced original, and they have no
+ * meaning on the public site. `src/data/*.json` ships with the application, so
+ * leaving them there would publish the internal handle for every photograph on
+ * the account into the repository — the same reason `pickAsset` never returns
+ * the remote original. Applied to the gallery slots and the band alike, since
+ * both carry ids.
+ */
+function withoutPublicId(value: Record<string, unknown>): Record<string, unknown> {
+  const { imagePublicId, backgroundPublicId, cloudinaryPublicId, ...rest } = value;
+
+  // The gallery slots are nested, and each one carries its own `imagePublicId`
+  // alongside its `image`. The rest-spread above only reaches the band level, so
+  // the slot ids used to survive into `src/data/homepage.json` — which ships
+  // with the application, so every About photograph published the internal
+  // Cloudinary handle for it into the repository. The save route still reads
+  // those ids from the database column to destroy a replaced original, which is
+  // where they belong; they have no meaning on the public site.
+  if (Array.isArray(rest.gallery)) {
+    rest.gallery = rest.gallery.map((slot) => {
+      if (typeof slot !== "object" || slot === null || Array.isArray(slot)) return slot;
+      const { imagePublicId: _slotImage, cloudinaryPublicId: _slotCloudinary, ...cleanSlot } = slot as Record<string, unknown>;
+      return cleanSlot;
+    });
+  }
+
+  return rest;
 }
 
 /**

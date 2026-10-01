@@ -107,9 +107,21 @@ export async function readLocalClientLogoFiles(): Promise<LocalClientLogoFile[]>
     });
 }
 
+/**
+ * The logo files in `public/`, as a fallback roster.
+ *
+ * Only reached when no CMS logo carries an image, so in a healthy install this
+ * never runs. The ids are therefore made deliberately distinct from real rows:
+ * `index + 1` produced ids 1..42 that are indistinguishable from the database's
+ * own primary keys, so anything keyed or linked by id — the admin's edit and
+ * delete targets, a React list key, a cache entry — would address a database row
+ * that has nothing to do with the file being shown. Negative ids cannot collide
+ * with a serial that only counts upward, and make it obvious in a payload that
+ * the entry came from the folder rather than the CMS.
+ */
 export async function getPublicClientLogos(): Promise<PublicClientLogo[]> {
   return (await readLocalClientLogoFiles()).map((file, index) => ({
-    id: index + 1,
+    id: -(index + 1),
     name: file.name,
     imageUrl: file.imageUrl,
     altText: file.altText,

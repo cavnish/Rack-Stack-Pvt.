@@ -35,6 +35,7 @@ import { getPublicClientLogos } from "@/lib/client-assets";
 import { homeOfferCardSeeds } from "@/lib/home-offer-cards";
 import { buildProductIndex, resolveHomeProductCards, type HomeProductCard } from "@/lib/home-products";
 import { getPrimaryProductImages, getPrimaryCatalogueImages } from "@/lib/product-primary-images";
+import { buildRelatedProducts } from "@/lib/product-related";
 import type { ReelVideoItem } from "@/lib/reel-video";
 
 
@@ -484,9 +485,22 @@ export async function getProductBySlug(slug: string, preview = false): Promise<P
         db.select().from(productSections).where(eq(productSections.productId, product.id)).orderBy(asc(productSections.displayOrder)),
       ]);
       const allProducts = await getProducts();
-      const related = relatedRows.length
-        ? relatedRows.map((row) => row.item)
-        : allProducts.filter((item) => item.id !== product.id && item.category === product.category).slice(0, 3);
+      /*
+       * Related products, from the same helper the publish generator uses.
+       *
+       * This block used to hold its own copy of the rule ("the editor's picks, or
+       * a three-item same-category sample"), which is how the same defect existed
+       * in two places at once: the published `products.json` and this database
+       * fallback disagreed about what belongs in the strip, and a product added in
+       * the CMS was recommended on no other product page until an editor also
+       * linked it into `productRelatedProducts` for each one by hand. The picks
+       * still lead, in editor order; the rest of the live catalogue follows.
+       */
+      const related = buildRelatedProducts(
+        relatedRows.map((row) => row.item),
+        allProducts,
+        product,
+      );
       backgroundPublish("products");
       return {
         ...product,

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-01T13:38:56.860Z",
+  "generatedAt": "2026-10-01T14:16:51.503Z",
   "collections": {
     "blogPosts": {
       "hash": "c0f553ffb6c41b00",
@@ -13,8 +13,8 @@
       "count": 5
     },
     "routes": {
-      "hash": "20df9c29b51046b6",
-      "generatedAt": "2026-10-01T13:38:56.860Z",
+      "hash": "6af5003b216e3aea",
+      "generatedAt": "2026-10-01T14:16:51.503Z",
       "count": 1
     },
     "site": {
@@ -33,8 +33,8 @@
       "count": 8
     },
     "products": {
-      "hash": "f721377545a3d43b",
-      "generatedAt": "2026-10-01T11:25:51.142Z",
+      "hash": "19909a6f9cc4f91e",
+      "generatedAt": "2026-10-01T14:16:49.196Z",
       "count": 37
     },
     "industries": {
@@ -58,9 +58,9 @@
       "count": 1
     },
     "clientLogos": {
-      "hash": "6f8a7a8e5d67828e",
-      "generatedAt": "2026-10-01T13:36:59.502Z",
-      "count": 8
+      "hash": "0416adaba7869991",
+      "generatedAt": "2026-10-01T13:53:41.756Z",
+      "count": 42
     },
     "gallery": {
       "hash": "a03cc076e153cc68",

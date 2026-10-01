@@ -5,14 +5,25 @@ import { getRelatedProductImages } from "@/lib/product-primary-images";
 import { resolveRecommendationCopy, type RecommendationCopy } from "@/lib/recommendations";
 
 /**
- * How many recommendations the section shows.
+ * The recommendations section has no card limit.
  *
- * The band is a four-across row, so a fifth card would wrap onto a second line
- * and break the composition the whole section is built around. Editors may
- * choose and order more than four — which of the enabled rows are the "first
- * four" is their call — but only the leading four are rendered.
+ * It used to be capped at `MAX_CARDS = 4`, on the reasoning that the band is a
+ * four-across row so a fifth card would wrap and "break the composition". The cap
+ * was doing something the grid does not need: the row is a wrapping grid, not a
+ * carousel, so a longer roster simply becomes a second row of the same four cards
+ * — same component, same markup, same styling, just more of them.
+ *
+ * What the cap actually caused was missing content. Products 1, 2, 3 and 7 have
+ * 7, 7, 9 and 12 related rows stored in the database; every one past the fourth
+ * was edited, ordered, saved and then silently discarded at render. It also made
+ * the section disagree with the CMS, so an editor could remove a recommendation,
+ * see it disappear, and have no way to tell that five others were queued behind
+ * the same cap.
+ *
+ * The caller's list is the source of truth: the editor's own picks in editor
+ * order, then the rest of the catalogue. Ordering and inclusion are decided
+ * where the list is built, not here.
  */
-const MAX_CARDS = 4;
 
 export type RecommendationProduct = ProductCardProduct & {
   /** Overrides the category-based default for the subheading. */
@@ -58,8 +69,7 @@ export async function ProductRecommendations({
 }) {
   if (!products.length) return null;
 
-  const cards = products.slice(0, MAX_CARDS);
-  const images = await getRelatedProductImages(cards);
+  const images = await getRelatedProductImages(products);
   const { heading, subheading, description } = resolveRecommendationCopy(copy ?? {}, category);
 
   return (
@@ -73,7 +83,7 @@ export async function ProductRecommendations({
           read as a wall.
         */}
         <Stagger className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {cards.map((product, index) => (
+          {products.map((product, index) => (
             <StaggerItem key={product.id} className="h-full">
               <ProductCard
                 product={{

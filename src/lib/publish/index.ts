@@ -45,6 +45,7 @@ import {
   videoServices,
 } from "@/db/schema";
 import { logServer } from "@/lib/logger";
+import { buildRelatedProducts } from "@/lib/product-related";
 import {
   cacheImage,
   flushMediaManifest,
@@ -624,8 +625,15 @@ export async function generateProducts() {
   const localizedSectionById = new Map(cachedSections.map((row) => [row.id, row]));
 
   const output = base.map((row) => {
-    const related = (byRelated.get(row.id) ?? []).map((entry) => localizedProductById.get(entry.item.id) ?? entry.item);
-    const sameCategory = base.filter((item) => item.id !== row.id && item.category === row.category).slice(0, 3);
+    // The editor's picks lead, then the rest of the live catalogue. See
+    // `buildRelatedProducts`: previously this was "the picks, or a three-item
+    // same-category sample", so a newly added product was recommended nowhere
+    // until an editor linked it in by hand on every other page.
+    const related = buildRelatedProducts(
+      (byRelated.get(row.id) ?? []).map((entry) => localizedProductById.get(entry.item.id) ?? entry.item),
+      base,
+      row,
+    );
     return {
       ...row,
       features: byFeature.get(row.id) ?? [],
@@ -641,7 +649,7 @@ export async function generateProducts() {
       stories: byStory.get(row.id) ?? [],
       workflows: byWorkflow.get(row.id) ?? [],
       faqs: [...sharedFaqs, ...(faqGroups.get(row.id) ?? [])],
-      related: related.length > 0 ? related : sameCategory,
+      related,
       industries: (byIndustry.get(row.id) ?? []).map((entry) => localizedIndustryById.get(entry.item.id) ?? entry.item),
       projects: (byProject.get(row.id) ?? []).map((entry) => localizedProjectById.get(entry.item.id) ?? entry.item),
     };

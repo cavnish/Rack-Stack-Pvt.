@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-01T13:38:56.856Z",
+  "generatedAt": "2026-10-01T14:16:51.499Z",
   "products": [
     "mobile-compactor-storage-system",
     "mobile-shelving-racks",
@@ -7,14 +7,14 @@
     "heavy-duty-long-span-racks",
     "office-storewell-cupboard",
     "heavy-duty-pallet-racking",
-    "frfc-filing-cabinet",
     "medium-duty-shelving-racks",
-    "mezzanine-floor",
+    "frfc-filing-cabinet",
     "2-drawer-filing-cabinet",
-    "slotted-angle-racks",
+    "mezzanine-floor",
     "3-drawer-filing-cabinet",
-    "4-drawer-filing-cabinet",
+    "slotted-angle-racks",
     "lockers",
+    "4-drawer-filing-cabinet",
     "pedestals",
     "office-tables",
     "four-tier-lockers",
@@ -75,5 +75,5 @@
     "cookie-policy"
   ],
   "gallery": 6,
-  "clientLogos": 8
+  "clientLogos": 42
 }

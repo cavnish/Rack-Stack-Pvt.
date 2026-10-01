@@ -1,7 +1,7 @@
 import "server-only";
 import { db, dbConfigured } from "@/db";
 import {
-  activityLogs, blogCategories, blogPosts, catalogDownloads, clientLogos, clients, contactMessages, faqs, gallery, homeOfferCards, homeSliders, homepageSections, industries, inquiries,
+  activityLogs, blogCategories, blogPosts, catalogDownloads, clientLogos, contactMessages, faqs, gallery, homeOfferCards, homeSliders, homepageSections, industries, inquiries,
   pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productGalleryImages, productImages, productIndustries, productProjects,
 
   productRelatedProducts, productSections, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projectImages, projects, redirects,
@@ -231,7 +231,13 @@ export async function getHomeOfferCards(): Promise<ResolvedHomeOfferCard[]> {
           .where(eq(homeOfferCards.isActive, true))
           .orderBy(asc(homeOfferCards.displayOrder), asc(homeOfferCards.id)),
       () => fallbackOfferCards(),
-      { scope: "home-offer-cards", isEmpty: notEmptyArray },
+      // No `isEmpty` guard, deliberately. A published `[]` means the editor
+      // switched every card off, and that is an answer, not a missing file.
+      // Treating it as empty made the reader fall through to the database and
+      // then to the hardcoded seed cards, so disabling the last card brought
+      // the deleted set back. A collection that has never been published has no
+      // file at all, and `readCollection` returns null for that on its own.
+      { scope: "home-offer-cards" },
     ),
     getProducts(),
   ]);
@@ -779,40 +785,49 @@ export async function getProjectBySlug(slug: string, preview = false): Promise<P
   return detail;
 }
 
-export async function getClients() {
-  const { value } = await resolve<Array<typeof clients.$inferSelect>>(
-    "clients",
-    () => db.select().from(clients).where(isNull(clients.deletedAt)).orderBy(asc(clients.displayOrder)),
-    () => [],
-    { scope: "clients", isEmpty: notEmptyArray },
-  );
-  return value as Array<typeof clients.$inferSelect>;
-}
-
 export type ClientLogo = { id: number; name: string; imageUrl: string; altText: string; width: number | null; height: number | null };
 
+/**
+ * The client logo roster, from `client_logos` — the single source of truth.
+ *
+ * This used to be a second, parallel implementation that read the retired
+ * `clients` table, meaning `/admin/client-logos` edits had no effect on the
+ * site: the published `client_logos.json` held rows with an empty `imageUrl`,
+ * which the filter below rejected, and the site silently fell through to the
+ * files in `public/rack-and-stack-clients` while the CMS reported eight
+ * perfectly good logos. There was also a full-table scan of `clients` on the
+ * request path.
+ *
+ * It now reads the same collection the CMS writes, so an edit in Admin is
+ * published and visible immediately. The static-first priority is unchanged:
+ * published `client-logos.json` first, then the `client_logos` table (which
+ * re-publishes itself so the file catches up), then the curated local files as
+ * a last resort so the section is never blank.
+ */
 export async function getClientLogos(): Promise<ClientLogo[]> {
   const { value } = await resolve<Array<{ id: number; name: string; imageUrl: string; altText: string; width: number | null; height: number | null }>>(
     "clientLogos",
     async () => {
-      const published = (await readCollection<Array<Record<string, unknown>>>("clients")) ?? [];
-      const roster = published.length > 0
-        ? published.map((row, index) => ({
-            id: Number(row.id ?? index + 1),
-            name: String(row.name ?? ""),
-            imageUrl: String(row.logo ?? ""),
-            altText: `${String(row.name ?? "")} logo`,
-            width: null as number | null,
-            height: null as number | null,
-          }))
-        : (
-            await db
-              .select({ id: clients.id, name: clients.name, imageUrl: clients.logo })
-              .from(clients)
-              .where(isNull(clients.deletedAt))
-              .orderBy(asc(clients.displayOrder))
-          ).map((row) => ({ id: row.id, name: row.name, imageUrl: row.imageUrl ?? "", altText: `${row.name} logo`, width: null, height: null }));
-      return roster;
+      const rows = await db
+        .select({
+          id: clientLogos.id,
+          name: clientLogos.name,
+          imageUrl: clientLogos.imageUrl,
+          altText: clientLogos.altText,
+          width: clientLogos.width,
+          height: clientLogos.height,
+        })
+        .from(clientLogos)
+        .where(eq(clientLogos.isActive, true))
+        .orderBy(asc(clientLogos.sortOrder), asc(clientLogos.id));
+      return rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        imageUrl: row.imageUrl ?? "",
+        altText: row.altText,
+        width: row.width ?? null,
+        height: row.height ?? null,
+      }));
     },
     () => bootstrapClientLogos(),
     { scope: "client-logos", isEmpty: notEmptyArray },
@@ -821,7 +836,8 @@ export async function getClientLogos(): Promise<ClientLogo[]> {
   const usable = value.filter((logo) => logo.imageUrl && logo.imageUrl.trim());
   if (usable.length > 0) return usable;
 
-  // No CMS logo uploaded yet: fall back to the logo files shipped in public/.
+  // No CMS logo carries an image yet: fall back to the logo files shipped in
+  // public/ so the section still renders rather than going blank.
   const localLogos = await getPublicClientLogos();
   if (localLogos.length > 0) return localLogos;
   return value;
@@ -837,10 +853,20 @@ export async function getGallery() {
   return value as Array<typeof gallery.$inferSelect>;
 }
 
+/**
+ * The published testimonials, in the order an editor arranged them.
+ *
+ * Only `PUBLISHED` rows are read, so a draft never reaches the homepage. The
+ * secondary sort on `id` matters more than it looks: `displayOrder` is a plain
+ * integer an editor renumbers, and two rows left on the same value have no
+ * defined order between them, so the carousel could show them in a different
+ * sequence on the next render than it did on the last. Ties now always break the
+ * same way, and the order matches what `generateTestimonials` writes to disk.
+ */
 export async function getTestimonials() {
   const { value } = await resolve<Array<typeof testimonials.$inferSelect>>(
     "testimonials",
-    () => db.select().from(testimonials).where(eq(testimonials.status, "PUBLISHED")).orderBy(asc(testimonials.displayOrder)),
+    () => db.select().from(testimonials).where(eq(testimonials.status, "PUBLISHED")).orderBy(asc(testimonials.displayOrder), asc(testimonials.id)),
     () => bootstrapTestimonials(),
     { scope: "testimonials", isEmpty: notEmptyArray },
   );
@@ -1163,17 +1189,20 @@ function catalogueSearch(query: string): SearchResult[] {
 }
 
 export async function getDashboardStats() {
-  const [productList, serviceList, projectList, clientList] = await Promise.all([
+  const [productList, serviceList, projectList, logoList] = await Promise.all([
     getProducts(),
     getServices(),
     getProjects(),
-    getClients(),
+    getClientLogos(),
   ]);
   const counts = await Promise.all([
     db.select({ value: sql<number>`count(*)` }).from(products).where(isNull(products.deletedAt)),
     db.select({ value: sql<number>`count(*)` }).from(services).where(isNull(services.deletedAt)),
     db.select({ value: sql<number>`count(*)` }).from(projects).where(isNull(projects.deletedAt)),
-    db.select({ value: sql<number>`count(*)` }).from(clients).where(isNull(clients.deletedAt)),
+    // Counts the roster an editor actually manages. The retired `clients` table
+    // was never the source of the site's logos, so counting it reported a number
+    // that had nothing to do with what the homepage shows.
+    db.select({ value: sql<number>`count(*)` }).from(clientLogos),
     db.select({ value: sql<number>`count(*)` }).from(inquiries).where(eq(inquiries.status, "NEW")),
     db.select({ value: sql<number>`count(*)` }).from(contactMessages).where(eq(contactMessages.status, "NEW")),
     db.select({ value: sql<number>`count(*)` }).from(catalogDownloads),
@@ -1188,7 +1217,7 @@ export async function getDashboardStats() {
     products: Number(counts[0][0]?.value ?? productList.length),
     services: Number(counts[1][0]?.value ?? serviceList.length),
     projects: Number(counts[2][0]?.value ?? projectList.length),
-    clients: Number(counts[3][0]?.value ?? clientList.length),
+    clients: Number(counts[3][0]?.value ?? logoList.length),
     newInquiries: Number(counts[4][0]?.value ?? 0),
     newMessages: Number(counts[5][0]?.value ?? 0),
     catalogDownloads: Number(counts[6][0]?.value ?? 0),

@@ -25,12 +25,44 @@
     "subtitle": "Rack & Stack designs and installs complete storage systems — industrial racking, shelving, mezzanine floors, material handling and workplace storage. We start from how you actually operate, then plan the space, the system and the setup as one connected solution.\n\nWe plan around what you store, how you access it and how your team moves it — so the result handles capacity, safety and growth without making daily work harder.",
     "content": {
       "cta": "Explore Our Solutions",
-      "image": "/assets/images/about/organised-storage-aisle-b1f2342d4e.webp"
+      "image": "/assets/images/about/organised-storage-aisle-b1f2342d4e.webp",
+      "gallery": [
+        {
+          "alt": "Rack manufacturing in progress, storage racks built in-house",
+          "image": "/assets/images/about/home-about-x5o587ju7gwwklioqkzz-962d85330f.webp"
+        },
+        {
+          "alt": "Rack installation of industrial racking solutions inside a warehouse",
+          "image": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp"
+        }
+      ],
+      "features": [
+        {
+          "icon": "Factory",
+          "title": "In-House Manufacturing",
+          "description": "Quality-controlled rack production"
+        },
+        {
+          "icon": "SlidersHorizontal",
+          "title": "Custom Storage Solutions",
+          "description": "Designed for your space and requirements"
+        },
+        {
+          "icon": "HardHat",
+          "title": "Professional Installation",
+          "description": "Safe and accurate installation"
+        },
+        {
+          "icon": "Headset",
+          "title": "Reliable Support",
+          "description": "Service and maintenance after installation"
+        }
+      ]
     },
     "enabled": true,
     "displayOrder": 1,
     "createdAt": "2026-09-28T08:58:45.827Z",
-    "updatedAt": "2026-09-28T08:58:45.827Z"
+    "updatedAt": "2026-09-30T14:35:55.292Z"
   },
   {
     "id": 2,
@@ -61,6 +93,47 @@
     "displayOrder": 2,
     "createdAt": "2026-09-28T08:58:45.767Z",
     "updatedAt": "2026-09-28T08:58:45.767Z"
+  },
+  {
+    "id": 4,
+    "sectionKey": "services",
+    "title": "One Team for the Whole Storage System",
+    "subtitle": "Design, manufacturing, supply and installation handled by the people who built the system.",
+    "content": {
+      "items": [
+        {
+          "icon": "Factory",
+          "title": "Manufacturing",
+          "description": "In-house rack production"
+        },
+        {
+          "icon": "BadgeCheck",
+          "title": "Quality",
+          "description": "Strong & durable materials"
+        },
+        {
+          "icon": "PencilRuler",
+          "title": "Custom Design",
+          "description": "Solutions for every storage need"
+        },
+        {
+          "icon": "HardHat",
+          "title": "Installation",
+          "description": "Professional installation"
+        },
+        {
+          "icon": "LifeBuoy",
+          "title": "After-Sales Support",
+          "description": "Long-term service & support"
+        }
+      ],
+      "label": "Why Rack & Stack",
+      "kicker": "Manufacturing • Supply • Installation"
+    },
+    "enabled": true,
+    "displayOrder": 3,
+    "createdAt": "2026-09-28T08:58:45.887Z",
+    "updatedAt": "2026-09-28T08:58:45.887Z"
   },
   {
     "id": 6,

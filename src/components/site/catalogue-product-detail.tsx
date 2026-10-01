@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { getProductReelVideos, getProducts, getServices } from "@/lib/data";
-import { getPublicClientLogos } from "@/lib/client-assets";
+import { getClientLogos, getProductReelVideos, getProducts, getServices } from "@/lib/data";
 import { JsonLd } from "@/components/site/ui";
 import { ProductSectionsLayout } from "@/components/site/product-sections";
 import { adaptCatalogueProduct, getProductOptions } from "@/lib/product-page";
@@ -16,7 +15,7 @@ export async function CatalogueProductDetail({ product, relatedProducts }: Catal
   const [databaseProducts, allServices, logos, reels] = await Promise.all([
     getProducts(),
     getServices(),
-    getPublicClientLogos(),
+    getClientLogos(),
     getProductReelVideos(product.slug, 6),
   ]);
   const folderImages = await getProductFolderImages(product.slug, product.name);

@@ -21,10 +21,9 @@
 
 import {
   catalogueCategoryNames,
-  getCatalogueProductBySlug,
-  getCatalogueProductHref,
+  getProductHref,
   type CatalogueProduct,
-} from "@/lib/catalogue";
+} from "@/lib/catalogue-shared";
 import { getDatabaseProductHref } from "@/lib/product-page";
 
 /** A product as the home cards need it, flattened from either source. */
@@ -152,7 +151,7 @@ function toCatalogueOption(
     // second opinion. A catalogue product that has a `public/` folder shows a
     // folder image on its detail page, so the card must too.
     image: primaryImages.get(product.slug) ?? "",
-    href: getCatalogueProductHref(product),
+    href: getProductHref(product),
   };
 }
 
@@ -253,26 +252,32 @@ export function resolveHomeProductCard(
   if (!product && !slug) return null;
 
   /**
-   * The product's name, for the same reason as the slug above.
+   * The card's own title, when it has one.
    *
-   * `row.title` used to win here, so a product renamed in the CMS kept its old
-   * name on the homepage. It is retained only as a fallback for a card that
-   * resolved to nothing, where there is no product name to inherit.
+   * The product's name is the fallback, so a card that never overrode its
+   * heading still shows the product's name. But an override that an editor typed
+   * into the admin has to win: this used to be ignored for any card bound to a
+   * product, which meant the admin's "Title override" field saved successfully
+   * and then rendered nothing. A card is a promotional slot chosen by the
+   * business, so the words on the card are the card's business, not the
+   * product's.
    */
-  const name = product?.name || text(row.title);
+  const name = text(row.title) || product?.name || "";
   if (!name) return null;
 
   /**
    * Which fields the card is actually overriding.
    *
-   * Only counts a field that is genuinely in effect. A stored `title` on a card
-   * bound to a product is ignored, so reporting it here would tell an editor
-   * their override is live when the card is actually showing the product's name.
+   * Every entry is a value that will genuinely reach the page, so an editor
+   * reading this list is told the truth about what they have overridden.
    */
   const overrides: string[] = [];
-  if (!product && text(row.title)) overrides.push("title");
+  if (text(row.title)) overrides.push("title");
   if (text(row.description)) overrides.push("description");
+  if (text(row.imageUrl)) overrides.push("image");
   if (text(row.category)) overrides.push("badge");
+  if (text(row.altText)) overrides.push("alt text");
+  if (text(row.ctaLabel)) overrides.push("button label");
 
   // The destination is the product's, always.
   //
@@ -291,15 +296,19 @@ export function resolveHomeProductCard(
     name,
     category: text(row.category) || product?.category || "",
     shortDescription: text(row.description) || product?.shortDescription || "",
-    // The image is the product's primary image, and only the product's.
+    // The card's own image when it has one, and the product's primary image
+    // otherwise.
     //
-    // `row.imageUrl` is deliberately ignored. A stored home image is a second
-    // copy of an image the product already owns, and a second copy is a second
-    // thing to forget: swapping a product's photo in the CMS left every card
-    // showing the old one, and a card could end up illustrating a product it
-    // did not link to at all. The column is still writable in the schema so an
-    // existing value can be cleared, but nothing reads it for display.
-    image: product?.image || "",
+    // This used to be the product's image only, on the argument that a second
+    // copy of an image is a second thing to forget. In practice it meant the
+    // whole upload pipeline was invisible: the admin accepted an image, saved
+    // it, published it — publish downloaded it and wrote the local path into
+    // `home-offer-cards.json` — and the homepage then threw that path away and
+    // rendered the product photo instead. An editor replacing a card photo saw
+    // no change, with no error anywhere. The product image remains the
+    // fallback, so a card that has never had its own image looks exactly as it
+    // did before.
+    image: text(row.imageUrl) || product?.image || "",
     alt: text(row.altText) || name,
     href,
     quoteHref: `/request-a-quote?product=${encodeURIComponent(slug)}`,
@@ -343,5 +352,3 @@ export function describeCategory(category: string): string {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 }
-
-export { getCatalogueProductBySlug };

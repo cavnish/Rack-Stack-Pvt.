@@ -16,7 +16,7 @@ type Item = {
   createdAt: string | Date;
 };
 
-const FOLDERS = ["products", "services", "projects", "clients", "client-logos", "gallery", "homepage", "home-sliders", "pages", "blog", "testimonials", "industries", "branding"];
+const FOLDERS = ["products", "services", "projects", "client-logos", "gallery", "homepage", "home-sliders", "pages", "blog", "testimonials", "industries", "branding"];
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const MAX_BYTES = 10 * 1024 * 1024;
 

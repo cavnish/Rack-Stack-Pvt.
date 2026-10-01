@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root { --ink:#151719; --graphite:#202326; --muted:#656b70; --line:#dfe2e3; --paper:#f4f4f1; --red:#d11f2f; --red-dark:#ad1220; --white:#fff; --accent:#FF6B1A; --navy:#071C27; }
 * { box-sizing:border-box; }
@@ -21,28 +21,32 @@ img,video,svg { max-width:100%; }
    Section H2: 52-58px desktop / 42-48px tablet / 32-38px mobile, wt 650-700, lh 1.1
    Section desc: 20-22px desktop / 18-20px tablet / 16-18px mobile, wt 400-500, lh 1.5
    Hero H1: 52-64px desktop, hero desc 18-20px. Eyebrow 11-13px uppercase semibold.
-   Do NOT force single-line headings; allow natural wrapping. No horizontal overflow. */
+   Standalone headings are fitted to one line by SectionHeading / FitHeading,
+   which measures the rendered text and steps the font down until it fits,
+   giving up and reverting to natural wrapping rather than going under its
+   readable floor. Multi-line headings must keep wrapping naturally, and no
+   heading may cause horizontal overflow. */
 /* Eyebrow labels are plain uppercase text. The leading rule that used to be drawn
    by a ::before pseudo-element was decorative repetition, so it is gone; callers
    should not re-add a `before:hidden` escape hatch for it. */
 .eyebrow { color:var(--red); font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; line-height:1.4; }
-/* Main section heading — THE global scale (56px desktop). Replaces old 46px heading-lg. */
+/* Main section heading â€” THE global scale (56px desktop). Replaces old 46px heading-lg. */
 .heading-lg,.section-heading { font-family:var(--font-sans); font-size:clamp(2rem,1.25rem + 3.2vw,3.5rem); line-height:1.1; letter-spacing:-.02em; font-weight:700; text-wrap:balance; overflow-wrap:break-word; }
-/* Hero heading — 60px desktop, never as small as the old 46px scale. */
+/* Hero heading â€” 60px desktop, never as small as the old 46px scale. */
 .heading-xl,.hero-heading { font-family:var(--font-sans); font-size:clamp(2.25rem,1.4rem + 3.8vw,3.75rem); line-height:1.08; letter-spacing:-.02em; font-weight:700; text-wrap:balance; overflow-wrap:break-word; }
-/* Compact / nested section heading — still substantial (44px desktop), never tiny. */
+/* Compact / nested section heading â€” still substantial (44px desktop), never tiny. */
 .heading-md { font-family:var(--font-sans); font-size:clamp(1.75rem,1.15rem + 2.6vw,2.75rem); line-height:1.12; letter-spacing:-.02em; font-weight:700; text-wrap:balance; overflow-wrap:break-word; }
-/* Dense-band heading — one step below .heading-md, for short sections that sit
+/* Dense-band heading â€” one step below .heading-md, for short sections that sit
    between taller neighbours (e.g. a six-column process row) and must not
    out-shout them. */
 .heading-sm { font-family:var(--font-sans); font-size:clamp(1.375rem,1.15rem + 1.1vw,2rem); line-height:1.16; letter-spacing:-.02em; font-weight:700; text-wrap:balance; overflow-wrap:break-word; }
 /* Companion to .heading-sm for dense bands. */
 .section-description-sm { font-family:var(--font-sans); font-size:clamp(.9375rem,.875rem + .3vw,1.0625rem); line-height:1.55; font-weight:500; letter-spacing:0; max-width:46rem; text-wrap:pretty; overflow-wrap:break-word; }
-/* Section description — 21-22px desktop, comfortable lh, wide measure, 20px gap below heading. */
+/* Section description â€” 21-22px desktop, comfortable lh, wide measure, 20px gap below heading. */
 .section-description { font-family:var(--font-sans); font-size:clamp(1rem,.9rem + .6vw,1.375rem); line-height:1.5; font-weight:500; letter-spacing:0; max-width:72rem; text-wrap:pretty; overflow-wrap:break-word; }
-/* Hero description — 18-20px desktop. */
+/* Hero description â€” 18-20px desktop. */
 .hero-description { font-family:var(--font-sans); font-size:clamp(1.0625rem,1rem + .3vw,1.25rem); line-height:1.6; font-weight:400; letter-spacing:0; max-width:48rem; text-wrap:pretty; overflow-wrap:break-word; }
-/* Home hero — reduced, responsive scale so long industrial H1s stay one glanceable block. */
+/* Home hero â€” reduced, responsive scale so long industrial H1s stay one glanceable block. */
 .hero-heading-home { font-size:clamp(1.875rem,1.15rem + 2.6vw,2.9rem); line-height:1.12; }
 .hero-description-home { font-size:clamp(.9375rem,.875rem + .25vw,1.0625rem); line-height:1.55; max-width:42rem; }
 /* One-line highlighted accent (PLANNED. SUPPLIED. INSTALLED.) */
@@ -72,7 +76,7 @@ img,video,svg { max-width:100%; }
 .btn-compact { min-height:2.75rem; padding:.6rem 1.05rem; font-size:.8125rem; }
 .glass-surface { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); box-shadow:inset 0 1px 0 rgba(255,255,255,.09); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
 @media (prefers-reduced-transparency: reduce){ .glass-surface { background:#151c28; backdrop-filter:none; -webkit-backdrop-filter:none; } }
-/* Industrial grid sections: gridlines on top → readability scrim → subtle warehouse texture.
+/* Industrial grid sections: gridlines on top â†’ readability scrim â†’ subtle warehouse texture.
    Texture is a tiny SVG (public/textures) shared site-wide; no layout impact. */
 .surface-grid {
   background-image:
@@ -147,7 +151,7 @@ textarea.admin-field { color:#18181b; }
    A horizontal shelf of 9:16 cards. The card width is derived from the
    container so a whole row lands exactly on the container edge: four cards on a
    laptop, five on a desktop, and never a card sliced in half at the right edge.
-   Sized so a card stays around 225-240px at every breakpoint — small enough for
+   Sized so a card stays around 225-240px at every breakpoint â€” small enough for
    the shelf to support the heading rather than dominate the page, large enough
    for a 9:16 Reel to stay watchable.
    Lives here rather than as arbitrary values because Tailwind's extractor does
@@ -159,7 +163,7 @@ textarea.admin-field { color:#18181b; }
 @media (min-width:1280px){ .reel-shelf > * { width:calc((100% - 4rem) / 5); } }
 @keyframes hero-progress { from { transform:scaleX(0); } to { transform:scaleX(1); } }
 /* Why Rack & Stack centre illustration: the India map scales in and the label fades up.
-   The wrapper itself is never transformed or faded — that would make it a stacking context
+   The wrapper itself is never transformed or faded â€” that would make it a stacking context
    and cut the map off from the section background its blend depends on. Animations run
    only once [data-inview] is set, so with JS disabled the illustration is simply visible. */
 .india-reveal-host[data-inview] .india-map { animation:india-map .85s cubic-bezier(.22,1,.36,1) both; }
@@ -188,6 +192,51 @@ body.menu-open {
   width: 100%;
 }
 
+/* ============ WHY RACK & STACK â€” SECTION ACCENT ============
+   This section's accent used to be the orange `--accent` default. Repointing
+   `--accent` at the existing Rack & Stack red for this one section recolours
+   `.btn-accent` and the "Industry Leaders" highlight â€” both of which already read
+   `--accent` â€” without touching the global `--accent` that every other surface
+   still resolves to orange. No new colour is introduced; `--red` / `--red-dark`
+   are the existing brand values.
+
+   Only the two things baked into `.btn-accent` as literals need overriding here:
+   its hover tone, and its label colour. That label was navy because it sat on
+   orange; on the red brand fill that pairing drops to ~3.3:1, so the label moves
+   to white (~5.2:1) to stay readable. Nothing about the button's shape, size,
+   padding or type changes.
+
+   Scoped to the section id, so no other page or section is affected. */
+#why-rack-stack { --accent: var(--red); }
+#why-rack-stack .btn-accent { color:#fff; }
+#why-rack-stack .btn-accent:hover { background:var(--red-dark); border-color:var(--red-dark); }
+
+/* ============ MOBILE PRODUCT ACTION BAR ============
+   The fixed "Request Quote" bar is taken out of the document flow, so on its own
+   it just sits on top of whatever ends the page, and two other elements pinned to
+   the same bottom edge land on top of it. Three things follow:
+
+   1. `--mp-action-bar-h` is the single source of the bar's height, so the
+      clearance below can never disagree with the bar it is compensating for.
+   2. `body` gets that height back as padding. It has to be `body` rather than a
+      spacer next to the bar: the bar renders inside `<main>`, while the footer
+      renders after it, so only the last flow container can put the clearance at
+      the very end of the document where the footer needs it.
+   3. The floating call/WhatsApp buttons and the cookie banner are lifted clear of
+      the bar by the same amount, and only on pages that actually render the bar,
+      which `:has()` reads straight off the DOM.
+
+   All of it is scoped to `max-width: 767px`, the one breakpoint where the bar
+   exists â€” everywhere else these elements keep their original `bottom-4`. */
+:root { --mp-action-bar-h: 67px; }
+@media (max-width: 767px) {
+  html:has(.mp-action-bar) body { padding-bottom: var(--mp-action-bar-h); }
+  html:has(.mp-action-bar) .mp-fab,
+  html:has(.mp-action-bar) .mp-cookie-consent {
+    bottom: calc(var(--mp-action-bar-h) + 0.75rem);
+  }
+}
+
 /* ============ RESPONSIVE SAFETY ============
    Ensure no element causes horizontal page overflow. */
 html, body {
@@ -204,80 +253,134 @@ html, body {
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important;animation-iteration-count:1!important}}
 
-/* Client logo marquee — continuous LEFT → RIGHT, GPU-only transform */
-.marquee { position:relative; overflow:hidden; }
-.marquee::before,.marquee::after { content:""; position:absolute; top:0; bottom:0; z-index:1; width:clamp(32px,7vw,90px); pointer-events:none; }
-.marquee::before { left:0; background:linear-gradient(90deg,#fff 8%,rgba(255,255,255,0)); }
-.marquee::after { right:0; background:linear-gradient(270deg,#fff 8%,rgba(255,255,255,0)); }
-.marquee-track { display:flex; align-items:center; width:max-content; will-change:transform; animation:marquee-right 46s linear infinite; }
-.marquee:hover .marquee-track { animation-play-state:paused; }
-.marquee-group { display:flex; flex:0 0 auto; align-items:center; justify-content:space-around; min-width:100%; }
-.marquee-item { display:flex; flex:0 0 auto; align-items:center; justify-content:center; height:2.75rem; padding-inline:1.5rem; }
-.marquee-item img { height:100%; width:auto; object-fit:contain; opacity:.82; transition:opacity .25s ease,transform .25s ease; }
-.marquee-item:hover img { opacity:1; transform:scale(1.05); }
-@keyframes marquee-right { from { transform:translateX(-50%); } to { transform:translateX(0); } }
-@media (min-width:768px){ .marquee-item{ height:3.5rem; padding-inline:2.5rem; } }
-@media (hover:none){ .marquee-item img{ opacity:.95; } }
-.marquee-monogram { display:flex; align-items:center; gap:.6rem; }
-.marquee-monogram-badge { display:grid; place-items:center; flex:0 0 auto; height:2.25rem; width:2.25rem; border-radius:9999px; background:#f4f4f5; font-size:.72rem; font-weight:800; letter-spacing:.02em; color:#3f3f46; }
-.marquee-monogram-name { white-space:nowrap; font-size:.9rem; font-weight:700; color:#3f3f46; }
-@media (min-width:768px){ .marquee-monogram-badge{ height:2.5rem; width:2.5rem; font-size:.78rem; } .marquee-monogram-name{ font-size:.98rem; } }
-.marquee-empty { border:1px dashed #d4d4d8; background:#fafafa; padding:2rem; text-align:center; font-size:.85rem; font-weight:600; color:#71717a; }
-/* Client logo row (homepage trusted-clients strip) - one wide card per logo.
-   The base `.marquee-item` gets its air from `padding-inline`, which leaves a
-   visible card border floating far away from the logo. Here each logo sits in
-   its own fixed-size card and all the spacing moves to a real `gap`, so the row
-   reads as evenly separated cards that never touch. Scoped to `.logo-row` so the
-   `/clients` roster and the product-page roster keep the name-plate treatment
-   they were built with. */
-.logo-row { position:relative; width:100%; }
-.logo-row-track { display:flex; flex:0 0 auto; align-items:center; gap:20px; margin:0; padding:2px 4px; list-style:none; overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x proximity; scrollbar-width:none; -ms-overflow-style:none; -webkit-overflow-scrolling:touch; }
-.logo-row-track::-webkit-scrollbar { display:none; }
-.logo-row-track--clone { display:none; }
-.logo-card { flex:0 0 auto; display:flex; align-items:center; justify-content:center; width:175px; height:80px; padding:16px 20px; border:1px solid #ededed; border-radius:12px; background:#fcfcfc; scroll-snap-align:center; }
-/* `max-*` + `object-fit:contain` keeps every logo at its own aspect ratio, so a
-   wide wordmark and a square mark both sit centred without stretching or
-   cropping. */
-.logo-card-img { display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; }
-@media (min-width:1024px){
-  /* Wide enough for the continuous single-row scroll. Two copies of the track
-     are laid end to end, so the loop point is exactly one card gap past the
-     halfway mark - hence the `- 10px` in the keyframe below. */
-  .logo-row { display:flex; width:max-content; animation:logo-row-loop 320s linear infinite; }
-  .logo-row:hover { animation-play-state:paused; }
-  .logo-row-track { overflow:visible; padding:2px 0; scroll-snap-type:none; }
-  .logo-row-track--clone { display:flex; }
-  .logo-card { width:180px; }
-  .logo-row::before,.logo-row::after { content:""; position:absolute; top:0; bottom:0; z-index:1; width:clamp(32px,6vw,80px); pointer-events:none; }
-  .logo-row::before { left:0; background:linear-gradient(90deg,#fff 8%,rgba(255,255,255,0)); }
-  .logo-row::after { right:0; background:linear-gradient(270deg,#fff 8%,rgba(255,255,255,0)); }
+/* ============ CLIENT LOGO MARQUEE ============
+   Four nested elements, outermost first:
+
+     .logo-marquee        the window the reader sees — clips, and fades its edges
+     .logo-marquee-row    deliberately wider than the screen; moved by transform
+     .logo-marquee-track  one full pass of the roster
+     .logo-marquee-track  a byte-identical copy, which is what makes it loop
+
+   Three rules keep this correct rather than merely moving:
+
+   1. The row is translated by exactly one track width, so the last logo to leave
+      is followed by the first logo to arrive. A `-50%` of the row is the same
+      distance and is what runs before hydration, so there is no first-frame jump.
+   2. The edge fade is a mask on the window, not a white panel painted over the
+      edges. It softens the logos themselves and cannot leave a white band on a
+      section that is not white.
+   3. Only `transform` animates, so the whole thing runs on the compositor: no
+      layout, no repaint, and nothing to reflow when the roster or the breakpoint
+      changes. */
+.logo-marquee {
+  --marquee-fade: clamp(20px, 6vw, 72px);
+  --marquee-duration: 60s;
+  --marquee-shift: -50%;
+  --logo-card-w: clamp(124px, 26vw, 180px);
+  --logo-card-h: clamp(56px, 12vw, 80px);
+  --logo-gap: clamp(10px, 2.2vw, 20px);
+  --logo-plate-gap: clamp(8px, 1.6vw, 16px);
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  /* A finger landing on the strip must still scroll the page. Restricting the
+     gesture to the vertical axis also stops a sideways swipe from fighting the
+     animation, which is what made the strip feel stuck under a thumb. */
+  touch-action: pan-y;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--marquee-fade), #000 calc(100% - var(--marquee-fade)), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 var(--marquee-fade), #000 calc(100% - var(--marquee-fade)), transparent 100%);
 }
-@keyframes logo-row-loop { from { transform:translateX(calc(-50% - 10px)); } to { transform:translateX(0); } }
-@media (prefers-reduced-motion:reduce){
-  .logo-row { display:block; width:100%; animation:none; }
-  .logo-row-track { overflow-x:auto; padding:2px 4px; }
-  .logo-row-track--clone { display:none; }
-  .logo-row::before,.logo-row::after { display:none; }
+.logo-marquee-row {
+  display: flex;
+  width: max-content;
+  animation: logo-marquee-scroll var(--marquee-duration) linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
-.home-client-track { gap:0; padding-block:2px; }
-.home-client-group { display:grid; flex:0 0 auto; width:min(1280px, calc(100vw - 2rem)); min-width:0; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; justify-content:stretch; gap:8px; padding-inline:4px; }
-.home-client-card { position:relative; display:flex; width:100%; height:auto; min-width:0; aspect-ratio:2 / 1; flex:0 0 auto; align-items:center; justify-content:center; overflow:hidden; border:1px solid #e2e8f0; border-radius:2px; background:#fff; }
-.home-client-card img { display:block; width:100%; height:100%; object-fit:contain; }
-@media (min-width:640px){
-  .home-client-group { grid-template-columns:repeat(4,minmax(0,1fr)); }
+@keyframes logo-marquee-scroll {
+  from { transform: translate3d(var(--marquee-shift), 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
 }
-@media (min-width:768px){
-  .home-client-group { width:min(1280px, calc(100vw - 4rem)); }
+/* Pause on hover ONLY where hovering is a real gesture.
+   Unconditional, this is the single worst mobile bug in the section: a tap makes
+   `:hover` latch on a touch screen, so the strip stopped dead the first time
+   anyone touched it and stayed frozen until they tapped somewhere else. */
+@media (hover: hover) and (pointer: fine) {
+  .logo-marquee:hover .logo-marquee-row { animation-play-state: paused; }
 }
-@media (min-width:1024px){
-  .home-client-group { grid-template-columns:repeat(7,minmax(0,1fr)); }
+.logo-marquee-track {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--logo-gap);
+  margin: 0;
+  padding: 2px 0;
+  list-style: none;
 }
-@media (prefers-reduced-motion:reduce){
-  .marquee-track { animation:none!important; width:100%; }
-  .marquee-group { flex-wrap:wrap; justify-content:center; min-width:0; width:100%; row-gap:.5rem; }
-  .marquee-group[aria-hidden="true"] { display:none; }
-  .marquee-item { height:2.75rem; padding-inline:1.25rem; }
-  .marquee::before,.marquee::after { display:none; }
-  .home-client-track { display:grid; }
-  .home-client-group { width:100%; }
+
+/* Card treatment — the homepage and product-page "trusted by" strips. */
+.logo-marquee[data-variant="card"] .logo-marquee-card {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--logo-card-w);
+  height: var(--logo-card-h);
+  padding: clamp(8px, 1.6vw, 16px) clamp(10px, 2vw, 20px);
+  border: 1px solid #ededed;
+  border-radius: 12px;
+  background: #fcfcfc;
+}
+/* `contain` in a fixed box: a square mark and a wide wordmark both sit centred
+   and full, without either being stretched or cropped. */
+.logo-marquee-card-img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* Name-plate treatment — the /clients roster, where the client is spelled out. */
+.logo-marquee[data-variant="plate"] .logo-marquee-track { gap: var(--logo-plate-gap); }
+.logo-marquee[data-variant="plate"] .logo-marquee-plate {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: clamp(2.5rem, 5.2vw, 3.25rem);
+  padding-inline: clamp(1rem, 2.4vw, 1.75rem);
+  border: 1px solid #e4e4e7;
+  background: #fff;
+}
+.logo-marquee-plate-img { display: block; height: 100%; width: auto; object-fit: contain; }
+.logo-marquee-plate-name {
+  white-space: nowrap;
+  font-size: clamp(.6rem, 1.5vw, .7rem);
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #71717a;
+}
+.logo-marquee-empty {
+  margin: 0;
+  border: 1px dashed #d4d4d8;
+  background: #fafafa;
+  padding: 2rem;
+  text-align: center;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #71717a;
+}
+
+/* Reduced motion: the strip stops moving and becomes a swipeable row instead, so
+   every logo is still reachable. `animation` needs `!important` to beat the
+   blanket `animation-duration: .01ms` reset above, and `touch-action` has to go
+   back to `auto` or the swipe this fallback exists for is swallowed. */
+@media (prefers-reduced-motion: reduce) {
+  .logo-marquee {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    touch-action: auto;
+    scrollbar-width: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .logo-marquee::-webkit-scrollbar { display: none; }
+  .logo-marquee-row { animation: none !important; width: 100%; will-change: auto; }
+  .logo-marquee-track + .logo-marquee-track { display: none; }
 }

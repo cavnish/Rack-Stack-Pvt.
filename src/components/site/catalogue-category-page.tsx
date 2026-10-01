@@ -5,7 +5,7 @@ import { FitHeading } from "@/components/site/fit-heading";
 import { CatalogueProductBrowser } from "@/components/site/catalogue-product-browser";
 import { TrustedByStrip } from "@/components/site/trusted-by-strip";
 import type { ClientLogo } from "@/components/site/client-logo-marquee";
-import type { CatalogueCategory, CatalogueProduct } from "@/lib/catalogue";
+import { catalogueCategories, toBrowserCategories, type CatalogueCategory, type CatalogueProduct } from "@/lib/catalogue";
 
 export function CatalogueCategoryPage({ category, products, logos }: { category: CatalogueCategory; products: readonly CatalogueProduct[]; logos: ClientLogo[] }) {
   return (
@@ -34,7 +34,7 @@ export function CatalogueCategoryPage({ category, products, logos }: { category:
             <p className="section-description mt-5 text-zinc-600">Search by product, application, industry or product type. Share your project details and our team can confirm the final configuration.</p>
           </div>
           <div className="mt-10">
-            <CatalogueProductBrowser products={products} lockedCategory={category.slug} />
+            <CatalogueProductBrowser products={products} categories={toBrowserCategories(catalogueCategories)} lockedCategory={category.slug} />
           </div>
         </div>
       </section>

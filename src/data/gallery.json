@@ -3,8 +3,8 @@
     "id": 1,
     "title": "Pallet storage aisle",
     "category": "Racking",
-    "imageUrl": "/assets/images/gallery/pallet-storage-aisle-677d0d8192.webp",
-    "cloudinaryPublicId": null,
+    "imageUrl": "/assets/images/gallery/gallery-f0vxfzhb4zad59rguaxk-5f8fa4ea31.webp",
+    "cloudinaryPublicId": "rack-stack/gallery/f0vxfzhb4zad59rguaxk",
     "altText": "Palletized inventory stored in a warehouse racking aisle",
     "description": null,
     "width": null,
@@ -13,7 +13,7 @@
     "displayOrder": 0,
     "status": "PUBLISHED",
     "createdAt": "2026-09-28T08:58:50.556Z",
-    "updatedAt": "2026-09-28T08:58:50.556Z"
+    "updatedAt": "2026-09-30T11:47:29.070Z"
   },
   {
     "id": 2,
@@ -67,8 +67,8 @@
     "id": 5,
     "title": "Long-span storage",
     "category": "Racking",
-    "imageUrl": "/assets/images/gallery/long-span-storage-78444e6e08.webp",
-    "cloudinaryPublicId": null,
+    "imageUrl": "/assets/images/gallery/gallery-ywbwjnk6raeueee0bgbe-a7a50537ec.webp",
+    "cloudinaryPublicId": "rack-stack/gallery/ywbwjnk6raeueee0bgbe",
     "altText": "Wide-span industrial storage for long materials",
     "description": null,
     "width": null,
@@ -77,7 +77,7 @@
     "displayOrder": 4,
     "status": "PUBLISHED",
     "createdAt": "2026-09-28T08:58:50.556Z",
-    "updatedAt": "2026-09-28T08:58:50.556Z"
+    "updatedAt": "2026-10-01T11:20:49.687Z"
   },
   {
     "id": 6,

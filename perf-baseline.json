@@ -1,0 +1,528 @@
+{
+  "SIZE": {
+    "/": {
+      "raw": 357425,
+      "br": 357425,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "357425",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 104.8
+    },
+    "/about": {
+      "raw": 128776,
+      "br": 128776,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "128776",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 16.6
+    },
+    "/products": {
+      "raw": 214714,
+      "br": 214714,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "-",
+      "cache": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "ttfb": 236.6
+    },
+    "/products/heavy-duty-long-span-racks": {
+      "raw": 335211,
+      "br": 334928,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "-",
+      "cache": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "ttfb": 127.3
+    },
+    "/products/slotted-angle-racks": {
+      "raw": 323674,
+      "br": 323674,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "-",
+      "cache": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "ttfb": 53.7
+    },
+    "/services": {
+      "raw": 132040,
+      "br": 132040,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "132040",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 17.1
+    },
+    "/industries": {
+      "raw": 102132,
+      "br": 102132,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "102132",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 17.3
+    },
+    "/projects": {
+      "raw": 55353,
+      "br": 55353,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "55353",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 13.8
+    },
+    "/clients": {
+      "raw": 116448,
+      "br": 116448,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "116448",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 14.8
+    },
+    "/gallery": {
+      "raw": 81330,
+      "br": 81330,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "81330",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 14.2
+    },
+    "/contact": {
+      "raw": 209529,
+      "br": 209529,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "209529",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 15.3
+    },
+    "/request-a-quote": {
+      "raw": 222003,
+      "br": 222003,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "-",
+      "cache": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "ttfb": 37.5
+    },
+    "/blog": {
+      "raw": 62421,
+      "br": 62421,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "62421",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 12.8
+    },
+    "/catalog": {
+      "raw": 111729,
+      "br": 111729,
+      "ce": "-",
+      "brCe": "-",
+      "cl": "111729",
+      "cache": "s-maxage=3600, stale-while-revalidate=31532400",
+      "ttfb": 13.5
+    }
+  },
+  "VITALS": {
+    "/": {
+      "lcp": 1344,
+      "cls": 0,
+      "fcp": 1344,
+      "ttfb": 15,
+      "domContentLoaded": 86,
+      "lcpEl": "-",
+      "imgs": 127,
+      "brokenImgs": 0,
+      "reqCount": 82,
+      "jsReqs": 1,
+      "jsBytes": 1645849,
+      "cssBytes": 117682,
+      "imgBytes": 1116186,
+      "fontBytes": 48432,
+      "otherBytes": 714303,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/request-a-quote?_rsc=5CB68i4pnAekjehf :: net::ERR_ABORTED",
+        "GET http://localhost:3000/products?_rsc=5CB68i4pnAekjehf :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=5CB68i4pnAekjehf :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=5CB68i4pnAekjehf :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=tXyZJ52UQVBCVsD3 :: net::ERR_ABORTED",
+        "GET http://localhost:3000/request-a-quote?_rsc=tXyZJ52UQVBCVsD3 :: net::ERR_ABORTED",
+        "GET http://localhost:3000/products?_rsc=tXyZJ52UQVBCVsD3 :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=tXyZJ52UQVBCVsD3 :: net::ERR_ABORTED"
+      ],
+      "inp": 116
+    },
+    "/about": {
+      "lcp": 664,
+      "cls": 0,
+      "fcp": 184,
+      "ttfb": 10,
+      "domContentLoaded": 57,
+      "lcpEl": "-",
+      "imgs": 11,
+      "brokenImgs": 0,
+      "reqCount": 54,
+      "jsReqs": 1,
+      "jsBytes": 1644157,
+      "cssBytes": 117682,
+      "imgBytes": 300466,
+      "fontBytes": 48432,
+      "otherBytes": 475626,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/cookie-policy?_rsc=yMFZbW3py_RmPDJX :: net::ERR_ABORTED",
+        "GET http://localhost:3000/products?_rsc=yMFZbW3py_RmPDJX :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=yMFZbW3py_RmPDJX :: net::ERR_ABORTED"
+      ],
+      "inp": 73
+    },
+    "/products": {
+      "lcp": 364,
+      "cls": 0.0004,
+      "fcp": 208,
+      "ttfb": 11,
+      "domContentLoaded": 105,
+      "lcpEl": "-",
+      "imgs": 88,
+      "brokenImgs": 0,
+      "reqCount": 82,
+      "jsReqs": 1,
+      "jsBytes": 1717230,
+      "cssBytes": 117682,
+      "imgBytes": 241678,
+      "fontBytes": 48432,
+      "otherBytes": 728044,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/cookie-policy?_rsc=RfWpbQVJ6hAD6NNn :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=l9EjB63pqfrb5tUJ :: net::ERR_ABORTED",
+        "GET http://localhost:3000/products?_rsc=l9EjB63pqfrb5tUJ :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=l9EjB63pqfrb5tUJ :: net::ERR_ABORTED"
+      ],
+      "inp": 76
+    },
+    "/products/heavy-duty-long-span-racks": {
+      "lcp": 516,
+      "cls": 0.0121,
+      "fcp": 516,
+      "ttfb": 11,
+      "domContentLoaded": 130,
+      "lcpEl": "-",
+      "imgs": 113,
+      "brokenImgs": 0,
+      "reqCount": 77,
+      "jsReqs": 1,
+      "jsBytes": 1691558,
+      "cssBytes": 117682,
+      "imgBytes": 686648,
+      "fontBytes": 48432,
+      "otherBytes": 683750,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/_next/image?url=%2Fassets%2Fimages%2Fproducts%2Fproducts-ykbg7zw4hr0bogd89o1u-e7c43622d4 :: net::ERR_ABORTED",
+        "GET http://localhost:3000/_next/image?url=%2Fassets%2Fimages%2Fproducts%2Fproducts-ykbg7zw4hr0bogd89o1u-e7c43622d4 :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=ugoTm5Duy-2lcTz8 :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=ugoTm5Duy-2lcTz8 :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=HVnB3nr7SU8FBOHu :: net::ERR_ABORTED",
+        "GET http://localhost:3000/products/heavy-duty-pallet-racking?_rsc=HVnB3nr7SU8FBOHu :: net::ERR_ABORTED",
+        "GET http://localhost:3000/request-a-quote?product=heavy-duty-long-span-racks&_rsc=HVnB3nr7SU8FBOHu :: net::ERR_ABORTED",
+        "GET http://localhost:3000/request-a-quote?_rsc=ugoTm5Duy-2lcTz8 :: net::ERR_ABORTED"
+      ],
+      "inp": 75
+    },
+    "/products/slotted-angle-racks": {
+      "lcp": 516,
+      "cls": 0,
+      "fcp": 516,
+      "ttfb": 15,
+      "domContentLoaded": 146,
+      "lcpEl": "-",
+      "imgs": 109,
+      "brokenImgs": 0,
+      "reqCount": 69,
+      "jsReqs": 1,
+      "jsBytes": 1691558,
+      "cssBytes": 117682,
+      "imgBytes": 516548,
+      "fontBytes": 48432,
+      "otherBytes": 672905,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/_next/image?url=%2FSLOTTED%2520ANGLE%2520RACKS%2F0adb6b1c-91ff-472d-a99e-a51d0f19ac65.jp :: net::ERR_ABORTED",
+        "GET http://localhost:3000/request-a-quote?product=slotted-angle-racks&_rsc=jM9cshOIPKSibE2A :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=6ToFgXqcwFePeV4Y :: net::ERR_ABORTED",
+        "GET http://localhost:3000/request-a-quote?product=slotted-angle-racks&_rsc=6ToFgXqcwFePeV4Y :: net::ERR_ABORTED",
+        "GET http://localhost:3000/products/medium-duty-shelving-racks?_rsc=6ToFgXqcwFePeV4Y :: net::ERR_ABORTED"
+      ],
+      "inp": 79
+    },
+    "/services": {
+      "lcp": 464,
+      "cls": 0,
+      "fcp": 144,
+      "ttfb": 8,
+      "domContentLoaded": 117,
+      "lcpEl": "-",
+      "imgs": 4,
+      "brokenImgs": 0,
+      "reqCount": 64,
+      "jsReqs": 1,
+      "jsBytes": 1644157,
+      "cssBytes": 117682,
+      "imgBytes": 211325,
+      "fontBytes": 48432,
+      "otherBytes": 480919,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/services/warehouse-optimization?_rsc=1RpmAqYJEMFF4n7A :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=1RpmAqYJEMFF4n7A :: net::ERR_ABORTED",
+        "GET http://localhost:3000/services/site-survey?_rsc=1RpmAqYJEMFF4n7A :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=1RpmAqYJEMFF4n7A :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=Ktn5x2ERov_cBgED :: net::ERR_ABORTED",
+        "GET http://localhost:3000/services/installation?_rsc=Ktn5x2ERov_cBgED :: net::ERR_ABORTED",
+        "GET http://localhost:3000/services/warehouse-layout-planning?_rsc=Ktn5x2ERov_cBgED :: net::ERR_ABORTED",
+        "GET http://localhost:3000/services/rack-design?_rsc=Ktn5x2ERov_cBgED :: net::ERR_ABORTED",
+        "GET http://localhost:3000/services/site-survey?_rsc=Ktn5x2ERov_cBgED :: net::ERR_ABORTED",
+        "GET http://localhost:3000/services/storage-planning?_rsc=Ktn5x2ERov_cBgED :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=Ktn5x2ERov_cBgED :: net::ERR_ABORTED"
+      ],
+      "inp": 75
+    },
+    "/industries": {
+      "lcp": 456,
+      "cls": 0,
+      "fcp": 144,
+      "ttfb": 8,
+      "domContentLoaded": 47,
+      "lcpEl": "-",
+      "imgs": 16,
+      "brokenImgs": 0,
+      "reqCount": 68,
+      "jsReqs": 1,
+      "jsBytes": 1644157,
+      "cssBytes": 117682,
+      "imgBytes": 335148,
+      "fontBytes": 48432,
+      "otherBytes": 508281,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/search?_rsc=EIsiHLY1EA81RtEP :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=KSLQadErVmHTPpoG :: net::ERR_ABORTED"
+      ],
+      "inp": 75
+    },
+    "/projects": {
+      "lcp": 240,
+      "cls": 0,
+      "fcp": 148,
+      "ttfb": 7,
+      "domContentLoaded": 47,
+      "lcpEl": "-",
+      "imgs": 4,
+      "brokenImgs": 0,
+      "reqCount": 52,
+      "jsReqs": 1,
+      "jsBytes": 1644157,
+      "cssBytes": 117682,
+      "imgBytes": 141596,
+      "fontBytes": 48432,
+      "otherBytes": 403535,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/cookie-policy?_rsc=1TX1itLzob2zpySZ :: net::ERR_ABORTED"
+      ],
+      "inp": 76
+    },
+    "/clients": {
+      "lcp": 112,
+      "cls": 0,
+      "fcp": 112,
+      "ttfb": 5,
+      "domContentLoaded": 42,
+      "lcpEl": "-",
+      "imgs": 88,
+      "brokenImgs": 0,
+      "reqCount": 62,
+      "jsReqs": 1,
+      "jsBytes": 1645849,
+      "cssBytes": 117682,
+      "imgBytes": 172688,
+      "fontBytes": 48432,
+      "otherBytes": 466520,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/cookie-policy?_rsc=J7zho40XcKFpLFOY :: net::ERR_ABORTED"
+      ],
+      "inp": 78
+    },
+    "/gallery": {
+      "lcp": 128,
+      "cls": 0,
+      "fcp": 128,
+      "ttfb": 4,
+      "domContentLoaded": 38,
+      "lcpEl": "-",
+      "imgs": 10,
+      "brokenImgs": 0,
+      "reqCount": 59,
+      "jsReqs": 1,
+      "jsBytes": 1658126,
+      "cssBytes": 117682,
+      "imgBytes": 295035,
+      "fontBytes": 48432,
+      "otherBytes": 428520,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/search?_rsc=HFI9eSoz95Ty8BIt :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=HFI9eSoz95Ty8BIt :: net::ERR_ABORTED"
+      ],
+      "inp": 77
+    },
+    "/contact": {
+      "lcp": 512,
+      "cls": 0,
+      "fcp": 512,
+      "ttfb": 15,
+      "domContentLoaded": 112,
+      "lcpEl": "-",
+      "imgs": 10,
+      "brokenImgs": 0,
+      "reqCount": 57,
+      "jsReqs": 1,
+      "jsBytes": 1644157,
+      "cssBytes": 117682,
+      "imgBytes": 216899,
+      "fontBytes": 48432,
+      "otherBytes": 557736,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/search?_rsc=mTa8tpfUvA8h8GpF :: net::ERR_ABORTED"
+      ],
+      "inp": 77
+    },
+    "/request-a-quote": {
+      "lcp": 172,
+      "cls": 0,
+      "fcp": 172,
+      "ttfb": 28,
+      "domContentLoaded": 95,
+      "lcpEl": "-",
+      "imgs": 3,
+      "brokenImgs": 0,
+      "reqCount": 53,
+      "jsReqs": 1,
+      "jsBytes": 1655788,
+      "cssBytes": 117682,
+      "imgBytes": 123928,
+      "fontBytes": 48432,
+      "otherBytes": 568750,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/search?_rsc=MPZYt9rA4dlVfjwm :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=MPZYt9rA4dlVfjwm :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=xkVVC8oNf6i3vU56 :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=xkVVC8oNf6i3vU56 :: net::ERR_ABORTED"
+      ],
+      "inp": 84
+    },
+    "/blog": {
+      "lcp": 704,
+      "cls": 0,
+      "fcp": 128,
+      "ttfb": 7,
+      "domContentLoaded": 45,
+      "lcpEl": "-",
+      "imgs": 6,
+      "brokenImgs": 0,
+      "reqCount": 59,
+      "jsReqs": 1,
+      "jsBytes": 1644157,
+      "cssBytes": 117682,
+      "imgBytes": 360844,
+      "fontBytes": 48432,
+      "otherBytes": 410847,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/cookie-policy?_rsc=oz-_Q2BhlE850NaL :: net::ERR_ABORTED",
+        "GET http://localhost:3000/blog/storage-density-versus-accessibility?_rsc=oz-_Q2BhlE850NaL :: net::ERR_ABORTED",
+        "GET http://localhost:3000/blog/prepare-for-pallet-racking-layout?_rsc=oz-_Q2BhlE850NaL :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=oz-_Q2BhlE850NaL :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=B1ihya9_OotShCgE :: net::ERR_ABORTED",
+        "GET http://localhost:3000/search?_rsc=B1ihya9_OotShCgE :: net::ERR_ABORTED",
+        "GET http://localhost:3000/blog/storage-density-versus-accessibility?_rsc=B1ihya9_OotShCgE :: net::ERR_ABORTED"
+      ],
+      "inp": 74
+    },
+    "/catalog": {
+      "lcp": 140,
+      "cls": 0.0444,
+      "fcp": 140,
+      "ttfb": 10,
+      "domContentLoaded": 49,
+      "lcpEl": "-",
+      "imgs": 8,
+      "brokenImgs": 0,
+      "reqCount": 57,
+      "jsReqs": 1,
+      "jsBytes": 1663204,
+      "cssBytes": 117682,
+      "imgBytes": 208502,
+      "fontBytes": 48432,
+      "otherBytes": 460256,
+      "errs": [],
+      "warns": [
+        "Deprecated API for given entry type."
+      ],
+      "failed": [
+        "GET http://localhost:3000/search?_rsc=OYzo7EH3MGwwxBfF :: net::ERR_ABORTED",
+        "GET http://localhost:3000/cookie-policy?_rsc=O6cAbYUSgs3KBG-F :: net::ERR_ABORTED"
+      ],
+      "inp": 75
+    }
+  },
+  "at": "2026-10-01T07:19:39.147Z"
+}

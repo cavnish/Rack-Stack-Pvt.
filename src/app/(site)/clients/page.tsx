@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { getGallery } from "@/lib/data";
-import { getPublicClientLogos } from "@/lib/client-assets";
+import { getClientLogos, getGallery } from "@/lib/data";
 import { CTASection, PageHero, SectionHeading } from "@/components/site/ui";
 import { ClientLogoMarquee } from "@/components/site/client-logo-marquee";
 
@@ -10,12 +9,12 @@ export const metadata: Metadata = {
 };
 
 export default async function ClientsPage() {
-  const [logos, gallery] = await Promise.all([getPublicClientLogos(), getGallery()]);
+  const [logos, gallery] = await Promise.all([getClientLogos(), getGallery()]);
   return (
     <main>
       <PageHero
         title="Our Valued Clients"
-        description="The organizations below are from the official Rack & Stack client list. This is our published roster only — it does not imply any specific project or endorsement."
+        description="The organizations below are from the official Rack & Stack client list. This is our published roster only â€” it does not imply any specific project or endorsement."
         image={gallery[0]?.imageUrl}
       />
       <section className="bg-[#f4f4f1] py-14">

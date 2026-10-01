@@ -10,7 +10,7 @@ import { ContentSectionsEditor, type SectionRow } from "@/components/admin/conte
 import { RepeatableList, type ListColumn, type Row } from "@/components/admin/repeatable-list";
 import { HomepageAboutEditor, HomepageOffersEditor } from "@/components/admin/homepage-section-editor";
 import { slugify } from "@/lib/utils";
-import { catalogueCategoryNames, catalogueCategorySlugs } from "@/lib/catalogue";
+import { catalogueCategoryNames } from "@/lib/catalogue-shared";
 import { RECOMMENDED_DESCRIPTION, RECOMMENDED_HEADING } from "@/lib/recommendations";
 
 /**
@@ -86,14 +86,6 @@ const configs: Record<string, Field[]> = {
     { key: "metaTitle", label: "SEO title" },
     { key: "metaDescription", label: "SEO description", type: "textarea" },
   ],
-  clients: [
-    { key: "name", label: "Client name", required: true },
-    { key: "logo", label: "Logo URL", type: "url", folder: "clients", publicIdKey: "cloudinaryPublicId" },
-    { key: "website", label: "Website", type: "url" },
-    { key: "industry", label: "Industry" },
-    { key: "featured", label: "Featured", type: "checkbox" },
-    { key: "displayOrder", label: "Display order", type: "number" },
-  ],
   "client-logos": [
     { key: "name", label: "Client name", required: true },
     {
@@ -105,22 +97,34 @@ const configs: Record<string, Field[]> = {
       publicIdKey: "imagePublicId",
       widthKey: "width",
       heightKey: "height",
-      help: "Upload a clean transparent logo (PNG/WebP/AVIF). Stored in rack-stack/client-logos.",
+      help: "Upload a clean transparent logo (PNG/WebP/AVIF), or paste a full image URL. Logos already stored in public/ are kept as-is, so they keep working with the database switched off.",
     },
     { key: "altText", label: "Alt text", required: true, help: "Describe the logo for accessibility and SEO." },
-    { key: "sortOrder", label: "Sort order", type: "number" },
-    { key: "isActive", label: "Show on homepage marquee", type: "checkbox" },
+    { key: "sortOrder", label: "Sort order", type: "number", help: "Lower numbers appear first in the roster." },
+    { key: "isActive", label: "Show on site", type: "checkbox", help: "Uncheck to keep the logo in Admin but hide it from the website." },
   ],
   testimonials: [
-    { key: "clientName", label: "Client name", required: true },
-    { key: "company", label: "Company" },
-    { key: "designation", label: "Designation" },
-    { key: "content", label: "Verified testimonial", type: "textarea", required: true },
-    { key: "rating", label: "Rating", type: "number" },
-    { key: "image", label: "Image URL", type: "url", folder: "testimonials" },
-    { key: "featured", label: "Featured", type: "checkbox" },
-    { key: "status", label: "Status", type: "select", options: STATUS_OPTIONS },
-    { key: "displayOrder", label: "Display order", type: "number" },
+    { key: "clientName", label: "Client name", required: true, help: "Shown as the reviewer on the card. The name a customer would recognise." },
+    { key: "designation", label: "Designation", help: "e.g. Warehouse Head. Appears under the name." },
+    { key: "company", label: "Company", help: "e.g. Blue Dart Logistics." },
+    { key: "content", label: "Testimonial text", type: "textarea", required: true, help: "The quote as the client said it. 20–1500 characters; longer quotes are shortened in the card." },
+    {
+      key: "rating",
+      label: "Star rating",
+      type: "select",
+      options: [
+        { value: "5", label: "5 — Excellent" },
+        { value: "4", label: "4 — Good" },
+        { value: "3", label: "3 — Average" },
+        { value: "2", label: "2 — Poor" },
+        { value: "1", label: "1 — Very poor" },
+      ],
+      help: "Counted into the average rating shown under the section.",
+    },
+    { key: "image", label: "Client photo", type: "url", folder: "testimonials", help: "Optional. Square portrait works best. Leave empty to show the client's initials instead." },
+    { key: "featured", label: "Featured", type: "checkbox", help: "Reserved for curated placements." },
+    { key: "status", label: "Status", type: "select", options: STATUS_OPTIONS, help: "Only PUBLISHED testimonials appear on the website." },
+    { key: "displayOrder", label: "Display order", type: "number", help: "Lower numbers appear first. Use the up/down arrows on the list to rearrange." },
   ],
   gallery: [
     { key: "title", label: "Title", required: true },
@@ -371,6 +375,7 @@ function ProductEditor({
   error,
   options,
   onUploadBusy,
+  categorySlugs,
 }: {
   initial: Data;
   onSave: (d: Data) => void;
@@ -381,6 +386,14 @@ function ProductEditor({
   error: string;
   options: RelationOptions;
   onUploadBusy: (busy: boolean) => void;
+  /**
+   * Category slugs in use, handed in by the server page.
+   *
+   * Read from the published catalogue rather than imported: importing it here
+   * would put a megabyte of product rows in the admin bundle, and the editor
+   * only needs a short list of slugs to populate one `<select>`.
+   */
+  categorySlugs: readonly string[];
 }) {
   /**
    * Nine sections, in the order an editor actually works through a product.
@@ -476,7 +489,7 @@ function ProductEditor({
         // currently in use is offered, so one created in Admin stays selectable.
         options: [
           ...new Set([
-            ...catalogueCategorySlugs,
+            ...categorySlugs,
             // A category filed under in Admin stays selectable even if it has
             // no registered name yet, so saving the record cannot silently
             // rewrite an editor's choice to the first option in the list.
@@ -1401,11 +1414,14 @@ export function EntityEditor({
   initialData = {},
   id,
   relationOptions = { products: [], industries: [], projects: [] },
+  categorySlugs = [],
 }: {
   entity: string;
   initialData?: Data;
   id?: number;
   relationOptions?: RelationOptions;
+  /** Category slugs in use, read from the published catalogue by the server page. */
+  categorySlugs?: readonly string[];
 }) {
   const router = useRouter();
   const [data, setData] = useState<Data>({
@@ -1421,6 +1437,10 @@ export function EntityEditor({
   const fields = configs[entity] || [];
   const title = String(initialData.name || initialData.title || initialData.clientName || initialData.question || initialData.sectionKey || `New ${entity.replace(/-/g, " ")}`);
   const preview = useMemo(() => {
+    // A testimonial has no page of its own, so there is nothing to preview but
+    // the section it appears in. Linking straight to the homepage anchor saves
+    // the editor from hunting for it after every edit.
+    if (entity === "testimonials") return "/#client-feedback";
     const slug = String(data.slug || initialData.slug || "");
     if (!slug) return null;
     const base = entity === "blog" ? "blog" : entity;
@@ -1466,7 +1486,11 @@ export function EntityEditor({
         setError(body.error || "Unable to save this record.");
         return;
       }
-      router.push(`/admin/${entity}`);
+      // The redirect carries the outcome so the list can confirm it. Without it
+      // the save is silent: the editor vanishes and the table looks exactly as
+      // it did before, so an editor who changed the wrong field has no way to
+      // know it worked.
+      router.push(`/admin/${entity}?saved=${id ? "updated" : "created"}`);
       router.refresh();
     } catch {
       setError("Network error. Please try again.");
@@ -1542,6 +1566,7 @@ export function EntityEditor({
           error={error}
           options={relationOptions}
           onUploadBusy={markUpload}
+          categorySlugs={categorySlugs}
         />
       </EditorFrame>
     );

@@ -2,7 +2,6 @@ import type {
   blogCategories,
   blogPosts,
   clientLogos,
-  clients,
   faqs,
   gallery,
   homeSliders,
@@ -72,7 +71,6 @@ export type StaticGalleryItem = Static<typeof gallery.$inferSelect>;
 export type StaticTestimonial = Static<typeof testimonials.$inferSelect>;
 export type StaticPage = Static<typeof pages.$inferSelect>;
 export type StaticFaq = Static<typeof faqs.$inferSelect>;
-export type StaticClient = Static<typeof clients.$inferSelect>;
 export type StaticClientLogo = Static<typeof clientLogos.$inferSelect>;
 export type StaticBlogPost = Static<typeof blogPosts.$inferSelect>;
 export type StaticBlogCategory = Static<typeof blogCategories.$inferSelect>;
@@ -176,5 +174,5 @@ export type StaticRoutes = {
   blog: string[];
   pages: string[];
   gallery: number;
-  clients: number;
+  clientLogos: number;
 };

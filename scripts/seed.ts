@@ -6,7 +6,6 @@ import {
   blogCategories,
   blogPosts,
   clientLogos,
-  clients,
   faqs,
   gallery,
   homeOfferCards,
@@ -31,6 +30,7 @@ import {
   users,
 } from "../src/db/schema";
 import { requireInstagramUrl } from "../src/lib/instagram";
+import { readLocalClientLogoFiles } from "../src/lib/client-assets";
 import { homeOfferCardSeeds } from "../src/lib/home-offer-cards";
 import {
   defaultGalleryAltText,
@@ -433,12 +433,37 @@ async function seed() {
     ].map(([title, category, imageUrl, altText], displayOrder) => ({ title, category, imageUrl, altText, displayOrder, status: "PUBLISHED" as const })));
   }
 
-  if (Number((await db.select({ count: sql<number>`count(*)` }).from(clients))[0].count) === 0) {
-    await db.insert(clients).values(["Bank of America", "Knight Frank", "Jaslok Hospital", "Mumbai Metro", "Eaton", "IDBI Bank", "Allcargo Logistics", "Schindler"].map((name, displayOrder) => ({ name, featured: true, displayOrder })));
-  }
+  // The legacy `clients` table is no longer seeded: nothing reads it, and a fresh
+  // database should not resurrect rows that only the removed admin screen owned.
+  //
+  // `clientLogos` is seeded with the real roster rather than placeholder names.
+  // An earlier version inserted eight client names with an empty `imageUrl`, which
+  // `notNull()` happily accepted: the rows published as eight broken images and
+  // every one of them was filtered out, so the section fell back to reading
+  // `public/` behind the CMS's back. These rows carry a URL that actually loads.
+  // `npm run client-logos:import` reconciles the stored roster with the files on
+  // disk and is safe to re-run; seeding never overwrites an edited roster.
 
-  if (Number((await db.select({ count: sql<number>`count(*)` }).from(clientLogos))[0].count) === 0) {
-    await db.insert(clientLogos).values(["Bank of America", "Knight Frank", "Jaslok Hospital", "Mumbai Metro", "Eaton", "IDBI Bank", "Allcargo Logistics", "Schindler"].map((name, index) => ({ name, imageUrl: "", altText: `${name} logo`, sortOrder: index + 1, isActive: true })));
+  const [{ count: logoCount }] = await db.select({ count: sql<number>`count(*)` }).from(clientLogos);
+  if (Number(logoCount) === 0) {
+    const logoFiles = await readLocalClientLogoFiles();
+    if (logoFiles.length) {
+      await db.insert(clientLogos).values(
+        logoFiles.map((file, index) => ({
+          name: file.name,
+          imageUrl: file.imageUrl,
+          imagePublicId: null,
+          altText: file.altText,
+          sortOrder: index + 1,
+          isActive: true,
+        })),
+      );
+      console.log(`[seed] client_logos: inserted ${logoFiles.length} logos from public/.`);
+    } else {
+      console.warn("[seed] No client logo files in public/rack-and-stack-clients; client_logos left empty.");
+    }
+  } else {
+    console.log(`[seed] client_logos: ${logoCount} rows kept as-is (run \`npm run client-logos:import\` to reconcile with public/).`);
   }
 
   const aboutContent = "Rack & Stack Storage Systems provides industrial racking, shelving, mezzanine floors, material handling and workplace storage solutions. We start with your site, your stock, your loads and the way your team works. From there, we plan the layout, supply the system, coordinate installation and support you afterwards.\n\nWe believe the best storage plans make room for capacity, easy access, safety and future growth — all at the same time.";

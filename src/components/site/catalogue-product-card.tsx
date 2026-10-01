@@ -4,19 +4,19 @@ import { CatalogueImage } from "@/components/site/catalogue-image";
 import { QuoteButton } from "@/components/site/quote-button";
 import {
   catalogueCategoryNames,
-  getCatalogueProductHref,
-  getCatalogueProductType,
+  getProductHref,
+  getProductTypeLabel,
   type CatalogueProduct,
-} from "@/lib/catalogue";
+} from "@/lib/catalogue-shared";
 
 type CatalogueProductCardProps = {
   product: CatalogueProduct;
 };
 
 export function CatalogueProductCard({ product }: CatalogueProductCardProps) {
-  const href = getCatalogueProductHref(product);
+  const href = getProductHref(product);
   const categoryName = catalogueCategoryNames[product.category];
-  const productType = getCatalogueProductType(product);
+  const productType = getProductTypeLabel(product);
 
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden border border-zinc-200 bg-white transition-colors duration-300 hover:border-zinc-800">

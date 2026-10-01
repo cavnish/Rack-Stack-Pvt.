@@ -1,0 +1,109 @@
+﻿Γû▓ Next.js 16.2.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 6.3s
+  Running TypeScript ...
+  Finished TypeScript in 10.2s ...
+  Collecting page data using 11 workers ...
+node.exe : (node:18580) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as 
+aliases for 'verify-full'.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:18580) Wa... 'verify-full'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq 
+semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  Generating static pages using 11 workers (0/130) ...
+  Generating static pages using 11 workers (32/130) 
+(node:4548) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 
+'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq 
+semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  Generating static pages using 11 workers (64/130) 
+  Generating static pages using 11 workers (97/130) 
+Γ£ô Generating static pages using 11 workers (130/130) in 4.7s
+  Finalizing page optimization ...
+
+Route (app)                       Revalidate  Expire
+Γöî Γùï /                                     1h      1y
+Γö£ Γùï /_not-found
+Γö£ ╞Æ /[slug]
+Γö£ Γùï /about                                1h      1y
+Γö£ ╞Æ /admin
+Γö£ ╞Æ /admin/[entity]
+Γö£ ╞Æ /admin/[entity]/[id]/edit
+Γö£ ╞Æ /admin/[entity]/new
+Γö£ ╞Æ /admin/login
+Γö£ ╞Æ /api/admin/[entity]
+Γö£ ╞Æ /api/admin/[entity]/[id]
+Γö£ ╞Æ /api/admin/product-images
+Γö£ ╞Æ /api/admin/upload
+Γö£ ╞Æ /api/auth/login
+Γö£ ╞Æ /api/auth/logout
+Γö£ ╞Æ /api/catalog-downloads
+Γö£ ╞Æ /api/contact
+Γö£ ╞Æ /api/events
+Γö£ ╞Æ /api/health
+Γö£ ╞Æ /api/inquiries
+Γö£ ╞Æ /api/newsletter
+Γö£ ╞Æ /api/publish
+Γö£ ╞Æ /api/search
+Γö£ Γùï /apple-icon.png
+Γö£ Γùï /blog                                 1h      1y
+Γö£ ╞Æ /blog/[slug]
+Γö£ Γùï /catalog                              1h      1y
+Γö£ Γùï /clients                              1h      1y
+Γö£ Γùï /contact                              1h      1y
+Γö£ Γùï /gallery                              1h      1y
+Γö£ Γùï /icon.png
+Γö£ Γùï /industries                           1h      1y
+Γö£ ΓùÅ /industries/[slug]                    1h      1y
+Γöé Γö£ /industries/warehousing               1h      1y
+Γöé Γö£ /industries/manufacturing             1h      1y
+Γöé Γö£ /industries/automotive                1h      1y
+Γöé Γöö [+9 more paths]
+Γö£ Γùï /manifest.webmanifest
+Γö£ ╞Æ /products
+Γö£ ╞Æ /products/[category]
+Γö£ ΓùÅ /products/[category]
+Γöé Γö£ /products/office-storage              1h      1y
+Γöé Γö£ /products/material-handling           1h      1y
+Γöé Γöö /products/industrial-storage          1h      1y
+Γö£ ╞Æ /products/[category]/[slug]
+Γö£ Γùï /products/industrial-storage          1h      1y
+Γö£ Γùï /products/material-handling           1h      1y
+Γö£ Γùï /products/office-storage              1h      1y
+Γö£ Γùï /projects                             1h      1y
+Γö£ ΓùÅ /projects/[slug]
+Γö£ ╞Æ /request-a-quote
+Γö£ Γùï /robots.txt
+Γö£ ╞Æ /search
+Γö£ Γùï /services                             1h      1y
+Γö£ ╞Æ /services/[slug]
+Γö£ Γùï /sitemap.xml
+Γöö Γùï /thank-you                            1h      1y
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)   prerendered as static content
+ΓùÅ  (SSG)      prerendered as static HTML (uses generateStaticParams)
+╞Æ  (Dynamic)  server-rendered on demand
+

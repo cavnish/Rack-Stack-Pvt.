@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CatalogueCategoryPage } from "@/components/site/catalogue-category-page";
-import { getPublicClientLogos } from "@/lib/client-assets";
 import { getCatalogueCategory, getCatalogueProductsByCategory } from "@/lib/catalogue";
+import { getClientLogos } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Office Storage Systems | Rack & Stack",
@@ -12,6 +12,6 @@ export const metadata: Metadata = {
 export default async function OfficeStoragePage() {
   const category = getCatalogueCategory("office-storage");
   if (!category) notFound();
-  const logos = await getPublicClientLogos();
+  const logos = await getClientLogos();
   return <CatalogueCategoryPage category={category} products={getCatalogueProductsByCategory(category.slug)} logos={logos} />;
 }

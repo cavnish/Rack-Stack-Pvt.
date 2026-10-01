@@ -7,7 +7,6 @@ import {
   blogCategories,
   blogPosts,
   clientLogos,
-  clients,
   faqs,
   gallery,
   homeOfferCards,
@@ -70,7 +69,6 @@ export type PublishScope =
   | "service"
   | "projects"
   | "project"
-  | "clients"
   | "client-logos"
   | "industries"
   | "industry"
@@ -306,7 +304,11 @@ async function generateHomeOfferCards() {
     .from(homeOfferCards)
     .where(eq(homeOfferCards.isActive, true))
     .orderBy(asc(homeOfferCards.displayOrder), asc(homeOfferCards.id));
-  if (rows.length === 0) return null;
+  // An empty list is published, not skipped. Returning null here used to leave
+  // the previous `home-offer-cards.json` untouched, and because the homepage
+  // prefers the static file over the database, switching the last card off — or
+  // deleting it — left that card rendering on the live site indefinitely, with
+  // the publish reporting success and never mentioning the collection.
   return serialize(rows);
 }
 
@@ -696,16 +698,6 @@ export async function generateProjects() {
   );
 }
 
-export async function generateClients() {
-  const rows = await db.select().from(clients).where(isNull(clients.deletedAt)).orderBy(asc(clients.displayOrder));
-  if (rows.length === 0) return null;
-  return serialize(
-    await mapImageColumns(rows, [
-      { key: "logo", group: "clients", name: (row) => row.name, entityKey: (row) => `client:${row.id}` },
-    ]),
-  );
-}
-
 export async function generateClientLogos() {
   const rows = await db
     .select()
@@ -798,13 +790,28 @@ export async function generateGallery() {
   );
 }
 
+/**
+ * The published testimonials, as `src/data/testimonials.json`.
+ *
+ * Unlike most generators this one returns an empty list rather than `null` when
+ * nothing is published. `publishWithinScope` treats `null` as "no opinion, leave
+ * the file alone", which is the right default for collections that are rebuilt
+ * from many sources — but it is actively wrong here: deleting the last
+ * testimonial, or unpublishing the only one, produced no write at all, so
+ * `testimonials.json` kept serving the row that had just been removed. The CMS
+ * said it was gone and the homepage went on showing it, indefinitely, until
+ * something else happened to rewrite the file.
+ *
+ * Publishing the empty list is the honest answer: the public page reads
+ * "nothing is published" as "no testimonials", and hides the section.
+ */
 export async function generateTestimonials() {
   const rows = await db
     .select()
     .from(testimonials)
     .where(eq(testimonials.status, "PUBLISHED"))
-    .orderBy(asc(testimonials.displayOrder));
-  if (rows.length === 0) return null;
+    .orderBy(asc(testimonials.displayOrder), asc(testimonials.id));
+  if (rows.length === 0) return [];
   return serialize(
     await mapImageColumns(rows, [
       { key: "image", group: "misc", name: (row) => row.clientName, entityKey: (row) => `testimonial:${row.id}` },
@@ -1095,7 +1102,6 @@ const generators: Partial<Record<CollectionKey, () => Promise<unknown>>> = {
   products: generateProducts,
   services: generateServices,
   projects: generateProjects,
-  clients: generateClients,
   clientLogos: generateClientLogos,
   industries: generateIndustries,
   gallery: generateGallery,
@@ -1118,7 +1124,6 @@ const scopeCollections: Record<PublishScope, CollectionKey[]> = {
     "products",
     "services",
     "projects",
-    "clients",
     "clientLogos",
     "industries",
     "gallery",
@@ -1142,8 +1147,7 @@ const scopeCollections: Record<PublishScope, CollectionKey[]> = {
   service: ["services", "routes"],
   projects: ["projects", "routes"],
   project: ["projects", "routes"],
-  clients: ["clients", "routes"],
-  "client-logos": ["clientLogos", "clients", "routes"],
+  "client-logos": ["clientLogos", "routes"],
   industries: ["industries", "routes"],
   industry: ["industries", "routes"],
   gallery: ["gallery", "routes"],
@@ -1168,8 +1172,6 @@ export function scopeForAdminEntity(entity: string): PublishScope {
       return "services";
     case "projects":
       return "projects";
-    case "clients":
-      return "clients";
     case "client-logos":
       return "client-logos";
     case "testimonials":
@@ -1221,7 +1223,7 @@ async function generateRoutes(): Promise<StaticRoutes> {
     blog: blogPosts.map((row) => row.post.slug),
     pages: pages.map((row) => row.slug),
     gallery: galleryRows.length,
-    clients: clientLogos.length,
+    clientLogos: clientLogos.length,
   };
 }
 

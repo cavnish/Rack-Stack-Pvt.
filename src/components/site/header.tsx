@@ -2,17 +2,57 @@
 
 import Link from "next/link";
 import { ChevronDown, Download, Mail, Menu, MessageCircle, Phone, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Logo } from "./logo";
-import {
-  catalogueCategories,
-  getCatalogueProductHref,
-  getCatalogueProductsByCategory,
-} from "@/lib/catalogue";
 
 const catalogueDownloadHref = "/Rack%20%20Stack%20_Brochure%20(1).pdf";
 
-export function Header({ phone, whatsapp }: { phone: string; whatsapp: string }) {
+/**
+ * One category column of the mega menu.
+ *
+ * `shortDescription` is deliberately truncated to its first line here rather
+ * than server-side: it is only ever shown clipped to a single line by
+ * `line-clamp-1`, so shipping the full paragraph of every product to render it
+ * would put roughly the same volume of text in the payload as it saves in
+ * markup.
+ */
+export type HeaderNavProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  href: string;
+  category: string;
+  shortDescription: string;
+};
+
+export type HeaderNavCategory = {
+  slug: string;
+  name: string;
+  productCount: number;
+  products: HeaderNavProduct[];
+};
+
+/**
+ * The site header.
+ *
+ * The navigation data arrives as a prop from the server layout rather than
+ * being imported here. This component has to be a client component — the mega
+ * menu, the mobile drawer and the scroll shadow are all interactive — so
+ * anything it imported became part of every visitor's bundle. It used to import
+ * `@/lib/catalogue`, which reaches the published product payload: about a
+ * megabyte of product rows, downloaded and parsed on every page of the site to
+ * render a menu of forty links. Passing the same information as a serialisable
+ * prop keeps the interaction and removes the catalogue from the client bundle.
+ */
+export function Header({
+  phone,
+  whatsapp,
+  groups,
+}: {
+  phone: string;
+  whatsapp: string;
+  groups: HeaderNavCategory[];
+}) {
   const [mobile, setMobile] = useState(false);
   const [mega, setMega] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -31,11 +71,6 @@ export function Header({ phone, whatsapp }: { phone: string; whatsapp: string })
       document.body.style.overflow = "";
     };
   }, [mobile]);
-
-  const groups = useMemo(
-    () => catalogueCategories.map((category) => ({ category, products: getCatalogueProductsByCategory(category.slug) })),
-    [],
-  );
 
   return (
     <>
@@ -72,14 +107,14 @@ export function Header({ phone, whatsapp }: { phone: string; whatsapp: string })
                     <h2 className="mt-3 text-2xl font-semibold leading-tight">Built for your loads, space and access.</h2>
                     <Link onClick={() => setMega(false)} href="/products" className="mt-8 inline-flex border-b border-red-500 pb-1 text-xs font-bold">View all products →</Link>
                   </div>
-                  {groups.map(({ category, products }) => (
+                  {groups.map((category) => (
                     <div key={category.slug}>
                       <Link onClick={() => setMega(false)} href={`/products/${category.slug}`} className="mb-4 block text-[.67rem] font-extrabold uppercase tracking-[.14em] text-zinc-500 hover:text-red-600">
                         {category.name}
                       </Link>
                       <div className="space-y-1">
-                        {products.slice(0, 5).map((item) => (
-                          <Link key={item.id} onClick={() => setMega(false)} href={getCatalogueProductHref(item)} className="block border-l-2 border-transparent px-3 py-2 hover:border-red-600 hover:bg-zinc-50">
+                        {category.products.slice(0, 5).map((item) => (
+                          <Link key={item.id} onClick={() => setMega(false)} href={item.href} className="block border-l-2 border-transparent px-3 py-2 hover:border-red-600 hover:bg-zinc-50">
                             <span className="block whitespace-nowrap text-sm font-semibold">{item.name}</span>
                             <span className="mt-1 line-clamp-1 text-[.68rem] text-zinc-500">{item.shortDescription}</span>
                           </Link>
@@ -113,7 +148,7 @@ export function Header({ phone, whatsapp }: { phone: string; whatsapp: string })
           <nav className="flex-1 overflow-y-auto px-5 py-6">
             <p className="mb-4 text-[.64rem] font-bold uppercase tracking-[.18em] text-zinc-500">Products</p>
             <div className="space-y-1">
-              {groups.map(({ category, products }) => {
+              {groups.map((category) => {
                 const isOpen = openCategory === category.slug;
                 return (
                   <div key={category.slug} className="border-b border-white/10">
@@ -130,8 +165,8 @@ export function Header({ phone, whatsapp }: { phone: string; whatsapp: string })
                         <Link onClick={() => setMobile(false)} href={`/products/${category.slug}`} className="block py-2 text-xs font-bold text-red-400">
                           View all {category.productCount} products →
                         </Link>
-                        {products.map((item) => (
-                          <Link onClick={() => setMobile(false)} key={item.id} href={getCatalogueProductHref(item)} className="block py-2 text-sm text-zinc-300">
+                        {category.products.map((item) => (
+                          <Link onClick={() => setMobile(false)} key={item.id} href={item.href} className="block py-2 text-sm text-zinc-300">
                             <span className="whitespace-nowrap">{item.name}</span>
                           </Link>
                         ))}

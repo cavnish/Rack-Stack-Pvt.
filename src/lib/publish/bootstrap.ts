@@ -1,4 +1,5 @@
 import { cacheImage, resolveLocalAsset, slugifySegment, type AssetGroup } from "./media";
+import { readLocalClientLogoFiles } from "@/lib/client-assets";
 import { catalogueProducts, getRelatedCatalogueProducts } from "@/lib/catalogue";
 import { CORE_SERVICES } from "@/data/services-data";
 import {
@@ -691,26 +692,28 @@ export async function bootstrapBlogPosts(): Promise<StaticBlogPost[]> {
   }));
 }
 
-export function bootstrapClientLogoNames() {
-  return [
-    "Bank of America",
-    "Knight Frank",
-    "Jaslok Hospital",
-    "Mumbai Metro",
-    "Eaton",
-    "IDBI Bank",
-    "Allcargo Logistics",
-    "Schindler",
-  ];
-}
-
+/**
+ * Offline client logos.
+ *
+ * This used to return eight hard-coded names with an empty `imageUrl`, which is
+ * how the collection ended up in the state that broke the section: the published
+ * `client-logos.json` carried eight image-less rows, every one of them was
+ * filtered out as unusable, and the page silently fell through to reading the
+ * `public/` folder directly. The CMS then reported eight blank logos while the
+ * site showed the real roster — the two could not be reconciled, because the
+ * admin had no rows to attach the files to.
+ *
+ * The static fallback now carries the same rows as the database, image included,
+ * so a build with no database renders the identical roster the CMS manages.
+ */
 export async function bootstrapClientLogos(): Promise<StaticClientLogo[]> {
-  return bootstrapClientLogoNames().map((name, index) => ({
+  const files = await readLocalClientLogoFiles();
+  return files.map((file, index) => ({
     id: index + 1,
-    name,
-    imageUrl: "",
+    name: file.name,
+    imageUrl: file.imageUrl,
     imagePublicId: null,
-    altText: `${name} logo`,
+    altText: file.altText,
     sortOrder: index + 1,
     isActive: true,
     width: null,

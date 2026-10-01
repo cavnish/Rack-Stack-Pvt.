@@ -14,6 +14,77 @@ import {
 export const userRoleEnum = pgEnum("user_role", ["SUPER_ADMIN", "ADMIN", "EDITOR"]);
 export const contentStatusEnum = pgEnum("content_status", ["DRAFT", "PUBLISHED", "ARCHIVED"]);
 
+/**
+ * The bands of the About page, each with its own renderer.
+ *
+ * Kept as a type rather than a database enum on purpose: the set is the page's
+ * structure, and a new band is a code change anyway because it needs a layout.
+ * Storing it as text means the admin can carry a section an older build of the
+ * site does not know about, and simply skip it, instead of failing to read the
+ * page at all.
+ */
+export const ABOUT_SECTION_KINDS = [
+  "hero",
+  "introduction",
+  "equipment",
+  "approach",
+  "strengths",
+  "pillars",
+  "cta",
+] as const;
+export type AboutSectionKind = (typeof ABOUT_SECTION_KINDS)[number];
+
+/** One line of a "what we make" or "what we supply" list. */
+export type AboutCapability = { label: string; slug: string | null };
+
+/** A step in the approach list. */
+export type AboutStep = { title: string; detail: string };
+
+/** A stated strength. */
+export type AboutStrength = { title: string; detail: string };
+
+/**
+ * One of vision / mission / commitment, with its own photograph.
+ *
+ * The image lives on the item rather than on the section because each band here
+ * is a full-width row with a picture of its own. Storing three URLs on the
+ * section and matching them to rows by position means deleting the middle row
+ * silently re-points the last two pictures at the wrong statements.
+ */
+export type AboutPillar = {
+  label: string;
+  statement: string;
+  image: string | null;
+  imagePublicId?: string | null;
+  imageAlt: string | null;
+};
+
+/**
+ * The per-kind content of an About section.
+ *
+ * One JSON column instead of five related tables, because the shape genuinely
+ * differs per band — an equipment list is a title-and-link pair, a step is a
+ * title-and-sentence pair, a pillar is a statement plus a photograph. A single
+ * table of nullable columns would be mostly empty for every band, and five
+ * tables would make "reorder the page" mean editing five different screens.
+ *
+ * Optional everywhere: a band that has not been filled in yet still renders.
+ */
+export type AboutSectionBody = {
+  /** introduction: the long-form paragraphs. */
+  paragraphs?: string[];
+  /** introduction + manufacturing: the list heading. Nullable, since an unset label is stored as null. */
+  listLabel?: string | null;
+  /** manufacturing + equipment: the list itself. */
+  items?: AboutCapability[];
+  /** approach: the steps, in order. */
+  steps?: AboutStep[];
+  /** strengths: the commitments. */
+  strengths?: AboutStrength[];
+  /** pillars: vision / mission / commitment. */
+  pillars?: AboutPillar[];
+};
+
 /** Where a reel's playable content lives. See the `videos.source` column. */
 export const videoSourceEnum = pgEnum("video_source", ["CLOUDINARY", "INSTAGRAM"]);
 export const inquiryStatusEnum = pgEnum("inquiry_status", [
@@ -534,6 +605,9 @@ export const projectImages = pgTable("project_images", {
   displayOrder: integer("display_order").default(0).notNull(),
 });
 
+// Retained deliberately, not dead code. The duplicate `clients` admin screen is
+// gone, but the table and its rows stay so the change is reversible and no
+// existing data is dropped. Client logos now live in `clientLogos` below.
 export const clients = pgTable("clients", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -1091,4 +1165,56 @@ export const activityLogs = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [index("activity_logs_user_idx").on(table.userId), index("activity_logs_created_idx").on(table.createdAt)],
+);
+
+/**
+ * The About page, as editable sections.
+ *
+ * One table for the whole page, rather than a row per fixed area, because the
+ * page is ordered content: the brief was that every section must be switchable
+ * and movable, and a table that only exists to hold "the about page" cannot
+ * express "put the CTA before the pillars" without a second ordering column
+ * that duplicates `displayOrder`. Here, order is the order, and switching a
+ * section off is `isActive`, exactly as it already works for a product's
+ * sections.
+ *
+ * `sectionKey` is the stable identity a renderer and the seed script both use,
+ * so reordering or renaming a section's admin label never breaks the mapping.
+ */
+export const aboutSections = pgTable(
+  "about_sections",
+  {
+    id: serial("id").primaryKey(),
+    /** Stable identity: hero, introduction, manufacturing, equipment, ... */
+    sectionKey: text("section_key").notNull(),
+    /** Admin-facing name, e.g. "What We Stand On". Free to be reworded. */
+    label: text("label").notNull(),
+    /** Which renderer draws it. See `ABOUT_SECTION_KINDS`. */
+    kind: text("kind").$type<AboutSectionKind>().notNull(),
+    /** Small line above the heading. */
+    eyebrow: text("eyebrow"),
+    title: text("title"),
+    description: text("description"),
+    /** The small rule-and-caption line that sits under a section's image. */
+    caption: text("caption"),
+    /** The section's own photograph. */
+    imageUrl: text("image_url"),
+    /** Set only for a real upload, so the pruner never deletes a repository file. */
+    imagePublicId: text("image_public_id"),
+    imageAlt: text("image_alt"),
+    ctaPrimaryLabel: text("cta_primary_label"),
+    ctaPrimaryHref: text("cta_primary_href"),
+    ctaSecondaryLabel: text("cta_secondary_label"),
+    ctaSecondaryHref: text("cta_secondary_href"),
+    /** Light | surface | dark | bordered — the band's background treatment. */
+    theme: text("theme").notNull().default("light"),
+    body: jsonb("body").$type<AboutSectionBody>().default({}).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    displayOrder: integer("display_order").default(0).notNull(),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("about_sections_key_unique").on(table.sectionKey),
+    index("about_sections_order_idx").on(table.displayOrder),
+  ],
 );

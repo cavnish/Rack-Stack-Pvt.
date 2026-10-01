@@ -225,5 +225,7 @@ export function SpecificationPanel({ specifications }: { specifications: Specifi
 }
 
 export function MobileProductActions({ slug }: { slug: string }) {
-  return <div className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 p-2 pr-28 shadow-[0_-8px_30px_rgba(0,0,0,.1)] backdrop-blur md:hidden"><div className="flex gap-2"><Link href={`/request-a-quote?product=${slug}`} className="btn-primary min-h-11 grow px-3 text-[.7rem]">Request Quote</Link><Link href="/catalog" aria-label="Download catalog" className="grid h-11 w-11 shrink-0 place-items-center border border-zinc-300"><Download size={16} /></Link></div></div>;
+  return <>
+    <div className="mp-action-bar fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 p-2 pr-28 shadow-[0_-8px_30px_rgba(0,0,0,.1)] backdrop-blur md:hidden"><div className="flex gap-2"><Link href={`/request-a-quote?product=${slug}`} className="btn-primary min-h-11 grow px-3 text-[.7rem]">Request Quote</Link><Link href="/catalog" aria-label="Download catalog" className="grid h-11 w-11 shrink-0 place-items-center border border-zinc-300"><Download size={16} /></Link></div></div>
+  </>;
 }

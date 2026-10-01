@@ -10,7 +10,6 @@ const scopes: PublishScope[] = [
   "products",
   "services",
   "projects",
-  "clients",
   "client-logos",
   "industries",
   "gallery",

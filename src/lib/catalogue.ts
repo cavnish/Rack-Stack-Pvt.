@@ -12,7 +12,18 @@
  * that churn out of every call site, and leaves one obvious place to look for
  * where catalogue data actually comes from.
  *
+ * ## Bundle warning
+ *
+ * This module reaches `products.json`, about a megabyte of product rows, so it
+ * is server-side only. A client component that imports it ships the entire
+ * catalogue to every visitor — which is exactly what the header, the product
+ * card and the quote form used to do. Components that render in the browser must
+ * import from `@/lib/catalogue-shared` instead (types, taxonomy and pure
+ * helpers), or be handed the products they need as a prop by a server
+ * component.
+ *
  * @see ./published-catalogue.ts for the derivation and the reasoning.
+ * @see ./catalogue-shared.ts for the data-free half.
  */
 
 export {
@@ -23,6 +34,8 @@ export {
   getCatalogueApplications,
   getCatalogueCategory,
   getCatalogueIndustries,
+  getCatalogueNavGroups,
+  getCatalogueOptions,
   getCatalogueProductBySlug,
   getCatalogueProductHref,
   getCatalogueProductType,
@@ -32,6 +45,8 @@ export {
   getRelatedCatalogueProducts,
 } from "@/lib/published-catalogue";
 
+export { toBrowserCategories } from "@/lib/catalogue-shared";
+
 export type {
   CatalogueCategory,
   CatalogueCategorySlug,
@@ -40,4 +55,4 @@ export type {
   CatalogueProduct,
   CatalogueSeo,
   CatalogueSpecification,
-} from "@/lib/published-catalogue";
+} from "@/lib/catalogue-shared";

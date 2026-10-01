@@ -5,29 +5,53 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { RotateCcw, Search } from "lucide-react";
 import { CatalogueProductCard } from "@/components/site/catalogue-product-card";
 import {
-  catalogueCategories,
   catalogueCategoryNames,
-  getCatalogueApplications,
-  getCatalogueCategory,
-  getCatalogueIndustries,
-  getCatalogueProductType,
-  getCatalogueProductTypes,
-  getCatalogueSearchText,
+  collectApplications,
+  collectIndustries,
+  collectProductTypes,
+  getProductTypeLabel,
+  getProductSearchText,
+  titleCaseSlug,
+  type CatalogueCategorySlug,
   type CatalogueProduct,
-} from "@/lib/catalogue";
+} from "@/lib/catalogue-shared";
+
+/**
+ * The category strip the browser filters on.
+ *
+ * A prop rather than an import. This component is a client component, so
+ * importing `@/lib/catalogue` for the category list pulled the published
+ * product payload — over a megabyte — into the bundle of every page that shows
+ * a product browser, even though the products were already being passed in.
+ * The slug and display name per category are all it needs.
+ */
+export type CatalogueBrowserCategory = {
+  slug: CatalogueCategorySlug;
+  name: string;
+};
 
 type CatalogueProductBrowserProps = {
   products: readonly CatalogueProduct[];
+  categories: readonly CatalogueBrowserCategory[];
   lockedCategory?: string;
   initialCategory?: string;
 };
 
 type SortOption = "featured" | "az";
 
-export function CatalogueProductBrowser({ products, lockedCategory, initialCategory }: CatalogueProductBrowserProps) {
+export function CatalogueProductBrowser({
+  products,
+  categories,
+  lockedCategory,
+  initialCategory,
+}: CatalogueProductBrowserProps) {
   const filterId = useId();
   const reducedMotion = useReducedMotion();
-  const initialCategoryValue = initialCategory && getCatalogueCategory(initialCategory) ? initialCategory : "all";
+  const categoryNameBySlug = useMemo(
+    () => new Map(categories.map((item) => [item.slug, item.name])),
+    [categories],
+  );
+  const initialCategoryValue = initialCategory && categoryNameBySlug.has(initialCategory) ? initialCategory : "all";
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState(initialCategoryValue);
   const [application, setApplication] = useState("all");
@@ -37,13 +61,11 @@ export function CatalogueProductBrowser({ products, lockedCategory, initialCateg
   const [sort, setSort] = useState<SortOption>("featured");
 
   const effectiveCategory = lockedCategory ?? category;
-  const applications = useMemo(() => getCatalogueApplications(products), [products]);
-  const industries = useMemo(() => getCatalogueIndustries(products), [products]);
-  const productTypes = useMemo(() => getCatalogueProductTypes(products), [products]);
+  const applications = useMemo(() => collectApplications(products), [products]);
+  const industries = useMemo(() => collectIndustries(products), [products]);
+  const productTypes = useMemo(() => collectProductTypes(products), [products]);
   const lockedCategoryName = lockedCategory
-    ? catalogueCategoryNames[lockedCategory as keyof typeof catalogueCategoryNames] ??
-      getCatalogueCategory(lockedCategory)?.name ??
-      lockedCategory
+    ? catalogueCategoryNames[lockedCategory] ?? categoryNameBySlug.get(lockedCategory) ?? titleCaseSlug(lockedCategory)
     : "";
 
   const visibleProducts = useMemo(() => {
@@ -52,10 +74,10 @@ export function CatalogueProductBrowser({ products, lockedCategory, initialCateg
       if (effectiveCategory && product.category !== effectiveCategory) return false;
       if (application !== "all" && !product.applications.includes(application)) return false;
       if (industry !== "all" && !product.industries.includes(industry)) return false;
-      if (productType !== "all" && getCatalogueProductType(product) !== productType) return false;
+      if (productType !== "all" && getProductTypeLabel(product) !== productType) return false;
       if (featuredOnly && !product.featured) return false;
       if (!normalizedQuery) return true;
-      return getCatalogueSearchText(product).includes(normalizedQuery);
+      return getProductSearchText(product).includes(normalizedQuery);
     });
 
     return [...filtered].sort((first, second) => {
@@ -143,7 +165,7 @@ export function CatalogueProductBrowser({ products, lockedCategory, initialCateg
               className="form-field disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-600"
             >
               <option value="all">All categories</option>
-              {catalogueCategories.map((item) => (
+              {categories.map((item) => (
                 <option key={item.slug} value={item.slug}>
                   {item.name}
                 </option>

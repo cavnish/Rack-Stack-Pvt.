@@ -24,27 +24,20 @@ const stats = [
   { value: "99.8", suffix: "%", label: "On-Time Delivery" },
 ];
 
-const gridStyle = {
-  backgroundImage:
-    "linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px)",
-  backgroundSize: "56px 56px",
-};
-
 export function WhyRackStack({ environments }: { environments: WhyEnvironment[] }) {
   return (
     <section
       id="why-rack-stack"
-      className="relative isolate overflow-hidden bg-[var(--navy)] py-12 text-white sm:py-13 lg:py-14"
+      className="relative isolate overflow-hidden bg-black py-12 text-white sm:py-13 lg:py-14"
     >
       <div
-        className="pointer-events-none absolute -left-40 top-0 h-96 w-96 rounded-full bg-[#FF6B1A]/10 blur-[100px]"
+        className="pointer-events-none absolute -left-40 top-0 h-96 w-96 rounded-full bg-[color:var(--red)]/10 blur-[100px]"
         aria-hidden="true"
       />
       <div
         className="pointer-events-none absolute -right-40 bottom-0 h-80 w-80 rounded-full bg-[#38BDF8]/[0.06] blur-[100px]"
         aria-hidden="true"
       />
-      <div className="pointer-events-none absolute inset-0" style={gridStyle} aria-hidden="true" />
 
       <div className="container-shell relative">
         <div className="grid grid-cols-1 gap-6 sm:gap-7 lg:grid-cols-12 lg:gap-6">
@@ -109,8 +102,8 @@ export function WhyRackStack({ environments }: { environments: WhyEnvironment[] 
               <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2 lg:grid-cols-1">
                 {advantages.map(({ icon: Icon, title, text }) => (
                   <StaggerItem key={title} className="h-full">
-                    <div className="group flex h-full items-center gap-3 rounded-xl border border-white/8 bg-white/[0.035] p-3 transition-all duration-300 hover:-translate-x-1 hover:border-[#FF6B1A]/30 hover:bg-white/[0.07]">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FF6B1A]/10 text-[#FF6B1A] transition-colors duration-300 group-hover:bg-[#FF6B1A] group-hover:text-white">
+                    <div className="group flex h-full items-center gap-3 rounded-xl border border-white/8 bg-white/[0.035] p-3 transition-all duration-300 hover:-translate-x-1 hover:border-[color:var(--red)]/30 hover:bg-white/[0.07]">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[color:var(--red)]/10 text-[color:var(--red)] transition-colors duration-300 group-hover:bg-[color:var(--red)] group-hover:text-white">
                         <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
                       </span>
                       <span className="min-w-0">
@@ -130,7 +123,7 @@ export function WhyRackStack({ environments }: { environments: WhyEnvironment[] 
                     <div className="h-full rounded-xl border border-white/10 bg-white/[0.035] p-3">
                       <span className="block text-xl font-black leading-none tracking-tight text-white">
                         {value}
-                        <span className="text-[#FF6B1A]">{suffix}</span>
+                        <span className="text-[var(--red)]">{suffix}</span>
                       </span>
                       <span className="mt-1.5 block text-[0.58rem] font-bold uppercase leading-tight tracking-wider text-white/55">
                         {label}

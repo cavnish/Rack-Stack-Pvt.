@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SmartImage } from "@/components/site/smart-image";
 import { optimizeImage } from "@/lib/image-utils";
-import { getProductHref } from "@/lib/product-page";
+import { getProductHref } from "@/lib/catalogue-shared";
 
 export type ProductCardProduct = {
   id: number | string;

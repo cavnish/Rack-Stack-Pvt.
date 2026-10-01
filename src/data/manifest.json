@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-30T11:31:59.354Z",
+  "generatedAt": "2026-10-01T11:27:18.193Z",
   "collections": {
     "blogPosts": {
       "hash": "c0f553ffb6c41b00",
@@ -13,8 +13,8 @@
       "count": 5
     },
     "routes": {
-      "hash": "a2bfea9d2bd44fa4",
-      "generatedAt": "2026-09-30T11:31:59.354Z",
+      "hash": "3c81c2f1cfaad40a",
+      "generatedAt": "2026-10-01T11:27:18.193Z",
       "count": 1
     },
     "site": {
@@ -23,8 +23,8 @@
       "count": 1
     },
     "homepage": {
-      "hash": "be715001cdb387df",
-      "generatedAt": "2026-09-28T09:00:02.836Z",
+      "hash": "0bc123da41465c3c",
+      "generatedAt": "2026-09-30T14:35:55.489Z",
       "count": 9
     },
     "services": {
@@ -33,18 +33,18 @@
       "count": 8
     },
     "products": {
-      "hash": "ccf49459c9f8d1e6",
-      "generatedAt": "2026-09-30T11:26:47.842Z",
+      "hash": "f721377545a3d43b",
+      "generatedAt": "2026-10-01T11:25:51.142Z",
       "count": 37
     },
     "industries": {
-      "hash": "7872403aab6797ae",
-      "generatedAt": "2026-09-30T11:16:28.944Z",
+      "hash": "4fd39bf967f78ea0",
+      "generatedAt": "2026-10-01T11:22:43.197Z",
       "count": 12
     },
     "sliders": {
-      "hash": "3719011f0ea91f95",
-      "generatedAt": "2026-09-30T07:43:01.401Z",
+      "hash": "cf42b90b12afc2c1",
+      "generatedAt": "2026-09-30T14:04:50.014Z",
       "count": 3
     },
     "pages": {
@@ -57,19 +57,14 @@
       "generatedAt": "2026-09-28T09:00:02.521Z",
       "count": 1
     },
-    "clients": {
-      "hash": "45cb52e6678eac2b",
-      "generatedAt": "2026-09-28T09:00:09.199Z",
-      "count": 8
-    },
     "clientLogos": {
-      "hash": "6f8a7a8e5d67828e",
-      "generatedAt": "2026-09-28T09:00:09.263Z",
-      "count": 8
+      "hash": "4fbdb94fc75dac92",
+      "generatedAt": "2026-10-01T10:18:42.131Z",
+      "count": 42
     },
     "gallery": {
-      "hash": "33af7c90f4c85505",
-      "generatedAt": "2026-09-28T09:00:10.880Z",
+      "hash": "a03cc076e153cc68",
+      "generatedAt": "2026-10-01T11:20:50.693Z",
       "count": 6
     },
     "faqs": {
@@ -83,9 +78,14 @@
       "count": 2
     },
     "homeOfferCards": {
-      "hash": "feb8f4f66ba4523f",
-      "generatedAt": "2026-09-30T11:31:59.281Z",
+      "hash": "ba53d31f67a9c984",
+      "generatedAt": "2026-10-01T11:27:17.981Z",
       "count": 9
+    },
+    "testimonials": {
+      "hash": "ce673049c56e0361",
+      "generatedAt": "2026-10-01T11:19:43.129Z",
+      "count": 7
     }
   },
   "records": {}

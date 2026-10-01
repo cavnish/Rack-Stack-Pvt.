@@ -12,7 +12,6 @@ export const collections = {
   products: "products.json",
   services: "services.json",
   projects: "projects.json",
-  clients: "clients.json",
   clientLogos: "client-logos.json",
   industries: "industries.json",
   gallery: "gallery.json",

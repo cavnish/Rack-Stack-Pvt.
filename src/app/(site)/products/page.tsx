@@ -6,9 +6,8 @@ import { SmartImage } from "@/components/site/smart-image";
 import { CatalogueProductBrowser } from "@/components/site/catalogue-product-browser";
 import { TrustedByStrip } from "@/components/site/trusted-by-strip";
 import { ReelShowcase } from "@/components/media/reel-showcase";
-import { catalogueCategories, catalogueProducts } from "@/lib/catalogue";
-import { getPublicClientLogos } from "@/lib/client-assets";
-import { getProductsReelVideos } from "@/lib/data";
+import { catalogueCategories, catalogueProducts, toBrowserCategories } from "@/lib/catalogue";
+import { getClientLogos, getProductsReelVideos } from "@/lib/data";
 
 export const revalidate = 3600;
 
@@ -21,7 +20,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const [{ category }, reels, logos] = await Promise.all([
     searchParams,
     getProductsReelVideos(10),
-    getPublicClientLogos(),
+    getClientLogos(),
   ]);
   return (
     <main>
@@ -56,7 +55,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             </div>
           </div>
           <div id="catalogue" className="mt-12">
-            <CatalogueProductBrowser products={catalogueProducts} initialCategory={category} />
+            <CatalogueProductBrowser products={catalogueProducts} categories={toBrowserCategories(catalogueCategories)} initialCategory={category} />
           </div>
         </div>
       </section>
@@ -65,7 +64,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
       <ReelShowcase
         videos={reels}
-        subtitle="Our systems on site — installed, loaded and working in live warehouses."
+        subtitle="Our systems on site â€” installed, loaded and working in live warehouses."
         cta={{ label: "Request a Quote", href: "/request-a-quote" }}
       />
     </main>

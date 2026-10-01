@@ -113,6 +113,13 @@
       "when": 1790765380999,
       "tag": "0015_windy_gamma_corps",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790768036107,
+      "tag": "0016_narrow_photon",
+      "breakpoints": true
     }
   ]
 }

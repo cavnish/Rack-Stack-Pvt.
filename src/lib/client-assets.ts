@@ -72,21 +72,48 @@ function isSupportedAsset(entry: { isFile(): boolean; name: string }) {
   return entry.isFile() && imageExtensions.has(extname(entry.name).toLowerCase());
 }
 
-export async function getPublicClientLogos(): Promise<PublicClientLogo[]> {
+/** One logo file shipped in `public/`, resolved to the row it becomes. */
+export type LocalClientLogoFile = {
+  fileName: string;
+  name: string;
+  imageUrl: string;
+  altText: string;
+};
+
+/**
+ * Every client logo shipped in `public/rack-and-stack-clients`, as rows.
+ *
+ * The one place a file name becomes a client name. `/admin/client-logos`, the
+ * import script and the static fallback all read this, so a logo can never
+ * appear on the site under one name and in the CMS under another.
+ *
+ * `encodeURIComponent` matters: several of these file names contain spaces and
+ * hyphens, and a raw path is a URL no browser will match.
+ */
+export async function readLocalClientLogoFiles(): Promise<LocalClientLogoFile[]> {
   const entries = await readdir(assetDirectory, { withFileTypes: true }).catch(() => []);
   return entries
     .filter(isSupportedAsset)
     .map((entry) => entry.name)
     .sort((left, right) => left.localeCompare(right))
-    .map((fileName, index) => {
+    .map((fileName) => {
       const name = clientNames[fileName] ?? fallbackName(fileName);
       return {
-        id: index + 1,
+        fileName,
         name,
         imageUrl: `/rack-and-stack-clients/${encodeURIComponent(fileName)}`,
         altText: `${name} logo`,
-        width: null,
-        height: null,
       };
     });
+}
+
+export async function getPublicClientLogos(): Promise<PublicClientLogo[]> {
+  return (await readLocalClientLogoFiles()).map((file, index) => ({
+    id: index + 1,
+    name: file.name,
+    imageUrl: file.imageUrl,
+    altText: file.altText,
+    width: null,
+    height: null,
+  }));
 }

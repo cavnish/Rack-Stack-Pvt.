@@ -4,18 +4,27 @@ import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AlertCircle, CheckCircle2, FileText, Loader2, X } from "lucide-react";
-import {
-  catalogueCategoryNames,
-  catalogueProducts,
-  type CatalogueProduct,
-} from "@/lib/catalogue";
+import { catalogueCategoryNames, titleCaseSlug, type CatalogueProductOption } from "@/lib/catalogue-shared";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const focusableSelector =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+/**
+ * What the quote form needs to offer every product in the catalogue.
+ *
+ * Supplied by the server when the page already has the list, and otherwise
+ * fetched once from `/api/catalogue/options` the first time the dialog opens.
+ * This component is a client component, and it used to import
+ * `@/lib/catalogue` — the published product payload, about a megabyte — so
+ * merely rendering a "Request a Quote" button on a page cost every visitor the
+ * entire catalogue. A slug, a name and a category per product is a couple of
+ * kilobytes, and it is only needed once someone actually opens the form.
+ */
 type QuoteButtonProps = {
-  product?: CatalogueProduct;
+  /** Pre-resolved list. Omit it to load on demand when the dialog opens. */
+  options?: CatalogueProductOption[];
+  product?: CatalogueProductOption;
   label?: string;
   className?: string;
 };
@@ -40,7 +49,33 @@ function getFieldValue(formData: FormData, field: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-export function QuoteButton({ product, label = "Request a Quote", className = "btn-primary" }: QuoteButtonProps) {
+/**
+ * The catalogue's product options, fetched once per browser session.
+ *
+ * Module-level rather than component-level on purpose: a page can render
+ * several quote buttons — a product card in every grid cell — and a per-instance
+ * cache would mean one request per button. Keyed on the promise so two buttons
+ * opened in the same tick share a single in-flight request.
+ */
+let optionsRequest: Promise<CatalogueProductOption[]> | null = null;
+
+function loadCatalogueOptions(): Promise<CatalogueProductOption[]> {
+  optionsRequest ??= fetch("/api/catalogue/options", { headers: { accept: "application/json" } })
+    .then((response) => {
+      if (!response.ok) throw new Error(`Catalogue options request failed with ${response.status}`);
+      return response.json() as Promise<{ products: CatalogueProductOption[] }>;
+    })
+    .then((body) => body.products)
+    .catch((failure: unknown) => {
+      // A failed load must not be cached, or the form would be permanently
+      // broken for the rest of the session.
+      optionsRequest = null;
+      throw failure;
+    });
+  return optionsRequest;
+}
+
+export function QuoteButton({ options, product, label = "Request a Quote", className = "btn-primary" }: QuoteButtonProps) {
   const formId = useId();
   const titleId = `${formId}-title`;
   const descriptionId = `${formId}-description`;
@@ -50,19 +85,34 @@ export function QuoteButton({ product, label = "Request a Quote", className = "b
   const formRef = useRef<HTMLFormElement>(null);
   const requestControllerRef = useRef<AbortController | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [loadedOptions, setLoadedOptions] = useState<CatalogueProductOption[] | null>(options ?? null);
+  const [loadingOptions, setLoadingOptions] = useState(false);
   const [selectedProductSlug, setSelectedProductSlug] = useState(product?.slug ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [succeeded, setSucceeded] = useState(false);
 
+  // A CMS product the server did not include in the options list still has to be
+  // selectable — it is the one the visitor is actually asking about — so it is
+  // prepended rather than dropped.
+  const catalogueOptions = loadedOptions ?? options ?? [];
   const productOptions =
-    product && !catalogueProducts.some((item) => item.slug === product.slug)
-      ? [product, ...catalogueProducts]
-      : catalogueProducts;
-  const productGroups = Array.from(new Set(productOptions.map((item) => item.category))).map((category) => ({
-    category,
-    products: productOptions.filter((item) => item.category === category),
-  }));
+    product && !catalogueOptions.some((item) => item.slug === product.slug)
+      ? [product, ...catalogueOptions]
+      : catalogueOptions;
+  const productGroups = Array.from(new Set(productOptions.map((item) => item.category)))
+    .map((category) => ({ category, products: productOptions.filter((item) => item.category === category) }))
+    // Keeps the `<optgroup>` order in step with the registered category order
+    // rather than whichever category happened to own the first product.
+    .sort((a, b) => {
+      const order = ["office-storage", "industrial-storage", "material-handling"];
+      const ai = order.indexOf(a.category);
+      const bi = order.indexOf(b.category);
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return a.category.localeCompare(b.category);
+    });
 
   const closeDialog = useCallback(() => {
     requestControllerRef.current?.abort();
@@ -139,6 +189,21 @@ export function QuoteButton({ product, label = "Request a Quote", className = "b
     setError("");
     setSucceeded(false);
     setIsOpen(true);
+
+    // The list is only needed once the form is visible, so it is not in the
+    // page's initial payload. `loadingOptions` only ever shows on a first open
+    // where the request is still in flight.
+    if (loadedOptions ?? options) return;
+    setLoadingOptions(true);
+    loadCatalogueOptions()
+      .then(setLoadedOptions)
+      .catch(() => {
+        // The dialog stays usable with just the product the visitor came from,
+        // so the only thing needed here is a message explaining the rest is
+        // unavailable.
+        setError("The full product list could not be loaded. Please pick the closest product or add a note describing your requirement.");
+      })
+      .finally(() => setLoadingOptions(false));
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -371,11 +436,12 @@ export function QuoteButton({ product, label = "Request a Quote", className = "b
                             setSelectedProductSlug(event.target.value);
                             setError("");
                           }}
+                          aria-busy={loadingOptions || undefined}
                           required
                         >
                           <option value="">Select a product</option>
                           {productGroups.map((group) => (
-                            <optgroup key={group.category} label={catalogueCategoryNames[group.category]}>
+                            <optgroup key={group.category} label={catalogueCategoryNames[group.category] ?? titleCaseSlug(group.category)}>
                               {group.products.map((item) => (
                                 <option key={item.slug} value={item.slug}>
                                   {item.name}
@@ -383,6 +449,7 @@ export function QuoteButton({ product, label = "Request a Quote", className = "b
                               ))}
                             </optgroup>
                           ))}
+                          {loadingOptions ? <option disabled>Loading products…</option> : null}
                         </select>
                       </div>
                       <div>

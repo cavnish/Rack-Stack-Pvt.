@@ -20,6 +20,11 @@ const managedImages: Partial<Record<AdminEntity, { url: string; publicId: string
     { url: "mobileImageUrl", publicId: "mobileImagePublicId" },
   ],
   "home-offer-cards": [{ url: "imageUrl", publicId: "imagePublicId" }],
+  // A testimonial avatar has no public-id column, so nothing is ever destroyed
+  // for it — but the pre-write probe is still worth having. The value is pasted
+  // into the homepage carousel, and an unreachable or wrong-type URL is a card
+  // with a broken picture on the front page of the site.
+  testimonials: [{ url: "image", publicId: "cloudinaryPublicId" }],
 };
 
 /**
@@ -75,6 +80,28 @@ async function assertImagesAvailable(entity: AdminEntity, previous: ManagedImage
 }
 
 /**
+ * Pixel dimensions that describe a record's image.
+ *
+ * Only `clientLogos` stores them. The upload path fills them in, but a record can
+ * also get a new image by pasting a URL into the editor, which supplies no
+ * measurements — the row would then keep the previous file's width and height.
+ * Wrong numbers are worse than none, so they are dropped whenever the image
+ * changes and the request does not carry fresh ones.
+ */
+const dimensionColumns: Partial<Record<AdminEntity, { url: string; keys: string[] }[]>> = {
+  "client-logos": [{ url: "imageUrl", keys: ["width", "height"] }],
+};
+
+function clearStaleDimensions(entity: AdminEntity, previous: ManagedImage | null, body: Record<string, unknown>) {
+  for (const field of dimensionColumns[entity] ?? []) {
+    if (previous?.[field.url] === body[field.url]) continue;
+    for (const key of field.keys) {
+      if (body[key] === undefined) body[key] = null;
+    }
+  }
+}
+
+/**
  * Deletes the Cloudinary originals that the save replaced, and clears the now
  * dangling public id / dimensions on the stored row.
  *
@@ -109,10 +136,6 @@ async function pruneReplacedImages(
     if (before === body[field.url]) continue;
     if (stillReferenced.has(beforeId)) continue;
     doomed.push(beforeId);
-  }
-  if (entity === "client-logos" && doomed.length) {
-    body.width = null;
-    body.height = null;
   }
   if (doomed.length) {
     await Promise.all(doomed.map((publicId) => destroyRemote(publicId, "image")));
@@ -185,6 +208,7 @@ export async function PUT(request: Request, context: { params: Promise<{ entity:
       : null) as ManagedImage | null;
     // Before the write, not after: a URL that cannot be loaded must leave no trace.
     await assertImagesAvailable(entity, previous, body);
+    clearStaleDimensions(entity, previous, body);
     const item = await updateEntity(entity, Number(id), body, user.id);
     await pruneReplacedImages(entity, previous, body, item as unknown as ManagedImage | null);
     await pruneReplacedVideos(entity, previous, body);

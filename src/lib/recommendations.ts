@@ -1,4 +1,4 @@
-import { catalogueCategoryNames } from "@/lib/catalogue";
+import { catalogueCategoryNames } from "@/lib/catalogue-shared";
 
 /**
  * Wording for the "Recommended systems" section, as stored on `products`.

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isValidPhone } from "./contact-format";
 import { isStorableImageUrl } from "./public-asset-paths";
+import { ABOUT_SECTION_KINDS } from "@/db/schema";
 
 /**
  * An image field on a product.
@@ -215,9 +216,27 @@ export const productAdminSchema = z.object({ name: z.string().min(2).max(160), s
     ),
 });
 export const genericContentSchema = z.record(z.string(), z.unknown());
+/**
+ * A client logo's image, as the admin editor submits it.
+ *
+ * `z.url()` alone is wrong here. It rejects a site-relative `public/` path, and
+ * every logo already on the site is stored exactly that way
+ * (`/rack-and-stack-clients/<file>`) so the photograph never needs a CDN and
+ * keeps rendering with the database switched off. The same rule the product
+ * images use applies here, so an editor can upload through Cloudinary or point
+ * at a file in the repository.
+ */
+const clientLogoImageUrl = z
+  .string()
+  .trim()
+  .max(1000)
+  .refine((value) => value === "" || isStorableImageUrl(value), {
+    message: "Enter a full image URL or a path such as /rack-and-stack-clients/logo.png",
+  });
+
 export const clientLogoAdminSchema = z.object({
   name: z.string().trim().min(2).max(160),
-  imageUrl: z.url().or(z.literal("")),
+  imageUrl: clientLogoImageUrl,
   imagePublicId: z.string().trim().max(300).regex(/^[a-zA-Z0-9_\-/.]*$/).nullable().optional(),
   altText: z.string().trim().min(2).max(200),
   sortOrder: z.coerce.number().int().default(0),
@@ -226,6 +245,74 @@ export const clientLogoAdminSchema = z.object({
   height: z.coerce.number().int().positive().nullable().optional(),
 });
 export type ClientLogoAdminInput = z.infer<typeof clientLogoAdminSchema>;
+
+/**
+ * A client testimonial, as the admin editor submits it.
+ *
+ * This collection had no schema at all: every field went through a bare
+ * `String(value).trim()` on the way to the database, so a testimonial could be
+ * saved with a blank name, an empty quote, a rating of `-3` or `99`, and a
+ * `javascript:` URL in the image field. The last one is the reason this exists —
+ * `image` is rendered straight into the homepage carousel, so a crafted value
+ * is a script injection into the front page. Everything below is bounded at the
+ * door instead of being trusted because it came from a form.
+ *
+ * `content` has a real minimum because the card is built around the quote: a
+ * three-word testimonial renders as a single line in the middle of a card sized
+ * for a paragraph, which reads as a rendering fault rather than a short review.
+ *
+ * `rating` is a 1–5 integer. It is the input to the average shown in the
+ * review summary, so an out-of-range value would not just draw the wrong number
+ * of stars — it would shift the average for every other testimonial too. An
+ * absent or empty rating means five, which is what the admin form's star picker
+ * sends before an editor has touched it.
+ */
+const testimonialRating = z.preprocess(
+  (value) => (value === undefined || value === null || value === "" ? 5 : value),
+  z.coerce.number().int("Rating must be a whole number").min(1, "Rating must be between 1 and 5").max(5, "Rating must be between 1 and 5"),
+);
+export const testimonialAdminSchema = z.object({
+  clientName: z.string().trim().min(2, "Enter the client's name").max(120, "Name is too long"),
+  company: z.string().trim().max(160, "Company name is too long").nullable().optional(),
+  designation: z.string().trim().max(120, "Designation is too long").nullable().optional(),
+  content: z.string().trim().min(20, "Enter the testimonial text (at least 20 characters)").max(1500, "Testimonial is too long"),
+  rating: testimonialRating,
+  image: z
+    .string()
+    .trim()
+    .refine((value) => value === "" || isStorableImageUrl(value), {
+      message: "Enter a full image URL or a path such as /assets/images/client.webp",
+    })
+    .nullable()
+    .optional(),
+  featured: z.boolean().default(false),
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
+  displayOrder: z.coerce.number().int().default(0),
+});
+export type TestimonialAdminInput = z.infer<typeof testimonialAdminSchema>;
+
+/**
+ * Runs a schema and turns a failure into a message written for the editor.
+ *
+ * `.parse()` throws a `ZodError`, which the admin API deliberately does not
+ * surface — it collapses anything that is not a `UserFacingError` into one
+ * generic sentence, because a raw Zod error is a list of internal paths and
+ * types rather than anything a person can act on. That is right for a
+ * constraint violation, but it means an editor who typed a one-character client
+ * name is told only that "required fields and unique values" need checking.
+ *
+ * So the first issue is re-thrown as a `UserFacingError` naming the field in
+ * plain words. One issue is reported rather than all of them: the form shows a
+ * single error line, and a list of nine would be truncated anyway.
+ */
+export function parseForEditor<T extends z.ZodTypeAny>(schema: T, input: unknown): z.infer<T> {
+  const result = schema.safeParse(input);
+  if (result.success) return result.data;
+  const issue = result.error.issues[0];
+  const field = issue?.path.join(".").replace(/([A-Z])/g, " $1").trim() ?? "";
+  const label = field ? field.charAt(0).toUpperCase() + field.slice(1) : "This record";
+  throw new UserFacingError(`${label}: ${issue?.message || "is not valid."}`);
+}
 
 /**
  * A homepage "What We Offer" card.
@@ -252,7 +339,19 @@ export const homeOfferCardSchema = z
     slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).nullable().optional().or(z.literal("")),
     title: z.string().trim().max(160).nullable().optional(),
     description: z.string().trim().max(400).nullable().optional(),
-    imageUrl: z.url().nullable().optional().or(z.literal("")),
+    // Not `z.url()`. That accepts any absolute scheme, so a `blob:` URL pasted
+    // into the field would be stored, published, and then fail to resolve for
+    // every real visitor — the uploader itself never produces one, but a pasted
+    // value survives the save and reports success. This is the same rule product
+    // images use: a real remote URL, or a site-relative asset path.
+    imageUrl: z
+      .string()
+      .trim()
+      .refine((value) => value === "" || isStorableImageUrl(value), {
+        message: "Enter a full image URL or a path such as /assets/images/card.webp",
+      })
+      .nullable()
+      .optional(),
     imagePublicId: z.string().trim().max(300).nullable().optional(),
     altText: z.string().trim().max(200).nullable().optional(),
     category: z.string().trim().max(80).nullable().optional(),
@@ -275,3 +374,101 @@ export const homeOfferCardSchema = z
     path: ["slug"],
   });
 export type HomeOfferCardAdminInput = z.infer<typeof homeOfferCardSchema>;
+
+/**
+ * One line of a capability list on the About page.
+ *
+ * `slug` points at a real product or category so the line links to something
+ * genuine. It is optional because several lines — cable trays, for one — have no
+ * page of their own, and a line with no page is still part of what the company
+ * makes, so it is shown as plain text rather than dropped or linked to somewhere
+ * unrelated.
+ */
+const aboutCapabilitySchema = z.object({
+  label: z.string().trim().min(1, "Add a name").max(160),
+  slug: z.string().trim().max(160).nullable().optional(),
+});
+
+/**
+ * One section of the About page.
+ *
+ * The page-specific content lives in `body` rather than in a column per list,
+ * because each band has a genuinely different shape. The individual lists are
+ * validated here — including the images carried on each pillar — so a malformed
+ * body is rejected at the edge rather than reaching a renderer that expects a
+ * string and finds an object.
+ */
+export const aboutSectionSchema = z
+  .object({
+    sectionKey: z
+      .string()
+      .trim()
+      .min(1, "Add a section key")
+      .max(80)
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase words separated by hyphens"),
+    label: z.string().trim().min(1, "Add a name for this section").max(120),
+    kind: z.enum(ABOUT_SECTION_KINDS),
+    eyebrow: z.string().trim().max(160).nullable().optional(),
+    title: z.string().trim().max(300).nullable().optional(),
+    description: z.string().trim().max(2000).nullable().optional(),
+    caption: z.string().trim().max(200).nullable().optional(),
+    imageUrl: z.url().nullable().optional().or(z.literal("")),
+    imagePublicId: z.string().trim().max(300).nullable().optional(),
+    imageAlt: z.string().trim().max(300).nullable().optional(),
+    ctaPrimaryLabel: z.string().trim().max(80).nullable().optional(),
+    ctaPrimaryHref: z
+      .string()
+      .trim()
+      .max(300)
+      .refine((value) => value === "" || value.startsWith("/") || value.startsWith("#"), {
+        message: "Use a site-relative link such as /products",
+      })
+      .nullable()
+      .optional(),
+    ctaSecondaryLabel: z.string().trim().max(80).nullable().optional(),
+    ctaSecondaryHref: z
+      .string()
+      .trim()
+      .max(300)
+      .refine((value) => value === "" || value.startsWith("/") || value.startsWith("#"), {
+        message: "Use a site-relative link such as /contact",
+      })
+      .nullable()
+      .optional(),
+    theme: z.enum(["light", "surface", "dark", "bordered"]).default("light"),
+    body: z
+      .object({
+        paragraphs: z.array(z.string().trim().max(4000)).default([]),
+        listLabel: z.string().trim().max(200).nullable().optional(),
+        items: z.array(aboutCapabilitySchema).default([]),
+        steps: z
+          .array(z.object({ title: z.string().trim().min(1, "Add a step title").max(200), detail: z.string().trim().max(2000) }))
+          .default([]),
+        strengths: z
+          .array(z.object({ title: z.string().trim().min(1, "Add a title").max(200), detail: z.string().trim().max(2000) }))
+          .default([]),
+        pillars: z
+          .array(
+            z.object({
+              label: z.string().trim().min(1, "Add a label").max(120),
+              statement: z.string().trim().min(1, "Add the statement").max(2000),
+              image: z.url().nullable().optional().or(z.literal("")),
+              imagePublicId: z.string().trim().max(300).nullable().optional(),
+              imageAlt: z.string().trim().max(300).nullable().optional(),
+            }),
+          )
+          .default([]),
+      })
+      .default({ paragraphs: [], items: [], steps: [], strengths: [], pillars: [] }),
+    isActive: z.boolean().default(true),
+    displayOrder: z.coerce.number().int().default(0),
+  })
+  // A section is switched off, reordered or saved as a draft, and a band with no
+  // heading is only a problem once it is actually on the page. Requiring the
+  // title here would make it impossible to park a section without inventing copy.
+  .refine((value) => !value.isActive || Boolean(value.title) || value.kind === "pillars", {
+    message: "Add a heading, or switch the section off",
+    path: ["title"],
+  });
+export type AboutSectionAdminInput = z.infer<typeof aboutSectionSchema>;
+

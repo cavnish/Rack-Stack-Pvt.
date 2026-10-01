@@ -5,8 +5,8 @@
     "slug": "heavy-duty-long-span-racks",
     "title": null,
     "description": "Wide-span shelving for bulky, long or awkward stock where a standard beam is not enough.",
-    "imageUrl": null,
-    "imagePublicId": null,
+    "imageUrl": "/assets/images/misc/home-offer-cards-yztos8cxyeuzqvm9t6gq-20172732b2.webp",
+    "imagePublicId": "rack-stack/home-offer-cards/yztos8cxyeuzqvm9t6gq",
     "altText": null,
     "category": "Industrial Racking",
     "href": null,
@@ -15,14 +15,14 @@
     "displayOrder": 0,
     "isActive": true,
     "createdAt": "2026-09-28T08:58:46.253Z",
-    "updatedAt": "2026-09-30T11:31:59.091Z"
+    "updatedAt": "2026-09-30T14:24:21.150Z"
   },
   {
     "id": 2,
     "productId": 4,
     "slug": "heavy-duty-pallet-racking",
     "title": null,
-    "description": "Pallet racking planned around your bay sizes, load data and forklift clearances.",
+    "description": null,
     "imageUrl": null,
     "imagePublicId": null,
     "altText": null,
@@ -33,7 +33,7 @@
     "displayOrder": 1,
     "isActive": true,
     "createdAt": "2026-09-28T08:58:46.315Z",
-    "updatedAt": "2026-09-28T12:17:08.524Z"
+    "updatedAt": "2026-09-30T14:28:07.511Z"
   },
   {
     "id": 3,
@@ -149,8 +149,8 @@
     "slug": "floor-crane",
     "title": null,
     "description": null,
-    "imageUrl": null,
-    "imagePublicId": null,
+    "imageUrl": "/assets/images/misc/home-offer-cards-jdc2v1zsqksrs4rdnd1m-7a4f6374cc.webp",
+    "imagePublicId": "rack-stack/home-offer-cards/jdc2v1zsqksrs4rdnd1m",
     "altText": null,
     "category": null,
     "href": null,
@@ -159,6 +159,6 @@
     "displayOrder": 8,
     "isActive": true,
     "createdAt": "2026-09-29T10:36:20.723Z",
-    "updatedAt": "2026-09-29T10:36:20.723Z"
+    "updatedAt": "2026-10-01T11:27:17.516Z"
   }
 ]

@@ -21,7 +21,9 @@
                     "images:import":  "tsx scripts/import-public-product-images.ts",
                     "assets:sync":  "tsx scripts/sync-assets.ts",
                     "verify:queue":  "tsx scripts/verify-publish-queue.ts",
-                    "catalogue:import":  "tsx scripts/import-catalogue-products.mts"
+                    "catalogue:import":  "tsx scripts/import-catalogue-products.mts",
+                    "client-logos:import":  "tsx scripts/import-client-logos.mts",
+                    "about:seed":  "tsx scripts/seed-about-sections.mts"
                 },
     "dependencies":  {
                          "bcryptjs":  "^3.0.3",

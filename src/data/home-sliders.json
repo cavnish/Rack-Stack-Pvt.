@@ -24,14 +24,14 @@
     ],
     "status": "PUBLISHED",
     "sortOrder": 0,
-    "overlayOpacity": 72,
+    "overlayOpacity": 100,
     "textAlignment": "left",
     "autoplay": true,
     "duration": 3500,
     "startAt": null,
     "endAt": null,
     "createdAt": "2026-09-28T08:58:50.431Z",
-    "updatedAt": "2026-09-30T07:43:01.163Z"
+    "updatedAt": "2026-09-30T14:04:49.560Z"
   },
   {
     "id": 2,
@@ -39,8 +39,8 @@
     "title": "Maximize Manufacturing Floor Space with Vertical Storage",
     "highlightedText": "FROM FLOOR TO FULL.",
     "description": "Racking, mezzanines and material handling systems that turn wasted ceiling height and floor area into organised, high-density manufacturing storage.",
-    "imageUrl": "/assets/images/hero/slide-1-d5134a71f8.webp",
-    "imagePublicId": null,
+    "imageUrl": "/assets/images/hero/home-sliders-ccoptftlpvmqyzjozjwj-05047fe209.webp",
+    "imagePublicId": "rack-stack/home-sliders/ccoptftlpvmqyzjozjwj",
     "mobileImageUrl": "/assets/images/hero/slide-1-d5134a71f8.webp",
     "mobileImagePublicId": null,
     "videoUrl": null,
@@ -65,7 +65,7 @@
     "startAt": null,
     "endAt": null,
     "createdAt": "2026-09-28T08:58:50.431Z",
-    "updatedAt": "2026-09-28T08:58:50.431Z"
+    "updatedAt": "2026-09-30T14:03:53.387Z"
   },
   {
     "id": 3,

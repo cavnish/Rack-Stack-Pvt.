@@ -30,7 +30,19 @@ const noDelete = new Set(["inquiries", "contact-messages", "activity", "seo", "s
 const orderFields: Record<string, string> = {
   "home-slider": "sortOrder",
   "home-offer-cards": "displayOrder",
+  testimonials: "displayOrder",
 };
+
+/**
+ * Collections that carry a publish switch in the list.
+ *
+ * Only offered where publishing is a status change rather than a flag, and
+ * scoped to the entities that are actually ordered for public display, because
+ * a "Publish" button that does nothing visible is worse than no button. Each
+ * one writes through the same `PUT` route as the editor, so a status flipped
+ * here goes through identical validation and triggers the same publish.
+ */
+const publishable = new Set(["testimonials"]);
 
 function display(row: Record<string, unknown>) {
   return String(row.name || row.title || row.clientName || row.question || row.email || row.action || row.sectionKey || `Record #${row.id}`);
@@ -49,7 +61,7 @@ function thumbnail(row: Record<string, unknown>) {
   return typeof candidate === "string" && candidate.trim() ? candidate : undefined;
 }
 
-export function AdminTable({ entity, initialRows, role }: { entity: string; initialRows: Record<string, unknown>[]; role: string }) {
+export function AdminTable({ entity, initialRows, role, notice: initialNotice }: { entity: string; initialRows: Record<string, unknown>[]; role: string; notice?: string }) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
   const [query, setQuery] = useState("");
@@ -59,6 +71,8 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<number[]>([]);
   const [message, setMessage] = useState("");
+  const [notice, setNotice] = useState(initialNotice ?? "");
+  const [confirming, setConfirming] = useState<{ ids: number[]; label: string } | null>(null);
   const [pending, setPending] = useState(false);
   const pageSize = 10;
 
@@ -82,28 +96,49 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
   const currentPage = Math.min(page, pages);
   const visible = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  async function remove(ids: number[]) {
+  /**
+   * Stage a delete, then ask.
+   *
+   * This was a bare `window.confirm`, which blocks the main thread, cannot be
+   * styled to match the rest of the admin, and — on a narrow screen — truncates
+   * the record names so the editor confirms a delete of something they cannot
+   * read. The names matter more than the yes/no here: a row in a list of
+   * near-identical records is exactly the one you delete by mistake, so they
+   * are shown in full before the destructive button is pressed.
+   */
+  function askRemove(ids: number[]) {
+    if (!ids.length) return;
     const names = rows
       .filter((row) => ids.includes(Number(row.id)))
       .map(display)
-      .slice(0, 4)
-      .join(", ");
-    if (!confirm(`Are you sure you want to delete ${ids.length} record(s)?\n\n${names}\n\nImportant business records may be archived rather than permanently destroyed.`)) return;
+      .slice(0, 4);
+    const label = names.length === 1 ? names[0] : `${names.join(", ")}${ids.length > names.length ? ` and ${ids.length - names.length} more` : ""}`;
     setMessage("");
+    setNotice("");
+    setConfirming({ ids, label });
+  }
+
+  async function remove(ids: number[]) {
+    setMessage("");
+    setNotice("");
     setPending(true);
     try {
       const results = await Promise.all(ids.map((id) => fetch(`/api/admin/${entity}/${id}`, { method: "DELETE" })));
-      if (results.some((response) => !response.ok)) {
-        setMessage("One or more records could not be deleted. Check your permissions.");
+      const failed = results.find((response) => !response.ok);
+      if (failed) {
+        const reason = await failed.json().catch(() => ({}));
+        setMessage(reason.error || "One or more records could not be deleted. Check your permissions.");
         return;
       }
       setRows((value) => value.filter((row) => !ids.includes(Number(row.id))));
       setSelected([]);
+      setNotice(`${ids.length} record${ids.length === 1 ? "" : "s"} deleted.`);
       router.refresh();
     } catch {
       setMessage("Network error while deleting. Please try again.");
     } finally {
       setPending(false);
+      setConfirming(null);
     }
   }
 
@@ -131,47 +166,87 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
 
   const orderField = orderFields[entity];
 
+  /**
+   * Move a row one place, then renumber the whole collection.
+   *
+   * This used to exchange the two neighbouring values. That is only correct when
+   * every row already holds a distinct, gapless number — and a testimonial list
+   * never does: `displayOrder` defaults to 0, so a section built by adding rows
+   * is a run of identical values. Swapping two zeros produced `0, 0` again, the
+   * move did nothing, and — because the optimistic state and the two `PUT`
+   * payloads were computed in opposite directions — the row on screen ended up
+   * showing the one value the database was not given. The list then disagreed
+   * with the published site until a manual reload.
+   *
+   * Renumbering from the new position removes the precondition entirely: the
+   * order is the list order, and each row is written with its own index. Only
+   * rows whose value actually changed are sent, so a move in a fully
+   * renumbered collection costs one request instead of all of them.
+   */
   async function move(id: number, direction: -1 | 1) {
     if (!orderField) return;
     const idx = rows.findIndex((row) => Number(row.id) === id);
     const target = idx + direction;
     if (idx < 0 || target < 0 || target >= rows.length) return;
-    const current = rows[idx];
-    const other = rows[target];
-    const a = Number(current[orderField] ?? 0);
-    const b = Number(other[orderField] ?? 0);
-    const swapA = a !== b ? b : a + direction;
-    const swapB = a !== b ? a : b;
-    if (swapA < 0 || swapB < 0) return;
+    const reordered = [...rows];
+    [reordered[idx], reordered[target]] = [reordered[target], reordered[idx]];
+    const numbered = reordered.map((row, position) => ({ ...row, [orderField]: position }));
+    const changed = numbered.filter((row) => Number(row[orderField] ?? 0) !== Number(rows.find((before) => before.id === row.id)?.[orderField] ?? 0));
+    if (!changed.length) return;
     setMessage("");
+    setNotice("");
     setPending(true);
     try {
-      const results = await Promise.all([
-        fetch(`/api/admin/${entity}/${current.id}`, {
+      for (const row of changed) {
+        const response = await fetch(`/api/admin/${entity}/${row.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...current, [orderField]: swapA }),
-        }),
-        fetch(`/api/admin/${entity}/${other.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...other, [orderField]: swapB }),
-        }),
-      ]);
-      if (results.some((response) => !response.ok)) {
-        setMessage("Unable to reorder. Please try again.");
-        return;
+          body: JSON.stringify(row),
+        });
+        if (!response.ok) {
+          const reason = await response.json().catch(() => ({}));
+          setMessage(`Unable to reorder: ${reason.error || "the server rejected the new order"}. No rows were moved.`);
+          return;
+        }
       }
-      setRows((value) => {
-        const arr = [...value];
-        [arr[idx], arr[target]] = [arr[target], arr[idx]];
-        arr[idx] = { ...arr[idx], [orderField]: swapB };
-        arr[target] = { ...arr[target], [orderField]: swapA };
-        return arr;
-      });
+      setRows(numbered);
+      setNotice("Order saved. It is live on the site once the page is republished.");
       router.refresh();
     } catch {
       setMessage("Network error while reordering. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  /**
+   * Publish or unpublish a record without opening the editor.
+   *
+   * The same contract as `toggleActive`: the row is only updated once the API
+   * has accepted the write, so a rejected save can never leave the list
+   * claiming a state the site is not in.
+   */
+  async function toggleStatus(row: Record<string, unknown>) {
+    const next = row.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
+    setMessage("");
+    setNotice("");
+    setPending(true);
+    try {
+      const response = await fetch(`/api/admin/${entity}/${row.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...row, status: next }),
+      });
+      if (!response.ok) {
+        const reason = await response.json().catch(() => ({}));
+        setMessage(`Unable to ${next === "PUBLISHED" ? "publish" : "unpublish"}: ${reason.error || "please try again."}`);
+        return;
+      }
+      setRows((value) => value.map((item) => (item.id === row.id ? { ...item, status: next } : item)));
+      setNotice(`“${display(row)}” is now ${next === "PUBLISHED" ? "published" : "a draft"} and no longer shown on the site.`);
+      router.refresh();
+    } catch {
+      setMessage("Network error while changing publish state. Please try again.");
     } finally {
       setPending(false);
     }
@@ -275,7 +350,7 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
           ) : null}
           {selected.length > 0 && !noDelete.has(entity) && role !== "EDITOR" ? (
             <button
-              onClick={() => remove(selected)}
+              onClick={() => askRemove(selected)}
               disabled={pending}
               className="rounded-lg bg-red-50 px-4 text-xs font-bold text-red-700 hover:bg-red-100 disabled:opacity-60"
             >
@@ -287,6 +362,11 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
         {message ? (
           <p role="alert" className="border-b border-red-100 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">
             {message}
+          </p>
+        ) : null}
+        {!message && notice ? (
+          <p role="status" className="border-b border-green-100 bg-green-50 px-4 py-3 text-xs font-semibold text-green-700">
+            {notice}
           </p>
         ) : null}
 
@@ -407,6 +487,19 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
                             {row.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
                           </button>
                         ) : null}
+                        {publishable.has(entity) && row.status ? (
+                          <button
+                            title={row.status === "PUBLISHED" ? "Unpublish" : "Publish"}
+                            aria-label={`${row.status === "PUBLISHED" ? "Unpublish" : "Publish"} ${display(row)}`}
+                            onClick={() => toggleStatus(row)}
+                            disabled={pending}
+                            className={`inline-flex h-8 items-center gap-1.5 rounded px-2.5 text-[.62rem] font-bold disabled:opacity-50 ${
+                              row.status === "PUBLISHED" ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200" : "bg-red-50 text-red-700 hover:bg-red-100"
+                            }`}
+                          >
+                            {row.status === "PUBLISHED" ? "Unpublish" : "Publish"}
+                          </button>
+                        ) : null}
                         {entity === "products" ? (
                           <button
                             title="Duplicate"
@@ -429,7 +522,8 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
                         {!noDelete.has(entity) && role !== "EDITOR" ? (
                           <button
                             title="Delete"
-                            onClick={() => remove([Number(row.id)])}
+                            aria-label={`Delete ${display(row)}`}
+                            onClick={() => askRemove([Number(row.id)])}
                             disabled={pending}
                             className="grid h-8 w-8 place-items-center rounded text-zinc-600 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                           >
@@ -468,6 +562,50 @@ export function AdminTable({ entity, initialRows, role }: { entity: string; init
           </div>
         </div>
       </div>
+
+      {confirming ? (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/60 p-4 sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-delete-title"
+          onClick={(event) => {
+            // Clicking the backdrop cancels, but a click that started inside the
+            // panel must not dismiss it — otherwise the drag that ends over the
+            // backdrop deletes nothing and the dialog vanishes anyway.
+            if (event.target === event.currentTarget && !pending) setConfirming(null);
+          }}
+        >
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+            <h2 id="confirm-delete-title" className="text-lg font-bold tracking-tight text-zinc-900">
+              Delete {confirming.ids.length === 1 ? "this record" : `${confirming.ids.length} records`}?
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-600">
+              You are about to delete <span className="font-semibold text-zinc-900">{confirming.label}</span>. This removes it
+              permanently and takes it off the published site.
+            </p>
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setConfirming(null)}
+                disabled={pending}
+                className="rounded-lg border border-zinc-300 px-4 py-2.5 text-xs font-bold text-zinc-700 hover:bg-zinc-50 disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                autoFocus
+                onClick={() => remove(confirming.ids)}
+                disabled={pending}
+                className="rounded-lg bg-red-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-red-800 disabled:opacity-60"
+              >
+                {pending ? "Deleting…" : "Delete permanently"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

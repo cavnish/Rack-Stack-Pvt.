@@ -29,156 +29,39 @@
  * Nothing here queries the database. The public catalogue is static-first: it
  * renders from the last published payload and stays readable with the database
  * switched off.
+ *
+ * Bundle boundary
+ * ---------------
+ * This module must never be imported by a client component. It pulls in
+ * `products.json`, which is around a megabyte, and that is server-side weight
+ * only. Types, the category taxonomy and the pure helpers live in
+ * `./catalogue-shared`, which is safe to import from anywhere; anything that
+ * renders in the browser should import from there, or be handed the products it
+ * needs as a prop by a server component.
  */
 
 import productsPayload from "@/data/products.json";
 import { localAssetFor } from "@/lib/local-assets";
-
-// ---------------------------------------------------------------- the types
-
-export type CatalogueSeo = {
-  title: string;
-  description: string;
-  ogTitle: string;
-  ogDescription: string;
-  ogImage: string;
-};
-
-export type CatalogueCategory = {
-  slug: CatalogueCategorySlug;
-  name: string;
-  eyebrow: string;
-  title: string;
-  description: string;
-  image: string;
-  /** Counted from the published products, never stored. */
-  productCount: number;
-  order: number;
-  seo: CatalogueSeo;
-};
-
-export type CatalogueFeature = {
-  title: string;
-  description: string;
-};
-
-export type CatalogueSpecification = {
-  label: string;
-  value: string;
-};
-
-export type CatalogueImage = {
-  url: string;
-  alt: string;
-  caption: string;
-};
-
-export type CatalogueProduct = {
-  /** The CMS row id. Stable, and what `related` and cards resolve against. */
-  id: string;
-  name: string;
-  slug: string;
-  category: CatalogueCategorySlug;
-  shortDescription: string;
-  longDescription: string;
-  applications: string[];
-  industries: string[];
-  features: CatalogueFeature[];
-  specifications: CatalogueSpecification[];
-  variants: string[];
-  images: CatalogueImage[];
-  featured: boolean;
-  order: number;
-  seo: CatalogueSeo;
-};
-
-/** The category slugs the site recognises, plus any a product has introduced. */
-export type CatalogueCategorySlug = string;
-
-// --------------------------------------------------------- category registry
-
-const CATEGORY_ORDER = ["office-storage", "industrial-storage", "material-handling"] as const;
-
-type CategorySeed = Omit<CatalogueCategory, "slug" | "productCount">;
-
-const categorySeeds: readonly (CategorySeed & { slug: string })[] = [
-  {
-    slug: "office-storage",
-    name: "Office Storage Systems",
-    eyebrow: "Office Storage",
-    title: "Space-smart storage for records and workplaces",
-    description:
-      "Mobile shelving, filing cabinets, pedestals, tables and lockers planned around office storage needs and available space.",
-    image: "https://images.pexels.com/photos/36126272/pexels-photo-36126272.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600",
-    order: 1,
-    seo: {
-      title: "Office Storage Systems | Rack & Stack",
-      description:
-        "Explore mobile compactor shelving, filing cabinets, office cupboards, pedestals, tables and lockers for organised storage.",
-      ogTitle: "Office Storage Systems | Rack & Stack",
-      ogDescription:
-        "Explore mobile compactor shelving, filing cabinets, office cupboards, pedestals, tables and lockers for organised storage.",
-      ogImage: "https://images.pexels.com/photos/36126272/pexels-photo-36126272.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600",
-    },
-  },
-  {
-    slug: "industrial-storage",
-    name: "Industrial Storage Systems",
-    eyebrow: "Industrial Storage",
-    title: "Storage systems built around your inventory",
-    description:
-      "Industrial racking and platform systems for warehouses, factories, workshops and stockrooms, configured to project requirements.",
-    image: "https://images.pexels.com/photos/36126305/pexels-photo-36126305.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600",
-    order: 2,
-    seo: {
-      title: "Industrial Storage Systems | Rack & Stack",
-      description:
-        "Explore slotted angle racks, long span shelving, pallet racking, multi-tier systems, mezzanine floors and cantilever racks.",
-      ogTitle: "Industrial Storage Systems | Rack & Stack",
-      ogDescription:
-        "Explore slotted angle racks, long span shelving, pallet racking, multi-tier systems, mezzanine floors and cantilever racks.",
-      ogImage: "https://images.pexels.com/photos/36126305/pexels-photo-36126305.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600",
-    },
-  },
-  {
-    slug: "material-handling",
-    name: "Material Handling Equipment",
-    eyebrow: "Material Handling",
-    title: "Equipment for moving, lifting and loading",
-    description:
-      "Pallets, trolleys, stackers, cranes and lifting platforms for warehouse, factory and loading-bay material handling.",
-    image: "https://images.pexels.com/photos/8760709/pexels-photo-8760709.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600",
-    order: 3,
-    seo: {
-      title: "Material Handling Equipment | Rack & Stack",
-      description:
-        "Explore pallets, pallet trucks, dock levelers, stackers, cranes and lifting platforms for industrial material handling.",
-      ogTitle: "Material Handling Equipment | Rack & Stack",
-      ogDescription:
-        "Explore pallets, pallet trucks, dock levelers, stackers, cranes and lifting platforms for industrial material handling.",
-      ogImage: "https://images.pexels.com/photos/8760709/pexels-photo-8760709.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600",
-    },
-  },
-];
-
-/**
- * Human name for a category slug.
- *
- * An editor can file a product under a category that has no entry here, so an
- * unknown slug is title-cased from itself rather than rendering as a raw slug.
- */
-export const catalogueCategoryNames: Record<string, string> = Object.fromEntries(
-  categorySeeds.map((seed) => [seed.slug, seed.name]),
-);
-
-/** Turns `office-storage` into `Office Storage` for an unknown category. */
-function titleCaseSlug(slug: string): string {
-  return slug
-    .split(/[-_\s]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
+import {
+  CATEGORY_ORDER,
+  catalogueCategoryNames,
+  categorySeeds,
+  collectApplications,
+  collectIndustries,
+  collectProductTypes,
+  getProductHref,
+  getProductSearchText,
+  getProductTypeLabel,
+  orderCategorySlugs,
+  titleCaseSlug,
+  type CatalogueCategory,
+  type CatalogueCategorySlug,
+  type CatalogueImage,
+  type CatalogueProduct,
+  type CatalogueSeo,
+  type CatalogueFeature,
+  type CatalogueSpecification,
+} from "@/lib/catalogue-shared";
 
 // ------------------------------------------------------ published product I/O
 
@@ -318,18 +201,10 @@ const bySlug = new Map(catalogueProducts.map((product) => [product.slug, product
  * has been filed under in Admin. Creating a category in Admin is therefore
  * enough to make it appear in the mega menu and the listing, with no deploy.
  */
-export const catalogueCategorySlugs: readonly string[] = (() => {
-  const seen = new Set<string>(categorySeeds.map((seed) => seed.slug));
-  for (const product of catalogueProducts) if (product.category) seen.add(product.category);
-  return [...seen].sort((a, b) => {
-    const ai = CATEGORY_ORDER.indexOf(a as (typeof CATEGORY_ORDER)[number]);
-    const bi = CATEGORY_ORDER.indexOf(b as (typeof CATEGORY_ORDER)[number]);
-    if (ai !== -1 && bi !== -1) return ai - bi;
-    if (ai !== -1) return -1;
-    if (bi !== -1) return 1;
-    return a.localeCompare(b);
-  });
-})();
+export const catalogueCategorySlugs: readonly string[] = orderCategorySlugs([
+  ...categorySeeds.map((seed) => seed.slug),
+  ...catalogueProducts.map((product) => product.category).filter(Boolean),
+]);
 
 /**
  * The categories, with counts counted from the published products.
@@ -390,19 +265,7 @@ export function getCatalogueCategory(slug: string): CatalogueCategory | undefine
   return catalogueCategories.find((category) => category.slug === slug);
 }
 
-/**
- * The canonical product URL.
- *
- * A CMS product has two working addresses: `/products/<slug>` and
- * `/products/<category>/<slug>`. This returns the category form, which is the
- * one the mega menu, the listing and the category pages link to and the one the
- * business uses publicly. The flat form redirects to this.
- */
-export function getCatalogueProductHref(product: CatalogueProduct | string): string {
-  const resolved = typeof product === "string" ? getCatalogueProductBySlug(product) : product;
-  if (!resolved) return "/products";
-  return `/products/${resolved.category}/${resolved.slug}`;
-}
+export const getCatalogueProductHref = getProductHref;
 
 /**
  * The related rail.
@@ -439,88 +302,62 @@ export function getRelatedCatalogueProducts(product: CatalogueProduct | string, 
   return result;
 }
 
-export function getCatalogueSearchText(product: CatalogueProduct | string): string {
-  const resolved = typeof product === "string" ? getCatalogueProductBySlug(product) : product;
-  if (!resolved) return "";
+export const getCatalogueSearchText = getProductSearchText;
+export const getCatalogueProductType = getProductTypeLabel;
 
-  return [
-    resolved.name,
-    resolved.slug,
-    resolved.shortDescription,
-    resolved.longDescription,
-    ...resolved.applications,
-    ...resolved.industries,
-    ...resolved.features.flatMap((feature) => [feature.title, feature.description]),
-    ...resolved.specifications.flatMap((specification) => [specification.label, specification.value]),
-    ...resolved.variants,
-  ]
-    .join(" ")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
-}
+export const getCatalogueApplications = (products: readonly CatalogueProduct[] = catalogueProducts): string[] =>
+  collectApplications(products);
+export const getCatalogueIndustries = (products: readonly CatalogueProduct[] = catalogueProducts): string[] =>
+  collectIndustries(products);
+export const getCatalogueProductTypes = (products: readonly CatalogueProduct[] = catalogueProducts): string[] =>
+  collectProductTypes(products);
+
+// ------------------------------------------------------- server-only exports
 
 /**
- * The short product type used by the catalogue browser's filter.
+ * The three values a navigation menu or a product `<select>` needs, with the
+ * published catalogue flattened down to them.
  *
- * Keyed by slug rather than by the old hardcoded id, because the id is now a
- * database id that differs per environment.
+ * Passing this to a client component instead of letting it import the catalogue
+ * is what keeps a megabyte of product rows out of the browser bundle: a name and
+ * a slug per product is roughly two kilobytes.
  */
-const productTypes: Record<string, string> = {
-  "mobile-compactor-storage-system": "Mobile compactor",
-  "push-pull-compactor-system": "Push-pull compactor",
-  "office-storewell-cupboard": "Office cupboard",
-  "frfc-filing-cabinet": "Filing cabinet",
-  "2-drawer-filing-cabinet": "Filing cabinet",
-  "3-drawer-filing-cabinet": "Filing cabinet",
-  "4-drawer-filing-cabinet": "Filing cabinet",
-  pedestals: "Office pedestal",
-  "office-tables": "Office table",
-  "four-tier-lockers": "Lockers",
-  "eight-tier-lockers": "Lockers",
-  "twelve-tier-lockers": "Lockers",
-  "eighteen-tier-lockers": "Lockers",
-  "slotted-angle-racks": "Slotted angle rack",
-  "heavy-duty-long-span-shelving-racks": "Long span shelving",
-  "conventional-pallet-racking-system": "Pallet racking",
-  "multi-tier-racking-system": "Multi-tier racking",
-  "mezzanine-floor": "Mezzanine floor",
-  "cantilever-racking-system": "Cantilever racking",
-  "ms-pallet": "Pallet",
-  "wooden-pallet": "Pallet",
-  "hydraulic-pallet-truck": "Pallet truck",
-  "drum-loading-trolley": "Drum trolley",
-  "dock-leveler": "Dock leveler",
-  "high-level-front-dumper": "Front dumper",
-  "manual-mechanical-stacker": "Manual stacker",
-  "battery-hydraulic-stacker": "Battery stacker",
-  "floor-crane": "Floor crane",
-  "multi-scissors-lift-platform": "Scissor lift",
-  "hydraulic-stacker": "Hydraulic stacker",
-  "scissors-lift-platform": "Scissor lift",
-  "porter-goods-lifting-platform": "Goods lifting platform",
-  // The products that predate the catalogue import.
-  "mobile-shelving-racks": "Mobile shelving",
-  lockers: "Lockers",
-  "heavy-duty-long-span-racks": "Long span racking",
-  "heavy-duty-pallet-racking": "Pallet racking",
-  "medium-duty-shelving-racks": "Shelving",
+export function getCatalogueOptions() {
+  return catalogueProducts.map((product) => ({ slug: product.slug, name: product.name, category: product.category }));
+}
+
+/** The mega-menu structure: each category with its products, in menu order. */
+export function getCatalogueNavGroups() {
+  return catalogueCategories.map((category) => ({
+    slug: category.slug,
+    name: category.name,
+    eyebrow: category.eyebrow,
+    title: category.title,
+    description: category.description,
+    image: category.image,
+    productCount: category.productCount,
+    order: category.order,
+    seo: category.seo,
+    products: getCatalogueProductsByCategory(category.slug).map((product) => ({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      href: getProductHref(product),
+      category: product.category,
+      shortDescription: product.shortDescription,
+    })),
+  }));
+}
+
+export {
+  catalogueCategoryNames,
+  categorySeeds,
+  titleCaseSlug,
+  type CatalogueCategory,
+  type CatalogueCategorySlug,
+  type CatalogueFeature,
+  type CatalogueImage,
+  type CatalogueProduct,
+  type CatalogueSeo,
+  type CatalogueSpecification,
 };
-
-export function getCatalogueProductType(product: CatalogueProduct | string): string {
-  const resolved = typeof product === "string" ? getCatalogueProductBySlug(product) : product;
-  if (!resolved) return "";
-  return productTypes[resolved.slug] ?? catalogueCategoryNames[resolved.category] ?? "Storage and handling equipment";
-}
-
-export function getCatalogueApplications(products: readonly CatalogueProduct[] = catalogueProducts): string[] {
-  return Array.from(new Set(products.flatMap((product) => product.applications))).sort((a, b) => a.localeCompare(b));
-}
-
-export function getCatalogueIndustries(products: readonly CatalogueProduct[] = catalogueProducts): string[] {
-  return Array.from(new Set(products.flatMap((product) => product.industries))).sort((a, b) => a.localeCompare(b));
-}
-
-export function getCatalogueProductTypes(products: readonly CatalogueProduct[] = catalogueProducts): string[] {
-  return Array.from(new Set(products.map((product) => getCatalogueProductType(product)))).sort((a, b) => a.localeCompare(b));
-}

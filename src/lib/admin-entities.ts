@@ -1,19 +1,20 @@
 import "server-only";
 import { db } from "@/db";
 import {
-  activityLogs, blogPosts, clientLogos, clients, contactMessages, faqs, gallery, homeOfferCards, homeSliders, homepageSections, industries, inquiries,
+  activityLogs, blogPosts, clientLogos, contactMessages, faqs, gallery, homeOfferCards, homeSliders, homepageSections, industries, inquiries,
+  aboutSections,
   media, pages, productApplications, productBenefits, productComponents, productConfigurations, productFeatures, productGalleryImages, productImages, productIndustries, productProjects,
   productRelatedProducts, productSections, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projects, redirects, seoSettings,
   serviceFeatures, services, siteSettings, testimonials, users, videoProducts, videos, videoServices,
 } from "@/db/schema";
 import { hash } from "bcryptjs";
-import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
-import { productAdminSchema, clientLogoAdminSchema, homeOfferCardSchema, UserFacingError } from "./validation";
+import { and, asc, desc, eq, isNull, not, sql } from "drizzle-orm";
+import { productAdminSchema, clientLogoAdminSchema, homeOfferCardSchema, aboutSectionSchema, parseForEditor, testimonialAdminSchema, type TestimonialAdminInput, UserFacingError } from "./validation";
 import { requireInstagramUrl } from "./instagram";
 import { getPrimaryGalleryImageUrl, isDeletableUpload, normalizeGalleryPrimaries } from "./product-primary-image";
 import { isRemoteImageUrl } from "./public-asset-paths";
 
-export const adminEntities = ["products", "services", "projects", "clients", "client-logos", "testimonials", "gallery", "pages", "industries", "faqs", "blog", "homepage", "home-offer-cards", "home-slider", "inquiries", "contact-messages", "media", "videos", "seo", "settings", "users", "activity"] as const;
+export const adminEntities = ["products", "services", "projects", "client-logos", "testimonials", "gallery", "pages", "industries", "faqs", "blog", "homepage", "home-offer-cards", "home-slider", "about-sections", "inquiries", "contact-messages", "media", "videos", "seo", "settings", "users", "activity"] as const;
 
 export type AdminEntity = typeof adminEntities[number];
 export function isAdminEntity(value: string): value is AdminEntity { return (adminEntities as readonly string[]).includes(value); }
@@ -49,6 +50,84 @@ function recommendedProductRows(data: { relatedProducts?: Array<{ productId: num
     seen.add(row.productId);
     return true;
   });
+}
+
+/**
+ * Column values for one About section, shared by create and update.
+ *
+ * The page-specific lists are normalised on the way in rather than at render
+ * time: an empty `slug` becomes null so a capability line with no product page
+ * is stored as "no page" instead of an empty string that later reads as a broken
+ * lookup, and a list with no label is dropped instead of rendering a blank row
+ * in the middle of a numbered list.
+ */
+function aboutSectionValues(input: Record<string, unknown>) {
+  const data = aboutSectionSchema.parse(input);
+  const capabilities = (rows: Array<{ label: string; slug?: string | null }>) =>
+    rows
+      .map((row) => ({ label: row.label.trim(), slug: row.slug?.trim() || null }))
+      .filter((row) => row.label);
+  return {
+    sectionKey: data.sectionKey,
+    label: data.label,
+    kind: data.kind,
+    eyebrow: nullable(data.eyebrow),
+    title: nullable(data.title),
+    description: nullable(data.description),
+    caption: nullable(data.caption),
+    imageUrl: nullable(data.imageUrl),
+    imagePublicId: nullable(data.imagePublicId),
+    imageAlt: nullable(data.imageAlt),
+    ctaPrimaryLabel: nullable(data.ctaPrimaryLabel),
+    ctaPrimaryHref: nullable(data.ctaPrimaryHref),
+    ctaSecondaryLabel: nullable(data.ctaSecondaryLabel),
+    ctaSecondaryHref: nullable(data.ctaSecondaryHref),
+    theme: data.theme,
+    body: {
+      paragraphs: (data.body.paragraphs ?? []).map((p) => p.trim()).filter(Boolean),
+      listLabel: data.body.listLabel?.trim() || null,
+      items: capabilities(data.body.items ?? []),
+      steps: (data.body.steps ?? []).filter((s) => s.title.trim()),
+      strengths: (data.body.strengths ?? []).filter((s) => s.title.trim()),
+      pillars: (data.body.pillars ?? [])
+        .filter((p) => p.label.trim() && p.statement.trim())
+        .map((p) => ({
+          label: p.label.trim(),
+          statement: p.statement.trim(),
+          image: nullable(p.image),
+          imagePublicId: nullable(p.imagePublicId),
+          imageAlt: nullable(p.imageAlt),
+        })),
+    },
+    isActive: data.isActive,
+    displayOrder: data.displayOrder,
+  };
+}
+
+/**
+ * Column values for one testimonial, shared by create and update.
+ *
+ * The card on the homepage is built entirely from these columns — quote, name,
+ * designation, company, rating, date and order — so the write is validated as
+ * one unit through `testimonialAdminSchema` rather than field by field. That is
+ * what keeps a blank client name or a `javascript:` image URL out of the
+ * database, and it is why create and update share this function: a field added
+ * to the admin form and not to one of the two writes would appear, then
+ * silently disappear on the next edit.
+ */
+function testimonialValues(input: Record<string, unknown>) {
+  const data: TestimonialAdminInput = parseForEditor(testimonialAdminSchema, input);
+  return {
+    clientName: data.clientName,
+    company: nullable(data.company),
+    designation: nullable(data.designation),
+    content: data.content,
+    rating: data.rating,
+    image: nullable(data.image),
+    featured: data.featured,
+    status: data.status,
+    displayOrder: data.displayOrder,
+  };
 }
 
 /**
@@ -89,9 +168,8 @@ export async function listEntity(entity: AdminEntity) {
     case "products": return db.select().from(products).where(isNull(products.deletedAt)).orderBy(asc(products.displayOrder), desc(products.updatedAt));
     case "services": return db.select().from(services).where(isNull(services.deletedAt)).orderBy(asc(services.displayOrder));
     case "projects": return db.select().from(projects).where(isNull(projects.deletedAt)).orderBy(desc(projects.createdAt));
-    case "clients": return db.select().from(clients).where(isNull(clients.deletedAt)).orderBy(asc(clients.displayOrder));
-    case "client-logos": return db.select().from(clientLogos).orderBy(asc(clientLogos.sortOrder), asc(clientLogos.id));
-    case "testimonials": return db.select().from(testimonials).orderBy(asc(testimonials.displayOrder));
+  case "client-logos": return db.select().from(clientLogos).orderBy(asc(clientLogos.sortOrder), asc(clientLogos.id));
+    case "testimonials": return db.select().from(testimonials).orderBy(asc(testimonials.displayOrder), asc(testimonials.id));
     case "gallery": return db.select().from(gallery).orderBy(asc(gallery.displayOrder));
     case "home-slider": return db.select().from(homeSliders).orderBy(asc(homeSliders.sortOrder));
     case "pages": return db.select().from(pages).where(isNull(pages.deletedAt)).orderBy(asc(pages.title));
@@ -100,6 +178,7 @@ export async function listEntity(entity: AdminEntity) {
     case "blog": return db.select().from(blogPosts).where(isNull(blogPosts.deletedAt)).orderBy(desc(blogPosts.createdAt));
     case "homepage": return db.select().from(homepageSections).orderBy(asc(homepageSections.displayOrder));
     case "home-offer-cards": return db.select().from(homeOfferCards).orderBy(asc(homeOfferCards.displayOrder), asc(homeOfferCards.id));
+    case "about-sections": return db.select().from(aboutSections).orderBy(asc(aboutSections.displayOrder), asc(aboutSections.id));
     case "inquiries": return db.select().from(inquiries).orderBy(desc(inquiries.createdAt));
     case "contact-messages": return db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
     case "media": return db.select().from(media).orderBy(desc(media.createdAt));
@@ -153,6 +232,30 @@ export async function getEntity(entity: AdminEntity, id: number) {
       serviceIds: serviceRows.map((row) => row.serviceId),
     };
   }
+  // Single-row entities get a real `where` rather than the list-then-find below.
+  // Opening one logo otherwise read and shipped the entire roster — which is
+  // every row's URL, alt text and dimensions — to find the one being edited.
+  if (entity === "client-logos") {
+    return (await db.select().from(clientLogos).where(eq(clientLogos.id, id)).limit(1))[0] ?? null;
+  }
+  if (entity === "gallery") return (await db.select().from(gallery).where(eq(gallery.id, id)).limit(1))[0] ?? null;
+  if (entity === "industries") return (await db.select().from(industries).where(eq(industries.id, id)).limit(1))[0] ?? null;
+  if (entity === "faqs") return (await db.select().from(faqs).where(eq(faqs.id, id)).limit(1))[0] ?? null;
+  if (entity === "pages") return (await db.select().from(pages).where(eq(pages.id, id)).limit(1))[0] ?? null;
+  if (entity === "testimonials") return (await db.select().from(testimonials).where(eq(testimonials.id, id)).limit(1))[0] ?? null;
+  if (entity === "home-slider") return (await db.select().from(homeSliders).where(eq(homeSliders.id, id)).limit(1))[0] ?? null;
+  if (entity === "homepage") return (await db.select().from(homepageSections).where(eq(homepageSections.id, id)).limit(1))[0] ?? null;
+  if (entity === "home-offer-cards") return (await db.select().from(homeOfferCards).where(eq(homeOfferCards.id, id)).limit(1))[0] ?? null;
+  if (entity === "about-sections") return (await db.select().from(aboutSections).where(eq(aboutSections.id, id)).limit(1))[0] ?? null;
+  if (entity === "blog") return (await db.select().from(blogPosts).where(eq(blogPosts.id, id)).limit(1))[0] ?? null;
+  if (entity === "inquiries") return (await db.select().from(inquiries).where(eq(inquiries.id, id)).limit(1))[0] ?? null;
+  if (entity === "contact-messages") return (await db.select().from(contactMessages).where(eq(contactMessages.id, id)).limit(1))[0] ?? null;
+  if (entity === "media") return (await db.select().from(media).where(eq(media.id, id)).limit(1))[0] ?? null;
+  if (entity === "seo") return (await db.select().from(seoSettings).where(eq(seoSettings.id, id)).limit(1))[0] ?? null;
+  if (entity === "settings") return (await db.select().from(siteSettings).where(eq(siteSettings.id, id)).limit(1))[0] ?? null;
+  if (entity === "users") return (await db.select().from(users).where(eq(users.id, id)).limit(1))[0] ?? null;
+  if (entity === "activity") return (await db.select().from(activityLogs).where(eq(activityLogs.id, id)).limit(1))[0] ?? null;
+
   const rows = await listEntity(entity);
   return (rows as Array<{ id: number }>).find((row) => row.id === id) ?? null;
 }
@@ -503,9 +606,8 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
     });
   }
   if (entity === "projects") return (await db.insert(projects).values({ title: text(input.title), slug: text(input.slug), clientName: nullable(input.clientName), location: nullable(input.location), industry: nullable(input.industry), solution: nullable(input.solution), description: text(input.description), challenge: nullable(input.challenge), solutionDescription: nullable(input.solutionDescription), result: nullable(input.result), execution: nullable(input.execution), featured: bool(input.featured), coverImage: nullable(input.coverImage), status: status(input.status), projectDate: input.projectDate ? new Date(String(input.projectDate)) : null, metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription) }).returning())[0];
-  if (entity === "clients") return (await db.insert(clients).values({ name: text(input.name), logo: nullable(input.logo), cloudinaryPublicId: nullable(input.cloudinaryPublicId), website: nullable(input.website), industry: nullable(input.industry), featured: bool(input.featured), displayOrder: num(input.displayOrder) }).returning())[0];
   if (entity === "client-logos") { const data = clientLogoAdminSchema.parse(input); return (await db.insert(clientLogos).values({ name: data.name, imageUrl: data.imageUrl, imagePublicId: nullable(data.imagePublicId), altText: data.altText, sortOrder: data.sortOrder, isActive: data.isActive, width: data.width ?? null, height: data.height ?? null }).returning())[0]; }
-  if (entity === "testimonials") return (await db.insert(testimonials).values({ clientName: text(input.clientName), company: nullable(input.company), designation: nullable(input.designation), content: text(input.content), rating: num(input.rating, 5), image: nullable(input.image), featured: bool(input.featured), status: status(input.status), displayOrder: num(input.displayOrder) }).returning())[0];
+  if (entity === "testimonials") return (await db.insert(testimonials).values(testimonialValues(input)).returning())[0];
   if (entity === "gallery") return (await db.insert(gallery).values({ title: text(input.title), category: text(input.category), imageUrl: text(input.imageUrl), cloudinaryPublicId: nullable(input.cloudinaryPublicId), altText: text(input.altText), description: nullable(input.description), displayOrder: num(input.displayOrder), status: status(input.status) }).returning())[0];
   if (entity === "pages") return (await db.insert(pages).values({ title: text(input.title), slug: text(input.slug), content: text(input.content), heroTitle: nullable(input.heroTitle), heroDescription: nullable(input.heroDescription), heroImage: nullable(input.heroImage), metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), canonicalUrl: nullable(input.canonicalUrl), status: status(input.status) }).returning())[0];
   if (entity === "industries") return (await db.insert(industries).values({ name: text(input.name), slug: text(input.slug), shortDescription: text(input.shortDescription), description: text(input.description), challenges: Array.isArray(input.challenges) ? input.challenges.map(String) : [], benefits: Array.isArray(input.benefits) ? input.benefits.map(String) : [], heroImage: nullable(input.heroImage), icon: text(input.icon) || "Factory", status: status(input.status), featured: bool(input.featured), displayOrder: num(input.displayOrder), metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription) }).returning())[0];
@@ -522,6 +624,14 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
       showQuoteButton: data.showQuoteButton,
       displayOrder: data.displayOrder, isActive: data.isActive,
     }).returning())[0];
+  }
+  if (entity === "about-sections") {
+    // A section key is the identity a renderer and the seed script both use, so
+    // it has to stay unique. Catching it here gives the editor a message naming
+    // the clash instead of a bare constraint violation from the driver.
+    const clash = (await db.select({ id: aboutSections.id }).from(aboutSections).where(eq(aboutSections.sectionKey, text(input.sectionKey)))).length;
+    if (clash) throw new UserFacingError(`Another section already uses the key "${text(input.sectionKey)}".`);
+    return (await db.insert(aboutSections).values(aboutSectionValues(input)).returning())[0];
   }
   if (entity === "home-slider") {
     if (input.duplicateId) {
@@ -625,9 +735,13 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
     });
   }
   if (entity === "projects") return (await db.update(projects).set({ title: text(input.title), slug: text(input.slug), clientName: nullable(input.clientName), location: nullable(input.location), industry: nullable(input.industry), solution: nullable(input.solution), description: text(input.description), challenge: nullable(input.challenge), solutionDescription: nullable(input.solutionDescription), result: nullable(input.result), execution: nullable(input.execution), featured: bool(input.featured), coverImage: nullable(input.coverImage), status: status(input.status), projectDate: input.projectDate ? new Date(String(input.projectDate)) : null, metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), updatedAt: new Date() }).where(eq(projects.id, id)).returning())[0];
-  if (entity === "clients") return (await db.update(clients).set({ name: text(input.name), logo: nullable(input.logo), cloudinaryPublicId: nullable(input.cloudinaryPublicId), website: nullable(input.website), industry: nullable(input.industry), featured: bool(input.featured), displayOrder: num(input.displayOrder) }).where(eq(clients.id, id)).returning())[0];
   if (entity === "client-logos") { const data = clientLogoAdminSchema.parse(input); return (await db.update(clientLogos).set({ name: data.name, imageUrl: data.imageUrl, imagePublicId: nullable(data.imagePublicId), altText: data.altText, sortOrder: data.sortOrder, isActive: data.isActive, width: data.width ?? null, height: data.height ?? null, updatedAt: new Date() }).where(eq(clientLogos.id, id)).returning())[0]; }
-  if (entity === "testimonials") return (await db.update(testimonials).set({ clientName: text(input.clientName), company: nullable(input.company), designation: nullable(input.designation), content: text(input.content), rating: num(input.rating, 5), image: nullable(input.image), featured: bool(input.featured), status: status(input.status), displayOrder: num(input.displayOrder), updatedAt: new Date() }).where(eq(testimonials.id, id)).returning())[0];
+  if (entity === "testimonials") {
+    const values = testimonialValues(input);
+    const item = (await db.update(testimonials).set({ ...values, updatedAt: new Date() }).where(eq(testimonials.id, id)).returning())[0];
+    if (!item) throw new UserFacingError("That testimonial no longer exists. Reload the list and try again.");
+    return item;
+  }
   if (entity === "gallery") return (await db.update(gallery).set({ title: text(input.title), category: text(input.category), imageUrl: text(input.imageUrl), cloudinaryPublicId: nullable(input.cloudinaryPublicId), altText: text(input.altText), description: nullable(input.description), displayOrder: num(input.displayOrder), status: status(input.status), updatedAt: new Date() }).where(eq(gallery.id, id)).returning())[0];
   if (entity === "pages") return (await db.update(pages).set({ title: text(input.title), slug: text(input.slug), content: text(input.content), heroTitle: nullable(input.heroTitle), heroDescription: nullable(input.heroDescription), heroImage: nullable(input.heroImage), metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), canonicalUrl: nullable(input.canonicalUrl), status: status(input.status), updatedAt: new Date() }).where(eq(pages.id, id)).returning())[0];
   if (entity === "industries") return (await db.update(industries).set({ name: text(input.name), slug: text(input.slug), shortDescription: text(input.shortDescription), description: text(input.description), challenges: Array.isArray(input.challenges) ? input.challenges.map(String) : [], benefits: Array.isArray(input.benefits) ? input.benefits.map(String) : [], heroImage: nullable(input.heroImage), icon: text(input.icon) || "Factory", status: status(input.status), featured: bool(input.featured), displayOrder: num(input.displayOrder), metaTitle: nullable(input.metaTitle), metaDescription: nullable(input.metaDescription), updatedAt: new Date() }).where(eq(industries.id, id)).returning())[0];
@@ -644,6 +758,11 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
       showQuoteButton: data.showQuoteButton,
       displayOrder: data.displayOrder, isActive: data.isActive, updatedAt: new Date(),
     }).where(eq(homeOfferCards.id, id)).returning())[0];
+  }
+  if (entity === "about-sections") {
+    const clash = (await db.select({ id: aboutSections.id }).from(aboutSections).where(and(eq(aboutSections.sectionKey, text(input.sectionKey)), not(eq(aboutSections.id, id))))).length;
+    if (clash) throw new UserFacingError(`Another section already uses the key "${text(input.sectionKey)}".`);
+    return (await db.update(aboutSections).set({ ...aboutSectionValues(input), updatedAt: new Date() }).where(eq(aboutSections.id, id)).returning())[0];
   }
   if (entity === "home-slider") return (await db.update(homeSliders).set({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), description: nullable(input.description), ...managedImagePair(input.imageUrl, input.imagePublicId), ...managedMobileImagePair(input.mobileImageUrl, input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: slideDuration(input.duration), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null, updatedAt: new Date() }).where(eq(homeSliders.id, id)).returning())[0];
   if (entity === "inquiries") return (await db.update(inquiries).set({ status: ["NEW", "CONTACTED", "QUALIFIED", "QUOTATION_SENT", "WON", "LOST", "SPAM"].includes(String(input.status)) ? input.status as "NEW" | "CONTACTED" | "QUALIFIED" | "QUOTATION_SENT" | "WON" | "LOST" | "SPAM" : "NEW", notes: nullable(input.notes), assignedTo: input.assignedTo ? num(input.assignedTo) : null, updatedAt: new Date() }).where(eq(inquiries.id, id)).returning())[0];
@@ -669,7 +788,6 @@ export async function deleteEntity(entity: AdminEntity, id: number) {
   if (entity === "products") return db.update(products).set({ deletedAt: now, status: "ARCHIVED", updatedAt: now }).where(eq(products.id, id));
   if (entity === "services") return db.update(services).set({ deletedAt: now, status: "ARCHIVED", updatedAt: now }).where(eq(services.id, id));
   if (entity === "projects") return db.update(projects).set({ deletedAt: now, status: "ARCHIVED", updatedAt: now }).where(eq(projects.id, id));
-  if (entity === "clients") return db.update(clients).set({ deletedAt: now }).where(eq(clients.id, id));
   if (entity === "client-logos") return db.delete(clientLogos).where(eq(clientLogos.id, id));
   if (entity === "pages") return db.update(pages).set({ deletedAt: now, status: "ARCHIVED", updatedAt: now }).where(eq(pages.id, id));
   if (entity === "blog") return db.update(blogPosts).set({ deletedAt: now, status: "ARCHIVED", updatedAt: now }).where(eq(blogPosts.id, id));

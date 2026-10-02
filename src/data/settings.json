@@ -10,7 +10,9 @@
     "email": "info@rackandstack.in",
     "address": "Sr. No. 94/1, Umar Compound, Sopara Phata, Vasai-Virar, Maharashtra 401208",
     "workingHours": "Monday–Friday, 9:00 AM–6:00 PM",
-    "socialLinks": {},
+    "socialLinks": {
+      "instagram": "https://www.instagram.com/rackandstack.pvt/"
+    },
     "footerContent": "Strong, reliable storage systems planned around your space, loads and the way you work.",
     "copyright": "Rack & Stack Storage Systems Pvt. Ltd. All rights reserved.",
     "googleMapsEmbed": null,

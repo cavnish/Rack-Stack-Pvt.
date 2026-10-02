@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SmartImage } from "@/components/site/smart-image";
 import { FitHeading } from "@/components/site/fit-heading";
 import { CatalogueProductBrowser } from "@/components/site/catalogue-product-browser";
+import { CatalogueProductBrowserFallback } from "./catalogue-product-browser-fallback";
 import { TrustedByStrip } from "@/components/site/trusted-by-strip";
 import type { ClientLogo } from "@/components/site/client-logo-marquee";
 import { catalogueCategories, toBrowserCategories, type CatalogueCategory, type CatalogueProduct } from "@/lib/catalogue";
@@ -34,7 +36,13 @@ export function CatalogueCategoryPage({ category, products, logos }: { category:
             <p className="section-description mt-5 text-zinc-600">Search by product, application, industry or product type. Share your project details and our team can confirm the final configuration.</p>
           </div>
           <div className="mt-10">
-            <CatalogueProductBrowser products={products} categories={toBrowserCategories(catalogueCategories)} lockedCategory={category.slug} />
+            {/* Suspense boundary required because the browser reads `?category=`
+                with `useSearchParams`; without it this route cannot be
+                prerendered. The category is locked, so the fallback's unfiltered
+                grid is immediately replaced by the single-category one. */}
+            <Suspense fallback={<CatalogueProductBrowserFallback rows={3} />}>
+              <CatalogueProductBrowser products={products} categories={toBrowserCategories(catalogueCategories)} lockedCategory={category.slug} />
+            </Suspense>
           </div>
         </div>
       </section>

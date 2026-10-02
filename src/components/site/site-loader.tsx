@@ -1,11 +1,11 @@
 "use client";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const WAIT = 2500;
-const EXIT = 750;
+const WAIT = 900;
+const EXIT = 400;
 const TOTAL = WAIT + EXIT;
 const LETTERS = "RACK & STACK".split("");
 
@@ -91,45 +91,60 @@ function RackVisual() {
 }
 
 export function SiteLoader() {
-  const seenRef = useRef(false);
   const [phase, setPhase] = useState<"idle" | "active" | "leaving" | "done">("idle");
+
+  /**
+   * Whether this visit should show the splash at all.
+   *
+   * Deliberately separate state from `phase`, and set exactly once. The timer
+   * effect below depends on this and on nothing else, so the phase changes the
+   * sequence itself causes cannot tear its own timers down. Deriving both from
+   * `phase` was the original defect: flipping `active` -> `leaving` ran the
+   * cleanup that cleared the timer meant to advance to `done`, so the splash
+   * sat in `leaving` forever and never unmounted.
+   */
+  const [running, setRunning] = useState(false);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      const reduceMotion = prefersReducedMotion();
-      const alreadySeen = hasSeenLoader();
-      seenRef.current = alreadySeen || reduceMotion;
-      if (alreadySeen || reduceMotion) {
+      if (hasSeenLoader() || prefersReducedMotion()) {
         setPhase("done");
         return;
       }
       markLoaderSeen();
+      setRunning(true);
       setPhase("active");
     });
     return () => cancelAnimationFrame(frame);
   }, []);
 
+  /**
+   * The whole splash timeline in one effect, keyed on `running` only.
+   *
+   * `finish` is given a little slack past the exit animation so the overlay is
+   * always unmounted even if a tab is backgrounded and timers are throttled,
+   * and both timers are cleared on unmount so a navigation cannot leave one
+   * behind.
+   */
   useEffect(() => {
-    if (phase !== "active" && phase !== "leaving") return;
-    const root = document.documentElement;
-    const prevOverflow = root.style.overflow;
-    root.style.overflow = "hidden";
-    if (phase === "active") {
-      const t1 = window.setTimeout(() => setPhase("leaving"), WAIT);
-      const t2 = window.setTimeout(() => {
-        setPhase("done");
-        root.style.overflow = prevOverflow;
-      }, TOTAL);
-      return () => {
-        window.clearTimeout(t1);
-        window.clearTimeout(t2);
-        root.style.overflow = prevOverflow;
-      };
-    }
+    if (!running) return;
+    const hold = window.setTimeout(() => setPhase("leaving"), WAIT);
+    const finish = window.setTimeout(() => setPhase("done"), TOTAL + 120);
     return () => {
-      root.style.overflow = prevOverflow;
+      window.clearTimeout(hold);
+      window.clearTimeout(finish);
     };
-  }, [phase]);
+  }, [running]);
+
+  /**
+   * The loader is a splash, not a barrier.
+   *
+   * It used to set `overflow: hidden` on `<html>` for its own duration, so on a
+   * slow first paint the visitor could see the finished page and still not be
+   * able to scroll it. Nothing underneath needs a scroll lock — the overlay is
+   * purely decorative and already lifts away on a timer — so it does not take
+   * the document's scrolling away, and it never intercepts pointer events.
+   */
 
   if (phase === "idle" || phase === "done") return null;
 
@@ -139,8 +154,7 @@ export function SiteLoader() {
     <motion.div
       role="status"
       aria-label="Loading Rack &amp; Stack Storage Systems"
-      aria-hidden={leaving}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-zinc-950 text-white"
+      className="pointer-events-none fixed inset-0 z-[100] flex flex-col items-center justify-center bg-zinc-950 text-white"
       initial={false}
       animate={leaving ? { y: "-100%" } : { y: 0 }}
       transition={leaving ? { duration: EXIT / 1000, ease: [0.76, 0, 0.24, 1] } : { duration: 0 }}

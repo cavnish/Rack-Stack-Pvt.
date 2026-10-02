@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 import { getClientLogos, getProductReelVideos, getProducts, getServices } from "@/lib/data";
 import { JsonLd } from "@/components/site/ui";
@@ -22,7 +23,7 @@ export async function CatalogueProductDetail({ product, relatedProducts }: Catal
   const pageProduct = adaptCatalogueProduct(product, relatedProducts, folderImages);
   const productHref = getCatalogueProductHref(product);
   const categoryHref = `/products/${product.category}`;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "");
+  const siteUrl = siteOrigin();
   const productUrl = siteUrl ? `${siteUrl}${productHref}` : productHref;
   const categoryName = catalogueCategoryNames[product.category];
   const productSchema: Record<string, unknown> = {

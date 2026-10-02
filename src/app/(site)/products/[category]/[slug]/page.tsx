@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
 import { getProductBySlug } from "@/lib/data";
 import { slugifySegment } from "@/lib/publish/media";
 import { ProductPageView, buildProductMetadata, productStaticParams } from "@/components/site/product-page-view";
@@ -20,29 +19,29 @@ import { ProductPageView, buildProductMetadata, productStaticParams } from "@/co
  * The category is still checked, so `/products/office-storage/lockers` is a 404
  * rather than quietly serving lockers from the wrong shelf.
  */
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   return productStaticParams();
 }
 
-export async function generateMetadata({ params, searchParams }: { params: Promise<{ category: string; slug: string }>; searchParams: Promise<{ preview?: string }> }) {
-  const [{ category, slug }, { preview }] = await Promise.all([params, searchParams]);
-  const allowPreview = preview === "1" && Boolean(await getCurrentUser());
+export async function generateMetadata({ params }: { params: Promise<{ category: string; slug: string }> }) {
+  const { category, slug } = await params;
 
   // The same guard the page applies. Without it a wrong-category address such as
   // `/products/office-storage/slotted-angle-racks` would 404 while still
   // emitting a title and a canonical for the product it refused to serve.
-  const product = await getProductBySlug(slug, allowPreview);
+  const product = await getProductBySlug(slug, false);
   if (!product || slugifySegment(product.category) !== category) return {};
 
-  return buildProductMetadata(slug, allowPreview);
+  return buildProductMetadata(slug, false);
 }
 
-export default async function ProductCategoryPage({ params, searchParams }: { params: Promise<{ category: string; slug: string }>; searchParams: Promise<{ preview?: string }> }) {
-  const [{ category, slug }, { preview }] = await Promise.all([params, searchParams]);
-  const allowPreview = preview === "1" && Boolean(await getCurrentUser());
+export default async function ProductCategoryPage({ params }: { params: Promise<{ category: string; slug: string }> }) {
+  const { category, slug } = await params;
 
-  const product = await getProductBySlug(slug, allowPreview);
+  const product = await getProductBySlug(slug, false);
   if (!product || slugifySegment(product.category) !== category) notFound();
 
-  return <ProductPageView slug={slug} allowPreview={allowPreview} />;
+  return <ProductPageView slug={slug} allowPreview={false} />;
 }

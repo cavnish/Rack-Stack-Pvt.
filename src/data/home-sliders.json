@@ -5,8 +5,8 @@
     "title": "Industrial Storage Systems,",
     "highlightedText": null,
     "description": "Manufacturing-grade pallet racking, heavy duty shelving and mezzanine floors engineered for heavy loads, tight floorspace and continuous production output.",
-    "imageUrl": "/assets/images/hero/home-sliders-fszbxqnw4nmwn8xh6xl5-e451709ed9.webp",
-    "imagePublicId": "rack-stack/home-sliders/fszbxqnw4nmwn8xh6xl5",
+    "imageUrl": "/assets/images/hero/home-sliders-qscjixcem16vr39fcwew-2204a0c193.webp",
+    "imagePublicId": "rack-stack/home-sliders/qscjixcem16vr39fcwew",
     "mobileImageUrl": "/Hero.jpeg",
     "mobileImagePublicId": null,
     "videoUrl": null,
@@ -31,7 +31,7 @@
     "startAt": null,
     "endAt": null,
     "createdAt": "2026-09-28T08:58:50.431Z",
-    "updatedAt": "2026-09-30T14:04:49.560Z"
+    "updatedAt": "2026-10-02T09:20:13.004Z"
   },
   {
     "id": 2,
@@ -39,10 +39,10 @@
     "title": "Maximize Manufacturing Floor Space with Vertical Storage",
     "highlightedText": "FROM FLOOR TO FULL.",
     "description": "Racking, mezzanines and material handling systems that turn wasted ceiling height and floor area into organised, high-density manufacturing storage.",
-    "imageUrl": "/assets/images/hero/home-sliders-ccoptftlpvmqyzjozjwj-05047fe209.webp",
-    "imagePublicId": "rack-stack/home-sliders/ccoptftlpvmqyzjozjwj",
-    "mobileImageUrl": "/assets/images/hero/slide-1-d5134a71f8.webp",
-    "mobileImagePublicId": null,
+    "imageUrl": "/assets/images/hero/home-sliders-uny8efktot7jpzcmos1k-2a270d4046.webp",
+    "imagePublicId": "rack-stack/home-sliders/uny8efktot7jpzcmos1k",
+    "mobileImageUrl": "/assets/images/hero/home-sliders-g7fyor33cdvk9kp7qo0x-571137f185.webp",
+    "mobileImagePublicId": "rack-stack/home-sliders/g7fyor33cdvk9kp7qo0x",
     "videoUrl": null,
     "imageAlt": "Wide warehouse layout with organised industrial storage",
     "primaryButtonText": "Explore Solutions",
@@ -65,7 +65,7 @@
     "startAt": null,
     "endAt": null,
     "createdAt": "2026-09-28T08:58:50.431Z",
-    "updatedAt": "2026-09-30T14:03:53.387Z"
+    "updatedAt": "2026-10-02T05:47:40.559Z"
   },
   {
     "id": 3,
@@ -73,8 +73,8 @@
     "title": "Heavy Duty Racking Built for High-Output Manufacturing",
     "highlightedText": "BUILT FOR YOUR OPERATION.",
     "description": "Pallet racking, cantilever racks and reinforced shelving configured around your forklifts, loads and daily throughput for safe, efficient operation.",
-    "imageUrl": "/assets/images/hero/home-sliders-m8ludcapaoisa13cjndk-1e9f7d6fd0.webp",
-    "imagePublicId": "rack-stack/home-sliders/m8ludcapaoisa13cjndk",
+    "imageUrl": "/assets/images/hero/home-sliders-ai1kuxp8xdkaldwtsajc-fb91187fe8.webp",
+    "imagePublicId": "rack-stack/home-sliders/ai1kuxp8xdkaldwtsajc",
     "mobileImageUrl": "/assets/images/hero/slide-2-744a9f1204.webp",
     "mobileImagePublicId": null,
     "videoUrl": null,
@@ -99,6 +99,6 @@
     "startAt": null,
     "endAt": null,
     "createdAt": "2026-09-28T08:58:50.431Z",
-    "updatedAt": "2026-10-01T13:35:11.575Z"
+    "updatedAt": "2026-10-02T05:45:29.931Z"
   }
 ]

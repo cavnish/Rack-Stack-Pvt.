@@ -1,21 +1,36 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { getProducts, getServices } from "@/lib/data";
-import { catalogueProducts, getCatalogueProductBySlug } from "@/lib/catalogue";
+import { catalogueProducts } from "@/lib/catalogue";
 import { InquiryForm } from "@/components/site/inquiry-form";
 import { Reveal, Stagger, StaggerItem } from "@/components/site/reveal";
+
+/**
+ * ISR window, matching the rest of the public site.
+ *
+ * Without it a route that is no longer forced dynamic by `searchParams` would be
+ * rendered once and then never refreshed, so a product added in the admin would
+ * not appear in this page's dropdowns until a redeploy.
+ */
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Request a Quote",
   description: "Share your storage, racking, shelving or mezzanine requirement with Rack & Stack.",
 };
 
-export default async function QuotePage({ searchParams }: { searchParams: Promise<{ product?: string; service?: string }> }) {
-  const [query, products, services] = await Promise.all([searchParams, getProducts(), getServices()]);
-  const catalogueProduct = query.product ? getCatalogueProductBySlug(query.product) : undefined;
-  const legacyProduct = query.product ? products.find((product) => product.slug === query.product) : undefined;
-  const defaultProduct = catalogueProduct?.id ?? legacyProduct?.id;
-  const defaultService = query.service ? services.find((service) => service.slug === query.service)?.id : undefined;
+/**
+ * No `searchParams` here any more.
+ *
+ * The page used to `await searchParams` only to pre-select a product or service
+ * from `?product=` / `?service=`. Awaiting it forced the route to render
+ * dynamically on every request. `InquiryForm` now reads those two parameters and
+ * resolves them against the option lists it is already given, so the deep links
+ * behave identically while this page can be prerendered from published data.
+ */
+export default async function QuotePage() {
+  const [products, services] = await Promise.all([getProducts(), getServices()]);
   const productOptions = [...catalogueProducts, ...products].filter((product, index, allProducts) => allProducts.findIndex((candidate) => candidate.slug === product.slug) === index);
 
   return (
@@ -45,7 +60,11 @@ export default async function QuotePage({ searchParams }: { searchParams: Promis
               <h2 className="heading-md">Requirement Details</h2>
               <p className="mt-1.5 text-sm text-zinc-500">Fields marked * are required.</p>
               <div className="mt-6">
-                <InquiryForm products={productOptions} services={services} defaultProduct={defaultProduct} defaultService={defaultService} />
+                {/* Suspense boundary so the form's `useSearchParams` does not force
+                    this route to render dynamically. */}
+                <Suspense fallback={<div className="h-[420px] w-full animate-pulse rounded bg-zinc-50" aria-hidden="true" />}>
+                  <InquiryForm products={productOptions} services={services} />
+                </Suspense>
               </div>
             </div>
           </Reveal>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { RotateCcw, Search } from "lucide-react";
 import { CatalogueProductCard } from "@/components/site/catalogue-product-card";
@@ -47,11 +48,27 @@ export function CatalogueProductBrowser({
 }: CatalogueProductBrowserProps) {
   const filterId = useId();
   const reducedMotion = useReducedMotion();
+  /*
+   * The `?category=` deep link is read on the client rather than awaited as
+   * `searchParams` in the server page.
+   *
+   * The server component used to `await searchParams`, which opts the whole route
+   * out of static rendering: every visit re-rendered `/products` from scratch,
+   * including the catalogue, the reel videos and the logo strip. That is the page
+   * that stalled for minutes on a cold start, and the only thing the query string
+   * controlled was which tab the filter opens on. Reading it here keeps the deep
+   * link working and lets the page be prerendered once.
+   *
+   * `initialCategory` still wins, so the category pages that pass an explicit
+   * category (or lock it) are unaffected.
+   */
+  const searchParams = useSearchParams();
   const categoryNameBySlug = useMemo(
     () => new Map(categories.map((item) => [item.slug, item.name])),
     [categories],
   );
-  const initialCategoryValue = initialCategory && categoryNameBySlug.has(initialCategory) ? initialCategory : "all";
+  const requestedCategory = initialCategory ?? searchParams.get("category") ?? undefined;
+  const initialCategoryValue = requestedCategory && categoryNameBySlug.has(requestedCategory) ? requestedCategory : "all";
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState(initialCategoryValue);
   const [application, setApplication] = useState("all");

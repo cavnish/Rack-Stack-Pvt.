@@ -5,7 +5,21 @@ import { ChevronDown, Download, Mail, Menu, MessageCircle, Phone, Search, X } fr
 import { useEffect, useState } from "react";
 import { Logo } from "./logo";
 
-const catalogueDownloadHref = "/Rack%20%20Stack%20_Brochure%20(1).pdf";
+/**
+ * The catalogue download link.
+ *
+ * The file used to be called `Rack & Stack _Brochure (1).pdf` and linked as
+ * `/Rack%20%20Stack%20_Brochure%20(1).pdf`. That URL did not work: Next's static
+ * handler failed to match a `public/` filename containing an ampersand, spaces and
+ * parentheses, so the request fell through to the app and returned the HTML shell
+ * with a 200 status. A visitor clicking "Download Catalog" got a web page, not the
+ * catalogue — and because the status was 200 nothing reported it as broken.
+ *
+ * The file is renamed to a URL-safe slug and linked plainly. Renaming is the
+ * root-cause fix rather than more encoding: no amount of percent-encoding
+ * reliably avoids the matcher, and the old URL served no PDF to anyone anyway.
+ */
+const catalogueDownloadHref = "/rack-and-stack-brochure.pdf";
 
 /**
  * One category column of the mega menu.

@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import { writeFileSync, mkdirSync } from "node:fs";
 
-const BASE = "http://localhost:3000";
+const BASE = process.env.BASE || "http://127.0.0.1:3000";
 const OUT = "C:/Users/AIS/AppData/Local/Temp/opencode/audit";
 const label = process.argv[2] || "before";
 mkdirSync(OUT, { recursive: true });

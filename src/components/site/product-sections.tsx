@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site-url";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -32,6 +33,8 @@ import { FAQ } from "@/components/site/faq";
 import { ProductRecommendations } from "@/components/site/product-recommendations";
 import { FitHeading } from "@/components/site/fit-heading";
 import { InquiryForm } from "@/components/site/inquiry-form";
+import { InquiryFormFallback } from "@/components/site/inquiry-form-fallback";
+import { Suspense } from "react";
 import { SectionHeading } from "@/components/site/ui";
 import { MobileProductActions } from "@/components/site/product-experience";
 import { EventTracker } from "@/components/site/event-tracker";
@@ -552,29 +555,29 @@ export function TechnicalSpecificationsSection({ product }: { product: ProductDe
 
           {/* Right: specifications table */}
           <div className="overflow-hidden rounded-2xl border border-zinc-200 shadow-sm">
-            {/* Desktop striped rows */}
-            <div className="hidden sm:block">
+            {/*
+              One row per specification, name and value side by side, at every
+              width.
+
+              This used to be two separate lists: an inline table from `sm` up and
+              a `<details>` accordion below it, so on a phone every value was
+              hidden behind a tap. Comparing load ratings meant opening each row
+              in turn. The accordion is gone and both lists are now the same
+              inline rows, so a specification is readable in one glance on any
+              screen. The name column keeps its own width so values line up down
+              the table rather than each row splitting the space differently.
+            */}
+            <div className="divide-y divide-zinc-100">
               {product.specifications.map((spec, i) => (
                 <div
                   key={spec.id}
-                  className={`grid grid-cols-[1fr_1.2fr] gap-4 px-6 py-4 text-sm ${
+                  className={`grid grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] items-baseline gap-x-4 gap-y-1 px-5 py-3.5 text-sm sm:px-6 sm:py-4 ${
                     i % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"
-                  } ${i < product.specifications.length - 1 ? "border-b border-zinc-100" : ""}`}
+                  }`}
                 >
                   <span className="font-semibold text-zinc-800">{spec.specificationName}</span>
-                  <span className="text-zinc-600">{spec.specificationValue}</span>
+                  <span className="text-zinc-600 sm:text-[.95rem]">{spec.specificationValue}</span>
                 </div>
-              ))}
-            </div>
-            {/* Mobile accordion */}
-            <div className="divide-y divide-zinc-100 sm:hidden">
-              {product.specifications.map((spec) => (
-                <details key={spec.id} className="group px-5 py-4">
-                  <summary className="cursor-pointer list-none text-sm font-semibold text-zinc-800 after:float-right after:content-['+'] group-open:after:content-['−']">
-                    {spec.specificationName}
-                  </summary>
-                  <p className="mt-2 text-sm leading-6 text-zinc-600">{spec.specificationValue}</p>
-                </details>
               ))}
             </div>
             {/* Footer note */}
@@ -756,16 +759,14 @@ export function RealWorldSection({ projects, images }: { projects: ProductDetail
 export function FaqSection({ items }: { items: ProductDetail["faqs"] }) {
   if (!items.length) return null;
   return (
-    <section className="py-16">
-      <div className="container-shell grid gap-10 lg:grid-cols-[.7fr_1.3fr]">
-        <div>
-          <SectionHeading compact eyebrow="FAQs" title="Questions We Hear Often" />
-          <p className="mt-4 text-sm leading-7 text-zinc-500">Anything not covered here will be answered in your proposal — or by our team.</p>
-          <Link href="/contact" className="btn-secondary mt-6">Talk to Our Team <ArrowRight size={16} /></Link>
-        </div>
+    <div>
+      <SectionHeading compact eyebrow="FAQs" title="Questions We Hear Often" />
+      <p className="mt-4 text-sm leading-7 text-zinc-500">Anything not covered here will be answered in your proposal — or by our team.</p>
+      <Link href="/contact" className="btn-secondary mt-6">Talk to Our Team <ArrowRight size={16} /></Link>
+      <div className="mt-8">
         <FAQ items={items} />
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -841,19 +842,23 @@ export function FinalCtaSection({ product }: { product: ProductDetail }) {
           Talk to Rack &amp; Stack about your storage needs and project.
         </p>
         {/*
-          Full-width buttons on the smallest screens so the tap targets are
-          comfortable, then a centred row from `sm` up. `flex-col` on a
-          `w-full` parent cannot overflow: the children are stretched, not
-          sized to their own content.
+          Always one row, including the narrowest phones.
+
+          These used to be `flex-col ... w-full` below `sm`, so on any screen under
+          768px the two buttons stacked and pushed the band taller than the screen.
+          They now share the row at every width: `flex-1` on mobile so both stay
+          comfortable tap targets side by side, then intrinsic widths from `sm` up
+          where there is room for them. `whitespace-nowrap` keeps each label on a
+          single line rather than letting it wrap to two and unbalance the row.
         */}
-        <div className="mt-9 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-center">
+        <div className="mt-8 flex w-full items-stretch gap-2.5 sm:mt-9 sm:w-auto sm:justify-center sm:gap-3">
           <Link
             href={`/request-a-quote?product=${encodeURIComponent(product.slug)}`}
-            className="btn-primary w-full sm:w-auto"
+            className="btn-primary flex-1 justify-center whitespace-nowrap px-4 sm:flex-none sm:px-6"
           >
-            Get a Quote <ArrowRight size={17} />
+            Get a Quote <ArrowRight size={17} className="shrink-0" />
           </Link>
-          <Link href="/contact" className="btn-light w-full sm:w-auto">
+          <Link href="/contact" className="btn-light flex-1 justify-center whitespace-nowrap px-4 sm:flex-none sm:px-6">
             Talk to Our Team
           </Link>
         </div>
@@ -862,18 +867,52 @@ export function FinalCtaSection({ product }: { product: ProductDetail }) {
   );
 }
 
-export function FinalEnquirySection({ product, allProducts, allServices }: { product: ProductDetail; allProducts: ProductOption[]; allServices: Awaited<ReturnType<typeof getServices>> }) {
+/**
+ * The closing "ask a question" band: FAQs on the left, quote form on the right.
+ *
+ * These were two full-width bands stacked on top of each other, so a visitor had
+ * to scroll past the whole FAQ list before reaching the form, and the form itself
+ * started far enough down the page that on a phone it opened below the fold. They
+ * are one band now: from `lg` up the FAQ column sits beside the form, and below
+ * that they stack with the form first, because on a small screen the form is what
+ * the visitor came for and the FAQ is the fallback for someone who is not ready
+ * to enquire yet.
+ *
+ * `order` does the stacking: on mobile the heading and form come first and the
+ * FAQ list follows; from `lg` up both columns return to source order, which is
+ * FAQ on the left.
+ */
+export function FaqAndEnquirySection({
+  product,
+  items,
+  allProducts,
+  allServices,
+}: {
+  product: ProductDetail;
+  items: ProductDetail["faqs"];
+  allProducts: ProductOption[];
+  allServices: Awaited<ReturnType<typeof getServices>>;
+}) {
+  const hasFaqs = items.length > 0;
   return (
-    <section className="surface-grid bg-[#f4f4f1] py-20">
+    <section className="surface-grid bg-[#f4f4f1] py-12 sm:py-14 lg:py-20">
       <div className="container-shell">
-        {/* Capped and centred for the same reason as the standalone quote page:
-            the form is a working area, not a full-bleed panel. */}
-        <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[.7fr_1.3fr] lg:gap-12">
-          <div>
-            <h2 className="heading-md text-balance">Tell Us What You Need to Store</h2>
-            <p className="mt-4 text-sm leading-6 text-zinc-500">Share your space, item sizes, maximum loads and handling method if you know them — we&apos;ll come back with setup options.</p>
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-14">
+          {/* Mobile-first order: form before FAQs, restored on desktop. */}
+          <div className="order-2 lg:order-1">
+            {hasFaqs ? <FaqSection items={items} /> : null}
           </div>
-          <InquiryForm products={allProducts} services={allServices} defaultProduct={product.id} />
+          <div className="order-1 lg:order-2">
+            <h2 className="heading-md text-balance">Tell Us What You Need to Store</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-500">
+              Share your space, item sizes, maximum loads and handling method if you know them — we&apos;ll come back with setup options.
+            </p>
+            <div className="mt-6">
+              <Suspense fallback={<InquiryFormFallback />}>
+                <InquiryForm products={allProducts} services={allServices} defaultProduct={product.id} />
+              </Suspense>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -919,7 +958,9 @@ export function CompactContactSection({ product, allProducts, allServices }: { p
         </div>
         {/* Right: compact form */}
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8 backdrop-blur">
-          <InquiryForm products={allProducts} services={allServices} defaultProduct={product.id} compact />
+          <Suspense fallback={<InquiryFormFallback compact />}>
+            <InquiryForm products={allProducts} services={allServices} defaultProduct={product.id} compact />
+          </Suspense>
         </div>
       </div>
     </section>
@@ -944,7 +985,7 @@ export function ProductSectionsLayout({
 }) {
   // Only used to describe the reels as VideoObjects; the product's own metadata
   // already owns the canonical URL.
-  const productUrl = `${process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? ""}/products/${product.slug}`;
+  const productUrl = `${siteOrigin()}/products/${product.slug}`;
   return (
     <>
       <EventTracker eventName="product_view" entityType={entityType} entityId={product.id} />
@@ -980,10 +1021,18 @@ export function ProductSectionsLayout({
       {product.showBenefits ? <Reveal><BenefitsSection items={product.benefits} /></Reveal> : null}
       <Reveal><WorkflowSection /></Reveal>
       {product.projects.length > 0 ? <Reveal><RealWorldSection projects={product.projects} images={product.images} /></Reveal> : null}
-      {product.showFaq ? <Reveal><FaqSection items={product.faqs} /></Reveal> : null}
       {product.showRelated ? <RelatedSection product={product} /> : null}
       <Reveal><FinalCtaSection product={product} /></Reveal>
-      <FinalEnquirySection product={product} allProducts={allProducts} allServices={allServices} />
+      {/*
+        FAQs and the quote form are one band: FAQ left, form right on desktop,
+        stacked with the form first on mobile. See `FaqAndEnquirySection`.
+      */}
+      <FaqAndEnquirySection
+        product={product}
+        items={product.showFaq ? product.faqs : []}
+        allProducts={allProducts}
+        allServices={allServices}
+      />
     </>
   );
 }

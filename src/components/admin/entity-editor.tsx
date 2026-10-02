@@ -245,7 +245,6 @@ const configs: Record<string, Field[]> = {
     { key: "googleVerification", label: "Google verification token" },
     { key: "canonicalBaseUrl", label: "Canonical base URL", type: "url" },
     { key: "organizationSchema", label: "Organization schema (JSON)", type: "json" },
-    { key: "socialLinks", label: "Social links (JSON)", type: "json" },
   ],
   settings: [
     { key: "companyName", label: "Company name", required: true },
@@ -261,6 +260,19 @@ const configs: Record<string, Field[]> = {
     { key: "copyright", label: "Copyright text" },
     { key: "googleMapsEmbed", label: "Google Maps embed URL", type: "url" },
     { key: "brochureUrl", label: "Catalog PDF URL", type: "url", help: "Upload the PDF to Cloudinary or another approved HTTPS asset host." },
+    /*
+      Social URLs as one field each rather than the `socialLinks` JSON blob.
+
+      They still all save into the single `socialLinks` record the footer reads
+      (see `socialLinkFields` below), so the URLs are defined in exactly one
+      place and nothing is hardcoded in a component. Editing JSON by hand to add
+      an Instagram handle is the kind of thing that gets abandoned, and a typo in
+      that blob renders as a broken footer row.
+    */
+    { key: "socialInstagram", label: "Instagram URL", type: "url", help: "Shown in the footer social row." },
+    { key: "socialLinkedin", label: "LinkedIn URL", type: "url" },
+    { key: "socialFacebook", label: "Facebook URL", type: "url" },
+    { key: "socialGoogle", label: "Google Business / Maps URL", type: "url" },
     { key: "catalogTitle", label: "Catalog title" },
     { key: "catalogDescription", label: "Catalog description", type: "textarea" },
     { key: "catalogLeadGated", label: "Require contact details before download", type: "checkbox" },
@@ -419,6 +431,12 @@ function ProductEditor({
     specifications: initial.specifications || [],
     applications: initial.applications || [],
     images: initial.images || [],
+    // Flatten `socialLinks` into one field per network for the Settings form.
+    // The record is still the single store; `submit` folds these back into it.
+    ...socialLinkFields.reduce<Record<string, string>>((acc, [network, key]) => {
+      acc[key] = String((initial.socialLinks as Record<string, string> | undefined)?.[network] ?? "");
+      return acc;
+    }, {}),
     gallery: (initial.gallery as GalleryRow[] | undefined) || [],
     sections: (initial.sections as SectionRow[] | undefined) || [],
     benefits: initial.benefits || [],
@@ -1333,6 +1351,26 @@ function ServiceEditor({
         payload[field.key] = (payload[field.key] as string).split("\n").map((l) => l.trim()).filter(Boolean);
       }
     }
+    // Fold the per-network social fields back into the single `socialLinks`
+    // record the footer reads, and drop the flat keys so they are never written
+    // as columns of their own. An emptied field removes the key, which is what
+    // makes the footer show that network as unconfigured again.
+    //
+    // Gated on the fields existing at all, so only Settings writes the key.
+    // Without that gate every product and service save would gain an empty
+    // `socialLinks` column it has nothing to do with.
+    if (socialLinkFields.some(([, key]) => key in data)) {
+      const socialLinks: Record<string, string> = {
+        ...((data.socialLinks as Record<string, string> | undefined) ?? {}),
+      };
+      for (const [network, key] of socialLinkFields) {
+        const value = String(payload[key] ?? "").trim();
+        if (value) socialLinks[network] = value;
+        else delete socialLinks[network];
+        delete payload[key];
+      }
+      payload.socialLinks = socialLinks;
+    }
     onSave(payload);
   }
 
@@ -1408,6 +1446,14 @@ function ServiceEditor({
     </form>
   );
 }
+
+/** Network id -> the flat form field that edits it. Both sides of one mapping. */
+const socialLinkFields: Array<[string, string]> = [
+  ["instagram", "socialInstagram"],
+  ["linkedin", "socialLinkedin"],
+  ["facebook", "socialFacebook"],
+  ["google", "socialGoogle"],
+];
 
 export function EntityEditor({
   entity,

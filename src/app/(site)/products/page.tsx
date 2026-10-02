@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight, Download } from "lucide-react";
 import { SectionHeading } from "@/components/site/ui";
 import { SmartImage } from "@/components/site/smart-image";
 import { CatalogueProductBrowser } from "@/components/site/catalogue-product-browser";
+import { CatalogueProductBrowserFallback } from "@/components/site/catalogue-product-browser-fallback";
 import { TrustedByStrip } from "@/components/site/trusted-by-strip";
 import { ReelShowcase } from "@/components/media/reel-showcase";
 import { catalogueCategories, catalogueProducts, toBrowserCategories } from "@/lib/catalogue";
@@ -16,9 +18,18 @@ export const metadata: Metadata = {
   description: "Explore 32 storage, racking, material-handling and workplace storage products from Rack & Stack.",
 };
 
-export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
-  const [{ category }, reels, logos] = await Promise.all([
-    searchParams,
+/**
+ * No `searchParams` here any more.
+ *
+ * The page used to `await searchParams` purely to hand `?category=` to the
+ * catalogue browser, which made the route dynamic: nothing was prerendered, so
+ * every visit rebuilt the page, and on a cold start that meant re-reading the
+ * catalogue plus the reel videos and client logos. The query string is now read
+ * by the browser component, wrapped in Suspense below so this stays statically
+ * rendered while `/products?category=industrial-storage` still opens on that tab.
+ */
+export default async function ProductsPage() {
+  const [reels, logos] = await Promise.all([
     getProductsReelVideos(10),
     getClientLogos(),
   ]);
@@ -55,7 +66,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             </div>
           </div>
           <div id="catalogue" className="mt-12">
-            <CatalogueProductBrowser products={catalogueProducts} categories={toBrowserCategories(catalogueCategories)} initialCategory={category} />
+            {/* `useSearchParams` in the browser needs a Suspense boundary for the
+                page to stay statically rendered. The fallback matches the
+                unfiltered grid the component shows first anyway. */}
+            <Suspense fallback={<CatalogueProductBrowserFallback />}>
+              <CatalogueProductBrowser products={catalogueProducts} categories={toBrowserCategories(catalogueCategories)} />
+            </Suspense>
           </div>
         </div>
       </section>

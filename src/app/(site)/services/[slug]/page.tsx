@@ -1,15 +1,19 @@
+import { siteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { getCurrentUser } from "@/lib/auth";
 import { getIndustries, getProducts, getServiceBySlug, getServiceReelVideos, getServices } from "@/lib/data";
+import { Suspense } from "react";
 import { ReelShowcase } from "@/components/media/reel-showcase";
+import { InquiryFormFallback } from "@/components/site/inquiry-form-fallback";
 import { CTASection, JsonLd, SectionHeading } from "@/components/site/ui";
 import { SmartImage } from "@/components/site/smart-image";
 import { FAQ } from "@/components/site/faq";
 import { InquiryForm } from "@/components/site/inquiry-form";
 import { Stagger, StaggerItem } from "@/components/site/reveal";
+
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const services = await getServices();
@@ -29,13 +33,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ServicePage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ preview?: string }>;
 }) {
-  const [{ slug }, { preview }] = await Promise.all([params, searchParams]);
-  const item = await getServiceBySlug(slug, preview === "1" && Boolean(await getCurrentUser()));
+  // `preview` is deliberately not read here. Awaiting `searchParams` and the
+  // session cookie made this route render on every request; an unpublished
+  // service is previewed from the Admin instead, so the public page stays
+  // static and is regenerated on the revalidate window above.
+  const { slug } = await params;
+  const item = await getServiceBySlug(slug, false);
   if (!item) notFound();
 
   const [industries, products, allServices, reels] = await Promise.all([
@@ -55,7 +61,7 @@ export default async function ServicePage({
     })),
   };
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "";
+  const siteUrl = siteOrigin();
   const serviceUrl = `${siteUrl}/services/${item.slug}`;
 
   return (
@@ -196,7 +202,9 @@ export default async function ServicePage({
         <div className="container-shell">
           <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[.7fr_1.3fr] lg:gap-12">
             <SectionHeading compact eyebrow="Get in touch" title="Tell Us What You Need." />
-            <InquiryForm products={products} services={allServices} defaultService={item.id} />
+            <Suspense fallback={<InquiryFormFallback />}>
+              <InquiryForm products={products} services={allServices} defaultService={item.id} />
+            </Suspense>
           </div>
         </div>
       </section>

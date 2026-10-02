@@ -1,0 +1,17 @@
+﻿import { sql } from "./_harness.mts";
+console.log("--- leftover ZZAudit rows across tables ---");
+const r = await sql(`select id, title, slug, deleted_at, status from pages where title like $1`, ["%ZZAudit%"]);
+console.log("pages:", JSON.stringify(r));
+const s = await sql(`select id, name, slug, status from services where name like $1`, ["%ZZAudit%"]);
+console.log("services:", JSON.stringify(s));
+const p = await sql(`select id, title, slug, status from projects where title like $1`, ["%ZZAudit%"]);
+console.log("projects:", JSON.stringify(p));
+const b = await sql(`select id, title, slug, status, deleted_at from blog_posts where title like $1`, ["%ZZAudit%"]);
+console.log("blog:", JSON.stringify(b));
+const t = await sql(`select id, client_name, status from testimonials where client_name like $1`, ["%ZZAudit%"]);
+console.log("testimonials:", JSON.stringify(t));
+const o = await sql(`select id, title, slug, is_active from home_offer_cards where title like $1`, ["%ZZAudit%"]);
+console.log("offers:", JSON.stringify(o));
+const a = await sql(`select id, section_key, label, kind, is_active from about_sections where section_key like $1 or label like $2`, ["%zz-audit-%","%ZZAudit%"]);
+console.log("about:", JSON.stringify(a));
+process.exit(0);

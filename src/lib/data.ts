@@ -1006,6 +1006,33 @@ export async function getPage(slug: string, preview = false) {
   return fallback ? (reviveDates(fallback as unknown as Record<string, unknown>) as typeof pages.$inferSelect) : null;
 }
 
+/**
+ * The slugs of every published CMS page, for `generateStaticParams`.
+ *
+ * Reads the published collection first so prerendering never needs the database,
+ * and falls back to the table only when the published file has not been written.
+ * Drafts and soft-deleted pages are excluded so they cannot be prerendered into
+ * the public build.
+ */
+export async function getPageSlugs(): Promise<string[]> {
+  const published = await readCollection<Array<{ slug?: unknown; status?: unknown; deletedAt?: unknown }>>("pages");
+  const fromStatic = (published ?? [])
+    .filter((row) => row.status === "PUBLISHED" && !row.deletedAt && typeof row.slug === "string")
+    .map((row) => row.slug as string);
+  if (fromStatic.length > 0) return [...new Set(fromStatic)];
+
+  try {
+    const rows = await db
+      .select({ slug: pages.slug })
+      .from(pages)
+      .where(and(eq(pages.status, "PUBLISHED"), isNull(pages.deletedAt)));
+    return [...new Set(rows.map((row) => row.slug))];
+  } catch {
+    const fallback = await bootstrapPages();
+    return [...new Set(fallback.filter((row) => row.status === "PUBLISHED" && !row.deletedAt).map((row) => row.slug))];
+  }
+}
+
 export async function getBlogPosts() {
   const staticPosts = await readCollection<StaticBlogPostWithCategory[]>("blogPosts");
   if (staticPosts && staticPosts.length > 0) {
@@ -1032,7 +1059,16 @@ export async function getBlogPosts() {
   }
   const posts = await bootstrapBlogPosts();
   const categories = bootstrapBlogCategories();
-  return posts.map((post) => ({ post: post as unknown as typeof blogPosts.$inferSelect, category: categories.find((item) => item.id === post.categoryId) ?? null }));
+  // Same revival as `getBlogPost`: bootstrap rows hold ISO strings, not Dates.
+  return posts.map((post) => {
+    const category = categories.find((item) => item.id === post.categoryId);
+    return {
+      post: reviveDates(post as unknown as Record<string, unknown>) as typeof blogPosts.$inferSelect,
+      category: category
+        ? (reviveDates(category as unknown as Record<string, unknown>) as typeof blogCategories.$inferSelect)
+        : null,
+    };
+  });
 }
 
 export async function getBlogPost(slug: string, preview = false) {
@@ -1063,7 +1099,17 @@ export async function getBlogPost(slug: string, preview = false) {
   const posts = await bootstrapBlogPosts();
   const post = posts.find((item) => item.slug === slug);
   if (!post) return null;
-  return { post: post as unknown as typeof blogPosts.$inferSelect, category: bootstrapBlogCategories().find((item) => item.id === post.categoryId) ?? null };
+  // Bootstrap rows carry ISO strings (`publishedAt: EPOCH`), so they have to be
+  // revived like the static-file rows above. Without this the cast lies: the
+  // page calls `post.publishedAt?.toISOString()` and throws while prerendering
+  // any post that only exists in the bootstrap set.
+  const category = bootstrapBlogCategories().find((item) => item.id === post.categoryId);
+  return {
+    post: reviveDates(post as unknown as Record<string, unknown>) as typeof blogPosts.$inferSelect,
+    category: category
+      ? (reviveDates(category as unknown as Record<string, unknown>) as typeof blogCategories.$inferSelect)
+      : null,
+  };
 }
 
 export async function getRedirectPath(sourcePath: string) {

@@ -1,5 +1,6 @@
-﻿"use client";
+"use client";
 
+import { useSearchParams } from "next/navigation";
 import { useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import {
@@ -18,6 +19,7 @@ type ProductOption = {
 type ServiceOption = {
   id: number;
   name: string;
+  slug: string;
 };
 
 type InquiryFormProps = {
@@ -78,7 +80,7 @@ function emptyValues(defaultProduct?: number | string, defaultService?: number):
  * and discards its state. It also trips `react-hooks/static-components`.
  *
  * `id` is passed in rather than derived from a field name so the element the
- * message describes and the message itself cannot drift apart â€” the `aria-describedby`
+ * message describes and the message itself cannot drift apart — the `aria-describedby`
  * on the input and the `id` here must be the same string.
  */
 function FieldError({ id, message }: { id: string; message: string | undefined }) {
@@ -97,7 +99,28 @@ export function InquiryForm({
   defaultService,
   compact = false,
 }: InquiryFormProps) {
-  const [values, setValues] = useState<FormValues>(() => emptyValues(defaultProduct, defaultService));
+  /*
+   * `?product=` / `?service=` deep links are resolved here rather than in the
+   * server page.
+   *
+   * The page used to `await searchParams` to turn those two slugs into ids, which
+   * made `/request-a-quote` dynamic: it re-rendered on every visit and its data
+   * fetch fell back to the database. The only thing the query string decided was
+   * which two dropdowns start pre-selected, and this component already holds both
+   * option lists, so it can do that lookup itself. Explicit `defaultProduct` /
+   * `defaultService` props still win, which keeps any other caller unaffected.
+   */
+  const searchParams = useSearchParams();
+  const productFromUrl = searchParams.get("product");
+  const serviceFromUrl = searchParams.get("service");
+  const resolvedProduct =
+    defaultProduct ??
+    (productFromUrl ? products.find((product) => product.slug === productFromUrl)?.id : undefined);
+  const resolvedService =
+    defaultService ??
+    (serviceFromUrl ? services.find((service) => service.slug === serviceFromUrl)?.id : undefined);
+
+  const [values, setValues] = useState<FormValues>(() => emptyValues(resolvedProduct, resolvedService));
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -107,7 +130,7 @@ export function InquiryForm({
    * Synchronous duplicate-submission guard.
    *
    * `loading` is React state, so it is not yet `true` when a second click's
-   * handler runs in the same tick â€” two rapid clicks can both pass a
+   * handler runs in the same tick — two rapid clicks can both pass a
    * `if (loading) return` check. A ref is written immediately, so the second
    * submit is rejected before it can produce a second POST. `disabled={loading}`
    * alone does not cover this.
@@ -200,7 +223,7 @@ export function InquiryForm({
 
       if (response.ok) {
         // Only now is it safe to discard what the visitor typed.
-        setValues(emptyValues(defaultProduct, defaultService));
+        setValues(emptyValues(resolvedProduct, resolvedService));
         setSucceeded(true);
         return;
       }
@@ -226,19 +249,19 @@ export function InquiryForm({
       } else if (response.status === 403) {
         setError("Your session could not be verified. Please refresh the page and try again.");
       } else if (response.status >= 500) {
-        setError("Our system is temporarily unavailable. Your details are still here â€” please try again shortly.");
+        setError("Our system is temporarily unavailable. Your details are still here — please try again shortly.");
       } else {
         setError(detail || "Please check your details and try again.");
       }
     } catch {
-      setError("We could not reach our server. Your details are still here â€” please check your connection and try again.");
+      setError("We could not reach our server. Your details are still here — please check your connection and try again.");
     } finally {
       submittingRef.current = false;
       setLoading(false);
     }
   }
 
-  const fullWidth = compact ? "" : "sm:col-span-2";
+  const fullWidth = compact ? "" : "min-[380px]:col-span-2";
 
   function fieldProps(field: FieldName, extraClass = "") {
     const invalid = Boolean(fieldErrors[field]);
@@ -284,7 +307,7 @@ export function InquiryForm({
 
   return (
     /*
-     * Field names, validation and the submitted payload are untouched â€” only the
+     * Field names, validation and the submitted payload are untouched — only the
      * box model and the row rhythm are tighter. `gap-y-3.5` against `gap-x-4`
      * keeps columns close without letting stacked rows drift apart, and the
      * three optional detail fields share one row on desktop so the form is a row
@@ -292,7 +315,7 @@ export function InquiryForm({
      */
     <form
       onSubmit={submit}
-      className={`grid gap-x-4 gap-y-3.5 ${compact ? "" : "sm:grid-cols-2"}`}
+      className={`grid gap-x-3 gap-y-3 ${compact ? "" : "min-[380px]:grid-cols-2"}`}
       noValidate
       aria-busy={loading}
     >
@@ -437,7 +460,7 @@ export function InquiryForm({
         <button type="submit" className="btn-primary btn-compact w-full" disabled={loading}>
           {loading ? (
             <>
-              <Loader2 size={16} className="animate-spin" aria-hidden="true" /> Sendingâ€¦
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" /> Sending…
             </>
           ) : (
             "Send enquiry"

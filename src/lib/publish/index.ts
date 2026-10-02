@@ -426,7 +426,7 @@ async function generateSliders() {
       ),
     )
     .orderBy(asc(homeSliders.sortOrder));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
   const output: Record<string, unknown>[] = [];
   for (const row of rows) {
     const desktop = await asset("hero", `slide-${row.sortOrder}`, row.imageUrl, `slider:${row.id}`);
@@ -478,7 +478,7 @@ export async function generateProducts() {
     .from(products)
     .where(and(eq(products.status, "PUBLISHED"), isNull(products.deletedAt)))
     .orderBy(asc(products.displayOrder));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
 
   const ids = rows.map((row) => row.id);
   const order = <T>(column: T) => asc(column as never);
@@ -664,7 +664,7 @@ export async function generateServices() {
     .from(services)
     .where(and(eq(services.status, "PUBLISHED"), isNull(services.deletedAt)))
     .orderBy(asc(services.displayOrder));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
 
   const ids = rows.map((row) => row.id);
   const order = <T>(column: T) => asc(column as never);
@@ -745,7 +745,7 @@ export async function generateProjects() {
     .from(projects)
     .where(and(eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt)))
     .orderBy(desc(projects.projectDate));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
 
   const ids = rows.map((row) => row.id);
   const [images, productRows] = await Promise.all([
@@ -801,7 +801,7 @@ export async function generateClientLogos() {
     .from(clientLogos)
     .where(eq(clientLogos.isActive, true))
     .orderBy(asc(clientLogos.sortOrder), asc(clientLogos.id));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
   return serialize(
     await mapImageColumns(rows, [
       { key: "imageUrl", group: "clients", name: (row) => row.name, entityKey: (row) => `client-logo:${row.id}` },
@@ -811,7 +811,7 @@ export async function generateClientLogos() {
 
 export async function generateIndustries() {
   const rows = await db.select().from(industries).where(eq(industries.status, "PUBLISHED")).orderBy(asc(industries.displayOrder));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
 
   const ids = rows.map((row) => row.id);
   const [assignedProducts, assignedServices, allProducts, allServices] = await Promise.all([
@@ -879,7 +879,7 @@ export async function generateIndustries() {
 
 export async function generateGallery() {
   const rows = await db.select().from(gallery).where(eq(gallery.status, "PUBLISHED")).orderBy(asc(gallery.displayOrder));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
   return serialize(
     await mapImageColumns(rows, [
       { key: "imageUrl", group: "gallery", name: (row) => row.title, entityKey: (row) => `gallery:${row.id}` },
@@ -923,7 +923,7 @@ export async function generateBlogPosts() {
     .leftJoin(blogCategories, eq(blogPosts.categoryId, blogCategories.id))
     .where(and(eq(blogPosts.status, "PUBLISHED"), isNull(blogPosts.deletedAt)))
     .orderBy(desc(blogPosts.publishedAt));
-  if (posts.length === 0) return null;
+  if (posts.length === 0) return [];
   const output: Record<string, unknown>[] = [];
   for (const entry of posts) {
     const featured = await asset("blog", entry.post.slug, entry.post.featuredImage, `blog:${entry.post.id}`);
@@ -940,19 +940,19 @@ export async function generateBlogPosts() {
 
 export async function generateBlogCategories() {
   const rows = await db.select().from(blogCategories).orderBy(asc(blogCategories.id));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
   return serialize(rows);
 }
 
 export async function generateFaqs() {
   const rows = await db.select().from(faqs).where(eq(faqs.status, "PUBLISHED")).orderBy(asc(faqs.displayOrder));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
   return serialize(rows);
 }
 
 export async function generatePages() {
   const rows = await db.select().from(pages).where(and(eq(pages.status, "PUBLISHED"), isNull(pages.deletedAt)));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
   return serialize(
     await mapImageColumns(rows, [
       { key: "heroImage", group: "misc", name: (row) => row.slug, entityKey: (row) => `page:${row.id}` },
@@ -962,7 +962,7 @@ export async function generatePages() {
 
 export async function generateRedirects() {
   const rows = await db.select().from(redirects).orderBy(asc(redirects.sourcePath));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
   return serialize(rows);
 }
 
@@ -993,7 +993,7 @@ async function generateVideos() {
       ),
     )
     .orderBy(asc(videos.displayOrder));
-  if (rows.length === 0) return null;
+  if (rows.length === 0) return [];
 
   const [productLinks, serviceLinks] = await Promise.all([
     db
@@ -1190,6 +1190,18 @@ export async function loadIndustryDetail(slug: string) {
 // Orchestration
 // ---------------------------------------------------------------------------
 
+/**
+ * Every collection's generator.
+ *
+ * Contract: a generator must return the complete published value for its
+ * collection, including `[]` when nothing is published. Returning `null` to mean
+ * "nothing to do" looks harmless but is not: `publishWithinScope` skips a `null`
+ * and leaves the previous JSON on disk, and because the public pages prefer the
+ * published file over the database, deleting or switching off the last row of a
+ * collection left that row rendering on the live site indefinitely while every
+ * publish reported success. `null` is reserved for media that cannot be made
+ * local, where the entry is logged in the publish result instead.
+ */
 const generators: Partial<Record<CollectionKey, () => Promise<unknown>>> = {
   site: generateSettings,
   seo: generateSeo,

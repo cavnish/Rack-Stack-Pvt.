@@ -32,6 +32,12 @@ export const metadata: Metadata = {
     "Contact Rack & Stack Storage Systems about racking, shelving, mezzanine and custom storage requirements. Call, WhatsApp, email or visit our office.",
 };
 
+const officeCoordinates = "19.4375089,72.8821406";
+
+const officeMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(officeCoordinates)}`;
+
+const officeEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(officeCoordinates)}&hl=en&z=16&output=embed`;
+
 const whyItems = [
   {
     icon: Ruler,
@@ -228,26 +234,43 @@ export default async function ContactPage() {
             align="center"
           />
           <Reveal delay={0.1} className="mt-10">
-            <div className="relative overflow-hidden border border-zinc-200 bg-zinc-100">
-              <div className="grid min-h-[400px] place-items-center p-8 sm:min-h-[480px]">
-                <div className="text-center">
-                  <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-red-600 text-white shadow-lg">
-                    <MapPin size={28} />
+            <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-[0_18px_50px_-30px_rgba(0,0,0,0.45)]">
+              <div className="flex flex-col gap-5 border-b border-zinc-100 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                <div className="flex items-start gap-4">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-red-50 text-red-600">
+                    <MapPin size={20} />
                   </span>
-                  <p className="mt-4 text-lg font-bold text-zinc-900">{settings.companyName}</p>
-                  <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-zinc-600">
-                    {settings.address}
-                  </p>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-primary mt-6"
-                  >
-                    <Compass size={16} />
-                    Open in Google Maps
-                  </a>
+                  <div>
+                    <p className="text-[.65rem] font-bold uppercase tracking-[.14em] text-zinc-400">
+                      Head Office
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-zinc-900">
+                      {settings.companyName}
+                    </p>
+                    <p className="mt-1 max-w-xl text-sm leading-6 text-zinc-600">
+                      {settings.address}
+                    </p>
+                  </div>
                 </div>
+                <a
+                  href={officeMapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-primary w-full shrink-0 sm:w-auto"
+                >
+                  <Compass size={16} />
+                  Open in Google Maps
+                </a>
+              </div>
+              <div className="relative h-[320px] w-full bg-zinc-100 sm:h-[420px] lg:h-[520px]">
+                <iframe
+                  src={officeEmbedUrl}
+                  title={`Google Maps — ${settings.companyName}, ${settings.address}`}
+                  className="absolute inset-0 block h-full w-full border-0"
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
             </div>
           </Reveal>

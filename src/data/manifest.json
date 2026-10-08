@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-08T12:29:03.816Z",
+  "generatedAt": "2026-10-08T14:23:54.363Z",
   "collections": {
     "blogPosts": {
       "hash": "97d170e1550eee4a",
@@ -13,8 +13,8 @@
       "count": 5
     },
     "routes": {
-      "hash": "e0cc6367553d3b9a",
-      "generatedAt": "2026-10-08T12:29:03.816Z",
+      "hash": "23bedd2b666c72ea",
+      "generatedAt": "2026-10-08T14:23:54.363Z",
       "count": 1
     },
     "site": {
@@ -43,8 +43,8 @@
       "count": 12
     },
     "sliders": {
-      "hash": "589930a0021405b2",
-      "generatedAt": "2026-10-08T12:02:42.663Z",
+      "hash": "a304f75b140de8b0",
+      "generatedAt": "2026-10-08T14:23:54.331Z",
       "count": 3
     },
     "pages": {

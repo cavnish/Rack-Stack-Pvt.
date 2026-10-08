@@ -40,6 +40,25 @@ type CatalogueProductBrowserProps = {
 
 type SortOption = "featured" | "az";
 
+/**
+ * The one value every filter select uses to mean "no restriction".
+ *
+ * Category, application, industry and product type all start on it, reset to
+ * it and render their "All ..." option with it, so no filter can hold a value
+ * the others do not understand.
+ */
+const ALL = "all";
+
+/**
+ * True when a filter value means "show everything".
+ *
+ * An empty string counts as `ALL` too, so a blank `?category=` deep link can
+ * never be mistaken for a real category slug.
+ */
+function isAllFilter(value: string | null | undefined): boolean {
+  return !value || value === ALL;
+}
+
 export function CatalogueProductBrowser({
   products,
   categories,
@@ -68,12 +87,13 @@ export function CatalogueProductBrowser({
     [categories],
   );
   const requestedCategory = initialCategory ?? searchParams.get("category") ?? undefined;
-  const initialCategoryValue = requestedCategory && categoryNameBySlug.has(requestedCategory) ? requestedCategory : "all";
+  const initialCategoryValue =
+    requestedCategory && categoryNameBySlug.has(requestedCategory) ? requestedCategory : ALL;
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState(initialCategoryValue);
-  const [application, setApplication] = useState("all");
-  const [industry, setIndustry] = useState("all");
-  const [productType, setProductType] = useState("all");
+  const [application, setApplication] = useState(ALL);
+  const [industry, setIndustry] = useState(ALL);
+  const [productType, setProductType] = useState(ALL);
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [sort, setSort] = useState<SortOption>("featured");
 
@@ -88,10 +108,10 @@ export function CatalogueProductBrowser({
   const visibleProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     const filtered = products.filter((product) => {
-      if (effectiveCategory && product.category !== effectiveCategory) return false;
-      if (application !== "all" && !product.applications.includes(application)) return false;
-      if (industry !== "all" && !product.industries.includes(industry)) return false;
-      if (productType !== "all" && getProductTypeLabel(product) !== productType) return false;
+      if (!isAllFilter(effectiveCategory) && product.category !== effectiveCategory) return false;
+      if (!isAllFilter(application) && !product.applications.includes(application)) return false;
+      if (!isAllFilter(industry) && !product.industries.includes(industry)) return false;
+      if (!isAllFilter(productType) && getProductTypeLabel(product) !== productType) return false;
       if (featuredOnly && !product.featured) return false;
       if (!normalizedQuery) return true;
       return getProductSearchText(product).includes(normalizedQuery);
@@ -107,19 +127,19 @@ export function CatalogueProductBrowser({
 
   const hasFilters = Boolean(
     query ||
-      application !== "all" ||
-      industry !== "all" ||
-      productType !== "all" ||
+      !isAllFilter(application) ||
+      !isAllFilter(industry) ||
+      !isAllFilter(productType) ||
       featuredOnly ||
-      (!lockedCategory && category !== "all"),
+      (!lockedCategory && !isAllFilter(category)),
   );
 
   function resetFilters() {
     setQuery("");
-    if (!lockedCategory) setCategory("all");
-    setApplication("all");
-    setIndustry("all");
-    setProductType("all");
+    if (!lockedCategory) setCategory(ALL);
+    setApplication(ALL);
+    setIndustry(ALL);
+    setProductType(ALL);
     setFeaturedOnly(false);
     setSort("featured");
   }
@@ -175,13 +195,13 @@ export function CatalogueProductBrowser({
             </label>
             <select
               id={categorySelectId}
-              value={effectiveCategory}
+              value={isAllFilter(effectiveCategory) ? ALL : effectiveCategory}
               onChange={(event) => setCategory(event.target.value)}
               disabled={Boolean(lockedCategory)}
               aria-describedby={lockedCategory ? `${filterId}-locked-category` : undefined}
               className="form-field disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-600"
             >
-              <option value="all">All categories</option>
+              <option value={ALL}>All categories</option>
               {categories.map((item) => (
                 <option key={item.slug} value={item.slug}>
                   {item.name}
@@ -205,7 +225,7 @@ export function CatalogueProductBrowser({
               onChange={(event) => setApplication(event.target.value)}
               className="form-field"
             >
-              <option value="all">All applications</option>
+              <option value={ALL}>All applications</option>
               {applications.map((item) => (
                 <option key={item} value={item}>
                   {item}
@@ -224,7 +244,7 @@ export function CatalogueProductBrowser({
               onChange={(event) => setIndustry(event.target.value)}
               className="form-field"
             >
-              <option value="all">All industries</option>
+              <option value={ALL}>All industries</option>
               {industries.map((item) => (
                 <option key={item} value={item}>
                   {item}
@@ -243,7 +263,7 @@ export function CatalogueProductBrowser({
               onChange={(event) => setProductType(event.target.value)}
               className="form-field"
             >
-              <option value="all">All product types</option>
+              <option value={ALL}>All product types</option>
               {productTypes.map((item) => (
                 <option key={item} value={item}>
                   {item}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-02T12:13:15.477Z",
+  "updatedAt": "2026-10-08T12:22:40.821Z",
   "assets": {
     "hero:https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000": {
       "url": "/assets/images/hero/warehouse-pallet-storage-hero-374ec6e177.webp",
@@ -1082,6 +1082,71 @@
       "group": "hero",
       "name": "slide-999",
       "etag": "\"3e297c2d8da6cb1310727332e862ece4\""
+    },
+    "hero:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791460952/rack-stack/home-sliders/riiklbmhsi822jmqvtq5.jpg": {
+      "url": "/assets/images/hero/home-sliders-riiklbmhsi822jmqvtq5-26d3b02e35.webp",
+      "width": 1600,
+      "height": 1200,
+      "aspectRatio": 1.3333,
+      "bytes": 221546,
+      "hash": "26d3b02e35",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791460952/rack-stack/home-sliders/riiklbmhsi822jmqvtq5.jpg",
+      "cached": false,
+      "group": "hero",
+      "name": "home-sliders-riiklbmhsi822jmqvtq5",
+      "etag": "\"809a69c4be2d09398e43390beb6619f6\""
+    },
+    "clients:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791461637/rack-stack/client-logos/csl1asldecnrjisbachz.jpg": {
+      "url": "/assets/images/clients/client-logos-csl1asldecnrjisbachz-14374584fd.webp",
+      "width": 600,
+      "height": 450,
+      "aspectRatio": 1.3333,
+      "bytes": 5658,
+      "hash": "14374584fd",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791461637/rack-stack/client-logos/csl1asldecnrjisbachz.jpg",
+      "cached": false,
+      "group": "clients",
+      "name": "client-logos-csl1asldecnrjisbachz",
+      "etag": "\"3160fecbd884f9c9de6e068773b4a4f6\""
+    },
+    "clients:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791461682/rack-stack/client-logos/urbivhgbim1ubnakkteb.jpg": {
+      "url": "/assets/images/clients/client-logos-urbivhgbim1ubnakkteb-d330da4138.webp",
+      "width": 512,
+      "height": 512,
+      "aspectRatio": 1,
+      "bytes": 9930,
+      "hash": "d330da4138",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791461682/rack-stack/client-logos/urbivhgbim1ubnakkteb.jpg",
+      "cached": false,
+      "group": "clients",
+      "name": "client-logos-urbivhgbim1ubnakkteb",
+      "etag": "\"92fe0b666a0cc435fa73a8e0f32aa5e6\""
+    },
+    "clients:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791462067/rack-stack/client-logos/u61qeiaf0urmfnkae0xp.jpg": {
+      "url": "/assets/images/clients/client-logos-u61qeiaf0urmfnkae0xp-4a64e3714e.webp",
+      "width": 600,
+      "height": 204,
+      "aspectRatio": 2.9412,
+      "bytes": 6270,
+      "hash": "4a64e3714e",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791462067/rack-stack/client-logos/u61qeiaf0urmfnkae0xp.jpg",
+      "cached": false,
+      "group": "clients",
+      "name": "client-logos-u61qeiaf0urmfnkae0xp",
+      "etag": "\"4c1a96df9552a34bd668f1e011866919\""
+    },
+    "clients:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791462162/rack-stack/client-logos/cpzimrntxogdmmw8qlj5.jpg": {
+      "url": "/assets/images/clients/client-logos-cpzimrntxogdmmw8qlj5-33f3afec73.webp",
+      "width": 478,
+      "height": 153,
+      "aspectRatio": 3.1242,
+      "bytes": 5582,
+      "hash": "33f3afec73",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791462162/rack-stack/client-logos/cpzimrntxogdmmw8qlj5.jpg",
+      "cached": false,
+      "group": "clients",
+      "name": "client-logos-cpzimrntxogdmmw8qlj5",
+      "etag": "\"8bbb99375fd4cb5e57f76be069d29456\""
     }
   }
 }

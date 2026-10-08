@@ -21,13 +21,13 @@ import { WhatsAppIcon } from "@/components/site/social-icons";
 export function FloatingActions({ phone, whatsapp }: { phone: string; whatsapp: string }) {
   return (
     <div className="mp-fab fixed bottom-4 right-4 z-50 flex items-center gap-2">
-      <a
+      {/* <a
         href={phoneHref(phone)}
         aria-label="Call Rack and Stack"
         className="hidden h-12 w-12 place-items-center rounded-full bg-zinc-900 text-white shadow-xl md:grid"
       >
         <Phone size={18} />
-      </a>
+      </a> */}
       <a
         href={whatsappHref(whatsapp)}
         target="_blank"

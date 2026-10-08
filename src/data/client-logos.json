@@ -10,7 +10,20 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.197Z",
-    "updatedAt": "2026-10-01T13:45:43.197Z"
+    "updatedAt": "2026-10-08T12:15:34.518Z"
+  },
+  {
+    "id": 52,
+    "name": "Flipkart logo",
+    "imageUrl": "/assets/images/clients/client-logos-u61qeiaf0urmfnkae0xp-4a64e3714e.webp",
+    "imagePublicId": "rack-stack/client-logos/u61qeiaf0urmfnkae0xp",
+    "altText": "Flipkart logo",
+    "sortOrder": 1,
+    "isActive": true,
+    "width": 600,
+    "height": 204,
+    "createdAt": "2026-10-08T12:14:06.025Z",
+    "updatedAt": "2026-10-08T12:21:12.905Z"
   },
   {
     "id": 5,
@@ -23,7 +36,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-09-28T08:58:50.802Z",
-    "updatedAt": "2026-10-01T13:45:43.653Z"
+    "updatedAt": "2026-10-08T12:15:34.738Z"
   },
   {
     "id": 11,
@@ -36,7 +49,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.320Z",
-    "updatedAt": "2026-10-01T13:45:43.320Z"
+    "updatedAt": "2026-10-08T12:15:35.602Z"
   },
   {
     "id": 12,
@@ -49,7 +62,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.377Z",
-    "updatedAt": "2026-10-01T13:45:43.377Z"
+    "updatedAt": "2026-10-08T12:15:35.794Z"
   },
   {
     "id": 7,
@@ -62,7 +75,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-09-28T08:58:50.802Z",
-    "updatedAt": "2026-10-01T13:45:43.832Z"
+    "updatedAt": "2026-10-08T12:15:36.058Z"
   },
   {
     "id": 13,
@@ -75,7 +88,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.499Z",
-    "updatedAt": "2026-10-01T13:45:43.499Z"
+    "updatedAt": "2026-10-08T12:15:36.327Z"
   },
   {
     "id": 14,
@@ -88,7 +101,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.559Z",
-    "updatedAt": "2026-10-01T13:45:43.559Z"
+    "updatedAt": "2026-10-08T12:15:36.596Z"
   },
   {
     "id": 1,
@@ -101,7 +114,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-09-28T08:58:50.802Z",
-    "updatedAt": "2026-10-01T13:45:44.015Z"
+    "updatedAt": "2026-10-08T12:15:37.775Z"
   },
   {
     "id": 15,
@@ -114,7 +127,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.679Z",
-    "updatedAt": "2026-10-01T13:45:43.679Z"
+    "updatedAt": "2026-10-08T12:15:37.661Z"
   },
   {
     "id": 16,
@@ -127,7 +140,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.738Z",
-    "updatedAt": "2026-10-01T13:45:43.738Z"
+    "updatedAt": "2026-10-08T12:15:37.894Z"
   },
   {
     "id": 17,
@@ -140,7 +153,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.797Z",
-    "updatedAt": "2026-10-01T13:45:43.797Z"
+    "updatedAt": "2026-10-08T12:15:38.120Z"
   },
   {
     "id": 18,
@@ -153,7 +166,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.856Z",
-    "updatedAt": "2026-10-01T13:45:43.856Z"
+    "updatedAt": "2026-10-08T12:15:39.308Z"
   },
   {
     "id": 19,
@@ -166,7 +179,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.913Z",
-    "updatedAt": "2026-10-01T13:45:43.913Z"
+    "updatedAt": "2026-10-08T12:15:39.490Z"
   },
   {
     "id": 20,
@@ -179,7 +192,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:43.976Z",
-    "updatedAt": "2026-10-01T13:45:43.976Z"
+    "updatedAt": "2026-10-08T12:15:39.750Z"
   },
   {
     "id": 21,
@@ -192,7 +205,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.046Z",
-    "updatedAt": "2026-10-01T13:45:44.046Z"
+    "updatedAt": "2026-10-08T12:15:40.233Z"
   },
   {
     "id": 6,
@@ -205,7 +218,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-09-28T08:58:50.802Z",
-    "updatedAt": "2026-10-01T13:45:44.502Z"
+    "updatedAt": "2026-10-08T12:15:41.354Z"
   },
   {
     "id": 22,
@@ -218,7 +231,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.197Z",
-    "updatedAt": "2026-10-01T13:45:44.197Z"
+    "updatedAt": "2026-10-08T12:15:41.548Z"
   },
   {
     "id": 23,
@@ -231,7 +244,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.262Z",
-    "updatedAt": "2026-10-01T13:45:44.262Z"
+    "updatedAt": "2026-10-08T12:15:41.772Z"
   },
   {
     "id": 24,
@@ -244,7 +257,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.321Z",
-    "updatedAt": "2026-10-01T13:45:44.321Z"
+    "updatedAt": "2026-10-08T12:15:42.157Z"
   },
   {
     "id": 25,
@@ -257,7 +270,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.378Z",
-    "updatedAt": "2026-10-01T13:45:44.378Z"
+    "updatedAt": "2026-10-08T12:15:42.378Z"
   },
   {
     "id": 3,
@@ -270,7 +283,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-09-28T08:58:50.802Z",
-    "updatedAt": "2026-10-01T13:45:44.833Z"
+    "updatedAt": "2026-10-08T12:15:43.252Z"
   },
   {
     "id": 26,
@@ -283,7 +296,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.497Z",
-    "updatedAt": "2026-10-01T13:45:44.497Z"
+    "updatedAt": "2026-10-08T12:15:43.477Z"
   },
   {
     "id": 27,
@@ -296,7 +309,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.556Z",
-    "updatedAt": "2026-10-01T13:45:44.556Z"
+    "updatedAt": "2026-10-08T12:15:43.704Z"
   },
   {
     "id": 28,
@@ -309,7 +322,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.615Z",
-    "updatedAt": "2026-10-01T13:45:44.615Z"
+    "updatedAt": "2026-10-08T12:15:43.927Z"
   },
   {
     "id": 29,
@@ -322,7 +335,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.675Z",
-    "updatedAt": "2026-10-01T13:45:44.675Z"
+    "updatedAt": "2026-10-08T12:15:44.992Z"
   },
   {
     "id": 30,
@@ -335,7 +348,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.733Z",
-    "updatedAt": "2026-10-01T13:45:44.733Z"
+    "updatedAt": "2026-10-08T12:15:45.222Z"
   },
   {
     "id": 4,
@@ -348,7 +361,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-09-28T08:58:50.802Z",
-    "updatedAt": "2026-10-01T13:45:45.205Z"
+    "updatedAt": "2026-10-08T12:15:45.847Z"
   },
   {
     "id": 31,
@@ -361,7 +374,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.883Z",
-    "updatedAt": "2026-10-01T13:45:44.883Z"
+    "updatedAt": "2026-10-08T12:15:46.705Z"
   },
   {
     "id": 32,
@@ -374,7 +387,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:44.943Z",
-    "updatedAt": "2026-10-01T13:45:44.943Z"
+    "updatedAt": "2026-10-08T12:15:46.903Z"
   },
   {
     "id": 33,
@@ -387,7 +400,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.005Z",
-    "updatedAt": "2026-10-01T13:45:45.005Z"
+    "updatedAt": "2026-10-08T12:15:47.119Z"
   },
   {
     "id": 34,
@@ -400,7 +413,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.064Z",
-    "updatedAt": "2026-10-01T13:45:45.064Z"
+    "updatedAt": "2026-10-08T12:15:47.345Z"
   },
   {
     "id": 35,
@@ -413,7 +426,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.123Z",
-    "updatedAt": "2026-10-01T13:45:45.123Z"
+    "updatedAt": "2026-10-08T12:15:47.657Z"
   },
   {
     "id": 36,
@@ -426,7 +439,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.183Z",
-    "updatedAt": "2026-10-01T13:45:45.183Z"
+    "updatedAt": "2026-10-08T12:15:48.704Z"
   },
   {
     "id": 8,
@@ -439,7 +452,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-09-28T08:58:50.802Z",
-    "updatedAt": "2026-10-01T13:45:45.638Z"
+    "updatedAt": "2026-10-08T12:15:48.899Z"
   },
   {
     "id": 37,
@@ -452,7 +465,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.302Z",
-    "updatedAt": "2026-10-01T13:45:45.302Z"
+    "updatedAt": "2026-10-08T12:15:49.174Z"
   },
   {
     "id": 38,
@@ -465,7 +478,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.361Z",
-    "updatedAt": "2026-10-01T13:45:45.361Z"
+    "updatedAt": "2026-10-08T12:15:49.407Z"
   },
   {
     "id": 39,
@@ -478,7 +491,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.424Z",
-    "updatedAt": "2026-10-01T13:45:45.424Z"
+    "updatedAt": "2026-10-08T12:15:49.657Z"
   },
   {
     "id": 40,
@@ -491,7 +504,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.488Z",
-    "updatedAt": "2026-10-01T13:45:45.488Z"
+    "updatedAt": "2026-10-08T12:15:50.516Z"
   },
   {
     "id": 41,
@@ -504,7 +517,7 @@
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.547Z",
-    "updatedAt": "2026-10-01T13:45:45.547Z"
+    "updatedAt": "2026-10-08T12:15:50.700Z"
   },
   {
     "id": 42,
@@ -512,12 +525,12 @@
     "imageUrl": "/rack-and-stack-clients/worksphere.png",
     "imagePublicId": null,
     "altText": "Worksphere logo",
-    "sortOrder": 40,
+    "sortOrder": 41,
     "isActive": true,
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.606Z",
-    "updatedAt": "2026-10-01T13:45:45.606Z"
+    "updatedAt": "2026-10-08T12:15:51.227Z"
   },
   {
     "id": 43,
@@ -525,12 +538,12 @@
     "imageUrl": "/rack-and-stack-clients/wtc-logo.png",
     "imagePublicId": null,
     "altText": "WTC logo",
-    "sortOrder": 41,
+    "sortOrder": 42,
     "isActive": true,
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.668Z",
-    "updatedAt": "2026-10-01T13:45:45.668Z"
+    "updatedAt": "2026-10-08T12:15:51.523Z"
   },
   {
     "id": 44,
@@ -538,11 +551,24 @@
     "imageUrl": "/rack-and-stack-clients/Zydus_-_Takeda_logo-removebg-preview.png",
     "imagePublicId": null,
     "altText": "Zydus Takeda logo",
-    "sortOrder": 42,
+    "sortOrder": 43,
     "isActive": true,
     "width": null,
     "height": null,
     "createdAt": "2026-10-01T13:45:45.727Z",
-    "updatedAt": "2026-10-01T13:45:45.727Z"
+    "updatedAt": "2026-10-08T12:15:52.471Z"
+  },
+  {
+    "id": 53,
+    "name": "Zepto",
+    "imageUrl": "/assets/images/clients/client-logos-cpzimrntxogdmmw8qlj5-33f3afec73.webp",
+    "imagePublicId": "rack-stack/client-logos/cpzimrntxogdmmw8qlj5",
+    "altText": "Zepto Logo",
+    "sortOrder": 44,
+    "isActive": true,
+    "width": 478,
+    "height": 153,
+    "createdAt": "2026-10-08T12:14:49.704Z",
+    "updatedAt": "2026-10-08T12:22:46.019Z"
   }
 ]

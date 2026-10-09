@@ -3,7 +3,63 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowDown, ChevronLeft, ChevronRight, MoveUpRight } from "lucide-react";
-import { SmartImage } from "@/components/site/smart-image";
+import { getImageProps } from "next/image";
+import { preload } from "react-dom";
+import { internalHref } from "@/lib/site-url";
+
+/**
+ * Art-directed hero image.
+ *
+ * A hero often ships a different crop for phones and desktops. Rendering two
+ * `next/image` elements for those two crops made *both* `priority`, so mobile
+ * preloaded the desktop photo too (hundreds of KB that are never painted,
+ * competing with the real LCP image), and desktop preloaded the phone crop. A
+ * `<picture>` with one `<source media>` loads exactly one of them, and a single
+ * `ReactDOM.preload` keeps that one discoverable in the server HTML without the
+ * duplicate.
+ *
+ * The preload must not carry a `media` query that excludes the viewport being
+ * measured: a phone is narrower than 768px, so a `(min-width: 768px)` preload is
+ * never fetched there and the LCP image is left to late in-document discovery.
+ * When desktop and mobile share one file the preload is unscoped, so every
+ * viewport gets it; only genuinely different crops are media-scoped.
+ * `priority` is passed only for the first, immediately visible slide; later
+ * slides load eagerly but do not preload.
+ */
+function HeroArtImage({ desktopSrc, mobileSrc, alt, priority }: { desktopSrc: string; mobileSrc: string; alt: string; priority: boolean }) {
+  const common = { alt, sizes: "100vw", fill: true } as const;
+  const { props: desktop } = getImageProps({ ...common, src: desktopSrc, priority, loading: priority ? undefined : "eager" });
+  const { props: mobile } = getImageProps({ ...common, src: mobileSrc, priority, loading: priority ? undefined : "eager" });
+  const sameSource = desktopSrc === mobileSrc;
+
+  if (priority) {
+    if (sameSource) {
+      preload(desktop.src, { as: "image", imageSrcSet: desktop.srcSet, imageSizes: desktop.sizes, fetchPriority: "high" });
+    } else {
+      preload(desktop.src, { as: "image", imageSrcSet: desktop.srcSet, imageSizes: desktop.sizes, media: "(min-width: 768px)", fetchPriority: "high" });
+      preload(mobile.src, { as: "image", imageSrcSet: mobile.srcSet, imageSizes: mobile.sizes, media: "(max-width: 767px)", fetchPriority: "high" });
+    }
+  }
+
+  return (
+    <picture>
+      {!sameSource ? <source media="(max-width: 767px)" srcSet={mobile.srcSet} sizes={mobile.sizes} /> : null}
+      <img
+        {...desktop}
+        alt={alt}
+        fetchPriority={priority ? "high" : undefined}
+        className="object-cover"
+        onError={(event) => {
+          const img = event.currentTarget;
+          if (img.dataset.fallback) return;
+          img.dataset.fallback = "1";
+          img.removeAttribute("srcset");
+          img.src = "/illustrations/warehouse-storage.svg";
+        }}
+      />
+    </picture>
+  );
+}
 
 export type HeroSlide = {
   id: number;
@@ -43,14 +99,36 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   const pausedRef = useRef(false);
   const reduce = useReducedMotion();
   const isReduced = reduce === true;
+  const [pageReady, setPageReady] = useState(false);
 
   const setPause = (value: boolean) => {
     pausedRef.current = value;
     setPaused(value);
   };
 
+  /**
+   * Hold the first auto-advance until the page has finished loading.
+   *
+   * The carousel swaps its full-bleed image every few seconds. When that lands
+   * while the rest of the page is still being fetched, the just-painted hero —
+   * the element the browser already chose as LCP — is replaced by the next
+   * slide's image, so the metric jumps to that later paint (observed around 5s).
+   * Waiting for `load` keeps the first, preloaded slide as the LCP while still
+   * giving visitors the rotation once the page has settled.
+   */
   useEffect(() => {
-    if (count < 2 || isReduced) return;
+    if (typeof document === "undefined") return;
+    if (document.readyState === "complete") {
+      const id = requestAnimationFrame(() => setPageReady(true));
+      return () => cancelAnimationFrame(id);
+    }
+    const onLoad = () => setPageReady(true);
+    window.addEventListener("load", onLoad, { once: true });
+    return () => window.removeEventListener("load", onLoad);
+  }, []);
+
+  useEffect(() => {
+    if (count < 2 || isReduced || !pageReady) return;
     const slide = slides[active];
     if (!slide?.autoplay) return;
     const duration = slide.duration > 0 ? slide.duration : 3500;
@@ -69,7 +147,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [active, count, isReduced, slides]);
+  }, [active, count, isReduced, pageReady, slides]);
 
   if (count === 0) return null;
 
@@ -123,26 +201,12 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
               transition={{ duration: isReduced ? 0 : 12, ease: "linear" }}
               className="absolute inset-0"
             >
-              <div className="absolute inset-0 hidden md:block">
-                <SmartImage
-                  src={heroImageUrl}
-                  alt={activeSlide.imageAlt ?? activeSlide.title ?? "Storage system showcase"}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
-                />
-              </div>
-              <div className="absolute inset-0 md:hidden">
-                <SmartImage
-                  src={activeSlide.mobileImageUrl || heroImageUrl}
-                  alt={activeSlide.imageAlt ?? activeSlide.title ?? "Storage system showcase"}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="100vw"
-                />
-              </div>
+              <HeroArtImage
+                desktopSrc={heroImageUrl}
+                mobileSrc={activeSlide.mobileImageUrl || heroImageUrl}
+                alt={activeSlide.imageAlt ?? activeSlide.title ?? "Storage system showcase"}
+                priority={active === 0}
+              />
             </motion.div>
           ) : null}
           {activeSlide.videoUrl ? (
@@ -181,19 +245,19 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
               ) : null}
               <motion.div variants={contentItem} className={`mt-7 flex flex-wrap items-center gap-3 sm:mt-9 sm:items-center ${alignClass[activeSlide.textAlignment ?? "left"].buttons}`}>
                 {activeSlide.primaryButtonText ? (
-                  <Link href={activeSlide.primaryButtonUrl || "/products"} className="btn-primary group w-full sm:w-auto">
+                  <Link href={internalHref(activeSlide.primaryButtonUrl, "/products")} className="btn-primary group w-full sm:w-auto">
                     {activeSlide.primaryButtonText}
                     <MoveUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </Link>
                 ) : null}
                 {activeSlide.secondaryButtonText ? (
-                  <Link href={activeSlide.secondaryButtonUrl || "/request-a-quote"} className="btn-light w-full sm:w-auto">
+                  <Link href={internalHref(activeSlide.secondaryButtonUrl, "/request-a-quote")} className="btn-light w-full sm:w-auto">
                     {activeSlide.secondaryButtonText}
                   </Link>
                 ) : null}
                 {activeSlide.tertiaryButtonText ? (
                   <Link
-                    href={activeSlide.tertiaryButtonUrl || "/contact"}
+                    href={internalHref(activeSlide.tertiaryButtonUrl, "/contact")}
                     className="group inline-flex items-center gap-2 border-b border-white/25 px-1 pb-1 text-xs font-bold uppercase tracking-[.14em] text-zinc-200 transition-colors hover:border-red-500 hover:text-white"
                   >
                     {activeSlide.tertiaryButtonText}

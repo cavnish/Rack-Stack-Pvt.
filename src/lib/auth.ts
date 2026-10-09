@@ -46,3 +46,5 @@ export async function destroySession() {
 }
 export function canManageUsers(role: string) { return role === "SUPER_ADMIN"; }
 export function canDelete(role: string) { return role === "SUPER_ADMIN" || role === "ADMIN"; }
+/** Publishing rewrites the whole public content layer, so it is at least as privileged as deleting. */
+export function canPublish(role: string) { return role === "SUPER_ADMIN" || role === "ADMIN"; }

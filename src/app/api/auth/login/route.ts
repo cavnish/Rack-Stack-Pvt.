@@ -10,7 +10,7 @@ import { logActivity, logServer } from "@/lib/logger";
 
 export async function POST(request: Request) {
   if (!hasValidOrigin(request)) return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
-  const limit = rateLimit(requestKey(request, "admin-login"), 5, 15 * 60_000);
+  const limit = await rateLimit(requestKey(request, "admin-login"), 5, 15 * 60_000);
   if (!limit.allowed) return NextResponse.json({ error: "Too many login attempts. Please try again later." }, { status: 429, headers: { "Retry-After": String(limit.retryAfter) } });
   try {
     const input = loginSchema.parse(await request.json());

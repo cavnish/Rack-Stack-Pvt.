@@ -7,8 +7,9 @@ import {
   productRelatedProducts, productSections, productSpecifications, productStoredMaterials, productStories, productWorkflows, products, projectImages, projects, redirects,
   seoSettings, serviceFeatures, serviceIndustries, serviceProjects, services, siteSettings, testimonials, videoProducts, videos, videoServices,
 } from "@/db/schema";
-import { and, asc, desc, eq, gte, ilike, isNull, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { logServer } from "@/lib/logger";
+import { cacheContent } from "@/lib/cache";
 import { catalogueProducts, getCatalogueProductHref, getCatalogueSearchText } from "@/lib/catalogue";
 import { readCollection, type CollectionKey } from "@/lib/publish/store";
 import {
@@ -29,8 +30,7 @@ import {
   bootstrapTestimonials,
   bootstrapVideos,
 } from "@/lib/publish/bootstrap";
-import { publishSerialized, type PublishScope } from "@/lib/publish";
-import { reviveDates, reviveList, type StaticBlogPostWithCategory, type StaticProductDetail, type StaticRoutes, type StaticVideo } from "@/lib/publish/types";
+import { reviveDates, reviveDeep, type StaticBlogPostWithCategory, type StaticProductDetail, type StaticVideo } from "@/lib/publish/types";
 import { getPublicClientLogos } from "@/lib/client-assets";
 import { homeOfferCardSeeds } from "@/lib/home-offer-cards";
 import { buildProductIndex, resolveHomeProductCards, type HomeProductCard } from "@/lib/home-products";
@@ -42,23 +42,21 @@ import type { ReelVideoItem } from "@/lib/reel-video";
 /**
  * Public content read layer.
  *
+ * Neon is the single source of truth for every getter. The committed
+ * `src/data/*.json` files are a build artefact and an offline seed only: they are
+ * read when there is no database (a static build with no `DATABASE_URL`), never
+ * to shadow a live row, so an admin edit can never disappear behind a stale file.
+ *
  * Priority for every getter:
- *   1. Published static content in src/data/*.json  (no database, no network)
- *   2. Neon, and the result is re-published so the static layer catches up
- *   3. Curated local fallback content, so a section is never blank
+ *   1. Neon (cached in the incremental cache, tagged `cms-content`)
+ *   2. Curated local fallback content, so a fresh or offline site is never blank
+ *   3. Published static JSON, only when no database is configured
+ *
+ * A database that is configured but unreachable throws in production rather than
+ * silently serving the committed JSON: a stale page that looks healthy is worse
+ * than a visible error, because it hides the outage and can serve content the
+ * editor has already replaced.
  */
-
-const regeneration = new Map<string, Promise<unknown>>();
-
-function backgroundPublish(scope: PublishScope) {
-  if (!dbConfigured) return;
-  if (process.env.NODE_ENV === "production" && process.env.DISABLE_SELF_PUBLISH === "1") return;
-  if (regeneration.has(scope)) return;
-  const task = publishSerialized(scope)
-    .catch(() => undefined)
-    .finally(() => regeneration.delete(scope));
-  regeneration.set(scope, task);
-}
 
 type Resolved<T> = { value: T; source: "static" | "database" | "fallback" };
 
@@ -73,27 +71,44 @@ function reviveStatic(value: unknown): unknown {
   return value;
 }
 
+/**
+ * Reads a live query through the content cache and revives its dates.
+ *
+ * A JSON round-trip through the incremental cache turns every `Date` column into
+ * a string, at every depth, so the whole payload is revived rather than only the
+ * top-level row (`reviveStatic`).
+ */
+async function readDatabase<T>(key: CollectionKey, cacheKey: string[], load: () => Promise<T>): Promise<T> {
+  return reviveDeep(await cacheContent([key, ...cacheKey], load));
+}
+
 async function resolve<T>(
   key: CollectionKey,
   load: () => Promise<T>,
   fallback: () => Promise<unknown> | unknown,
-  options: { scope: PublishScope; isEmpty?: (value: unknown) => boolean },
+  options: { isEmpty?: (value: unknown) => boolean; cacheKey?: string[] } = {},
 ): Promise<Resolved<T>> {
+  if (dbConfigured) {
+    try {
+      const fromDatabase = await readDatabase(key, options.cacheKey ?? [], load);
+      if (fromDatabase !== null && fromDatabase !== undefined && !(options.isEmpty?.(fromDatabase) ?? false)) {
+        return { value: fromDatabase, source: "database" };
+      }
+      // A reachable database holding an empty collection is a real answer, but
+      // curated bootstrap content is preferred over a blank section on a fresh
+      // install. The committed JSON is never used to fill it: only the database
+      // or the code-level seed can answer.
+      return { value: (await fallback()) as T, source: "fallback" };
+    } catch (error) {
+      logServer("error", `${key}.fetch.failed`, { message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
+    }
+  }
+
   const published = await readCollection<unknown>(key);
   if (published !== null && published !== undefined) {
     const revived = reviveStatic(published);
     if (!(options.isEmpty?.(revived) ?? false)) return { value: revived as T, source: "static" };
-  }
-
-  try {
-    if (!dbConfigured) throw new Error("DATABASE_URL is not configured");
-    const fromDatabase = await load();
-    if (fromDatabase !== null && fromDatabase !== undefined && !(options.isEmpty?.(fromDatabase) ?? false)) {
-      backgroundPublish(options.scope);
-      return { value: fromDatabase, source: "database" };
-    }
-  } catch (error) {
-    logServer("warn", `${key}.fetch.failed`, { message: error instanceof Error ? error.message : "unknown" });
   }
 
   // Bootstrap data is authored as serializable JSON, so it is cast to the live row shape.
@@ -164,7 +179,6 @@ export async function getSiteSettings() {
     "site",
     () => db.select().from(siteSettings).limit(1),
     () => [siteSettingsFallback],
-    { scope: "settings" },
   );
   const record = Array.isArray(value) ? value[0] : value;
   return record ? reviveDates(record as unknown as Record<string, unknown>) as SiteSettingsRow : DEFAULT_SITE_SETTINGS;
@@ -175,7 +189,7 @@ export async function getSeoSettings() {
     "seo",
     () => db.select().from(seoSettings).limit(1).then((rows) => rows[0] ?? null),
     () => null,
-    { scope: "seo", isEmpty: (row) => row === null },
+    { isEmpty: (row) => row === null },
   );
   if (!value) return null;
   return reviveDates(value as unknown as Record<string, unknown>) as typeof seoSettings.$inferSelect;
@@ -188,7 +202,7 @@ export async function getHomepageSections() {
     "homepage",
     () => db.select().from(homepageSections).where(eq(homepageSections.enabled, true)).orderBy(asc(homepageSections.displayOrder)),
     () => bootstrapHomeSections(),
-    { scope: "homepage", isEmpty: notEmptyArray },
+    { isEmpty: notEmptyArray },
   );
   return Object.fromEntries(
     (value as Array<typeof homepageSections.$inferSelect>).map((row) => [
@@ -238,7 +252,7 @@ export async function getHomeOfferCards(): Promise<ResolvedHomeOfferCard[]> {
       // then to the hardcoded seed cards, so disabling the last card brought
       // the deleted set back. A collection that has never been published has no
       // file at all, and `readCollection` returns null for that on its own.
-      { scope: "home-offer-cards" },
+      {},
     ),
     getProducts(),
   ]);
@@ -348,28 +362,23 @@ export async function getHomeSliders(): Promise<HomeSlide[]> {
         )
         .orderBy(asc(homeSliders.sortOrder)),
     () => bootstrapSliders(),
-    { scope: "sliders", isEmpty: slidesWithoutImages },
+    { isEmpty: slidesWithoutImages },
   );
   return value;
 }
 
 export async function getProducts(featuredOnly = false) {
-  const load = async () => {
-    const published = await readCollection<Array<typeof products.$inferSelect>>("products");
-    if (published && published.length > 0) {
-      const rows = featuredOnly ? published.filter((row) => row.featured) : published;
-      if (rows.length > 0) return rows as typeof products.$inferSelect[];
-    }
-    return db
-      .select()
-      .from(products)
-      .where(and(eq(products.status, "PUBLISHED"), isNull(products.deletedAt), featuredOnly ? eq(products.featured, true) : undefined))
-      .orderBy(asc(products.displayOrder));
-  };
-  const { value } = await resolve<Array<typeof products.$inferSelect>>("products", load, () => bootstrapProducts(), {
-    scope: "products",
-    isEmpty: notEmptyArray,
-  });
+  const { value } = await resolve<Array<typeof products.$inferSelect>>(
+    "products",
+    () =>
+      db
+        .select()
+        .from(products)
+        .where(and(eq(products.status, "PUBLISHED"), isNull(products.deletedAt), featuredOnly ? eq(products.featured, true) : undefined))
+        .orderBy(asc(products.displayOrder)),
+    () => bootstrapProducts(),
+    { isEmpty: notEmptyArray, cacheKey: [featuredOnly ? "featured" : "all"] },
+  );
   return value as Array<typeof products.$inferSelect>;
 }
 
@@ -382,18 +391,64 @@ export type CatalogueProduct = typeof products.$inferSelect & {
 
 export async function getProductCatalogue(): Promise<CatalogueProduct[]> {
   const base = await getProducts();
-  const expanded = await readCollection<StaticProductDetail[]>("products");
+  if (base.length === 0) return [];
+
+  // Offline: the published product detail carries its own children. Online: read
+  // the three child tables in bulk rather than a query per product, and only keep
+  // the first specification / application per product and an image count, which
+  // is all the catalogue listing renders.
+  if (!dbConfigured) {
+    const published = (await readCollection<StaticProductDetail[]>("products")) ?? [];
+    return base.map((product) => {
+      const detail = published.find((entry) => entry.slug === product.slug);
+      const specifications = detail?.specifications ?? [];
+      const applications = detail?.applications ?? [];
+      return {
+        ...product,
+        keySpec: specifications[0] ? { name: specifications[0].specificationName, value: specifications[0].specificationValue } : null,
+        application: applications[0]?.application ?? null,
+        applicationTitle: applications[0]?.title ?? null,
+        imageCount: detail?.images.length ?? 0,
+      };
+    });
+  }
+
+  const ids = base.map((product) => product.id);
+  const [specRows, applicationRows, imageRows] = await cacheContent(["products", "catalogue-children"], () =>
+    Promise.all([
+      db
+        .select({ productId: productSpecifications.productId, specificationName: productSpecifications.specificationName, specificationValue: productSpecifications.specificationValue })
+        .from(productSpecifications)
+        .where(inArray(productSpecifications.productId, ids))
+        .orderBy(asc(productSpecifications.displayOrder)),
+      db
+        .select({ productId: productApplications.productId, application: productApplications.application, title: productApplications.title })
+        .from(productApplications)
+        .where(inArray(productApplications.productId, ids))
+        .orderBy(asc(productApplications.displayOrder)),
+      db.select({ productId: productImages.productId }).from(productImages).where(inArray(productImages.productId, ids)),
+    ]),
+  );
+
+  const firstSpec = new Map<number, { name: string; value: string }>();
+  for (const row of specRows) {
+    if (!firstSpec.has(row.productId)) firstSpec.set(row.productId, { name: row.specificationName, value: row.specificationValue });
+  }
+  const firstApplication = new Map<number, { application: string | null; title: string | null }>();
+  for (const row of applicationRows) {
+    if (!firstApplication.has(row.productId)) firstApplication.set(row.productId, { application: row.application, title: row.title });
+  }
+  const imageCounts = new Map<number, number>();
+  for (const row of imageRows) imageCounts.set(row.productId, (imageCounts.get(row.productId) ?? 0) + 1);
+
   return base.map((product) => {
-    const detail = expanded?.find((entry) => entry.slug === product.slug);
-    const specifications = detail?.specifications ?? [];
-    const applications = detail?.applications ?? [];
-    const images = detail?.images ?? [];
+    const application = firstApplication.get(product.id) ?? null;
     return {
       ...product,
-      keySpec: specifications[0] ? { name: specifications[0].specificationName, value: specifications[0].specificationValue } : null,
-      application: applications[0]?.application ?? null,
-      applicationTitle: applications[0]?.title ?? null,
-      imageCount: images.length,
+      keySpec: firstSpec.get(product.id) ?? null,
+      application: application?.application ?? null,
+      applicationTitle: application?.title ?? null,
+      imageCount: imageCounts.get(product.id) ?? 0,
     };
   });
 }
@@ -413,119 +468,126 @@ async function productChildQuery<T>(slug: string, key: string, query: () => Prom
 }
 
 export async function getProductBySlug(slug: string, preview = false): Promise<ProductDetail | null> {
-  const publishedProducts = (await readCollection<StaticProductDetail[]>("products")) ?? [];
+  if (dbConfigured) {
+    try {
+      const detail = await cacheContent(["product", slug, preview ? "preview" : "published"], async () => {
+        const [product] = await db
+          .select()
+          .from(products)
+          .where(and(eq(products.slug, slug), isNull(products.deletedAt), preview ? undefined : eq(products.status, "PUBLISHED")))
+          .limit(1);
+        if (!product) return null;
+        const [
+          features,
+          specifications,
+          applications,
+          images,
+          gallery,
+          benefits,
+          components,
+          configurations,
+          storedMaterials,
+          stories,
+          workflows,
+          productFaqs,
+          relatedRows,
+          industryRows,
+          projectRows,
+          sectionRows,
+        ] = await Promise.all([
+          db.select().from(productFeatures).where(eq(productFeatures.productId, product.id)).orderBy(asc(productFeatures.displayOrder)),
+          db.select().from(productSpecifications).where(eq(productSpecifications.productId, product.id)).orderBy(asc(productSpecifications.displayOrder)),
+          db.select().from(productApplications).where(eq(productApplications.productId, product.id)).orderBy(asc(productApplications.displayOrder)),
+          db.select().from(productImages).where(eq(productImages.productId, product.id)).orderBy(asc(productImages.displayOrder)),
+          db.select().from(productGalleryImages).where(eq(productGalleryImages.productId, product.id)).orderBy(asc(productGalleryImages.displayOrder)),
+
+          db.select().from(productBenefits).where(eq(productBenefits.productId, product.id)).orderBy(asc(productBenefits.displayOrder)),
+          db.select().from(productComponents).where(eq(productComponents.productId, product.id)).orderBy(asc(productComponents.displayOrder)),
+          db.select().from(productConfigurations).where(eq(productConfigurations.productId, product.id)).orderBy(asc(productConfigurations.displayOrder)),
+          db.select().from(productStoredMaterials).where(eq(productStoredMaterials.productId, product.id)).orderBy(asc(productStoredMaterials.displayOrder)),
+          db.select().from(productStories).where(eq(productStories.productId, product.id)).orderBy(asc(productStories.displayOrder)),
+          db.select().from(productWorkflows).where(eq(productWorkflows.productId, product.id)).orderBy(asc(productWorkflows.displayOrder)),
+          db
+            .select()
+            .from(faqs)
+            .where(
+              and(
+                eq(faqs.status, "PUBLISHED"),
+                or(eq(faqs.entityType, "GLOBAL"), and(eq(faqs.entityType, "PRODUCT"), eq(faqs.entityId, product.id))),
+              ),
+            )
+            .orderBy(asc(faqs.displayOrder)),
+          db
+            .select({ item: products })
+            .from(productRelatedProducts)
+            .innerJoin(products, eq(productRelatedProducts.relatedProductId, products.id))
+            .where(and(eq(productRelatedProducts.productId, product.id), eq(productRelatedProducts.isActive, true), eq(products.isActive, true), eq(products.status, "PUBLISHED"), isNull(products.deletedAt)))
+            .orderBy(asc(productRelatedProducts.displayOrder)),
+          db
+            .select({ item: industries })
+            .from(productIndustries)
+            .innerJoin(industries, eq(productIndustries.industryId, industries.id))
+            .where(and(eq(productIndustries.productId, product.id), eq(industries.status, "PUBLISHED")))
+            .orderBy(asc(productIndustries.displayOrder)),
+          db
+            .select({ item: projects })
+            .from(productProjects)
+            .innerJoin(projects, eq(productProjects.projectId, projects.id))
+            .where(and(eq(productProjects.productId, product.id), eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt)))
+            .orderBy(asc(productProjects.displayOrder)),
+          db.select().from(productSections).where(eq(productSections.productId, product.id)).orderBy(asc(productSections.displayOrder)),
+        ]);
+        const allProducts = await getProducts();
+        /*
+         * Related products, from the same helper the publish generator uses.
+         *
+         * This block used to hold its own copy of the rule ("the editor's picks, or
+         * a three-item same-category sample"), which is how the same defect existed
+         * in two places at once: the published `products.json` and this database
+         * fallback disagreed about what belongs in the strip, and a product added in
+         * the CMS was recommended on no other product page until an editor also
+         * linked it into `productRelatedProducts` for each one by hand. The picks
+         * still lead, in editor order; the rest of the live catalogue follows.
+         */
+        const related = buildRelatedProducts(
+          relatedRows.map((row) => row.item),
+          allProducts,
+          product,
+        );
+        return {
+          ...product,
+          features,
+          specifications,
+          applications,
+          images,
+          gallery,
+          benefits,
+
+          components,
+          configurations,
+          storedMaterials,
+          stories,
+          workflows,
+          faqs: productFaqs,
+          sections: sectionRows,
+          related,
+          industries: industryRows.map((row) => row.item),
+          projects: projectRows.map((row) => row.item),
+        };
+      });
+      if (detail) return reviveDeep(detail);
+    } catch (error) {
+      logServer("error", "product.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
+    }
+  }
+
+  // No database: the committed detail (offline build) or the catalogue-derived
+  // seed. A configured database that has no such row falls through to the seed so
+  // a catalogue-only slug still resolves rather than looping on a redirect.
+  const publishedProducts = dbConfigured ? [] : (await readCollection<StaticProductDetail[]>("products")) ?? [];
   const fromStatic = publishedProducts.find((item) => item.slug === slug);
   if (fromStatic) return reviveProductDetail(fromStatic);
-
-  try {
-    const [product] = await db
-      .select()
-      .from(products)
-      .where(and(eq(products.slug, slug), isNull(products.deletedAt), preview ? undefined : eq(products.status, "PUBLISHED")))
-      .limit(1);
-    if (product) {
-      const [
-        features,
-        specifications,
-        applications,
-        images,
-        gallery,
-        benefits,
-        components,
-        configurations,
-        storedMaterials,
-        stories,
-        workflows,
-        productFaqs,
-        relatedRows,
-        industryRows,
-        projectRows,
-        sectionRows,
-      ] = await Promise.all([
-        db.select().from(productFeatures).where(eq(productFeatures.productId, product.id)).orderBy(asc(productFeatures.displayOrder)),
-        db.select().from(productSpecifications).where(eq(productSpecifications.productId, product.id)).orderBy(asc(productSpecifications.displayOrder)),
-        db.select().from(productApplications).where(eq(productApplications.productId, product.id)).orderBy(asc(productApplications.displayOrder)),
-        db.select().from(productImages).where(eq(productImages.productId, product.id)).orderBy(asc(productImages.displayOrder)),
-        db.select().from(productGalleryImages).where(eq(productGalleryImages.productId, product.id)).orderBy(asc(productGalleryImages.displayOrder)),
-
-        db.select().from(productBenefits).where(eq(productBenefits.productId, product.id)).orderBy(asc(productBenefits.displayOrder)),
-        db.select().from(productComponents).where(eq(productComponents.productId, product.id)).orderBy(asc(productComponents.displayOrder)),
-        db.select().from(productConfigurations).where(eq(productConfigurations.productId, product.id)).orderBy(asc(productConfigurations.displayOrder)),
-        db.select().from(productStoredMaterials).where(eq(productStoredMaterials.productId, product.id)).orderBy(asc(productStoredMaterials.displayOrder)),
-        db.select().from(productStories).where(eq(productStories.productId, product.id)).orderBy(asc(productStories.displayOrder)),
-        db.select().from(productWorkflows).where(eq(productWorkflows.productId, product.id)).orderBy(asc(productWorkflows.displayOrder)),
-        db
-          .select()
-          .from(faqs)
-          .where(
-            and(
-              eq(faqs.status, "PUBLISHED"),
-              or(eq(faqs.entityType, "GLOBAL"), and(eq(faqs.entityType, "PRODUCT"), eq(faqs.entityId, product.id))),
-            ),
-          )
-          .orderBy(asc(faqs.displayOrder)),
-        db
-          .select({ item: products })
-          .from(productRelatedProducts)
-          .innerJoin(products, eq(productRelatedProducts.relatedProductId, products.id))
-          .where(and(eq(productRelatedProducts.productId, product.id), eq(productRelatedProducts.isActive, true), eq(products.isActive, true), eq(products.status, "PUBLISHED"), isNull(products.deletedAt)))
-          .orderBy(asc(productRelatedProducts.displayOrder)),
-        db
-          .select({ item: industries })
-          .from(productIndustries)
-          .innerJoin(industries, eq(productIndustries.industryId, industries.id))
-          .where(and(eq(productIndustries.productId, product.id), eq(industries.status, "PUBLISHED")))
-          .orderBy(asc(productIndustries.displayOrder)),
-        db
-          .select({ item: projects })
-          .from(productProjects)
-          .innerJoin(projects, eq(productProjects.projectId, projects.id))
-          .where(and(eq(productProjects.productId, product.id), eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt)))
-          .orderBy(asc(productProjects.displayOrder)),
-        db.select().from(productSections).where(eq(productSections.productId, product.id)).orderBy(asc(productSections.displayOrder)),
-      ]);
-      const allProducts = await getProducts();
-      /*
-       * Related products, from the same helper the publish generator uses.
-       *
-       * This block used to hold its own copy of the rule ("the editor's picks, or
-       * a three-item same-category sample"), which is how the same defect existed
-       * in two places at once: the published `products.json` and this database
-       * fallback disagreed about what belongs in the strip, and a product added in
-       * the CMS was recommended on no other product page until an editor also
-       * linked it into `productRelatedProducts` for each one by hand. The picks
-       * still lead, in editor order; the rest of the live catalogue follows.
-       */
-      const related = buildRelatedProducts(
-        relatedRows.map((row) => row.item),
-        allProducts,
-        product,
-      );
-      backgroundPublish("products");
-      return {
-        ...product,
-        features,
-        specifications,
-        applications,
-        images,
-        gallery,
-        benefits,
-
-        components,
-        configurations,
-        storedMaterials,
-        stories,
-        workflows,
-        faqs: productFaqs,
-        sections: sectionRows,
-        related,
-        industries: industryRows.map((row) => row.item),
-        projects: projectRows.map((row) => row.item),
-      };
-    }
-  } catch (error) {
-    logServer("warn", "product.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
-  }
 
   const bootstrapProduct = (await bootstrapProducts()).find((item) => item.slug === slug);
   if (!bootstrapProduct) return null;
@@ -595,14 +657,55 @@ export async function getServices(featuredOnly = false) {
         .where(and(eq(services.status, "PUBLISHED"), isNull(services.deletedAt), featuredOnly ? eq(services.featured, true) : undefined))
         .orderBy(asc(services.displayOrder)),
     () => bootstrapServices(),
-    { scope: "services", isEmpty: notEmptyArray },
+    { isEmpty: notEmptyArray },
   );
   const featured = value.filter((row) => row.featured);
   return featuredOnly && featured.length > 0 ? featured : value;
 }
 
 export async function getServiceBySlug(slug: string, preview = false): Promise<ServiceDetail | null> {
-  const published = (await readCollection<Array<Record<string, unknown>>>("services")) ?? [];
+  if (dbConfigured) {
+    try {
+      const detail = await cacheContent(["service", slug, preview ? "preview" : "published"], async () => {
+        const [service] = await db
+          .select()
+          .from(services)
+          .where(and(eq(services.slug, slug), isNull(services.deletedAt), preview ? undefined : eq(services.status, "PUBLISHED")))
+          .limit(1);
+        if (!service) return null;
+        const [features, serviceFaqs, industryRows, projectRows] = await Promise.all([
+          db.select().from(serviceFeatures).where(eq(serviceFeatures.serviceId, service.id)).orderBy(asc(serviceFeatures.displayOrder)),
+          db
+            .select()
+            .from(faqs)
+            .where(
+              and(
+                eq(faqs.status, "PUBLISHED"),
+                or(eq(faqs.entityType, "GLOBAL"), and(eq(faqs.entityType, "SERVICE"), eq(faqs.entityId, service.id))),
+              ),
+            )
+            .orderBy(asc(faqs.displayOrder)),
+          db
+            .select({ item: industries })
+            .from(serviceIndustries)
+            .innerJoin(industries, eq(serviceIndustries.industryId, industries.id))
+            .where(and(eq(serviceIndustries.serviceId, service.id), eq(industries.status, "PUBLISHED"))),
+          db
+            .select({ item: projects })
+            .from(serviceProjects)
+            .innerJoin(projects, eq(serviceProjects.projectId, projects.id))
+            .where(and(eq(serviceProjects.serviceId, service.id), eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt))),
+        ]);
+        return { ...service, features, faqs: serviceFaqs, industries: industryRows.map((row) => row.item), projects: projectRows.map((row) => row.item) };
+      });
+      if (detail) return reviveDeep(detail);
+    } catch (error) {
+      logServer("error", "service.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
+    }
+  }
+
+  const published = dbConfigured ? [] : (await readCollection<Array<Record<string, unknown>>>("services")) ?? [];
   const fromStatic = published.find((item) => item.slug === slug);
   if (fromStatic) {
     const detail = fromStatic as unknown as {
@@ -619,43 +722,6 @@ export async function getServiceBySlug(slug: string, preview = false): Promise<S
       projects: (detail.projects ?? []).map((item) => reviveDates(item)) as ServiceDetail["projects"],
     };
     return staticDetail;
-  }
-
-  try {
-    const [service] = await db
-      .select()
-      .from(services)
-      .where(and(eq(services.slug, slug), isNull(services.deletedAt), preview ? undefined : eq(services.status, "PUBLISHED")))
-      .limit(1);
-    if (service) {
-      const [features, serviceFaqs, industryRows, projectRows] = await Promise.all([
-        db.select().from(serviceFeatures).where(eq(serviceFeatures.serviceId, service.id)).orderBy(asc(serviceFeatures.displayOrder)),
-        db
-          .select()
-          .from(faqs)
-          .where(
-            and(
-              eq(faqs.status, "PUBLISHED"),
-              or(eq(faqs.entityType, "GLOBAL"), and(eq(faqs.entityType, "SERVICE"), eq(faqs.entityId, service.id))),
-            ),
-          )
-          .orderBy(asc(faqs.displayOrder)),
-        db
-          .select({ item: industries })
-          .from(serviceIndustries)
-          .innerJoin(industries, eq(serviceIndustries.industryId, industries.id))
-          .where(and(eq(serviceIndustries.serviceId, service.id), eq(industries.status, "PUBLISHED"))),
-        db
-          .select({ item: projects })
-          .from(serviceProjects)
-          .innerJoin(projects, eq(serviceProjects.projectId, projects.id))
-          .where(and(eq(serviceProjects.serviceId, service.id), eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt))),
-      ]);
-      backgroundPublish("services");
-      return { ...service, features, faqs: serviceFaqs, industries: industryRows.map((row) => row.item), projects: projectRows.map((row) => row.item) };
-    }
-  } catch (error) {
-    logServer("warn", "service.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
   }
 
   const serviceList = await bootstrapServices();
@@ -676,13 +742,50 @@ export async function getIndustries() {
     "industries",
     () => db.select().from(industries).where(eq(industries.status, "PUBLISHED")).orderBy(asc(industries.displayOrder)),
     () => bootstrapIndustries(),
-    { scope: "industries", isEmpty: notEmptyArray },
+    { isEmpty: notEmptyArray },
   );
   return value as Array<typeof industries.$inferSelect>;
 }
 
 export async function getIndustryBySlug(slug: string): Promise<IndustryDetail | null> {
-  const published = (await readCollection<Array<Record<string, unknown>>>("industries")) ?? [];
+  if (dbConfigured) {
+    try {
+      const detail = await cacheContent(["industry", slug], async () => {
+        const [industry] = await db
+          .select()
+          .from(industries)
+          .where(and(eq(industries.slug, slug), eq(industries.status, "PUBLISHED")))
+          .limit(1);
+        if (!industry) return null;
+        const [assignedProducts, assignedServices, fallbackProducts, fallbackServices] = await Promise.all([
+          db
+            .select({ item: products })
+            .from(productIndustries)
+            .innerJoin(products, eq(productIndustries.productId, products.id))
+            .where(and(eq(productIndustries.industryId, industry.id), eq(products.status, "PUBLISHED"), isNull(products.deletedAt)))
+            .orderBy(asc(productIndustries.displayOrder)),
+          db
+            .select({ item: services })
+            .from(serviceIndustries)
+            .innerJoin(services, eq(serviceIndustries.serviceId, services.id))
+            .where(and(eq(serviceIndustries.industryId, industry.id), eq(services.status, "PUBLISHED"), isNull(services.deletedAt))),
+          getProducts(),
+          getServices(),
+        ]);
+        return {
+          ...industry,
+          products: assignedProducts.length ? assignedProducts.map((row) => row.item) : fallbackProducts.slice(0, 4),
+          services: assignedServices.length ? assignedServices.map((row) => row.item).slice(0, 4) : fallbackServices.slice(0, 3),
+        };
+      });
+      if (detail) return reviveDeep(detail);
+    } catch (error) {
+      logServer("error", "industry.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
+    }
+  }
+
+  const published = dbConfigured ? [] : (await readCollection<Array<Record<string, unknown>>>("industries")) ?? [];
   const fromStatic = published.find((item) => item.slug === slug);
   if (fromStatic) {
     const detail = fromStatic as unknown as { products: Array<Record<string, unknown>>; services: Array<Record<string, unknown>> };
@@ -692,39 +795,6 @@ export async function getIndustryBySlug(slug: string): Promise<IndustryDetail | 
       services: (detail.services ?? []).map((item) => reviveDates(item)) as IndustryDetail["services"],
     };
     return staticDetail;
-  }
-
-  try {
-    const [industry] = await db
-      .select()
-      .from(industries)
-      .where(and(eq(industries.slug, slug), eq(industries.status, "PUBLISHED")))
-      .limit(1);
-    if (industry) {
-      const [assignedProducts, assignedServices, fallbackProducts, fallbackServices] = await Promise.all([
-        db
-          .select({ item: products })
-          .from(productIndustries)
-          .innerJoin(products, eq(productIndustries.productId, products.id))
-          .where(and(eq(productIndustries.industryId, industry.id), eq(products.status, "PUBLISHED"), isNull(products.deletedAt)))
-          .orderBy(asc(productIndustries.displayOrder)),
-        db
-          .select({ item: services })
-          .from(serviceIndustries)
-          .innerJoin(services, eq(serviceIndustries.serviceId, services.id))
-          .where(and(eq(serviceIndustries.industryId, industry.id), eq(services.status, "PUBLISHED"), isNull(services.deletedAt))),
-        getProducts(),
-        getServices(),
-      ]);
-      backgroundPublish("industries");
-      return {
-        ...industry,
-        products: assignedProducts.length ? assignedProducts.map((row) => row.item) : fallbackProducts.slice(0, 4),
-        services: assignedServices.length ? assignedServices.map((row) => row.item).slice(0, 4) : fallbackServices.slice(0, 3),
-      };
-    }
-  } catch (error) {
-    logServer("warn", "industry.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
   }
 
   const list = await bootstrapIndustries();
@@ -749,13 +819,39 @@ export async function getProjects() {
         .where(and(eq(projects.status, "PUBLISHED"), isNull(projects.deletedAt)))
         .orderBy(desc(projects.projectDate)),
     () => bootstrapProjects(),
-    { scope: "projects", isEmpty: notEmptyArray },
+    { isEmpty: notEmptyArray },
   );
   return value as Array<typeof projects.$inferSelect>;
 }
 
 export async function getProjectBySlug(slug: string, preview = false): Promise<ProjectDetail | null> {
-  const published = (await readCollection<Array<Record<string, unknown>>>("projects")) ?? [];
+  if (dbConfigured) {
+    try {
+      const detail = await cacheContent(["project", slug, preview ? "preview" : "published"], async () => {
+        const [project] = await db
+          .select()
+          .from(projects)
+          .where(and(eq(projects.slug, slug), isNull(projects.deletedAt), preview ? undefined : eq(projects.status, "PUBLISHED")))
+          .limit(1);
+        if (!project) return null;
+        const [images, productRows] = await Promise.all([
+          db.select().from(projectImages).where(eq(projectImages.projectId, project.id)).orderBy(asc(projectImages.displayOrder)),
+          db
+            .select({ item: products })
+            .from(productProjects)
+            .innerJoin(products, eq(productProjects.productId, products.id))
+            .where(and(eq(productProjects.projectId, project.id), eq(products.status, "PUBLISHED"), isNull(products.deletedAt))),
+        ]);
+        return { ...project, images, products: productRows.map((row) => row.item) };
+      });
+      if (detail) return reviveDeep(detail);
+    } catch (error) {
+      logServer("error", "project.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
+    }
+  }
+
+  const published = dbConfigured ? [] : (await readCollection<Array<Record<string, unknown>>>("projects")) ?? [];
   const fromStatic = published.find((item) => item.slug === slug);
   if (fromStatic) {
     const detail = fromStatic as unknown as { images: Array<Record<string, unknown>>; products: Array<Record<string, unknown>> };
@@ -765,28 +861,6 @@ export async function getProjectBySlug(slug: string, preview = false): Promise<P
       products: (detail.products ?? []).map((item) => reviveDates(item)) as ProjectDetail["products"],
     };
     return staticDetail;
-  }
-
-  try {
-    const [project] = await db
-      .select()
-      .from(projects)
-      .where(and(eq(projects.slug, slug), isNull(projects.deletedAt), preview ? undefined : eq(projects.status, "PUBLISHED")))
-      .limit(1);
-    if (project) {
-      const [images, productRows] = await Promise.all([
-        db.select().from(projectImages).where(eq(projectImages.projectId, project.id)).orderBy(asc(projectImages.displayOrder)),
-        db
-          .select({ item: products })
-          .from(productProjects)
-          .innerJoin(products, eq(productProjects.productId, products.id))
-          .where(and(eq(productProjects.projectId, project.id), eq(products.status, "PUBLISHED"), isNull(products.deletedAt))),
-      ]);
-      backgroundPublish("projects");
-      return { ...project, images, products: productRows.map((row) => row.item) };
-    }
-  } catch (error) {
-    logServer("warn", "project.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
   }
 
   const project = bootstrapProjects().find((item) => item.slug === slug);
@@ -844,7 +918,7 @@ export async function getClientLogos(): Promise<ClientLogo[]> {
       }));
     },
     () => bootstrapClientLogos(),
-    { scope: "client-logos", isEmpty: notEmptyArray },
+    { isEmpty: notEmptyArray },
   );
 
   const usable = value.filter((logo) => logo.imageUrl && logo.imageUrl.trim());
@@ -862,7 +936,7 @@ export async function getGallery() {
     "gallery",
     () => db.select().from(gallery).where(eq(gallery.status, "PUBLISHED")).orderBy(asc(gallery.displayOrder)),
     () => bootstrapGallery(),
-    { scope: "gallery", isEmpty: notEmptyArray },
+    { isEmpty: notEmptyArray },
   );
   return value as Array<typeof gallery.$inferSelect>;
 }
@@ -882,7 +956,7 @@ export async function getTestimonials() {
     "testimonials",
     () => db.select().from(testimonials).where(eq(testimonials.status, "PUBLISHED")).orderBy(asc(testimonials.displayOrder), asc(testimonials.id)),
     () => bootstrapTestimonials(),
-    { scope: "testimonials", isEmpty: notEmptyArray },
+    { isEmpty: notEmptyArray },
   );
   return value as Array<typeof testimonials.$inferSelect>;
 }
@@ -919,7 +993,7 @@ export async function getReelVideos(): Promise<ReelVideoItem[]> {
       }));
     },
     () => bootstrapVideos(),
-    { scope: "videos", isEmpty: notEmptyArray },
+    { isEmpty: notEmptyArray },
   );
   return value as ReelVideoItem[];
 }
@@ -978,29 +1052,32 @@ export async function getGlobalFaqs() {
         .where(and(eq(faqs.status, "PUBLISHED"), eq(faqs.entityType, "GLOBAL")))
         .orderBy(asc(faqs.displayOrder)),
     () => bootstrapFaqs(),
-    { scope: "faqs", isEmpty: notEmptyArray },
+    { isEmpty: notEmptyArray },
   );
   return value as Array<typeof faqs.$inferSelect>;
 }
 
 export async function getPage(slug: string, preview = false) {
-  const published = (await readCollection<Array<Record<string, unknown>>>("pages")) ?? [];
+  if (dbConfigured) {
+    try {
+      const row = await cacheContent(["page", slug, preview ? "preview" : "published"], async () => {
+        const [found] = await db
+          .select()
+          .from(pages)
+          .where(and(eq(pages.slug, slug), isNull(pages.deletedAt), preview ? undefined : eq(pages.status, "PUBLISHED")))
+          .limit(1);
+        return found ?? null;
+      });
+      if (row) return reviveDeep(row) as typeof pages.$inferSelect;
+    } catch (error) {
+      logServer("error", "page.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
+    }
+  }
+
+  const published = dbConfigured ? [] : (await readCollection<Array<Record<string, unknown>>>("pages")) ?? [];
   const staticMatch = published.find((row) => row.slug === slug && (preview || row.status === "PUBLISHED"));
   if (staticMatch) return reviveDates(staticMatch) as typeof pages.$inferSelect;
-
-  try {
-    const [row] = await db
-      .select()
-      .from(pages)
-      .where(and(eq(pages.slug, slug), isNull(pages.deletedAt), preview ? undefined : eq(pages.status, "PUBLISHED")))
-      .limit(1);
-    if (row) {
-      backgroundPublish("pages");
-      return row;
-    }
-  } catch (error) {
-    logServer("warn", "page.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
-  }
 
   const fallback = (await bootstrapPages()).find((row) => row.slug === slug);
   return fallback ? (reviveDates(fallback as unknown as Record<string, unknown>) as typeof pages.$inferSelect) : null;
@@ -1009,31 +1086,53 @@ export async function getPage(slug: string, preview = false) {
 /**
  * The slugs of every published CMS page, for `generateStaticParams`.
  *
- * Reads the published collection first so prerendering never needs the database,
- * and falls back to the table only when the published file has not been written.
- * Drafts and soft-deleted pages are excluded so they cannot be prerendered into
- * the public build.
+ * Reads the live table first, falling back to the published collection and then
+ * the bootstrap set when there is no database. Drafts and soft-deleted pages are
+ * excluded so they cannot be prerendered into the public build.
  */
 export async function getPageSlugs(): Promise<string[]> {
+  if (dbConfigured) {
+    try {
+      const rows = await cacheContent(["pages", "slugs"], () =>
+        db.select({ slug: pages.slug }).from(pages).where(and(eq(pages.status, "PUBLISHED"), isNull(pages.deletedAt))),
+      );
+      return [...new Set(rows.map((row) => row.slug))];
+    } catch (error) {
+      logServer("error", "pages.slugs.fetch.failed", { message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
+    }
+  }
+
   const published = await readCollection<Array<{ slug?: unknown; status?: unknown; deletedAt?: unknown }>>("pages");
   const fromStatic = (published ?? [])
     .filter((row) => row.status === "PUBLISHED" && !row.deletedAt && typeof row.slug === "string")
     .map((row) => row.slug as string);
   if (fromStatic.length > 0) return [...new Set(fromStatic)];
 
-  try {
-    const rows = await db
-      .select({ slug: pages.slug })
-      .from(pages)
-      .where(and(eq(pages.status, "PUBLISHED"), isNull(pages.deletedAt)));
-    return [...new Set(rows.map((row) => row.slug))];
-  } catch {
-    const fallback = await bootstrapPages();
-    return [...new Set(fallback.filter((row) => row.status === "PUBLISHED" && !row.deletedAt).map((row) => row.slug))];
-  }
+  const fallback = await bootstrapPages();
+  return [...new Set(fallback.filter((row) => row.status === "PUBLISHED" && !row.deletedAt).map((row) => row.slug))];
 }
 
 export async function getBlogPosts() {
+  if (dbConfigured) {
+    try {
+      const rows = await cacheContent(["blogPosts", "published"], () =>
+        db
+          .select({ post: blogPosts, category: blogCategories })
+          .from(blogPosts)
+          .leftJoin(blogCategories, eq(blogPosts.categoryId, blogCategories.id))
+          .where(and(eq(blogPosts.status, "PUBLISHED"), isNull(blogPosts.deletedAt)))
+          .orderBy(desc(blogPosts.publishedAt)),
+      );
+      // The post's `publishedAt`/`updatedAt` are consumed as Dates by the blog
+      // page, so the JSON-round-tripped rows have to be revived.
+      return reviveDeep(rows);
+    } catch (error) {
+      logServer("error", "blog-posts.fetch.failed", { message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
+    }
+  }
+
   const staticPosts = await readCollection<StaticBlogPostWithCategory[]>("blogPosts");
   if (staticPosts && staticPosts.length > 0) {
     return staticPosts.map((entry) => ({
@@ -1042,20 +1141,6 @@ export async function getBlogPosts() {
         ? (reviveDates(entry.category as unknown as Record<string, unknown>) as typeof blogCategories.$inferSelect)
         : null,
     }));
-  }
-  try {
-    const rows = await db
-      .select({ post: blogPosts, category: blogCategories })
-      .from(blogPosts)
-      .leftJoin(blogCategories, eq(blogPosts.categoryId, blogCategories.id))
-      .where(and(eq(blogPosts.status, "PUBLISHED"), isNull(blogPosts.deletedAt)))
-      .orderBy(desc(blogPosts.publishedAt));
-    if (rows.length > 0) {
-      backgroundPublish("blog");
-      return rows;
-    }
-  } catch (error) {
-    logServer("warn", "blog-posts.fetch.failed", { message: error instanceof Error ? error.message : "unknown" });
   }
   const posts = await bootstrapBlogPosts();
   const categories = bootstrapBlogCategories();
@@ -1072,7 +1157,24 @@ export async function getBlogPosts() {
 }
 
 export async function getBlogPost(slug: string, preview = false) {
-  const staticPosts = (await readCollection<StaticBlogPostWithCategory[]>("blogPosts")) ?? [];
+  if (dbConfigured) {
+    try {
+      const rows = await cacheContent(["blogPost", slug, preview ? "preview" : "published"], () =>
+        db
+          .select({ post: blogPosts, category: blogCategories })
+          .from(blogPosts)
+          .leftJoin(blogCategories, eq(blogPosts.categoryId, blogCategories.id))
+          .where(and(eq(blogPosts.slug, slug), isNull(blogPosts.deletedAt), preview ? undefined : eq(blogPosts.status, "PUBLISHED")))
+          .limit(1),
+      );
+      if (rows[0]) return reviveDeep(rows[0]);
+    } catch (error) {
+      logServer("error", "blog-post.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
+    }
+  }
+
+  const staticPosts = dbConfigured ? [] : (await readCollection<StaticBlogPostWithCategory[]>("blogPosts")) ?? [];
   const fromStatic = staticPosts.find((entry) => entry.post.slug === slug);
   if (fromStatic) {
     return {
@@ -1081,20 +1183,6 @@ export async function getBlogPost(slug: string, preview = false) {
         ? (reviveDates(fromStatic.category as unknown as Record<string, unknown>) as typeof blogCategories.$inferSelect)
         : null,
     };
-  }
-  try {
-    const rows = await db
-      .select({ post: blogPosts, category: blogCategories })
-      .from(blogPosts)
-      .leftJoin(blogCategories, eq(blogPosts.categoryId, blogCategories.id))
-      .where(and(eq(blogPosts.slug, slug), isNull(blogPosts.deletedAt), preview ? undefined : eq(blogPosts.status, "PUBLISHED")))
-      .limit(1);
-    if (rows[0]) {
-      backgroundPublish("blog");
-      return rows[0];
-    }
-  } catch (error) {
-    logServer("warn", "blog-post.fetch.failed", { slug, message: error instanceof Error ? error.message : "unknown" });
   }
   const posts = await bootstrapBlogPosts();
   const post = posts.find((item) => item.slug === slug);
@@ -1113,23 +1201,20 @@ export async function getBlogPost(slug: string, preview = false) {
 }
 
 export async function getRedirectPath(sourcePath: string) {
-  const staticRedirects = (await readCollection<Array<{ sourcePath: string; destinationPath: string }>>("redirects")) ?? [];
-  const fromStatic = staticRedirects.find((item) => item.sourcePath === sourcePath);
-  if (fromStatic) return fromStatic.destinationPath;
-  try {
-    const rows = await db.select().from(redirects).where(eq(redirects.sourcePath, sourcePath)).limit(1);
-    if (rows[0]) {
-      backgroundPublish("redirects");
-      return rows[0].destinationPath;
+  if (dbConfigured) {
+    try {
+      const rows = await cacheContent(["redirect", sourcePath], () =>
+        db.select().from(redirects).where(eq(redirects.sourcePath, sourcePath)).limit(1),
+      );
+      return rows[0]?.destinationPath ?? null;
+    } catch (error) {
+      logServer("error", "redirects.fetch.failed", { message: error instanceof Error ? error.message : "unknown" });
+      if (process.env.NODE_ENV === "production") throw error;
     }
-  } catch (error) {
-    logServer("warn", "redirects.fetch.failed", { message: error instanceof Error ? error.message : "unknown" });
   }
-  return null;
-}
 
-export async function getPublishedRoutes(): Promise<StaticRoutes | null> {
-  return readCollection<StaticRoutes>("routes");
+  const staticRedirects = (await readCollection<Array<{ sourcePath: string; destinationPath: string }>>("redirects")) ?? [];
+  return staticRedirects.find((item) => item.sourcePath === sourcePath)?.destinationPath ?? null;
 }
 
 export type SearchResult = {
@@ -1144,8 +1229,10 @@ export async function searchSite(query: string): Promise<SearchResult[]> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return [];
 
-  const staticResults = await searchStatic(trimmed);
-  if (staticResults.length > 0) return staticResults;
+  if (!dbConfigured) {
+    const staticResults = await searchStatic(trimmed);
+    return staticResults.length > 0 ? staticResults : catalogueSearch(trimmed);
+  }
 
   try {
     const term = `%${trimmed}%`;
@@ -1184,9 +1271,10 @@ export async function searchSite(query: string): Promise<SearchResult[]> {
       ...pageRows.map((x) => ({ ...x, description: x.description ?? "", type: "Page", href: `/${x.slug}` })),
     ];
   } catch (error) {
-    logServer("warn", "search.fetch.failed", { message: error instanceof Error ? error.message : "unknown" });
+    logServer("error", "search.fetch.failed", { message: error instanceof Error ? error.message : "unknown" });
+    if (process.env.NODE_ENV === "production") throw error;
   }
-  return staticResults.length > 0 ? staticResults : catalogueSearch(trimmed);
+  return catalogueSearch(trimmed);
 }
 
 async function searchStatic(query: string): Promise<SearchResult[]> {

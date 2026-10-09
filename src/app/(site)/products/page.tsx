@@ -14,8 +14,18 @@ import { getClientLogos, getProductsReelVideos } from "@/lib/data";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Products | Rack & Stack Storage Systems",
+  title: "Products",
   description: "Explore 32 storage, racking, material-handling and workplace storage products from Rack & Stack.",
+  alternates: { canonical: "/products" },
+  openGraph: {
+    title: "Products",
+    description: "Explore 32 storage, racking, material-handling and workplace storage products from Rack & Stack.",
+    url: "/products",
+    siteName: "Rack & Stack Storage Systems",
+    type: "website",
+    images: [{ url: catalogueCategories[1].image, alt: "Industrial storage environment" }],
+  },
+  twitter: { card: "summary_large_image", title: "Products", description: "Explore 32 storage, racking, material-handling and workplace storage products from Rack & Stack." },
 };
 
 /**
@@ -80,7 +90,7 @@ export default async function ProductsPage() {
 
       <ReelShowcase
         videos={reels}
-        subtitle="Our systems on site â€” installed, loaded and working in live warehouses."
+        subtitle="Our systems on site — installed, loaded and working in live warehouses."
         cta={{ label: "Request a Quote", href: "/request-a-quote" }}
       />
     </main>

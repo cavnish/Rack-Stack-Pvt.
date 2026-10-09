@@ -18,6 +18,15 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Request a Quote",
   description: "Share your storage, racking, shelving or mezzanine requirement with Rack & Stack.",
+  alternates: { canonical: "/request-a-quote" },
+  openGraph: {
+    title: "Request a Quote",
+    description: "Share your storage, racking, shelving or mezzanine requirement with Rack & Stack.",
+    url: "/request-a-quote",
+    siteName: "Rack & Stack Storage Systems",
+    type: "website",
+  },
+  twitter: { card: "summary", title: "Request a Quote", description: "Share your storage, racking, shelving or mezzanine requirement with Rack & Stack." },
 };
 
 /**

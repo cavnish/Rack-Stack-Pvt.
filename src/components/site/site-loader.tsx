@@ -174,7 +174,7 @@ export function SiteLoader() {
           transition={{ duration: 0.6, delay: 0.08, ease: EASE }}
           className="grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-white shadow-[0_0_0_6px_rgba(209,31,47,.08)]"
         >
-          <Image src="/logo.png" alt="" width={700} height={700} priority unoptimized className="h-full w-full object-contain" draggable={false} />
+          <Image src="/logo.png" alt="" width={128} height={128} sizes="64px" className="h-full w-full object-contain" draggable={false} />
         </motion.span>
 
         <motion.p

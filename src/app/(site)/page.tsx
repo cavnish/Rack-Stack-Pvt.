@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowDown, ArrowRight, MoveUpRight } from "lucide-react";
 import { SmartImage } from "@/components/site/smart-image";
@@ -13,7 +14,35 @@ import { FitHeading } from "@/components/site/fit-heading";
 import { Stagger,StaggerItem } from "@/components/site/reveal";
 import { getBlogPosts, getClientLogos, getGallery, getHomeOfferCards, getHomepageSections, getHomeSliders, getIndustries, getServices, getTestimonials } from "@/lib/data";
 import { TrustedByStrip } from "@/components/site/trusted-by-strip";
+
 export const revalidate = 3600;
+
+/**
+ * The homepage is the entry point search engines see first, so it carries its
+ * own self-referencing canonical and share metadata rather than inheriting the
+ * root layout's title alone. `title.absolute` is used deliberately: the root
+ * layout templates child titles with "| Rack & Stack", and without `absolute`
+ * the brand would be appended a second time.
+ */
+const HOME_TITLE = "Rack & Stack Storage Systems | Industrial Storage & Warehouse Racking";
+const HOME_DESCRIPTION =
+  "Rack & Stack Storage Systems designs and manufactures industrial storage, warehouse racking, shelving, mezzanine floors and material-handling systems for businesses across India.";
+
+export const metadata: Metadata = {
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Rack & Stack Storage Systems | Industrial Storage Solutions",
+    description: HOME_DESCRIPTION,
+    url: "/",
+    siteName: "Rack & Stack Storage Systems",
+    type: "website",
+    images: [{ url: "/Hero.jpeg", alt: "Industrial pallet racking and warehouse storage installed by Rack & Stack" }],
+  },
+  twitter: { card: "summary_large_image", title: "Rack & Stack Storage Systems", description: HOME_DESCRIPTION },
+};
+
 type Dict=Record<string,unknown>;
 const dict=(value:unknown):Dict=>value&&typeof value==="object"?value as Dict:{};
 export default async function HomePage() {

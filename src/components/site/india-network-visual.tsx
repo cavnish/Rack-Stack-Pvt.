@@ -28,7 +28,7 @@ export function IndiaNetworkVisual() {
         alt="Map of India showing pan-India supply and installation coverage"
         width={1536}
         height={1024}
-        priority
+        sizes="(max-width: 1024px) 300px, 380px"
         className="india-map relative z-10 h-auto w-[240px] max-w-full mix-blend-lighten min-[420px]:w-[260px] sm:w-[290px] lg:w-[330px] xl:w-[360px] 2xl:w-[375px]"
       />
 

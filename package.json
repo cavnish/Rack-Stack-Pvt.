@@ -13,6 +13,7 @@
                     "mail:test":  "tsx scripts/test-email.ts",
                     "mail:check":  "tsx scripts/check-mail-config.ts",
                     "form:check":  "tsx scripts/verify-form-validation.ts",
+                    "verify:seo":  "node scripts/validate-seo.mjs",
                     "db:studio":  "drizzle-kit studio",
                     "db:local:start":  "node scripts/db-local.mjs start",
                     "db:local:stop":  "node scripts/db-local.mjs stop",

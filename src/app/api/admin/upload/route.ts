@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   }
-  if (!rateLimit(requestKey(request, "upload"), 20, 60_000).allowed) return NextResponse.json({ error: "Upload limit reached" }, { status: 429 });
+  if (!(await rateLimit(requestKey(request, "upload"), 20, 60_000)).allowed) return NextResponse.json({ error: "Upload limit reached" }, { status: 429 });
   try {
     const form = await request.formData();
     const file = form.get("file");

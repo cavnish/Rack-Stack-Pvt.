@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { asc, and, desc, eq, gte, inArray, isNull, lte, or } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { db, dbConfigured } from "@/db";
+import { revalidateContent } from "@/lib/cache";
 import {
   blogCategories,
   blogPosts,
@@ -54,8 +54,7 @@ import {
   type AssetGroup,
   type CachedAsset,
 } from "./media";
-import { flushWrites, readCollection, readManifest, updateManifest, writeCollection, type CollectionKey } from "./store";
-import type { StaticRoutes } from "./types";
+import { canWriteStaticFiles, flushWrites, readCollection, readManifest, updateManifest, writeCollection, type CollectionKey } from "./store";
 
 export type PublishScope =
   | "all"
@@ -1243,29 +1242,28 @@ const scopeCollections: Record<PublishScope, CollectionKey[]> = {
     "pages",
     "redirects",
     "videos",
-    "routes",
   ],
-  settings: ["site", "routes"],
-  seo: ["seo", "routes"],
-  homepage: ["homepage", "routes"],
-  "home-offer-cards": ["homeOfferCards", "homepage", "routes"],
-  sliders: ["sliders", "routes"],
-  products: ["products", "routes"],
-  product: ["products", "routes"],
-  services: ["services", "routes"],
-  service: ["services", "routes"],
-  projects: ["projects", "routes"],
-  project: ["projects", "routes"],
-  "client-logos": ["clientLogos", "routes"],
-  industries: ["industries", "routes"],
-  industry: ["industries", "routes"],
-  gallery: ["gallery", "routes"],
-  testimonials: ["testimonials", "routes"],
-  blog: ["blogPosts", "blogCategories", "routes"],
-  faqs: ["faqs", "routes"],
-  pages: ["pages", "routes"],
-  redirects: ["redirects", "routes"],
-  videos: ["videos", "routes"],
+  settings: ["site"],
+  seo: ["seo"],
+  homepage: ["homepage"],
+  "home-offer-cards": ["homeOfferCards", "homepage"],
+  sliders: ["sliders"],
+  products: ["products"],
+  product: ["products"],
+  services: ["services"],
+  service: ["services"],
+  projects: ["projects"],
+  project: ["projects"],
+  "client-logos": ["clientLogos"],
+  industries: ["industries"],
+  industry: ["industries"],
+  gallery: ["gallery"],
+  testimonials: ["testimonials"],
+  blog: ["blogPosts", "blogCategories"],
+  faqs: ["faqs"],
+  pages: ["pages"],
+  redirects: ["redirects"],
+  videos: ["videos"],
 };
 
 export function collectionsForScope(scope: PublishScope): CollectionKey[] {
@@ -1312,45 +1310,24 @@ export function scopeForAdminEntity(entity: string): PublishScope {
   }
 }
 
-async function generateRoutes(): Promise<StaticRoutes> {
-  const [products, services, projects, industries, blogPosts, pages, galleryRows, clientLogos] = await Promise.all([
-    readPublished<Array<{ slug: string }>>("products"),
-    readPublished<Array<{ slug: string }>>("services"),
-    readPublished<Array<{ slug: string }>>("projects"),
-    readPublished<Array<{ slug: string }>>("industries"),
-    readPublished<Array<{ post: { slug: string } }>>("blogPosts"),
-    readPublished<Array<{ slug: string }>>("pages"),
-    readPublished<unknown[]>("gallery"),
-    readPublished<unknown[]>("clientLogos"),
-  ]);
-  return {
-    generatedAt: new Date().toISOString(),
-    products: products.map((row) => row.slug),
-    services: services.map((row) => row.slug),
-    projects: projects.map((row) => row.slug),
-    industries: industries.map((row) => row.slug),
-    blog: blogPosts.map((row) => row.post.slug),
-    pages: pages.map((row) => row.slug),
-    gallery: galleryRows.length,
-    clientLogos: clientLogos.length,
-  };
-}
-
-async function readPublished<T>(key: CollectionKey): Promise<T> {
-  return ((await readCollection<T>(key)) ?? []) as T;
-}
-
 /**
- * Regenerates the static content layer from Neon + Cloudinary.
- * Only collections affected by `scope` are rebuilt; a collection whose generated
- * payload is unchanged is not rewritten, and unchanged media is reused from
- * public/assets/media-manifest.json instead of being downloaded again.
+ * Regenerates the static content layer from Neon + Cloudinary, or invalidates
+ * the live content cache on a host with a read-only filesystem.
+ *
+ * Offline (or when ALLOW_STATIC_WRITES is set) this rebuilds the JSON files:
+ * only collections affected by `scope` are rebuilt, an unchanged collection is
+ * not rewritten, and unchanged media is reused from public/assets/media-manifest.json
+ * instead of being downloaded again.
+ *
+ * In production on a serverless host there is nowhere to write `src/data`, so the
+ * same call becomes a cache invalidation. The database is authoritative at
+ * runtime, and dropping the `cms-content` tag plus the layout is what makes the
+ * admin's edit visible. The result keeps the same shape, so the admin API
+ * response does not change between the two modes.
  */
 export async function publish(scope: PublishScope = "all", options: { force?: boolean } = {}): Promise<PublishResult> {
   const started = Date.now();
-  const counters: Counters = { cached: 0, reused: 0, failed: 0, unresolved: 0, failures: [] };
   const collections = collectionsForScope(scope);
-  const written: CollectionKey[] = [];
 
   if (!dbConfigured) {
     return {
@@ -1366,6 +1343,23 @@ export async function publish(scope: PublishScope = "all", options: { force?: bo
     };
   }
 
+  if (!canWriteStaticFiles()) {
+    revalidateContent();
+    logServer("info", "publish.invalidated", { scope, collections: collections.join(",") });
+    return {
+      scope,
+      collections,
+      assetsCached: 0,
+      assetsReused: 0,
+      assetsFailed: 0,
+      failedAssets: [],
+      durationMs: Date.now() - started,
+      skipped: false,
+    };
+  }
+
+  const counters: Counters = { cached: 0, reused: 0, failed: 0, unresolved: 0, failures: [] };
+  const written: CollectionKey[] = [];
   // Scopes run concurrently, so every counter read/write below happens inside
   // this run's own storage rather than on a shared module-level object.
   return runStorage.run(counters, () => publishWithinScope(scope, options, counters, started, collections, written));
@@ -1396,7 +1390,6 @@ async function publishWithinScope(
   };
 
   for (const key of collections) {
-    if (key === "routes") continue;
     const generator = generators[key];
     if (!generator) continue;
     const value = await generator();
@@ -1404,19 +1397,11 @@ async function publishWithinScope(
     await commit(key, value);
   }
 
-  if (collections.includes("routes")) {
-    await commit("routes", await generateRoutes());
-  }
-
   await flushWrites();
   await flushMediaManifest();
 
   if (written.length > 0) {
-    try {
-      revalidatePath("/", "layout");
-    } catch {
-      // Outside a request scope (CLI publish) there is nothing to revalidate.
-    }
+    revalidateContent();
     logServer("info", "publish.completed", {
       scope,
       collections: written.join(","),

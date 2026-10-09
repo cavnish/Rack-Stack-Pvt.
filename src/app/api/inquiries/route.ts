@@ -10,7 +10,7 @@ import { getCatalogueProductBySlug } from "@/lib/catalogue";
 
 export async function POST(request: Request) {
   if (!hasValidOrigin(request)) return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
-  const limit = rateLimit(requestKey(request, "inquiry"), 5, 10 * 60_000);
+  const limit = await rateLimit(requestKey(request, "inquiry"), 5, 10 * 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many submissions. Please try again later." },

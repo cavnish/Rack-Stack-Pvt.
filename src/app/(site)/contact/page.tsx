@@ -27,9 +27,19 @@ import { phoneHref, whatsappHref } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Contact | Rack & Stack Storage Systems",
+  title: "Contact",
   description:
     "Contact Rack & Stack Storage Systems about racking, shelving, mezzanine and custom storage requirements. Call, WhatsApp, email or visit our office.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact",
+    description:
+      "Contact Rack & Stack Storage Systems about racking, shelving, mezzanine and custom storage requirements. Call, WhatsApp, email or visit our office.",
+    url: "/contact",
+    siteName: "Rack & Stack Storage Systems",
+    type: "website",
+  },
+  twitter: { card: "summary", title: "Contact", description: "Contact Rack & Stack Storage Systems about racking, shelving, mezzanine and custom storage requirements." },
 };
 
 const officeCoordinates = "19.4375089,72.8821406";

@@ -23,10 +23,26 @@
 /** The production origin. Used whenever the configured value is unusable. */
 const PRODUCTION_ORIGIN = "https://www.rackandstack.in";
 
+/** Hosts that are this site itself, so a link to them is an internal route. */
+const CANONICAL_HOSTS = new Set(["www.rackandstack.in", "rackandstack.in"]);
+
 let warned = false;
 
 function isLoopback(hostname: string) {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1" || hostname === "[::1]";
+}
+
+/**
+ * Vercel preview/deployment hosts (`*.vercel.app`).
+ *
+ * These are per-deployment cockpit URLs, not the customer-facing origin. A build
+ * that inherited one as `NEXT_PUBLIC_SITE_URL` would publish it as the canonical
+ * address of every page — the same class of failure as a localhost origin, so it
+ * is rejected alongside it.
+ */
+function isPreviewHost(hostname: string) {
+  const host = hostname.toLowerCase();
+  return host === "vercel.app" || host.endsWith(".vercel.app");
 }
 
 function normalize(value: string) {
@@ -61,16 +77,47 @@ export function siteOrigin(): string {
     return PRODUCTION_ORIGIN;
   }
 
-  if (isLoopback(parsed.hostname) && process.env.NODE_ENV === "production") {
+  if ((isLoopback(parsed.hostname) || isPreviewHost(parsed.hostname)) && process.env.NODE_ENV === "production") {
     warnOnce(
-      `NEXT_PUBLIC_SITE_URL is "${configured}", which points at localhost. ` +
-        `Canonical URLs, the sitemap and robots.txt would all advertise localhost in production, ` +
-        `so ${PRODUCTION_ORIGIN} is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.`,
+      `NEXT_PUBLIC_SITE_URL is "${configured}", which is not the public origin ` +
+        `(localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all ` +
+        `advertise the wrong host in production, so ${PRODUCTION_ORIGIN} is being used instead. ` +
+        `Set NEXT_PUBLIC_SITE_URL to the real origin.`,
     );
     return PRODUCTION_ORIGIN;
   }
 
   return normalize(configured);
+}
+
+/**
+ * A same-site URL rendered as a safe relative route.
+ *
+ * CMS fields (hero buttons, section CTAs, rich links) are free text, so an editor
+ * can paste an absolute URL that points at this very site — including a stale
+ * preview host such as `https://rackandstack.vercel.app/...`. Following that link
+ * leaves the canonical domain and can leak preview pages, so any link whose host
+ * is this site (apex, `www`, localhost, or a `*.vercel.app` preview) is rewritten
+ * to just its path. External hosts are returned untouched.
+ */
+export function internalHref(value: string | null | undefined, fallback = "/"): string {
+  const raw = (value ?? "").trim();
+  if (!raw) return fallback;
+  if (raw.startsWith("/") || raw.startsWith("#") || raw.startsWith("?")) return raw;
+
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    return raw;
+  }
+
+  const host = url.hostname.toLowerCase();
+  if (CANONICAL_HOSTS.has(host) || isLoopback(host) || isPreviewHost(host)) {
+    const path = `${url.pathname}${url.search}${url.hash}`;
+    return path === "" || path === "/" ? fallback : path;
+  }
+  return raw;
 }
 
 /** `siteOrigin()` as a `URL`, for Next's `metadataBase`. */

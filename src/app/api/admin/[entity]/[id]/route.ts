@@ -3,7 +3,7 @@ import { getCurrentUser, canDelete } from "@/lib/auth";
 import { deleteEntity, getEntity, isAdminEntity, updateEntity, type AdminEntity } from "@/lib/admin-entities";
 import { hasValidOrigin } from "@/lib/rate-limit";
 import { logActivity, logServer } from "@/lib/logger";
-import { revalidatePath } from "next/cache";
+import { revalidateContent } from "@/lib/cache";
 import { destroyRemote } from "@/lib/cloudinary";
 import { isRemoteUrl, verifyImageSource } from "@/lib/publish/media";
 import { publishEntitySummary } from "@/lib/publish";
@@ -258,7 +258,11 @@ export async function PUT(request: Request, context: { params: Promise<{ entity:
     await pruneProductGallery(entity, previous, body);
     await logActivity(entity === "inquiries" ? "INQUIRY_STATUS_CHANGED" : `${entity.toUpperCase()}_UPDATED`, entity, id, user.id);
     const publish = await publishEntitySummary(entity);
-    revalidatePath("/", "layout");
+    if (publish.error) {
+      logServer("error", "admin.publish_failed_after_update", { entity, id, message: publish.error });
+      return NextResponse.json({ ...(item as object), publish, error: "Saved, but the site could not be updated. Please retry the save." }, { status: 500 });
+    }
+    revalidateContent();
     return NextResponse.json({ ...(item as object), publish });
   } catch (error) {
     logServer("error", "admin.update_failed", { entity, id, message: error instanceof Error ? error.message : "unknown" });
@@ -307,7 +311,11 @@ export async function DELETE(request: Request, context: { params: Promise<{ enti
     await deleteEntity(entity, Number(id));
     await logActivity(`${entity.toUpperCase()}_DELETED`, entity, id, user.id);
     const publish = await publishEntitySummary(entity);
-    revalidatePath("/", "layout");
+    if (publish.error) {
+      logServer("error", "admin.publish_failed_after_delete", { entity, id, message: publish.error });
+      return NextResponse.json({ ok: true, publish, error: "Deleted, but the site could not be updated. Please retry the save." }, { status: 500 });
+    }
+    revalidateContent();
     return NextResponse.json({ ok: true, publish });
   } catch (error) {
     logServer("warn", "admin.delete_failed", { entity, id });

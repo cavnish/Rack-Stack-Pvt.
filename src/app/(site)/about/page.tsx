@@ -27,7 +27,7 @@ import { ABOUT_IMAGES } from "@/lib/about-page";
  */
 
 export const metadata: Metadata = {
-  title: "About Rack & Stack | Storage Systems & Material Handling Equipment Manufacturer",
+  title: "About",
   description:
     "Rack and Stack Systems manufactures and exports compactor storage systems, heavy duty pallet racks, mezzanine floors, slotted angle and cantilever racks, and in-plant material handling equipment.",
   alternates: { canonical: "/about" },

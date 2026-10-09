@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-08T14:23:54.363Z",
+  "generatedAt": "2026-10-09T10:38:55.582Z",
   "collections": {
     "blogPosts": {
       "hash": "97d170e1550eee4a",
@@ -43,8 +43,8 @@
       "count": 12
     },
     "sliders": {
-      "hash": "a304f75b140de8b0",
-      "generatedAt": "2026-10-08T14:23:54.331Z",
+      "hash": "f440c9fa7298c0ba",
+      "generatedAt": "2026-10-09T10:38:55.582Z",
       "count": 3
     },
     "pages": {

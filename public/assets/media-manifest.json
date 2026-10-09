@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-08T14:23:44.392Z",
+  "updatedAt": "2026-10-09T10:38:46.749Z",
   "assets": {
     "hero:https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000": {
       "url": "/assets/images/hero/warehouse-pallet-storage-hero-374ec6e177.webp",
@@ -1159,6 +1159,32 @@
       "cached": false,
       "group": "hero",
       "name": "home-sliders-t4kymyrqueygdlf2mmwn",
+      "etag": "\"d64b121c20f9144155919c8a66e30d9b\""
+    },
+    "hero:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791540064/rack-stack/home-sliders/fpt4qgqin4a4og0bpask.jpg": {
+      "url": "/assets/images/hero/home-sliders-fpt4qgqin4a4og0bpask-646128423c.webp",
+      "width": 2000,
+      "height": 1116,
+      "aspectRatio": 1.7921,
+      "bytes": 128042,
+      "hash": "646128423c",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791540064/rack-stack/home-sliders/fpt4qgqin4a4og0bpask.jpg",
+      "cached": false,
+      "group": "hero",
+      "name": "home-sliders-fpt4qgqin4a4og0bpask",
+      "etag": "\"68f967b51075f49468d90816890a3494\""
+    },
+    "hero:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791542326/rack-stack/home-sliders/ru52wu50zrtrbxojusqc.jpg": {
+      "url": "/assets/images/hero/home-sliders-ru52wu50zrtrbxojusqc-9c45bfb9fe.webp",
+      "width": 1672,
+      "height": 940,
+      "aspectRatio": 1.7787,
+      "bytes": 113084,
+      "hash": "9c45bfb9fe",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791542326/rack-stack/home-sliders/ru52wu50zrtrbxojusqc.jpg",
+      "cached": false,
+      "group": "hero",
+      "name": "home-sliders-ru52wu50zrtrbxojusqc",
       "etag": "\"d64b121c20f9144155919c8a66e30d9b\""
     }
   }

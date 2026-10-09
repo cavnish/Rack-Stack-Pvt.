@@ -1,0 +1,30 @@
+# Gitleaks configuration for the Rack & Stack repository.
+#
+# Usage (local):
+#   gitleaks detect --source . --config .gitleaks.toml --log-opts="--all"
+#
+# Usage (CI):
+#   gitleaks detect --source . --config .gitleaks.toml --log-opts="origin/main..HEAD"
+#
+# Note: previously committed secrets are not removed by the scanner. If a report
+# matches .env.example, rotate the affected credential first, then (with owner
+# approval) purge history with git-filter-repo and force-push.
+
+title = "Rack & Stack Storage Systems gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlist]]
+description = "Safe example connection-string placeholders in .env.example"
+paths = [".env.example"]
+regexes = [
+  '''postgres(ql)?://USER:PASSWORD@HOST/DATABASE'''
+]
+
+[[allowlist]]
+description = "Local-only development strings: the app's offline sentinel pool and the local embedded Postgres runner"
+paths = [
+  "src/db/index.ts",
+  "scripts/db-local.mjs",
+]

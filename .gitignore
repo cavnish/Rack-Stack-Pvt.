@@ -9,3 +9,15 @@
 *.tsbuildinfo
 *.log
 server-log.txt
+
+# Local audit/verification harnesses and ad-hoc scripts (temporary artifacts)
+_*.mts
+_*.mjs
+tmp-*.mjs
+tmp-*.mts
+perf-baseline.json
+build-baseline.txt
+baseline-routes.txt
+
+# Secret scanning artifacts
+.gitleaks-report*

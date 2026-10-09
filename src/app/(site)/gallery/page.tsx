@@ -4,7 +4,7 @@ import { CTASection,PageHero,SectionHeading } from "@/components/site/ui";
 import { GalleryGrid } from "@/components/site/gallery-grid";
 import { ReelShowcase } from "@/components/media/reel-showcase";
 export const revalidate=3600;
-export const metadata:Metadata={title:"Gallery",description:"Warehouse, racking, shelving, installation and industrial storage photos from Rack & Stack."};
+export const metadata:Metadata={title:"Gallery",description:"Warehouse, racking, shelving, installation and industrial storage photos from Rack & Stack.",alternates:{canonical:"/gallery"},openGraph:{title:"Gallery",description:"Warehouse, racking, shelving, installation and industrial storage photos from Rack & Stack.",url:"/gallery",siteName:"Rack & Stack Storage Systems",type:"website"},twitter:{card:"summary",title:"Gallery",description:"Warehouse, racking, shelving, installation and industrial storage photos from Rack & Stack."}};
 /**
  * The Reel shelf lives here and nowhere else.
  *

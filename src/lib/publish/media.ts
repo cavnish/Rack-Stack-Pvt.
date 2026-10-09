@@ -3,6 +3,7 @@ import { mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promi
 import path from "node:path";
 import sharp from "sharp";
 import { stableImageUrl, toPublicFilePath } from "@/lib/public-asset-paths";
+import { canWriteStaticFiles } from "./store";
 
 export type AssetGroup =
   | "hero"
@@ -68,6 +69,9 @@ async function readManifest(): Promise<Manifest> {
 }
 
 function scheduleManifestWrite(manifest: Manifest) {
+  // Read-only host: media is served from Cloudinary directly, so there is no
+  // manifest to persist and writing one would throw on the read-only filesystem.
+  if (!canWriteStaticFiles()) return;
   manifest.updatedAt = new Date().toISOString();
   manifestWrite = manifestWrite
     .then(async () => {
@@ -277,6 +281,9 @@ async function remoteUnchanged(source: string, etag: string | null) {
 }
 
 async function writeVariant(buffer: Buffer, group: AssetGroup, name: string, hash: string) {
+  if (!canWriteStaticFiles()) {
+    throw new Error("Static media writes are disabled in production.");
+  }
   const directory = groupDirectory(group);
   // A group added after the initial sync has no directory yet; sharp cannot
   // create one, so the first write for a new group would fail.

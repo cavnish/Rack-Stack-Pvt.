@@ -33,10 +33,10 @@ export function Logo({
         <Image
           src="/logo.png"
           alt=""
-          width={700}
-          height={700}
+          width={112}
+          height={112}
+          sizes="56px"
           priority
-          unoptimized
           className="relative z-10 h-full w-full object-contain"
           draggable={false}
         />

@@ -14,7 +14,7 @@ const eventSchema = z.object({
 
 export async function POST(request: Request) {
   if (!hasValidOrigin(request)) return NextResponse.json({ ok: true });
-  if (!rateLimit(requestKey(request, "analytics-event"), 40, 60_000).allowed) return NextResponse.json({ ok: true });
+  if (!(await rateLimit(requestKey(request, "analytics-event"), 40, 60_000)).allowed) return NextResponse.json({ ok: true });
   try {
     const event = eventSchema.parse(await request.json());
     await db.insert(analyticsEvents).values({ eventName: event.eventName, entityType: event.entityType, entityId: event.entityId, path: event.path, consentLevel: event.consent });

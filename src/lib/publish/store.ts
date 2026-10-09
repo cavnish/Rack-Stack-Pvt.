@@ -29,6 +29,18 @@ export type CollectionKey = keyof typeof collections;
 
 const MANIFEST_FILE = "manifest.json";
 
+/**
+ * Whether this process is allowed to bake content into `src/data`.
+ *
+ * A serverless deployment runs with a read-only filesystem even though
+ * NODE_ENV is "production", so the runtime treats the database as authoritative
+ * and only invalidates the content cache. The offline publish CLI (NODE_ENV
+ * unset) and an explicit ALLOW_STATIC_WRITES=1 regenerate the committed JSON.
+ */
+export function canWriteStaticFiles() {
+  return process.env.NODE_ENV !== "production" || process.env.ALLOW_STATIC_WRITES === "1";
+}
+
 export type PublishManifest = {
   version: 1;
   generatedAt: string;
@@ -91,6 +103,9 @@ export async function collectionExists(key: CollectionKey) {
 }
 
 async function atomicWrite(target: string, contents: string) {
+  if (!canWriteStaticFiles()) {
+    throw new Error(`Static file writes are disabled in production (refusing to write ${target}).`);
+  }
   await mkdir(path.dirname(target), { recursive: true });
   const temporary = `${target}.${process.pid}.tmp`;
   await writeFile(temporary, contents, "utf8");

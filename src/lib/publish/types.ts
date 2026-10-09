@@ -60,6 +60,29 @@ export function reviveList<T extends Record<string, unknown>>(rows: StaticList<T
   return (rows as unknown as T[]).map((row) => reviveDates(row));
 }
 
+/**
+ * Revives ISO strings at every depth.
+ *
+ * `reviveDates` only converts a row's own top-level fields, which is enough for
+ * the published files because their nested rows are never consumed as dates.
+ * A value that has been through `unstable_cache` is a JSON round-trip of a live
+ * query result, though, and its nested rows (product images, service features,
+ * related products) carry real `Date` columns the renderer may touch. This walks
+ * the whole structure so no column is left as a string where a `Date` is
+ * expected.
+ */
+export function reviveDeep<T>(value: T): T {
+  if (typeof value === "string") return (ISO_DATE.test(value) ? new Date(value) : value) as unknown as T;
+  if (Array.isArray(value)) return value.map((entry) => reviveDeep(entry)) as unknown as T;
+  if (value && typeof value === "object") {
+    if (value instanceof Date) return value;
+    const output: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(value as Record<string, unknown>)) output[key] = reviveDeep(entry);
+    return output as unknown as T;
+  }
+  return value;
+}
+
 export type StaticHomeSection = Static<typeof homepageSections.$inferSelect>;
 export type StaticHomeOfferCard = Static<typeof homeOfferCards.$inferSelect>;
 export type StaticHomeSlider = Static<typeof homeSliders.$inferSelect>;

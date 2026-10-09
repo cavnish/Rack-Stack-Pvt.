@@ -1218,3 +1218,19 @@ export const aboutSections = pgTable(
     index("about_sections_order_idx").on(table.displayOrder),
   ],
 );
+
+/**
+ * Fixed-window rate-limit counter, one row per key.
+ *
+ * Shared through Postgres so the limit holds across the many instances a
+ * serverless deployment runs, which a process-local Map cannot do.
+ */
+export const rateLimits = pgTable(
+  "rate_limits",
+  {
+    key: text("key").primaryKey(),
+    count: integer("count").default(0).notNull(),
+    resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [index("rate_limits_reset_at_idx").on(table.resetAt)],
+);

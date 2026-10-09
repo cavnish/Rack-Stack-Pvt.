@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { canPublish, getCurrentUser } from "@/lib/auth";
 import { hasValidOrigin } from "@/lib/rate-limit";
 import { logServer } from "@/lib/logger";
 import { publishSerialized, type PublishScope } from "@/lib/publish";
@@ -40,6 +40,7 @@ function parseScope(value: unknown): PublishScope | null {
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!canPublish(user.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   if (!hasValidOrigin(request)) return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
 
   let scope: PublishScope = "all";

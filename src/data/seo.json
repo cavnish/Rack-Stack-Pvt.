@@ -8,7 +8,7 @@
     "twitterImage": null,
     "robotsSettings": "index,follow",
     "googleVerification": null,
-    "canonicalBaseUrl": "http://localhost:3000",
+    "canonicalBaseUrl": null,
     "organizationSchema": {
       "name": "Rack & Stack Storage Systems Pvt. Ltd.",
       "@type": "Organization"

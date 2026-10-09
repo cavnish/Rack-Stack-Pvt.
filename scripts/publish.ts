@@ -1,6 +1,11 @@
 import "dotenv/config";
 import { publish, type PublishScope } from "@/lib/publish";
 
+// This CLI exists to bake `src/data`, so opt in explicitly even when the
+// surrounding shell has NODE_ENV=production set (which would otherwise make the
+// write guard treat it like a read-only serverless runtime).
+process.env.ALLOW_STATIC_WRITES = "1";
+
 const scopes: PublishScope[] = [
   "all",
   "settings",

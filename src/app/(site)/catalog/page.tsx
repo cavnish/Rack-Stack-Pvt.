@@ -10,10 +10,21 @@ import { Stagger, StaggerItem } from "@/components/site/reveal";
 import { getGallery, getSiteSettings } from "@/lib/data";
 import { catalogueCategories, catalogueProducts } from "@/lib/catalogue";
 
+const CATALOG_DESCRIPTION =
+  "See our racking, shelving, mezzanine, compactor and workplace storage ranges — and download the catalog when available.";
+
 export const metadata: Metadata = {
   title: "Industrial Storage Product Catalog",
-  description: "See our racking, shelving, mezzanine, compactor and workplace storage ranges — and download the catalog when available.",
+  description: CATALOG_DESCRIPTION,
   alternates: { canonical: "/catalog" },
+  openGraph: {
+    title: "Industrial Storage Product Catalog",
+    description: CATALOG_DESCRIPTION,
+    url: "/catalog",
+    siteName: "Rack & Stack Storage Systems",
+    type: "website",
+  },
+  twitter: { card: "summary", title: "Industrial Storage Product Catalog", description: CATALOG_DESCRIPTION },
 };
 
 export default async function CatalogPage() {

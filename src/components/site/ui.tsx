@@ -80,8 +80,10 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
  * It used to take an `eyebrow` and a `breadcrumb` trail. Both are gone: the
  * eyebrow repeated the section or the brand name that the H1 already carries,
  * and a visible trail above a page title only restates the URL bar. Page-level
- * hierarchy is now just the H1, its description and the media. `BreadcrumbList`
- * structured data is emitted by each route separately, so the schema survives.
+ * hierarchy is now just the H1, its description and the media. A visible
+ * breadcrumb trail is gone, and `BreadcrumbList` structured data is emitted only
+ * on the product detail routes (see `product-page-view.tsx`), which is where a
+ * genuine multi-level hierarchy exists.
  */
 export function PageHero({ title, description, image }: { title: string; description?: string | null; image?: string | null }) {
   const reduced = useReducedMotion();

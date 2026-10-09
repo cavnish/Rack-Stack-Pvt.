@@ -16,7 +16,7 @@ const leadSchema = z.object({
 
 export async function POST(request: Request) {
   if (!hasValidOrigin(request)) return NextResponse.json({ error: "Invalid request" }, { status: 403 });
-  if (!rateLimit(requestKey(request, "catalog-download"), 10, 10 * 60_000).allowed) return NextResponse.json({ error: "Please wait before trying again." }, { status: 429 });
+  if (!(await rateLimit(requestKey(request, "catalog-download"), 10, 10 * 60_000)).allowed) return NextResponse.json({ error: "Please wait before trying again." }, { status: 429 });
   try {
     const data = leadSchema.parse(await request.json());
     if (data.website) return NextResponse.json({ ok: true });

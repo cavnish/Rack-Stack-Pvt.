@@ -30,6 +30,7 @@ import {
   users,
 } from "../src/db/schema";
 import { requireInstagramUrl } from "../src/lib/instagram";
+import { siteOrigin } from "../src/lib/site-url";
 import { readLocalClientLogoFiles } from "../src/lib/client-assets";
 import { homeOfferCardSeeds } from "../src/lib/home-offer-cards";
 import {
@@ -238,7 +239,7 @@ async function seed() {
       siteTitle: "Rack & Stack Storage Systems",
       defaultMetaDescription: "Racking, shelving, mezzanine floors and custom storage systems planned around your space and workflow.",
       keywords: "industrial storage systems, warehouse racking, pallet racking, shelving systems, mezzanine floor",
-      canonicalBaseUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+      canonicalBaseUrl: siteOrigin(),
       organizationSchema: { "@type": "Organization", name: "Rack & Stack Storage Systems Pvt. Ltd." },
       socialLinks: {},
     });

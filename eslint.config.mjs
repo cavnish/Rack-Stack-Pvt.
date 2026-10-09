@@ -13,5 +13,11 @@ export default defineConfig([
     // not part of it, and linting them reports errors against code this
     // repository never built.
     ".kilo/worktrees/**",
+    // Temporary audit/verification harnesses and ad-hoc scripts (also gitignored).
+    // Tracked copies exist until the owner removes them, but they are not app code.
+    "_*.mts",
+    "_*.mjs",
+    "tmp-*.mjs",
+    "tmp-*.mts",
   ]),
 ]);

@@ -1,12 +1,10 @@
 "use client";
-import { useMemo, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useMemo, useState, type CSSProperties } from "react";
 import { Search } from "lucide-react";
 import { ProductCard, type ProductCardProduct } from "@/components/site/product-card";
 import type { CatalogueProduct } from "@/lib/data";
 
 export function ProductsCatalogue({ products }: { products: CatalogueProduct[] }) {
-  const reduced = useReducedMotion();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string | null>(null);
   const [featuredOnly, setFeaturedOnly] = useState(false);
@@ -67,17 +65,11 @@ export function ProductsCatalogue({ products }: { products: CatalogueProduct[] }
           </button>
         </div>
       </div>
-      <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="stagger is-visible mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((product, i) => (
-          <motion.div
-            key={product.id}
-            layout
-            initial={reduced ? false : { opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: reduced ? 0 : Math.min(i % 3, 2) * 0.06, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <div key={product.id} style={{ "--stagger-delay": `${Math.min(i % 3, 2) * 0.06}s` } as CSSProperties}>
             <ProductCard product={product as ProductCardProduct} index={i} />
-          </motion.div>
+          </div>
         ))}
       </div>
       {filtered.length === 0 && (

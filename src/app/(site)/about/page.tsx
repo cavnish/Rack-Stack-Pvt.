@@ -10,6 +10,7 @@ import {
   AboutStrengths,
 } from "@/components/site/about-sections";
 import { ABOUT_IMAGES } from "@/lib/about-page";
+import { SocialConnectSection } from "@/components/site/social-links";
 
 /**
  * The About page.
@@ -57,6 +58,13 @@ export default function AboutPage() {
       <AboutApproach />
       <AboutStrengths />
       <AboutPillars />
+      <SocialConnectSection
+        tone="muted"
+        divider={false}
+        eyebrow="Stay Connected"
+        title="Connect With Rack & Stack"
+        description="Follow our manufacturing journey, installations and storage insights on our official profiles."
+      />
       <AboutClosingCta />
     </main>
   );

@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Download, Maximize2, X } from "lucide-react";
 import { SmartImage } from "./smart-image";
 import { optimizeImage } from "@/lib/image-utils";
@@ -10,7 +9,6 @@ type GalleryImage = { id: number | string; imageUrl: string; altText: string; ca
 type Specification = { id: number | string; specificationName: string; specificationValue: string };
 
 export function ProductGallery({ images, productTitle }: { images: GalleryImage[]; productTitle?: string }) {
-  const reduced = useReducedMotion();
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState(false);
   const touchX = useRef<number | null>(null);
@@ -49,26 +47,19 @@ export function ProductGallery({ images, productTitle }: { images: GalleryImage[
         onTouchEnd={(e) => { if (touchX.current == null) return; const dx = (e.changedTouches[0]?.clientX ?? 0) - touchX.current; if (dx > 40) prev(); if (dx < -40) next(); touchX.current = null; }}
       >
         <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-zinc-100 shadow-sm">
-          <AnimatePresence initial={false} mode="popLayout">
-            <motion.div
-              key={image.id}
-              initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.03 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.01 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-0 cursor-pointer"
-              onClick={() => setZoom(true)}
-            >
-              <SmartImage
-                src={optimizeImage(image.imageUrl, 1600)}
-                alt={image.altText || productTitle || "Product image"}
-                fill
-                priority={activeIndex === 0}
-                className="object-cover object-center transition duration-700 group-hover:scale-[1.02]"
-                sizes="(max-width: 1023px) 100vw, 52vw"
-              />
-            </motion.div>
-          </AnimatePresence>
+          {/* Remounting on the id change replays the CSS fade (`gallery-frame`),
+              which is what the framer `AnimatePresence` crossfade used to do. */}
+          <div key={image.id} className="gallery-frame absolute inset-0 cursor-pointer" onClick={() => setZoom(true)}>
+            <SmartImage
+              src={optimizeImage(image.imageUrl, 1600)}
+              alt={image.altText || productTitle || "Product image"}
+              fill
+              fetchPriority="high"
+              priority={activeIndex === 0}
+              className="object-cover object-center transition duration-700 group-hover:scale-[1.02]"
+              sizes="(max-width: 1023px) 100vw, 52vw"
+            />
+          </div>
 
           {/* Floating Navigation Arrows (White circular buttons matching screenshot) */}
           {count > 1 ? (
@@ -187,24 +178,15 @@ export function ProductGallery({ images, productTitle }: { images: GalleryImage[
             </>
           ) : null}
           <div className="relative h-[86vh] w-full max-w-7xl" onClick={(event) => event.stopPropagation()}>
-            <AnimatePresence initial={false} mode="popLayout">
-              <motion.div
-                key={image.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0"
-              >
-                <SmartImage
-                  src={optimizeImage(image.imageUrl, 2000)}
-                  alt={image.altText || productTitle || "Product fullscreen"}
-                  fill
-                  className="object-cover object-center"
-                  sizes="100vw"
-                />
-              </motion.div>
-            </AnimatePresence>
+            <div key={image.id} className="gallery-frame absolute inset-0">
+              <SmartImage
+                src={optimizeImage(image.imageUrl, 2000)}
+                alt={image.altText || productTitle || "Product fullscreen"}
+                fill
+                className="object-cover object-center"
+                sizes="100vw"
+              />
+            </div>
           </div>
           {count > 1 ? (
             <span className="absolute bottom-4 text-xs font-bold uppercase tracking-[.2em] text-white/70">
@@ -226,6 +208,6 @@ export function SpecificationPanel({ specifications }: { specifications: Specifi
 
 export function MobileProductActions({ slug }: { slug: string }) {
   return <>
-    <div className="mp-action-bar fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 p-2 pr-28 shadow-[0_-8px_30px_rgba(0,0,0,.1)] backdrop-blur md:hidden"><div className="flex gap-2"><Link href={`/request-a-quote?product=${slug}`} className="btn-primary min-h-11 grow px-3 text-[.7rem]">Request Quote</Link><Link href="/catalog" aria-label="Download catalog" className="grid h-11 w-11 shrink-0 place-items-center border border-zinc-300"><Download size={16} /></Link></div></div>
+    <div className="mp-action-bar fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 p-2 pr-28 shadow-[0_-8px_30px_rgba(0,0,0,.1)] backdrop-blur md:hidden"><div className="flex gap-2"><Link href={`/request-a-quote?product=${slug}`} className="btn-primary min-h-11 grow px-3 text-[.7rem]">Request Quote</Link><Link href="/rack-and-stack-brochure.pdf" download aria-label="Download catalog" className="grid h-11 w-11 shrink-0 place-items-center border border-zinc-300"><Download size={16} /></Link></div></div>
   </>;
 }

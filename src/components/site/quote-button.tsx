@@ -2,11 +2,9 @@
 
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AlertCircle, CheckCircle2, FileText, Loader2, X } from "lucide-react";
 import { catalogueCategoryNames, titleCaseSlug, type CatalogueProductOption } from "@/lib/catalogue-shared";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
 const focusableSelector =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -80,7 +78,6 @@ export function QuoteButton({ options, product, label = "Request a Quote", class
   const titleId = `${formId}-title`;
   const descriptionId = `${formId}-description`;
   const errorId = `${formId}-error`;
-  const reducedMotion = useReducedMotion();
   const dialogRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const requestControllerRef = useRef<AbortController | null>(null);
@@ -294,26 +291,20 @@ export function QuoteButton({ options, product, label = "Request a Quote", class
 
       {isOpen
         ? createPortal(
-            <motion.div
-              className="fixed inset-0 z-[100] flex items-end justify-center bg-zinc-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-5"
-              initial={reducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: reducedMotion ? 0 : 0.22 }}
+            <div
+              className="modal-overlay fixed inset-0 z-[100] flex items-end justify-center bg-zinc-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-5"
               onMouseDown={(event) => {
                 if (event.target === event.currentTarget) closeDialog();
               }}
             >
-              <motion.div
+              <div
                 ref={dialogRef}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={titleId}
                 aria-describedby={descriptionId}
                 tabIndex={-1}
-                className="max-h-[94dvh] w-full max-w-3xl overflow-y-auto border border-zinc-300 bg-white shadow-2xl"
-                initial={reducedMotion ? false : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: reducedMotion ? 0 : 0.32, ease: EASE }}
+                className="modal-panel max-h-[94dvh] w-full max-w-3xl overflow-y-auto border border-zinc-300 bg-white shadow-2xl"
               >
                 <div className="flex items-start justify-between gap-6 border-b border-zinc-200 px-5 py-5 sm:px-8">
                   <div>
@@ -335,16 +326,8 @@ export function QuoteButton({ options, product, label = "Request a Quote", class
                   </button>
                 </div>
 
-                <AnimatePresence mode="wait" initial={false}>
-                  {succeeded ? (
-                    <motion.div
-                      key="success"
-                      className="px-5 py-14 text-center sm:px-8"
-                      initial={reducedMotion ? false : { opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      role="status"
-                      aria-live="polite"
-                    >
+                {succeeded ? (
+                  <div key="success" className="modal-content px-5 py-14 text-center sm:px-8" role="status" aria-live="polite">
                       <CheckCircle2 size={48} className="mx-auto text-green-700" aria-hidden="true" />
                       <h3 className="mt-5 text-2xl font-semibold text-zinc-950">Request submitted</h3>
                       <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-600">
@@ -353,17 +336,15 @@ export function QuoteButton({ options, product, label = "Request a Quote", class
                       <button type="button" onClick={closeDialog} className="btn-secondary mt-7">
                         Close
                       </button>
-                    </motion.div>
-                  ) : (
-                    <motion.form
-                      key="form"
-                      ref={formRef}
-                      onSubmit={handleSubmit}
-                      className="grid gap-5 px-5 py-6 sm:grid-cols-2 sm:px-8 sm:py-8"
-                      aria-busy={loading}
-                      initial={reducedMotion ? false : { opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                    >
+                  </div>
+                ) : (
+                  <form
+                    key="form"
+                    ref={formRef}
+                    onSubmit={handleSubmit}
+                    className="grid gap-5 px-5 py-6 sm:grid-cols-2 sm:px-8 sm:py-8"
+                    aria-busy={loading}
+                  >
                       <div>
                         <label className="form-label" htmlFor={`${formId}-name`}>
                           Name *
@@ -512,11 +493,10 @@ export function QuoteButton({ options, product, label = "Request a Quote", class
                           {loading ? "Submitting" : "Submit Enquiry"}
                         </button>
                       </div>
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </motion.div>,
+                    </form>
+                )}
+              </div>
+            </div>,
             document.body,
           )
         : null}

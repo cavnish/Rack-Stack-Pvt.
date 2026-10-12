@@ -162,6 +162,14 @@ textarea.admin-field { color:#18181b; }
 @media (min-width:1024px){ .reel-shelf > * { width:calc((100% - 3rem) / 4); max-width:none; } }
 @media (min-width:1280px){ .reel-shelf > * { width:calc((100% - 4rem) / 5); } }
 @keyframes hero-progress { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+/* Hero Ken Burns: a slow one-shot push-in on the artwork. Driven by CSS rather
+   than a JS animation loop so the browser composites it on the compositor and
+   the main thread stays free while the page loads. Runs once and settles. */
+.hero-kenburns { animation:hero-kenburns 12s cubic-bezier(.22,1,.36,1) both; will-change:transform; }
+@keyframes hero-kenburns { from { transform:scale(1.12); } to { transform:scale(1.02); } }
+@media (prefers-reduced-motion:reduce){
+  .hero-kenburns { animation:none; }
+}
 /* Why Rack & Stack centre illustration: the India map scales in and the label fades up.
    The wrapper itself is never transformed or faded â€” that would make it a stacking context
    and cut the map off from the section background its blend depends on. Animations run
@@ -383,4 +391,144 @@ html, body {
   .logo-marquee::-webkit-scrollbar { display: none; }
   .logo-marquee-row { animation: none !important; width: 100%; will-change: auto; }
   .logo-marquee-track + .logo-marquee-track { display: none; }
+}
+
+/* ============ SCROLL REVEAL (CSS + IntersectionObserver) ============
+   Replaces the framer-motion entrance animations, so no motion library ships to
+   the client at all. Everything is one-shot and reveal-on-scroll.
+
+   The hidden state lives inside a `prefers-reduced-motion: no-preference` query
+   on purpose, which gives the right answer for all three audiences:
+     - reduced-motion readers never see a hidden element and get no animation;
+     - crawlers / no-JS readers get fully visible content (the HTTP HTML contains
+       it, nothing hides it without the media query matching);
+     - everyone else gets the same fade-up the components always had.
+
+   `is-visible` is added by the small IntersectionObserver hook in
+   `src/components/site/use-in-view.ts`. `--reveal-delay` / `--stagger-delay` /
+   `--stagger-step` are set inline by the components. */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(var(--reveal-y, 22px)); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  .reveal.is-visible {
+    animation: reveal-up .62s cubic-bezier(.22, 1, .36, 1) both;
+    animation-delay: var(--reveal-delay, 0s);
+  }
+  /* Stagger: the parent fades its direct children up one after another. */
+  .stagger > * {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  .stagger.is-visible > * {
+    animation: reveal-up .6s cubic-bezier(.22, 1, .36, 1) both;
+    animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 0);
+  }
+  .stagger.is-visible > *:nth-child(1) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 0); }
+  .stagger.is-visible > *:nth-child(2) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 1); }
+  .stagger.is-visible > *:nth-child(3) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 2); }
+  .stagger.is-visible > *:nth-child(4) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 3); }
+  .stagger.is-visible > *:nth-child(5) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 4); }
+  .stagger.is-visible > *:nth-child(6) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 5); }
+  .stagger.is-visible > *:nth-child(7) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 6); }
+  .stagger.is-visible > *:nth-child(8) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 7); }
+  .stagger.is-visible > *:nth-child(9) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 8); }
+  .stagger.is-visible > *:nth-child(10) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 9); }
+  .stagger.is-visible > *:nth-child(11) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 10); }
+  .stagger.is-visible > *:nth-child(12) { animation-delay: calc(var(--stagger-delay, 0s) + var(--stagger-step, .07s) * 11); }
+
+  /* Page-hero entrance. Plays on mount (not on scroll) because the hero is
+     always above the fold. */
+  .hero-enter { animation: reveal-up .7s cubic-bezier(.22, 1, .36, 1) both; }
+  .hero-enter-late { animation-delay: .2s; }
+  .hero-enter-later { animation-delay: .32s; }
+
+  /* Product gallery: a short fade on the active frame when the image changes. */
+  .gallery-frame { animation: gallery-fade .45s ease both; }
+}
+@keyframes gallery-fade {
+  from { opacity: 0; transform: scale(1.02); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ============ SITE LOADER ============
+   The first-visit splash, rebuilt in CSS so the motion library is not shipped
+   site-wide for one decorative overlay. The timeline is the same one the
+   framer version ran: the logo pops in, the wordmark letters rise in sequence,
+   the rack assembles, and the progress bar fills. It only ever renders for
+   visitors who have not seen it this session and who have not asked for reduced
+   motion (the component checks both before mounting), so there is no
+   reduced-motion variant to keep in sync here. */
+@keyframes loader-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes loader-pop { from { opacity: 0; transform: scale(.72); } to { opacity: 1; transform: none; } }
+@keyframes loader-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes loader-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes loader-post { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes loader-beam { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes loader-pallet { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: none; } }
+@keyframes loader-leave { to { transform: translateY(-100%); } }
+@keyframes loader-inner-out { to { opacity: 0; transform: scale(.96); } }
+
+.rs-loader-overlay { animation: none; }
+.rs-loader-overlay.rs-loader-leaving { animation: loader-leave .4s cubic-bezier(.76, 0, .24, 1) both; }
+.rs-loader-leaving .rs-loader-inner { animation: loader-inner-out .28s ease-in both; }
+
+.rs-loader-logo { animation: loader-pop .6s .08s cubic-bezier(.22, 1, .36, 1) both; }
+.rs-loader-letter { animation: loader-rise .5s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(.18s + var(--i, 0) * .05s); }
+.rs-loader-divider { animation: loader-fade .6s .72s cubic-bezier(.22, 1, .36, 1) both; }
+.rs-loader-rule-left { transform-origin: right; animation: loader-bar .5s .72s cubic-bezier(.22, 1, .36, 1) both; }
+.rs-loader-rule-right { transform-origin: left; animation: loader-bar .5s .72s cubic-bezier(.22, 1, .36, 1) both; }
+.rs-loader-rack { animation: loader-rise .6s .85s cubic-bezier(.22, 1, .36, 1) both; }
+.rs-loader-progress { transform-origin: left; animation: loader-bar 2s .15s cubic-bezier(.22, 1, .36, 1) both; }
+.rs-loader-caption { animation: loader-fade .5s .5s both; }
+
+.rs-loader-post { transform-box: fill-box; transform-origin: bottom; animation: loader-post .55s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(.1s + var(--i, 0) * .13s); }
+.rs-loader-beam { transform-box: fill-box; transform-origin: left; animation: loader-beam .5s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(.1s + var(--i, 0) * .13s); }
+.rs-loader-pallet { transform-box: fill-box; animation: loader-pallet .5s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(.16s + var(--i, 0) * .13s); }
+
+/* ============ HERO SLIDE (home) ============
+   The full-bleed slide crossfade. The carousel keeps its own React state for
+   autoplay; only the entrance fade is CSS. Each new slide mounts with this
+   animation, which is what the framer `AnimatePresence` used to do. */
+@keyframes hero-slide-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-slide { animation: hero-slide-in .9s cubic-bezier(.22, 1, .36, 1) both; }
+}
+
+/* ============ ABOUT HERO IMAGE ============ */
+@keyframes about-hero-scale { from { transform: scale(1.08); } to { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .about-hero-image { animation: about-hero-scale 2.4s cubic-bezier(.22, 1, .36, 1) both; }
+}
+
+/* ============ IMAGE REVEAL (curtain) ============ */
+@keyframes image-reveal-clip { from { clip-path: inset(0% 0% 100% 0%); } to { clip-path: inset(0% 0% 0% 0%); } }
+@keyframes image-reveal-scale { from { transform: scale(1.14); } to { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .image-reveal { clip-path: inset(0% 0% 100% 0%); transform: scale(1.14); }
+  .image-reveal.is-visible {
+    animation: image-reveal-clip 1.05s cubic-bezier(.22, 1, .36, 1) both, image-reveal-scale 1.5s cubic-bezier(.22, 1, .36, 1) both;
+  }
+}
+
+/* ============ STRENGTH RULE ============ */
+@keyframes strength-rule-grow { from { width: 0%; } to { width: 100%; } }
+@media (prefers-reduced-motion: no-preference) {
+  .strength-rule { width: 0%; }
+  .strength-rule.is-visible { animation: strength-rule-grow .9s cubic-bezier(.22, 1, .36, 1) both; }
+}
+
+/* ============ MODAL (quote dialog) ============ */
+@keyframes modal-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-panel-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+@keyframes modal-content-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .modal-overlay { animation: modal-overlay-in .22s ease both; }
+  .modal-panel { animation: modal-panel-in .32s cubic-bezier(.22, 1, .36, 1) both; }
+  .modal-content { animation: modal-content-in .3s cubic-bezier(.22, 1, .36, 1) both; }
 }

@@ -22,22 +22,31 @@
  * the head of the list — so the product page and the homepage card move to the
  * new image together with no second edit.
  *
- * Why it reads published data and not the database
- * ------------------------------------------------
- * This runs while rendering public pages. Reading `product_images` and
- * `product_gallery_images` here made every homepage render and every product
- * page's related-products strip issue two extra queries, which meant the site
- * needed the database to display content it had already published. The published
- * JSON already contains both lists, localisation has already been applied to
- * them, and the publish step is the only thing that is allowed to write it — so
- * reading it here is both cheaper and what makes the site work with the database
- * switched off. The database is consulted when no published file exists yet (a
- * first run before the first publish), which keeps a fresh checkout working.
+ * Where the image lists come from
+ * -------------------------------
+ * The database is authoritative whenever it is configured, exactly as it is for
+ * every other public read in `src/lib/data.ts`. Reading the committed
+ * `src/data/products.json` first (the previous behaviour) meant an admin's
+ * gallery change was shadowed here until a static republish — and on a
+ * read-only host `canWriteStaticFiles()` is false, so that republish never
+ * happens and the homepage and related-product cards keep the build-time image
+ * while the product detail page, which reads the database directly, shows the
+ * new one. Resolving both from the same source is what keeps them in step.
+ *
+ * The database read is still cached under `CONTENT_CACHE_TAG` (via
+ * `cacheContent`), so the two extra queries are paid once per cache window
+ * rather than per render, and an admin save invalidates them with the rest of
+ * the content layer.
+ *
+ * When no database is configured — an offline build, a static export, a fresh
+ * checkout — the published JSON is the source, because there is nothing else and
+ * the site must keep working with the database switched off.
  */
 
 import { db, dbConfigured } from "@/db";
 import { productGalleryImages, productImages } from "@/db/schema";
 import { asc, inArray } from "drizzle-orm";
+import { cacheContent } from "@/lib/cache";
 import { getProductFolderImages, type ProductFolderImage } from "@/lib/product-image-assets";
 import { getPrimaryProductImage } from "@/lib/product-page";
 import { readCollection } from "@/lib/publish/store";
@@ -78,9 +87,11 @@ function columnFallback(product: PrimaryImageCandidate): string {
 /**
  * Gallery and image rows for many products, read from the published JSON.
  *
- * Returns `null` when there is no published file, which is the signal for the
- * caller to fall back to the database: that is a first-run checkout that has
- * never published, not a broken site.
+ * Returns `null` when there is no published file — or when a database is
+ * configured — which is the signal for the caller to fall back to the database:
+ * a first run that has never published, or the online case where the database is
+ * authoritative and the committed JSON would only be a stale build-time
+ * snapshot.
  */
 type PublishedProductImages = {
   images: Map<number, ImageRow[]>;
@@ -88,6 +99,10 @@ type PublishedProductImages = {
 };
 
 async function readPublishedProductImages(): Promise<PublishedProductImages | null> {
+  // Online, the database is the source of truth: see `src/lib/data.ts` and the
+  // module docstring. The published file only gets a turn when there is no
+  // database to read from.
+  if (dbConfigured) return null;
   const published = await readCollection<Array<Record<string, unknown>>>("products");
   if (!Array.isArray(published)) return null;
   const images = new Map<number, ImageRow[]>();
@@ -122,13 +137,22 @@ async function readPublishedProductImages(): Promise<PublishedProductImages | nu
 }
 
 /**
- * The database form of the same read, for a checkout that has not published yet.
+ * The raw database rows the primary-image read needs, as plain JSON.
+ *
+ * Kept separate from `readDatabaseProductImages` because it is what gets cached:
+ * `unstable_cache` serialises its result, so a `Map` would come back as an empty
+ * object (`{}`) on the next render and `Map.get` would not exist. Ids go into the
+ * cache key so two page renders asking about different products do not share an
+ * entry.
  */
-async function readDatabaseProductImages(ids: number[]): Promise<PublishedProductImages> {
-  const images = new Map<number, ImageRow[]>();
-  const gallery = new Map<number, ImageRow[]>();
-  let imageRows: Array<{ productId: number; imageUrl: string | null }> = [];
-  let galleryRows: Array<{ productId: number; imageUrl: string | null; isActive: boolean; isPrimary: boolean }> = [];
+type DatabaseImageRows = {
+  imageRows: Array<{ productId: number; imageUrl: string | null }>;
+  galleryRows: Array<{ productId: number; imageUrl: string | null; isActive: boolean; isPrimary: boolean }>;
+};
+
+async function readDatabaseImageRows(ids: number[]): Promise<DatabaseImageRows> {
+  let imageRows: DatabaseImageRows["imageRows"] = [];
+  let galleryRows: DatabaseImageRows["galleryRows"] = [];
   if (dbConfigured) {
     try {
       [imageRows, galleryRows] = await Promise.all([
@@ -155,6 +179,25 @@ async function readDatabaseProductImages(ids: number[]): Promise<PublishedProduc
       });
     }
   }
+  return { imageRows, galleryRows };
+}
+
+/**
+ * The database form of the same read: the authoritative source whenever a
+ * database is configured, and the fallback for a checkout that has not published
+ * yet when one is not.
+ *
+ * The rows are cached (under `CONTENT_CACHE_TAG`, so an admin save drops them)
+ * and only then grouped into the `Map`s the resolver consumes, keeping the
+ * cached value JSON-safe.
+ */
+async function readDatabaseProductImages(ids: number[]): Promise<PublishedProductImages> {
+  const images = new Map<number, ImageRow[]>();
+  const gallery = new Map<number, ImageRow[]>();
+  const { imageRows, galleryRows } = await cacheContent(
+    ["products", "primary-images", ids.slice().sort((a, b) => a - b).join(",")],
+    () => readDatabaseImageRows(ids),
+  );
   for (const row of imageRows) {
     const list = images.get(row.productId);
     if (list) list.push(row);

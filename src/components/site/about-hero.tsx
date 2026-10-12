@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import type { CSSProperties } from "react";
 import { ArrowRight } from "lucide-react";
 
 import { SmartImage } from "@/components/site/smart-image";
-
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
  * The About page hero.
@@ -37,22 +35,11 @@ export function AboutHero({
   primary: { label: string; href: string };
   secondary: { label: string; href: string };
 }) {
-  const reduced = useReducedMotion();
-  const anim = !reduced;
-  const initial = anim ? "hidden" : false;
-  const show = anim ? "show" : undefined;
-
   return (
     <section className="relative isolate flex min-h-[min(88svh,760px)] items-end overflow-hidden bg-zinc-950 text-white">
-      <motion.div
-        aria-hidden
-        className="absolute inset-0 -z-20"
-        initial={anim ? { scale: 1.08 } : false}
-        animate={anim ? { scale: 1 } : undefined}
-        transition={{ duration: 2.4, ease: EASE }}
-      >
+      <div aria-hidden className="about-hero-image absolute inset-0 -z-20">
         <SmartImage src={image} alt="" fill priority className="object-cover object-center" sizes="100vw" />
-      </motion.div>
+      </div>
 
       {/*
         Two scrims rather than one. The vertical wash keeps the bottom line of
@@ -63,52 +50,27 @@ export function AboutHero({
       <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(9,9,11,.62)_0%,rgba(9,9,11,.30)_38%,rgba(9,9,11,.86)_100%)]" />
       <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(9,9,11,.80)_0%,rgba(9,9,11,.42)_52%,rgba(9,9,11,.12)_100%)]" />
 
-      <motion.div
-        className="container-shell w-full py-16 sm:py-20 lg:py-24"
-        initial={initial}
-        animate={show}
-        variants={{
-          hidden: {},
-          show: { transition: { staggerChildren: 0.11, delayChildren: 0.25 } },
-        }}
-      >
-        <div className="max-w-4xl">
-          <motion.p
-            variants={anim ? item : undefined}
-            className="eyebrow text-red-400"
-          >
-            About Rack &amp; Stack
-          </motion.p>
+      <div className="container-shell w-full py-16 sm:py-20 lg:py-24">
+        <div
+          className="stagger is-visible max-w-4xl"
+          style={{ "--stagger-delay": ".25s", "--stagger-step": ".11s" } as CSSProperties}
+        >
+          <p className="eyebrow text-red-400">About Rack &amp; Stack</p>
 
-          <motion.h1
-            variants={anim ? item : undefined}
-            className="hero-heading mt-6 text-balance"
-          >
-            {title}
-          </motion.h1>
+          <h1 className="hero-heading mt-6 text-balance">{title}</h1>
 
-          <motion.p
-            variants={anim ? item : undefined}
-            className="hero-description mt-6 max-w-2xl text-zinc-300"
-          >
-            {description}
-          </motion.p>
+          <p className="hero-description mt-6 max-w-2xl text-zinc-300">{description}</p>
 
-          <motion.div variants={anim ? item : undefined} className="mt-9 flex flex-wrap gap-3">
+          <div className="mt-9 flex flex-wrap gap-3">
             <Link href={primary.href} className="btn-primary">
               {primary.label} <ArrowRight size={17} aria-hidden="true" />
             </Link>
             <Link href={secondary.href} className="btn-light">
               {secondary.label}
             </Link>
-          </motion.div>
+          </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
-
-const item = {
-  hidden: { opacity: 0, y: 26 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
-};

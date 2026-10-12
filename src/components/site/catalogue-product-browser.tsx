@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import type { CSSProperties } from "react";
 import { RotateCcw, Search } from "lucide-react";
 import { CatalogueProductCard } from "@/components/site/catalogue-product-card";
 import {
@@ -66,7 +66,6 @@ export function CatalogueProductBrowser({
   initialCategory,
 }: CatalogueProductBrowserProps) {
   const filterId = useId();
-  const reducedMotion = useReducedMotion();
   /*
    * The `?category=` deep link is read on the client rather than awaited as
    * `searchParams` in the server page.
@@ -296,30 +295,16 @@ export function CatalogueProductBrowser({
       </p>
 
       {visibleProducts.length > 0 ? (
-        <motion.div
-          id="catalogue-results"
-          layout={!reducedMotion}
-          className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
-        >
-          <AnimatePresence initial={false} mode="popLayout">
-            {visibleProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                layout={!reducedMotion}
-                initial={reducedMotion ? false : { opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
-                transition={{
-                  duration: reducedMotion ? 0 : 0.34,
-                  delay: reducedMotion ? 0 : Math.min(index % 3, 2) * 0.04,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                <CatalogueProductCard product={product} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+        <div id="catalogue-results" className="stagger is-visible mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {visibleProducts.map((product, index) => (
+            <div
+              key={product.id}
+              style={{ "--stagger-delay": `${Math.min(index % 3, 2) * 0.04}s` } as CSSProperties}
+            >
+              <CatalogueProductCard product={product} />
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="mt-6 border border-dashed border-zinc-300 bg-zinc-50 px-6 py-14 text-center" role="status">
           <h2 className="text-xl font-semibold text-zinc-950">No products match these filters</h2>

@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+
+import { usePrefersReducedMotion } from "./use-reduced-motion";
 
 /**
  * The rail that draws itself down the "Our Approach" steps as they scroll past.
@@ -11,26 +12,52 @@ import { useRef } from "react";
  * progress rather than to a timer, so the line is always exactly as far through
  * the process as the reader is — scrubbing back up shortens it.
  *
- * `useScroll` is given explicit offsets instead of the default: the line should
- * start filling once the first step is comfortably on screen and finish as the
- * last one leaves, which is what the "start 65% / end 35%" pair describes.
- *
- * A spring smooths the raw scroll value, which is stepped rather than
- * continuous on a trackpad, so the line would otherwise jump between values.
+ * A passive scroll listener feeds a `requestAnimationFrame` that maps the rail's
+ * viewport position onto `--rail-progress`, which the fill div turns into
+ * `scaleY`. The threshold window matches the old framer `useScroll` offsets
+ * ("start 65% / end 35%"): the line starts filling once the first step is
+ * comfortably on screen and finishes as the last one leaves. Reduced-motion
+ * readers get the line fully drawn with no animation.
  */
 export function ApproachProgressRail() {
   const target = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
+  const fill = useRef<HTMLDivElement>(null);
+  const reduced = usePrefersReducedMotion();
 
-  const { scrollYProgress } = useScroll({
-    target,
-    offset: ["start 65%", "end 35%"],
-  });
-  const scaleY = useSpring(scrollYProgress, {
-    stiffness: 140,
-    damping: 30,
-    mass: 0.4,
-  });
+  useEffect(() => {
+    const frame = target.current;
+    const line = fill.current;
+    if (!frame || !line) return;
+
+    if (reduced) {
+      line.style.transform = "scaleY(1)";
+      return;
+    }
+
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const rect = frame.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const start = viewportHeight * 0.65;
+      const end = viewportHeight * 0.35;
+      const total = rect.height + (start - end);
+      const progress = Math.min(1, Math.max(0, (start - rect.top) / total));
+      line.style.transform = `scaleY(${progress})`;
+    };
+    const request = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", request, { passive: true });
+    window.addEventListener("resize", request, { passive: true });
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", request);
+      window.removeEventListener("resize", request);
+    };
+  }, [reduced]);
 
   return (
     <div
@@ -40,10 +67,7 @@ export function ApproachProgressRail() {
       // list's left edge, so `left-4` (half of 2rem) lands on their centre line.
       className="pointer-events-none absolute bottom-6 left-4 top-6 w-px bg-zinc-200"
     >
-      <motion.div
-        className="h-full w-full origin-top bg-red-600"
-        style={reduced ? { scaleY: 1 } : { scaleY }}
-      />
+      <div ref={fill} className="h-full w-full origin-top bg-red-600" />
     </div>
   );
 }

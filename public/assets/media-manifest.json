@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-09T10:38:46.749Z",
+  "updatedAt": "2026-10-12T11:21:09.368Z",
   "assets": {
     "hero:https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000": {
       "url": "/assets/images/hero/warehouse-pallet-storage-hero-374ec6e177.webp",
@@ -720,7 +720,7 @@
       "etag": "\"7350b5045db36800e0d53c67b550cf1a\""
     },
     "products:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790778388/rack-stack/products/ykbg7zw4hr0bogd89o1u.jpg": {
-      "url": "/assets/images/products/products-ykbg7zw4hr0bogd89o1u-e7c43622d4.webp",
+      "url": "/assets/images/products/heavy-duty-long-span-racks-hero-e7c43622d4.webp",
       "width": 1400,
       "height": 1400,
       "aspectRatio": 1,
@@ -729,7 +729,7 @@
       "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1790778388/rack-stack/products/ykbg7zw4hr0bogd89o1u.jpg",
       "cached": false,
       "group": "products",
-      "name": "products-ykbg7zw4hr0bogd89o1u",
+      "name": "heavy-duty-long-span-racks-hero",
       "etag": "\"566f229b26c203e1ed7eb405ac59e021\""
     },
     "about:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790778873/rack-stack/home-about/uyq8x4d2n3syerlyxp88.jpg": {
@@ -1186,6 +1186,71 @@
       "group": "hero",
       "name": "home-sliders-ru52wu50zrtrbxojusqc",
       "etag": "\"d64b121c20f9144155919c8a66e30d9b\""
+    },
+    "products:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791799514/rack-stack/products/koztwzxszkw9duuyhxza.jpg": {
+      "url": "/assets/images/products/products-koztwzxszkw9duuyhxza-bb893fffd7.webp",
+      "width": 1024,
+      "height": 1024,
+      "aspectRatio": 1,
+      "bytes": 70910,
+      "hash": "bb893fffd7",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791799514/rack-stack/products/koztwzxszkw9duuyhxza.jpg",
+      "cached": false,
+      "group": "products",
+      "name": "products-koztwzxszkw9duuyhxza",
+      "etag": "\"fd40a67058a74047511a9f3cbc496621\""
+    },
+    "products:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791799768/rack-stack/products/pkketp34wzy4xnt3qtnr.jpg": {
+      "url": "/assets/images/products/products-pkketp34wzy4xnt3qtnr-63861d9b60.webp",
+      "width": 1024,
+      "height": 1024,
+      "aspectRatio": 1,
+      "bytes": 70910,
+      "hash": "63861d9b60",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791799768/rack-stack/products/pkketp34wzy4xnt3qtnr.jpg",
+      "cached": false,
+      "group": "products",
+      "name": "products-pkketp34wzy4xnt3qtnr",
+      "etag": "\"fd40a67058a74047511a9f3cbc496621\""
+    },
+    "products:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791799854/rack-stack/products/sbgwj9lt6an6fogplue0.jpg": {
+      "url": "/assets/images/products/products-sbgwj9lt6an6fogplue0-de687f666f.webp",
+      "width": 1024,
+      "height": 1024,
+      "aspectRatio": 1,
+      "bytes": 70910,
+      "hash": "de687f666f",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791799854/rack-stack/products/sbgwj9lt6an6fogplue0.jpg",
+      "cached": false,
+      "group": "products",
+      "name": "products-sbgwj9lt6an6fogplue0",
+      "etag": "\"fd40a67058a74047511a9f3cbc496621\""
+    },
+    "products:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791802582/rack-stack/products/clcn32d96yrf6xwt1eba.jpg": {
+      "url": "/assets/images/products/products-clcn32d96yrf6xwt1eba-807eed2ad3.webp",
+      "width": 1024,
+      "height": 1024,
+      "aspectRatio": 1,
+      "bytes": 70910,
+      "hash": "807eed2ad3",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791802582/rack-stack/products/clcn32d96yrf6xwt1eba.jpg",
+      "cached": false,
+      "group": "products",
+      "name": "products-clcn32d96yrf6xwt1eba",
+      "etag": "\"fd40a67058a74047511a9f3cbc496621\""
+    },
+    "products:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791804069/rack-stack/products/sinb0jy8xvogwfpergus.jpg": {
+      "url": "/assets/images/products/products-sinb0jy8xvogwfpergus-ef48a5cf6f.webp",
+      "width": 1024,
+      "height": 1024,
+      "aspectRatio": 1,
+      "bytes": 70910,
+      "hash": "ef48a5cf6f",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791804069/rack-stack/products/sinb0jy8xvogwfpergus.jpg",
+      "cached": false,
+      "group": "products",
+      "name": "products-sinb0jy8xvogwfpergus",
+      "etag": "\"fd40a67058a74047511a9f3cbc496621\""
     }
   }
 }

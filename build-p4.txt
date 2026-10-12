@@ -1,0 +1,149 @@
+
+> build
+> next build
+
+▲ Next.js 16.2.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 11.2s
+  Running TypeScript ...
+  Finished TypeScript in 16.8s ...
+  Collecting page data using 11 workers ...
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+  Generating static pages using 11 workers (0/133) ...
+(node:34400) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29140) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17944) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+  Generating static pages using 11 workers (33/133) 
+(node:15332) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  Generating static pages using 11 workers (66/133) 
+  Generating static pages using 11 workers (99/133) 
+✓ Generating static pages using 11 workers (133/133) in 32.2s
+  Finalizing page optimization ...
+
+Route (app)                                                   Revalidate  Expire
+┌ ○ /                                                                 1h      1y
+├ ○ /_not-found
+├ ● /[slug]                                                           1h      1y
+│ ├ /about                                                            1h      1y
+│ ├ /privacy-policy                                                   1h      1y
+│ ├ /terms-and-conditions                                             1h      1y
+│ └ /cookie-policy                                                    1h      1y
+├ ○ /about                                                            1h      1y
+├ ƒ /admin
+├ ƒ /admin/[entity]
+├ ƒ /admin/[entity]/[id]/edit
+├ ƒ /admin/[entity]/new
+├ ƒ /admin/login
+├ ƒ /admin/preview/products/[slug]
+├ ƒ /api/admin/[entity]
+├ ƒ /api/admin/[entity]/[id]
+├ ƒ /api/admin/product-images
+├ ƒ /api/admin/upload
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/catalog-downloads
+├ ƒ /api/contact
+├ ƒ /api/events
+├ ƒ /api/health
+├ ƒ /api/inquiries
+├ ƒ /api/newsletter
+├ ƒ /api/publish
+├ ƒ /api/search
+├ ○ /apple-icon.png
+├ ○ /blog                                                             1h      1y
+├ ● /blog/[slug]                                                      1h      1y
+│ ├ /blog/prepare-for-pallet-racking-layout                           1h      1y
+│ └ /blog/storage-density-versus-accessibility                        1h      1y
+├ ○ /catalog                                                          1h      1y
+├ ○ /clients                                                          1h      1y
+├ ○ /contact                                                          1h      1y
+├ ○ /gallery                                                          1h      1y
+├ ○ /icon.png
+├ ○ /industries                                                       1h      1y
+├ ● /industries/[slug]                                                1h      1y
+│ ├ /industries/warehousing                                           1h      1y
+│ ├ /industries/manufacturing                                         1h      1y
+│ ├ /industries/automotive                                            1h      1y
+│ └ [+9 more paths]
+├ ○ /manifest.webmanifest
+├ ƒ /preview/emails
+├ ○ /products                                                         1h      1y
+├ ● /products/[category]                                              1h      1y
+│ ├ /products/mobile-compactor-storage-system                         1h      1y
+│ ├ /products/mobile-shelving-racks                                   1h      1y
+│ ├ /products/push-pull-compactor-system                              1h      1y
+│ └ [+37 more paths]
+├ ● /products/[category]/[slug]                                       1h      1y
+│ ├ /products/office-storage/mobile-compactor-storage-system          1h      1y
+│ ├ /products/material-handling/mobile-shelving-racks                 1h      1y
+│ ├ /products/office-storage/push-pull-compactor-system               1h      1y
+│ └ [+34 more paths]
+├ ○ /products/industrial-storage                                      1h      1y
+├ ○ /products/material-handling                                       1h      1y
+├ ○ /products/office-storage                                          1h      1y
+├ ○ /projects                                                         1h      1y
+├ ● /projects/[slug]
+├ ○ /request-a-quote                                                  1h      1y
+├ ○ /robots.txt
+├ ƒ /search
+├ ○ /services                                                         1h      1y
+├ ● /services/[slug]                                                  1h      1y
+│ ├ /services/storage-planning                                        1h      1y
+│ ├ /services/site-survey                                             1h      1y
+│ ├ /services/rack-design                                             1h      1y
+│ └ [+5 more paths]
+├ ○ /sitemap.xml
+└ ○ /thank-you                                                        1h      1y
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

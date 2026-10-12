@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import type { CSSProperties } from "react";
 import {
   ArrowRight,
   Boxes,
@@ -19,9 +19,8 @@ import {
 } from "lucide-react";
 
 import { SmartImage } from "./smart-image";
+import { useInView } from "./use-in-view";
 import { HOME_ABOUT_FEATURE_ICONS, type HomeAboutContent, type HomeAboutImage } from "@/lib/home-about";
-
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
  * Icon names come from the CMS so an editor can restyle a feature without a
@@ -46,20 +45,6 @@ const FEATURE_ICONS: Record<string, LucideIcon> = Object.fromEntries(
   HOME_ABOUT_FEATURE_ICONS.map(({ value }) => [value, FEATURE_ICON_SET[value] ?? CircleCheck]),
 );
 
-/** Variants, shared by every animated group so timing stays consistent. */
-const fadeUp = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
-};
-const slideIn = {
-  hidden: { opacity: 0, x: -22 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: EASE } },
-};
-const group = (stagger: number, delayChildren = 0) => ({
-  hidden: {},
-  show: { transition: { staggerChildren: stagger, delayChildren } },
-});
-
 const IMAGE_SIZES =
   "(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(100vw - 4rem), (max-width: 1439px) 46vw, 640px";
 const THUMB_SIZES =
@@ -82,17 +67,14 @@ function AboutImage({ image, sizes }: { image: HomeAboutImage; sizes: string }) 
 }
 
 export function HomeAbout({ content }: { content: HomeAboutContent }) {
-  const reduced = useReducedMotion();
-  const anim = !reduced;
-  const state = anim ? "hidden" : false;
-  const inView = anim ? "show" : undefined;
-  const viewport = { once: true, margin: "-80px" };
+  const { ref, inView } = useInView<HTMLElement>({ rootMargin: "0px 0px -80px 0px" });
+  const shown = inView ? " is-visible" : "";
 
   const [main, ...supporting] = content.images;
   const [lead, second] = headlineLines(content.title);
 
   return (
-    <section id="home-about" aria-labelledby="home-about-heading" className="overflow-hidden bg-white py-12 sm:py-14 lg:py-16">
+    <section ref={ref} id="home-about" aria-labelledby="home-about-heading" className="overflow-hidden bg-white py-12 sm:py-14 lg:py-16">
       <div className="container-shell">
         {/*
           The gallery and the copy sit side by side only once there is room for
@@ -107,48 +89,32 @@ export function HomeAbout({ content }: { content: HomeAboutContent }) {
           lets the smaller step win at large widths.
         */}
         <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.06fr)] xl:items-center xl:gap-x-12">
-          <motion.div
-            className="min-w-0"
-            initial={state}
-            whileInView={inView}
-            viewport={viewport}
-            variants={group(0.09)}
-          >
+          <div className={`stagger min-w-0${shown}`} style={{ "--stagger-step": ".09s" } as CSSProperties}>
             {main ? (
-              <motion.div
-                variants={anim ? slideIn : undefined}
-                className="overflow-hidden rounded-2xl border border-zinc-200/90 bg-zinc-50 shadow-[0_18px_40px_-30px_rgba(7,28,39,0.45)]"
-              >
+              <div className="overflow-hidden rounded-2xl border border-zinc-200/90 bg-zinc-50 shadow-[0_18px_40px_-30px_rgba(7,28,39,0.45)]">
                 <div className="relative aspect-[16/9]">
                   <AboutImage image={main} sizes={IMAGE_SIZES} />
                 </div>
-              </motion.div>
+              </div>
             ) : null}
 
             {supporting.length ? (
               <ul className="mt-2.5 grid grid-cols-2 gap-2.5 sm:mt-3 sm:gap-3">
                 {supporting.map((image, index) => (
-                  <motion.li
+                  <li
                     key={`${image.image}-${index}`}
-                    variants={anim ? fadeUp : undefined}
                     className="overflow-hidden rounded-xl border border-zinc-200/90 bg-zinc-50 shadow-[0_12px_28px_-24px_rgba(7,28,39,0.45)]"
                   >
                     <div className="relative aspect-[16/9]">
                       <AboutImage image={image} sizes={THUMB_SIZES} />
                     </div>
-                  </motion.li>
+                  </li>
                 ))}
               </ul>
             ) : null}
-          </motion.div>
+          </div>
 
-          <motion.div
-            className="min-w-0"
-            initial={state}
-            whileInView={inView}
-            viewport={viewport}
-            variants={group(0.05)}
-          >
+          <div className={`stagger min-w-0${shown}`} style={{ "--stagger-step": ".05s" } as CSSProperties}>
             {/*
               The eyebrow is the CMS `label`, resolved upstream: a label that
               merely restates the heading is blanked so the two do not print the
@@ -157,31 +123,26 @@ export function HomeAbout({ content }: { content: HomeAboutContent }) {
               label" field saving to the database and rendering nowhere.
             */}
             {content.eyebrow ? (
-              <motion.p
-                variants={anim ? fadeUp : undefined}
-                className="mb-3 text-[.6875rem] font-bold uppercase tracking-[.16em] text-[var(--red)] sm:mb-4"
-              >
+              <p className="mb-3 text-[.6875rem] font-bold uppercase tracking-[.16em] text-[var(--red)] sm:mb-4">
                 {content.eyebrow}
-              </motion.p>
+              </p>
             ) : null}
-            <motion.h2
+            <h2
               id="home-about-heading"
-              variants={anim ? fadeUp : undefined}
               className="text-balance text-[1.875rem] font-bold leading-[1.14] tracking-[-0.02em] text-[var(--navy)] md:text-[2.125rem] lg:text-[2.5rem] xl:text-[2.625rem]"
             >
               <span className="block text-balance">{lead}</span>
               {second ? <span className="block text-balance">{second}</span> : null}
-            </motion.h2>
+            </h2>
 
             <div className="mt-4 max-w-[34rem] space-y-2.5 sm:mt-5">
               {content.paragraphs.map((paragraph, index) => (
-                <motion.p
+                <p
                   key={index}
-                  variants={anim ? fadeUp : undefined}
                   className="text-pretty text-[0.9375rem] leading-[1.6] text-zinc-600 lg:text-base"
                 >
                   {paragraph}
-                </motion.p>
+                </p>
               ))}
             </div>
 
@@ -189,7 +150,7 @@ export function HomeAbout({ content }: { content: HomeAboutContent }) {
               {content.features.map((feature) => {
                 const Icon = FEATURE_ICONS[feature.icon] ?? CircleCheck;
                 return (
-                  <motion.li key={feature.title} variants={anim ? fadeUp : undefined} className="flex min-w-0 items-start gap-2.5 sm:gap-3">
+                  <li key={feature.title} className="flex min-w-0 items-start gap-2.5 sm:gap-3">
                     <span className="mt-px grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--red)]/[0.07] text-[var(--red)] sm:h-9 sm:w-9">
                       <Icon className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.75} aria-hidden="true" />
                     </span>
@@ -201,12 +162,12 @@ export function HomeAbout({ content }: { content: HomeAboutContent }) {
                         <span className="mt-0.5 block text-[0.8125rem] leading-[1.5] text-zinc-500">{feature.description}</span>
                       ) : null}
                     </span>
-                  </motion.li>
+                  </li>
                 );
               })}
             </ul>
 
-            <motion.div variants={anim ? fadeUp : undefined} className="mt-7 sm:mt-8">
+            <div className="mt-7 sm:mt-8">
               <Link
                 href={content.ctaHref}
                 className="btn-primary w-full justify-center rounded-lg sm:w-auto sm:justify-start sm:px-6"
@@ -214,8 +175,8 @@ export function HomeAbout({ content }: { content: HomeAboutContent }) {
                 {content.ctaLabel}
                 <ArrowRight size={17} aria-hidden="true" />
               </Link>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

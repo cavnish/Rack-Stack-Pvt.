@@ -1,8 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-
-const EASE = [0.22, 1, 0.36, 1] as const;
+import { useInView } from "./use-in-view";
 
 /**
  * The red rule that draws itself above the lead commitment in "Why Rack & Stack".
@@ -10,18 +8,11 @@ const EASE = [0.22, 1, 0.36, 1] as const;
  * A width animation rather than a `scaleX` one, because scaling a 1px line is
  * also a 1px line at every scale factor, so it reads as a clean wipe; scaling
  * would leave it hairline-thin and slightly blurred at the start of the motion.
+ * The growth is a CSS keyframe (`.strength-rule`), triggered by the same
+ * IntersectionObserver hook the other reveals use — reduced-motion readers get
+ * the finished rule with no animation.
  */
 export function StrengthRule() {
-  const reduced = useReducedMotion();
-  const anim = !reduced;
-  return (
-    <motion.div
-      aria-hidden
-      className="h-px origin-left bg-red-600"
-      initial={anim ? { width: "0%" } : false}
-      whileInView={anim ? { width: "100%" } : undefined}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.9, ease: EASE }}
-    />
-  );
+  const { ref, inView } = useInView<HTMLDivElement>({ rootMargin: "0px 0px -80px 0px" });
+  return <div ref={ref} aria-hidden className={`strength-rule h-px origin-left bg-red-600 ${inView ? "is-visible" : ""}`} />;
 }

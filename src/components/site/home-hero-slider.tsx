@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowDown, ChevronLeft, ChevronRight, MoveUpRight } from "lucide-react";
 import { getImageProps } from "next/image";
 import { preload } from "react-dom";
+import { usePrefersReducedMotion } from "./use-reduced-motion";
 import { internalHref } from "@/lib/site-url";
 
 /**
@@ -84,8 +84,6 @@ export type HeroSlide = {
   duration: number;
 };
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-
 const alignClass: Record<"left" | "center" | "right", { section: string; block: string; buttons: string }> = {
   left: { section: "items-start text-left", block: "max-w-4xl", buttons: "justify-start" },
   center: { section: "items-center text-center", block: "mx-auto max-w-3xl", buttons: "justify-center" },
@@ -97,9 +95,26 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
-  const reduce = useReducedMotion();
-  const isReduced = reduce === true;
+  const isReduced = usePrefersReducedMotion();
   const [pageReady, setPageReady] = useState(false);
+  const [readyAt, setReadyAt] = useState<number | null>(null);
+  const [rotationStarted, setRotationStarted] = useState(false);
+
+  /**
+   * Hold the first visible slide longer than the autoplay interval.
+   *
+   * The carousel swaps its full-bleed image every few seconds, and the browser
+   * re-reads the largest contentful paint each time it does. If the first slide
+   * gives way a second or two after `load`, the LCP can jump to whatever slide
+   * happens to swap in next — a late, un-preloaded image that pushes the real
+   * LCP well past the first paint (observed around 5-10s on throttled mobile
+   * even though the first photo lands near 2.5s). Keeping the first, preloaded
+   * slide on screen for a minimum of `MIN_FIRST_HOLD_MS` after the page is ready
+   * lets that paint settle as the LCP before rotation begins, and leaves
+   * visitors enough time to read the headline. Rotation then continues at the
+   * per-slide `duration`.
+   */
+  const MIN_FIRST_HOLD_MS = 12000;
 
   const setPause = (value: boolean) => {
     pausedRef.current = value;
@@ -119,10 +134,16 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   useEffect(() => {
     if (typeof document === "undefined") return;
     if (document.readyState === "complete") {
-      const id = requestAnimationFrame(() => setPageReady(true));
+      const id = requestAnimationFrame(() => {
+        setPageReady(true);
+        setReadyAt(performance.now());
+      });
       return () => cancelAnimationFrame(id);
     }
-    const onLoad = () => setPageReady(true);
+    const onLoad = () => {
+      setPageReady(true);
+      setReadyAt(performance.now());
+    };
     window.addEventListener("load", onLoad, { once: true });
     return () => window.removeEventListener("load", onLoad);
   }, []);
@@ -136,10 +157,17 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
     let last = performance.now();
     let raf: number;
     const frame = (now: number) => {
+      // Hold the first slide before the rotation starts moving.
+      if (active === 0 && !rotationStarted && readyAt !== null && now - readyAt < MIN_FIRST_HOLD_MS) {
+        last = now;
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const delta = now - last;
       last = now;
       if (!pausedRef.current) accumulated += delta;
       if (accumulated >= duration) {
+        setRotationStarted(true);
         setActive((index) => (index + 1) % count);
         return;
       }
@@ -147,7 +175,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [active, count, isReduced, pageReady, slides]);
+  }, [active, count, isReduced, pageReady, readyAt, rotationStarted, slides]);
 
   if (count === 0) return null;
 
@@ -155,22 +183,10 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   const goNext = () => setActive((active + 1) % count);
   const activeSlide = slides[active];
   const heroImageUrl = activeSlide.imageUrl || activeSlide.mobileImageUrl;
-
-  const slideFade: Variants = {
-    enter: { opacity: 0, transition: { duration: isReduced ? 0 : 0.9, ease: EASE } },
-    center: { opacity: 1, transition: { duration: isReduced ? 0 : 0.9, ease: EASE } },
-    exit: { opacity: 0, transition: { duration: isReduced ? 0 : 0.7, ease: EASE } },
-  };
-
-  const contentContainer: Variants = {
-    hidden: {},
-    show: { transition: { staggerChildren: isReduced ? 0 : 0.13, delayChildren: isReduced ? 0 : 0.35 } },
-  };
-
-  const contentItem: Variants = {
-    hidden: isReduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 26 },
-    show: { opacity: 1, y: 0, transition: { duration: isReduced ? 0 : 0.7, ease: EASE } },
-  };
+  const slideDuration = activeSlide.duration > 0 ? activeSlide.duration : 3500;
+  // While the first slide is held so the LCP can settle, let the progress bar
+  // count down across the full hold instead of finishing early and sitting full.
+  const progressSeconds = active === 0 && !rotationStarted && pageReady && readyAt !== null ? Math.max(slideDuration, MIN_FIRST_HOLD_MS) : slideDuration;
 
   return (
     <section
@@ -182,32 +198,22 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
       onFocus={() => setPause(true)}
       onBlur={() => setPause(false)}
     >
-      <AnimatePresence initial={false}>
-        <motion.div
+      <div
           key={activeSlide.id}
           role="group"
           aria-roledescription="slide"
           aria-label={activeSlide.eyebrow ?? activeSlide.title ?? `Slide ${active + 1}`}
-          variants={slideFade}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          className="absolute inset-0"
+          className="hero-slide absolute inset-0"
         >
           {heroImageUrl ? (
-            <motion.div
-              initial={isReduced ? { scale: 1 } : { scale: 1.15 }}
-              animate={{ scale: isReduced ? 1 : 1.02 }}
-              transition={{ duration: isReduced ? 0 : 12, ease: "linear" }}
-              className="absolute inset-0"
-            >
+            <div className={`absolute inset-0 ${isReduced ? "" : "hero-kenburns"}`}>
               <HeroArtImage
                 desktopSrc={heroImageUrl}
                 mobileSrc={activeSlide.mobileImageUrl || heroImageUrl}
                 alt={activeSlide.imageAlt ?? activeSlide.title ?? "Storage system showcase"}
                 priority={active === 0}
               />
-            </motion.div>
+            </div>
           ) : null}
           {activeSlide.videoUrl ? (
             <video
@@ -228,22 +234,25 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/30" />
 
           <div className={`container-shell relative z-10 flex h-full flex-col justify-center py-16 sm:py-20 ${alignClass[activeSlide.textAlignment ?? "left"].section}`}>
-            <motion.div className={alignClass[activeSlide.textAlignment ?? "left"].block} variants={contentContainer} initial="hidden" animate="show">
-              {activeSlide.eyebrow ? <motion.p variants={contentItem} className="eyebrow text-red-400">{activeSlide.eyebrow}</motion.p> : null}
-              <motion.h1 variants={contentItem} className="hero-heading hero-heading-home mt-5 text-balance sm:mt-7">
+            <div
+              className={`stagger is-visible ${alignClass[activeSlide.textAlignment ?? "left"].block}`}
+              style={{ "--stagger-delay": ".35s", "--stagger-step": ".13s" } as CSSProperties}
+            >
+              {activeSlide.eyebrow ? <p className="eyebrow text-red-400">{activeSlide.eyebrow}</p> : null}
+              <h1 className="hero-heading hero-heading-home mt-5 text-balance sm:mt-7">
                 {activeSlide.title ? (
                   <>
                     {activeSlide.title}
                   </>
                 ) : null}
                 {activeSlide.highlightedText ? <span className="hero-accent text-red-500">{activeSlide.highlightedText}</span> : null}
-              </motion.h1>
+              </h1>
               {activeSlide.description ? (
-                <motion.p variants={contentItem} className="hero-description hero-description-home mt-5 text-zinc-300">
+                <p className="hero-description hero-description-home mt-5 text-zinc-300">
                   {activeSlide.description}
-                </motion.p>
+                </p>
               ) : null}
-              <motion.div variants={contentItem} className={`mt-7 flex flex-wrap items-center gap-3 sm:mt-9 sm:items-center ${alignClass[activeSlide.textAlignment ?? "left"].buttons}`}>
+              <div className={`mt-7 flex flex-wrap items-center gap-3 sm:mt-9 sm:items-center ${alignClass[activeSlide.textAlignment ?? "left"].buttons}`}>
                 {activeSlide.primaryButtonText ? (
                   <Link href={internalHref(activeSlide.primaryButtonUrl, "/products")} className="btn-primary group w-full sm:w-auto">
                     {activeSlide.primaryButtonText}
@@ -264,21 +273,20 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
                     <MoveUpRight size={14} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </Link>
                 ) : null}
-              </motion.div>
+              </div>
               {activeSlide.trustPoints && activeSlide.trustPoints.length > 0 ? (
-                <motion.ul variants={contentItem} className={`mt-6 flex flex-wrap gap-x-7 gap-y-2.5 sm:mt-8 ${alignClass[activeSlide.textAlignment ?? "left"].buttons}`}>
+                <ul className={`mt-6 flex flex-wrap gap-x-7 gap-y-2.5 sm:mt-8 ${alignClass[activeSlide.textAlignment ?? "left"].buttons}`}>
                   {activeSlide.trustPoints.map((point) => (
                     <li key={point} className="flex items-center gap-2.5 text-[.68rem] font-bold uppercase tracking-[.14em] text-zinc-300">
                       <span className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_4px_rgba(209,31,47,.18)]" />
                       {point}
                     </li>
                   ))}
-                </motion.ul>
+                </ul>
               ) : null}
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
 
       {count > 1 ? (
         <>
@@ -310,8 +318,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
                   key={`progress-${active}`}
                   className="h-full origin-left bg-red-500"
                   style={{
-                    animation: `hero-progress ${Math.max(1, (activeSlide.duration > 0 ? activeSlide.duration : 3500) / 1000)}s linear forwards`,
-                    animationPlayState: paused ? "paused" : "running",
+                    animation: `hero-progress ${Math.max(1, progressSeconds / 1000)}s linear ${paused ? "paused" : "running"} forwards`,
                   }}
                 />
               </div>
@@ -325,10 +332,16 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
                     onClick={() => setActive(index)}
                     aria-label={`Go to slide ${index + 1}`}
                     aria-current={index === active}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      index === active ? "w-7 bg-red-500" : "w-1.5 bg-white/40 hover:bg-white/70"
+                    className={`flex h-6 min-w-6 items-center justify-center rounded-full transition-colors ${
+                      index === active ? "text-red-500" : "text-white/40 hover:text-white/70"
                     }`}
-                  />
+                  >
+                    <span
+                      className={`block h-1.5 rounded-full bg-current transition-all duration-300 ${
+                        index === active ? "w-6" : "w-1.5"
+                      }`}
+                    />
+                  </button>
                 ))}
               </div>
             </div>

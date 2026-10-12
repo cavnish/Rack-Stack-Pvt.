@@ -56,7 +56,7 @@ export default async function ProductsPage() {
           <p className="hero-description mt-5 max-w-2xl text-zinc-300">Browse office storage, industrial storage and material-handling equipment by product, application, industry or product type.</p>
           <div className="mt-9 flex flex-wrap gap-3">
             <Link href="#catalogue" className="btn-primary">Explore Products <ArrowRight size={17} /></Link>
-            <Link href="/catalog" className="btn-light"><Download size={16} /> Download Catalog</Link>
+            <Link href="/rack-and-stack-brochure.pdf" download className="btn-light"><Download size={16} /> Download Catalog</Link>
           </div>
         </div>
       </section>

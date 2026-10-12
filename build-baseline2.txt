@@ -1,0 +1,113 @@
+
+> build
+> next build
+
+▲ Next.js 16.2.6 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 9.8s
+  Running TypeScript ...
+  Finished TypeScript in 14.5s ...
+  Collecting page data using 11 workers ...
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+  Generating static pages using 11 workers (0/78) ...
+  Generating static pages using 11 workers (19/78) 
+[site-url] NEXT_PUBLIC_SITE_URL is "http://localhost:3000", which is not the public origin (localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all advertise the wrong host in production, so https://www.rackandstack.in is being used instead. Set NEXT_PUBLIC_SITE_URL to the real origin.
+  Generating static pages using 11 workers (38/78) 
+  Generating static pages using 11 workers (58/78) 
+✓ Generating static pages using 11 workers (78/78) in 2.8s
+  Finalizing page optimization ...
+
+Route (app)                                                  Revalidate  Expire
+┌ ○ /                                                                1h      1y
+├ ○ /_not-found
+├ ● /[slug]                                                          1h      1y
+│ ├ /about                                                           1h      1y
+│ ├ /privacy-policy                                                  1h      1y
+│ ├ /terms-and-conditions                                            1h      1y
+│ └ /cookie-policy                                                   1h      1y
+├ ○ /about                                                           1h      1y
+├ ƒ /admin
+├ ƒ /admin/[entity]
+├ ƒ /admin/[entity]/[id]/edit
+├ ƒ /admin/[entity]/new
+├ ƒ /admin/login
+├ ƒ /admin/preview/products/[slug]
+├ ƒ /api/admin/[entity]
+├ ƒ /api/admin/[entity]/[id]
+├ ƒ /api/admin/product-images
+├ ƒ /api/admin/upload
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/catalog-downloads
+├ ƒ /api/contact
+├ ƒ /api/events
+├ ƒ /api/health
+├ ƒ /api/inquiries
+├ ƒ /api/newsletter
+├ ƒ /api/publish
+├ ƒ /api/search
+├ ○ /apple-icon.png
+├ ○ /blog                                                            1h      1y
+├ ● /blog/[slug]                                                     1h      1y
+│ ├ /blog/prepare-for-pallet-racking-layout                          1h      1y
+│ └ /blog/storage-density-versus-accessibility                       1h      1y
+├ ○ /catalog                                                         1h      1y
+├ ○ /clients                                                         1h      1y
+├ ○ /contact                                                         1h      1y
+├ ○ /gallery                                                         1h      1y
+├ ○ /icon.png
+├ ○ /industries                                                      1h      1y
+├ ● /industries/[slug]                                               1h      1y
+│ ├ /industries/warehousing                                          1h      1y
+│ ├ /industries/manufacturing                                        1h      1y
+│ ├ /industries/automotive                                           1h      1y
+│ └ [+9 more paths]
+├ ○ /manifest.webmanifest
+├ ƒ /preview/emails
+├ ○ /products                                                        1h      1y
+├ ● /products/[category]                                             1h      1y
+│ ├ /products/compactor-storage-systems                              1h      1y
+│ ├ /products/mobile-shelving-racks                                  1h      1y
+│ ├ /products/heavy-duty-long-span-racks                             1h      1y
+│ └ [+8 more paths]
+├ ● /products/[category]/[slug]                                      1h      1y
+│ ├ /products/space-optimization/compactor-storage-systems           1h      1y
+│ ├ /products/space-optimization/mobile-shelving-racks               1h      1y
+│ ├ /products/industrial-racking/heavy-duty-long-span-racks          1h      1y
+│ └ [+5 more paths]
+├ ○ /products/industrial-storage                                     1h      1y
+├ ○ /products/material-handling                                      1h      1y
+├ ○ /products/office-storage                                         1h      1y
+├ ○ /projects                                                        1h      1y
+├ ● /projects/[slug]
+├ ○ /request-a-quote                                                 1h      1y
+├ ○ /robots.txt
+├ ƒ /search
+├ ○ /services                                                        1h      1y
+├ ● /services/[slug]                                                 1h      1y
+│ ├ /services/storage-planning                                       1h      1y
+│ ├ /services/site-survey                                            1h      1y
+│ ├ /services/rack-design                                            1h      1y
+│ └ [+5 more paths]
+├ ○ /sitemap.xml
+└ ○ /thank-you                                                       1h      1y
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

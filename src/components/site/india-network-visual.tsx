@@ -1,8 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { useInView } from "framer-motion";
-
+import { useInView } from "./use-in-view";
 import { SmartImage } from "./smart-image";
 
 /* Centre column: the India coverage map is the single main visual, with a small label
@@ -14,8 +12,7 @@ import { SmartImage } from "./smart-image";
    carries no transform/opacity animation of its own so it cannot become a stacking
    context and isolate the blend from the section. */
 export function IndiaNetworkVisual() {
-  const host = useRef<HTMLDivElement>(null);
-  const inView = useInView(host, { once: true, amount: 0.3 });
+  const { ref: host, inView } = useInView<HTMLDivElement>({ rootMargin: "0px", threshold: 0.3 });
 
   return (
     <div

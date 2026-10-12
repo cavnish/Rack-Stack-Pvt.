@@ -1,50 +1,46 @@
 "use client";
-import { motion, useReducedMotion } from "framer-motion";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { useInView } from "./use-in-view";
 
+/**
+ * Scroll-reveal wrappers.
+ *
+ * These used to be framer-motion components, which pulled the whole motion
+ * library (and its dependencies) into every page that used them. They are now
+ * plain elements driven by CSS keyframes (see the "SCROLL REVEAL" block in
+ * `globals.css`) and a tiny IntersectionObserver hook, so the markup and
+ * behaviour stay recognisable while the client bundle drops the library.
+ *
+ * The API is unchanged: same props, same DOM shape (`<div>` with the caller's
+ * class name), same one-shot fade-up, and the same `prefers-reduced-motion`
+ * behaviour — reduced-motion readers simply get the visible end state.
+ */
 export function Reveal({ children, delay = 0, className }: { children: ReactNode; delay?: number; className?: string }) {
-  const reduced = useReducedMotion();
+  const { ref, inView } = useInView<HTMLDivElement>();
   return (
-    <motion.div
-      className={className}
-      initial={reduced ? false : { opacity: 0, y: 24 }}
-      whileInView={reduced ? {} : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.62, delay, ease: [0.22, 1, 0.36, 1] }}
+    <div
+      ref={ref}
+      className={`reveal${inView ? " is-visible" : ""}${className ? ` ${className}` : ""}`}
+      style={delay ? ({ "--reveal-delay": `${delay}s` } as CSSProperties) : undefined}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 export function Stagger({ children, className, delay = 0, gap = 0.07 }: { children: ReactNode; className?: string; delay?: number; gap?: number }) {
-  const reduced = useReducedMotion();
+  const { ref, inView } = useInView<HTMLDivElement>({ rootMargin: "0px 0px -70px 0px" });
   return (
-    <motion.div
-      className={className}
-      initial={reduced ? false : "hidden"}
-      whileInView={reduced ? undefined : "show"}
-      viewport={{ once: true, margin: "-70px" }}
-      variants={{
-        hidden: {},
-        show: { transition: { staggerChildren: gap, delayChildren: delay } },
-      }}
+    <div
+      ref={ref}
+      className={`stagger${inView ? " is-visible" : ""}${className ? ` ${className}` : ""}`}
+      style={{ "--stagger-delay": `${delay}s`, "--stagger-step": `${gap}s` } as CSSProperties}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <motion.div
-      className={className}
-      variants={{
-        hidden: { opacity: 0, y: 22 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
-      }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className={className}>{children}</div>;
 }

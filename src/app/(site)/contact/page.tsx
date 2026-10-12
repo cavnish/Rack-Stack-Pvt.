@@ -22,6 +22,7 @@ import { PageHero, SectionHeading } from "@/components/site/ui";
 import { ContactForm } from "@/components/site/contact-form";
 import { FAQ } from "@/components/site/faq";
 import { SmartImage } from "@/components/site/smart-image";
+import { SocialConnectSection } from "@/components/site/social-links";
 import { Reveal, Stagger, StaggerItem } from "@/components/site/reveal";
 import { phoneHref, whatsappHref } from "@/lib/utils";
 import { notFound } from "next/navigation";
@@ -84,32 +85,6 @@ export default async function ContactPage() {
     (product, index, all) => all.findIndex((candidate) => candidate.slug === product.slug) === index,
   );
 
-  const contacts = [
-    {
-      label: "Call Us",
-      value: `${settings.primaryPhone}${settings.secondaryPhone ? ` / ${settings.secondaryPhone}` : ""}`,
-      href: phoneHref(settings.primaryPhone),
-      Icon: Phone,
-    },
-    {
-      label: "WhatsApp",
-      value: settings.whatsapp,
-      href: whatsappHref(settings.whatsapp),
-      Icon: MessageCircle,
-    },
-    {
-      label: "Email",
-      value: settings.email,
-      href: `mailto:${settings.email}`,
-      Icon: Mail,
-    },
-    {
-      label: "Working Hours",
-      value: settings.workingHours,
-      Icon: Clock,
-    },
-  ];
-
   return (
     <main>
       <PageHero
@@ -118,42 +93,11 @@ export default async function ContactPage() {
         image={gallery[0]?.imageUrl}
       />
 
-      <section className="py-12 lg:py-14">
-        <div className="container-shell">
-          <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {contacts.map(({ label, value, href, Icon }) => (
-              <StaggerItem key={label}>
-                {href ? (
-                  <a
-                    href={href}
-                    target={label === "WhatsApp" ? "_blank" : undefined}
-                    rel="noreferrer"
-                    className="group flex h-full flex-col border border-zinc-200 bg-white p-5 transition-all duration-300 hover:border-zinc-800 hover:shadow-lg"
-                  >
-                    <span className="grid h-11 w-11 place-items-center rounded-lg bg-red-50 text-red-600 transition-colors group-hover:bg-red-600 group-hover:text-white">
-                      <Icon size={20} />
-                    </span>
-                    <span className="mt-3 text-[.65rem] font-bold uppercase tracking-[.14em] text-zinc-400">
-                      {label}
-                    </span>
-                    <span className="mt-1 text-sm font-semibold text-zinc-900">{value}</span>
-                  </a>
-                ) : (
-                  <div className="flex h-full flex-col border border-zinc-200 bg-white p-5">
-                    <span className="grid h-11 w-11 place-items-center rounded-lg bg-red-50 text-red-600">
-                      <Icon size={20} />
-                    </span>
-                    <span className="mt-3 text-[.65rem] font-bold uppercase tracking-[.14em] text-zinc-400">
-                      {label}
-                    </span>
-                    <span className="mt-1 text-sm font-semibold text-zinc-900">{value}</span>
-                  </div>
-                )}
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </div>
-      </section>
+      <SocialConnectSection
+        eyebrow="Stay Connected"
+        title="Find Us & Follow Us"
+        description="Follow our latest installations, project updates and storage insights on the platforms you already use."
+      />
 
       <section className="border-y border-zinc-200 bg-[#f8f8f6] py-12 lg:py-14">
         <div className="container-shell">

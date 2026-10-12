@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // The root is "" so its `<loc>` is the bare origin, which is exactly what
   // Next emits as the homepage canonical; keeping the two identical avoids a
   // needless "which URL is canonical" ambiguity for `/`.
-  const staticPaths = ["", "/about", "/products", "/services", "/industries", "/projects", "/clients", "/gallery", "/catalog", "/blog", "/contact", "/request-a-quote", "/privacy-policy", "/terms-and-conditions", "/cookie-policy"];
+  const staticPaths = ["", "/about", "/products", "/services", "/industries", "/projects", "/clients", "/gallery", "/blog", "/contact", "/request-a-quote", "/privacy-policy", "/terms-and-conditions", "/cookie-policy"];
 
   const entries: MetadataRoute.Sitemap = [
     ...staticPaths.map((path) => ({ url: `${base}${path}`, changeFrequency: path === "" ? "weekly" as const : "monthly" as const, priority: path === "" ? 1 : 0.7 })),

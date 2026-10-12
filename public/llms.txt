@@ -1,0 +1,29 @@
+# Rack & Stack Storage Systems
+
+> Rack & Stack Storage Systems Pvt. Ltd. designs, manufactures, supplies and
+> installs industrial storage systems — pallet racking, cantilever racking,
+> slotted-angle shelving, heavy-duty long-span racks and in-plant material
+> handling equipment — planned around a building, its loads and the way a team
+> works.
+
+Rack & Stack is a storage systems manufacturer and exporter. Every project
+starts with a site survey and a bay-by-bay storage plan, then moves through
+engineering and design, manufacturing, installation and final handover.
+
+## Key pages
+
+- [Products](/products): product categories and individual storage systems.
+- [Services](/services): storage planning, site surveys, installation and
+  project coordination.
+- [Industries](/industries): storage systems planned for specific industries.
+- [Projects](/projects): published case studies of delivered installations.
+- [Insights](/blog): practical guides for teams planning warehouse storage.
+- [Request a Quote](/request-a-quote): start a storage plan or quote.
+- [Contact](/contact): phone, email and address details.
+
+## Notes
+
+- Products, specifications and metadata are managed through the site's admin
+  and content system.
+- Admin routes under `/admin` and API routes under `/api` are not intended for
+  crawlers.

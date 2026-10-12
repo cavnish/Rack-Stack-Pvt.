@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useId } from "react";
 import { ExternalLink } from "lucide-react";
-import { motion } from "framer-motion";
 import { Stagger } from "@/components/site/reveal";
 import { JsonLd } from "@/components/site/ui";
 import { parseInstagramUrl } from "@/lib/instagram";
@@ -151,24 +150,16 @@ export function ReelShowcase({
 }
 
 /**
- * Scroll entrance for one card.
+ * One card on the shelf.
  *
- * No `initial`/`animate` here: the parent `Stagger` owns the variant state and
- * propagates it, and it skips the whole animation when the visitor prefers
- * reduced motion.
+ * The reveal is owned by the parent `Stagger` container (`.stagger > *`), which
+ * holds every child hidden only under `prefers-reduced-motion: no-preference`
+ * and animates them in with a CSS keyframe. Reduced-motion readers get the
+ * settled cards with no animation.
  */
+
 function ReelEntrance({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <motion.div
-      className={className}
-      variants={{
-        hidden: { opacity: 0, y: 26 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
-      }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className={className}>{children}</div>;
 }
 
 /**

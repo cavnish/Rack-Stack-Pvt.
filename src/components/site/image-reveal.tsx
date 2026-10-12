@@ -1,11 +1,8 @@
 "use client";
 
-import { motion, useInView, useReducedMotion } from "framer-motion";
-import { useRef } from "react";
+import { useInView } from "@/components/site/use-in-view";
 
 import { SmartImage } from "@/components/site/smart-image";
-
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
  * An image that reveals itself as it scrolls into view.
@@ -57,19 +54,11 @@ export function ImageReveal({
   priority?: boolean;
   position?: string;
 }) {
-  const frame = useRef<HTMLDivElement>(null);
-  const inView = useInView(frame, { once: true, margin: "-90px" });
-  const reduced = useReducedMotion();
-  const anim = !reduced;
+  const { ref: frame, inView } = useInView<HTMLDivElement>({ rootMargin: "0px 0px -90px 0px" });
 
   return (
     <div ref={frame} className={`relative overflow-hidden bg-zinc-200 ${className}`}>
-      <motion.div
-        className="absolute inset-0"
-        initial={false}
-        animate={!anim ? { clipPath: "inset(0% 0% 0% 0%)", scale: 1 } : inView ? { clipPath: "inset(0% 0% 0% 0%)", scale: 1 } : { clipPath: "inset(0% 0% 100% 0%)", scale: 1.14 }}
-        transition={{ clipPath: { duration: 1.05, ease: EASE }, scale: { duration: 1.5, ease: EASE } }}
-      >
+      <div className={`image-reveal absolute inset-0 ${inView ? "is-visible" : ""}`}>
         <SmartImage
           src={src}
           alt={alt}
@@ -79,7 +68,7 @@ export function ImageReveal({
           className={imgClassName}
           style={{ objectPosition: position }}
         />
-      </motion.div>
+      </div>
     </div>
   );
 }

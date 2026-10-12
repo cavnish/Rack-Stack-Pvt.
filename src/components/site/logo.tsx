@@ -16,7 +16,6 @@ export function Logo({
     <Link
       href={href}
       className="inline-flex shrink-0 items-center gap-1.5 md:gap-0"
-      aria-label="Rack & Stack home"
     >
       {/* Logo Icon */}
       <span

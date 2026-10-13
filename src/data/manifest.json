@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-12T11:40:52.982Z",
+  "generatedAt": "2026-10-12T15:31:59.699Z",
   "collections": {
     "blogPosts": {
       "hash": "97d170e1550eee4a",
@@ -38,13 +38,13 @@
       "count": 37
     },
     "industries": {
-      "hash": "922baa980790de59",
-      "generatedAt": "2026-10-02T13:22:21.157Z",
+      "hash": "b345c91484b01b6b",
+      "generatedAt": "2026-10-12T14:54:26.812Z",
       "count": 12
     },
     "sliders": {
-      "hash": "f440c9fa7298c0ba",
-      "generatedAt": "2026-10-09T10:38:55.582Z",
+      "hash": "81fa0a92a03cedcb",
+      "generatedAt": "2026-10-12T15:31:59.699Z",
       "count": 3
     },
     "pages": {
@@ -83,9 +83,9 @@
       "count": 9
     },
     "testimonials": {
-      "hash": "1541c317eef8a514",
-      "generatedAt": "2026-10-08T12:29:03.808Z",
-      "count": 7
+      "hash": "884f4c00a06ed487",
+      "generatedAt": "2026-10-12T14:54:27.471Z",
+      "count": 6
     },
     "projects": {
       "hash": "97d170e1550eee4a",

@@ -88,6 +88,7 @@ export default async function ContactPage() {
   return (
     <main>
       <PageHero
+        eyebrow="Get In Touch"
         title="Let's Build the Right Storage Solution"
         description="Share your space, stock and handling details. We'll help you plan the right system — from survey to installation."
         image={gallery[0]?.imageUrl}

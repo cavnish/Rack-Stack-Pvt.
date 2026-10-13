@@ -8,6 +8,7 @@ import { SmartImage } from "@/components/site/smart-image";
 const labels: Record<string, string> = {
   homepage: "Homepage sections",
   "home-offer-cards": "Homepage offer cards",
+  "home-slider": "Hero slider slides",
   blog: "Blog posts",
   "contact-messages": "Contact messages",
   seo: "SEO settings",
@@ -42,12 +43,16 @@ const orderFields: Record<string, string> = {
  * one writes through the same `PUT` route as the editor, so a status flipped
  * here goes through identical validation and triggers the same publish.
  */
-const publishable = new Set(["testimonials"]);
+const publishable = new Set(["testimonials", "home-slider"]);
 
 function display(row: Record<string, unknown>) {
   return String(row.name || row.title || row.clientName || row.question || row.email || row.action || row.sectionKey || `Record #${row.id}`);
 }
 function secondary(entity: string, row: Record<string, unknown>) {
+  if (entity === "home-slider") {
+    const duration = row.duration ? `${Number(row.duration) / 1000}s` : "3.5s";
+    return [row.eyebrow, duration, String(row.textAlignment || "left")].filter(Boolean).join(" · ");
+  }
   // Keyed on the entity, not on a field: a hero slider with a background video
   // also carries `videoUrl`, and it must not be summarised as a Reel.
   if (entity === "videos") {
@@ -146,13 +151,13 @@ export function AdminTable({ entity, initialRows, role, notice: initialNotice }:
     setMessage("");
     setPending(true);
     try {
-      const response = await fetch("/api/admin/products", {
+      const response = await fetch(`/api/admin/${entity}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ duplicateId: id }),
       });
       if (!response.ok) {
-        setMessage("Unable to duplicate this product.");
+        setMessage("Unable to duplicate this record.");
         return;
       }
       router.refresh();

@@ -127,6 +127,13 @@
       "when": 1791524939064,
       "tag": "0017_harsh_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791818562283,
+      "tag": "0018_overrated_iron_patriot",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-12T11:21:09.368Z",
+  "updatedAt": "2026-10-12T14:54:13.284Z",
   "assets": {
     "hero:https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000": {
       "url": "/assets/images/hero/warehouse-pallet-storage-hero-374ec6e177.webp",
@@ -1251,6 +1251,19 @@
       "group": "products",
       "name": "products-sinb0jy8xvogwfpergus",
       "etag": "\"fd40a67058a74047511a9f3cbc496621\""
+    },
+    "hero:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791552763/rack-stack/home-sliders/l98yyfaxjol4jr4zwmmr.png": {
+      "url": "/assets/images/hero/slide-1-162390a737.webp",
+      "width": 2000,
+      "height": 754,
+      "aspectRatio": 2.6525,
+      "bytes": 58730,
+      "hash": "162390a737",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791552763/rack-stack/home-sliders/l98yyfaxjol4jr4zwmmr.png",
+      "cached": false,
+      "group": "hero",
+      "name": "slide-1",
+      "etag": "\"6bb756f0eef9ee07f7a15895cfaf1a91\""
     }
   }
 }

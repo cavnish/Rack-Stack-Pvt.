@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { AlertCircle, CheckCircle2, Loader2, Upload } from "lucide-react";
+import { trackLead } from "@/lib/analytics";
 
 type ProductOption = {
   id?: number | string;
@@ -100,6 +101,8 @@ export function ContactForm({ products = [] }: { products?: ProductOption[] }) {
         setFileName("");
         if (fileRef.current) fileRef.current.value = "";
         setSucceeded(true);
+        // Only after the server confirms the message was accepted.
+        trackLead({ form_name: "contact", lead_type: "contact" });
         return;
       }
 
@@ -138,7 +141,7 @@ export function ContactForm({ products = [] }: { products?: ProductOption[] }) {
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2" noValidate aria-busy={loading}>
+    <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2" noValidate aria-busy={loading} data-analytics-form="contact">
       <div>
         <label className="form-label" htmlFor="contact-name">Name *</label>
         <input

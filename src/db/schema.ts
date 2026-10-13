@@ -778,6 +778,18 @@ export const homeOfferCards = pgTable(
   ],
 );
 
+/**
+ * A single line of the hero headline.
+ *
+ * The headline is authored as an ordered list of these. Each entry carries its
+ * own colour (independent selection in the editor) while the renderer keeps the
+ * font family and weight identical across every line, so the industrial
+ * typography never drifts. `text` may contain newline characters — pressing
+ * Enter inside the admin textarea adds a line break within the same entry.
+ * `color` is a `#RRGGBB` string, or `null` to inherit the hero's white.
+ */
+export type HeadlineLine = { text: string; color: string | null };
+
 export const homeSliders = pgTable(
   "home_sliders",
   {
@@ -785,6 +797,14 @@ export const homeSliders = pgTable(
     eyebrow: text("eyebrow"),
     title: text("title"),
     highlightedText: text("highlighted_text"),
+    /**
+     * Per-line headline copy with independent colours. Kept alongside the
+     * legacy `title`/`highlighted_text` pair: rows written before this column
+     * existed are still rendered by deriving two lines from those fields, and a
+     * save mirrors the first two entries back into them so other consumers
+     * (admin lists, previews) keep working.
+     */
+    headlineLines: jsonb("headline_lines").$type<HeadlineLine[]>(),
     description: text("description"),
     imageUrl: text("image_url"),
     imagePublicId: text("image_public_id"),

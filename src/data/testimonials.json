@@ -1,19 +1,5 @@
 [
   {
-    "id": 22,
-    "clientName": "Rajesh Menon",
-    "company": "Anand Logistics India",
-    "designation": "Vice President, Warehousing",
-    "content": "They walked our Bhiwandi facility for two days before quoting anything, and the layout they came back with moved 18% more pallets through the same floor than the one we were running. Installation finished inside our peak-season shutdown.",
-    "rating": 5,
-    "image": null,
-    "featured": false,
-    "status": "PUBLISHED",
-    "displayOrder": 0,
-    "createdAt": "2026-09-30T15:42:10.376Z",
-    "updatedAt": "2026-10-08T12:29:03.585Z"
-  },
-  {
     "id": 23,
     "clientName": "Rajesh Menon",
     "company": "Anand Logistics India",

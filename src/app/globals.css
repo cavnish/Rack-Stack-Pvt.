@@ -1,6 +1,6 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
-:root { --ink:#151719; --graphite:#202326; --muted:#656b70; --line:#dfe2e3; --paper:#f4f4f1; --red:#d11f2f; --red-dark:#ad1220; --white:#fff; --accent:#FF6B1A; --navy:#071C27; }
+:root { --ink:#151719; --graphite:#202326; --muted:#656b70; --line:#dfe2e3; --paper:#f4f4f1; --red:#d11f2f; --red-dark:#ad1220; --white:#fff; --accent:#FF6B1A; --navy:#071C27; --font-industrial:'Barlow Condensed', 'Oswald', 'Impact', 'Arial Black', var(--font-sans), sans-serif; }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; }
 body { margin:0; background:#fff; color:var(--ink); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
@@ -45,10 +45,142 @@ img,video,svg { max-width:100%; }
 /* Section description â€” 21-22px desktop, comfortable lh, wide measure, 20px gap below heading. */
 .section-description { font-family:var(--font-sans); font-size:clamp(1rem,.9rem + .6vw,1.375rem); line-height:1.5; font-weight:500; letter-spacing:0; max-width:72rem; text-wrap:pretty; overflow-wrap:break-word; }
 /* Hero description â€” 18-20px desktop. */
-.hero-description { font-family:var(--font-sans); font-size:clamp(1.0625rem,1rem + .3vw,1.25rem); line-height:1.6; font-weight:400; letter-spacing:0; max-width:48rem; text-wrap:pretty; overflow-wrap:break-word; }
-/* Home hero â€” reduced, responsive scale so long industrial H1s stay one glanceable block. */
+.hero-description { font-family:var(--font-sans); font-size:clamp(0.9375rem, 0.875rem + 0.3vw, 1.125rem); line-height:1.65; font-weight:400; letter-spacing:0.005em; max-width:38rem; text-wrap:pretty; overflow-wrap:break-word; }
+/* Home hero industrial heading — premium condensed display type.
+   Compact and readable: mobile 1.65-2.25rem, tablet up to ~2.9rem, desktop
+   2.25-3.8rem. It wraps naturally inside the copy column (never `nowrap` and
+   never clipped) and balances its lines so the white and red halves stay even. */
+.hero-industrial-title {
+  font-family: var(--font-industrial);
+  font-size: clamp(1.5rem, 5.6vw, 2.15rem);
+  line-height: 1.04;
+  letter-spacing: 0.01em;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+@media (min-width: 640px) {
+  .hero-industrial-title {
+    font-size: clamp(2rem, 4.2vw, 2.9rem);
+    line-height: 1.03;
+  }
+}
+@media (min-width: 1024px) {
+  .hero-industrial-title {
+    font-size: clamp(2.25rem, 3.4vw, 3.8rem);
+    line-height: 1;
+    letter-spacing: 0em;
+  }
+}
+/* Sticky site-header height, by breakpoint.
+   Below `lg` the header is one 72px row plus its 1px rule; from `lg` the
+   announcement strip sits above it and adds ~33px. The home hero uses it to cap
+   its own height on short viewports, so a short laptop or a phone in landscape
+   never has to scroll to reach the bottom of a slide. */
+:root { --site-header-h: 73px; }
+@media (min-width: 1024px) { :root { --site-header-h: 106px; } }
+
+/* Home hero height — one fixed, device-appropriate band:
+     700px on desktop, 550px on tablet, 420px on mobile.
+   `min()` against the viewport caps the band on short screens (a 768px-tall
+   laptop, a phone in landscape) while the target height applies whenever there is
+   room. `min-height` rather than a fixed `height` means an unusually long slide
+   grows the section instead of clipping; the copy is scaled below so every
+   current slide sits inside the target. `svh` is used where supported (so mobile
+   browser chrome cannot overstate the available height); `vh` is the fallback. */
+:root { --hero-h: 420px; }
+@media (min-width: 640px) { :root { --hero-h: 550px; } }
+@media (min-width: 1024px) { :root { --hero-h: 700px; } }
+
+.hero-carousel { min-height: min(var(--hero-h), calc(100vh - var(--site-header-h) - 12px)); }
+@supports (height: 100svh) {
+  .hero-carousel { min-height: min(var(--hero-h), calc(100svh - var(--site-header-h) - 12px)); }
+}
+/* The copy column carries the same band and is centred inside it, so the slide
+   reads as one balanced composition. The asymmetric padding lifts the copy clear
+   of the progress bar and dots at the foot: on a phone that band is 56px tall
+   (12px inset + 2px bar + 6px gap + 36px dots), so the bottom padding is a full
+   64px and the top stays light — which keeps the whole copy block inside 420px
+   while leaving the slider controls their own clear lane. */
+.hero-shell {
+  min-height: min(var(--hero-h), calc(100vh - var(--site-header-h) - 12px));
+  padding-block: 1rem 4rem;
+}
+@supports (height: 100svh) {
+  .hero-shell { min-height: min(var(--hero-h), calc(100svh - var(--site-header-h) - 12px)); }
+}
+@media (min-width: 640px) {
+  .hero-shell { padding-block: 1.5rem 4.5rem; }
+}
+@media (min-width: 1024px) {
+  .hero-shell { padding-block: 3rem; }
+}
+/* Home hero body copy — a touch tighter than the shared `.hero-description`
+   (which other pages keep) so the longest slide sits inside the 420px phone
+   band. Scoped so the base rule is untouched elsewhere. */
+.hero-carousel .hero-description {
+  font-size: clamp(0.8125rem, 0.78rem + 0.3vw, 1rem);
+  line-height: 1.5;
+  max-width: 34rem;
+}
+/* Hero display type, scaled to its band rather than to the viewport alone.
+   Scoped to the carousel so the fallback hero and other pages keep the base
+   `.hero-industrial-title` scale. The line-height is tight because the family is
+   condensed and the headline is set in stacked colour lines, and the sizes step
+   at the same breakpoints as the band, so the ratio of headline to hero stays
+   constant from a phone to a wide monitor. */
+.hero-carousel .hero-industrial-title {
+  font-size: clamp(1.05rem, 0.84rem + 1.9vw, 1.4rem);
+  line-height: 1.05;
+}
+@media (min-width: 640px) {
+  .hero-carousel .hero-industrial-title { font-size: clamp(1.5rem, 1rem + 2vw, 2.1rem); }
+}
+@media (min-width: 1024px) {
+  .hero-carousel .hero-industrial-title { font-size: clamp(2.1rem, 1rem + 2.4vw, 3rem); letter-spacing: 0; }
+}
+@media (min-width: 1024px) {
+  .hero-carousel .hero-description { font-size: 1rem; line-height: 1.55; }
+}
+/* The hero CTAs live inside a fixed-height band, so on phones they drop to a
+   40px target (still comfortably above the 32px minimum and inside the thumb
+   zone) with tighter horizontal padding, which is what keeps a long label such
+   as "Explore Solutions" from spilling out of its column. */
+@media (max-width: 639px) {
+  .hero-carousel .btn-primary,
+  .hero-carousel .btn-light {
+    min-height: 2.5rem;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.05em;
+  }
+}
+/* Narrow phones (≤359px): one step down so the longest headline keeps its line
+   count, the paragraph runs a little tighter, and the CTA row shaves a couple of
+   pixels — together that keeps the tallest slide inside the 420px band instead
+   of pushing the section past it. Declared after the rule above so it wins at
+   equal specificity. */
+@media (max-width: 359px) {
+  .hero-carousel .hero-industrial-title { font-size: clamp(0.95rem, 0.8rem + 1.6vw, 1.15rem); }
+  .hero-carousel .hero-description { font-size: 0.8125rem; line-height: 1.4; }
+  .hero-carousel .btn-primary,
+  .hero-carousel .btn-light { min-height: 2.4rem; padding: 0.5rem 0.75rem; }
+}
+.hero-badge-angled {
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 0 100%);
+}
 .hero-heading-home { font-size:clamp(1.875rem,1.15rem + 2.6vw,2.9rem); line-height:1.12; }
 .hero-description-home { font-size:clamp(.9375rem,.875rem + .25vw,1.0625rem); line-height:1.55; max-width:42rem; }
+/* Compact page hero (About / Contact / Projects / Services / Products).
+   A short, consistent band — 240-340px tall — grown only when the copy demands
+   it, with a heading scale a full step below the homepage carousel so the block
+   reads as one tight composition rather than a cropped banner. One definition
+   shared by every section page keeps their heights and type identical. */
+.page-hero { min-height:clamp(240px,26vw,340px); }
+.page-hero .hero-heading { font-size:clamp(1.75rem,1.05rem + 2.6vw,2.75rem); line-height:1.12; }
+.page-hero .hero-description { font-size:clamp(.9375rem,.875rem + .3vw,1.0625rem); line-height:1.58; max-width:40rem; }
 /* One-line highlighted accent (PLANNED. SUPPLIED. INSTALLED.) */
 .hero-accent { display:block; white-space:nowrap; font-size:.6em; letter-spacing:.16em; font-weight:800; }
 .text-balance { text-wrap:balance; }

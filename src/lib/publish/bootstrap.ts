@@ -473,28 +473,28 @@ export async function bootstrapHomeSections(): Promise<StaticHomeSection[]> {
 
 export async function bootstrapSliders(): Promise<StaticHomeSlider[]> {
   const images = await bootstrapImages();
-  const slides: Array<Omit<StaticHomeSlider, "id" | "createdAt" | "updatedAt" | "videoUrl" | "imagePublicId" | "mobileImagePublicId">> = [
+  const slides: Array<Omit<StaticHomeSlider, "id" | "createdAt" | "updatedAt" | "videoUrl" | "imagePublicId" | "mobileImagePublicId" | "headlineLines">> = [
     {
-      eyebrow: "Industrial storage systems",
-      title: "Industrial Storage Systems,",
-      highlightedText: "MANUFACTURER. SUPPLY. INSTALLATION.",
-      description: "Manufacturing-grade pallet racking, heavy duty shelving and mezzanine floors engineered for heavy loads, tight floorspace and continuous production output.",
+      eyebrow: "RACK & STACK STORAGE SYSTEMS",
+      title: "PRECISION STORAGE",
+      highlightedText: "RACKING SOLUTIONS",
+      description: "ENGINEERED FOR INDUSTRIAL STORAGE\n\nWe design, manufacture and install high-quality industrial storage and warehouse racking systems that maximise space utilisation, improve inventory organisation and support efficient material handling.",
       imageUrl: images.siteHero,
       mobileImageUrl: images.siteHero,
-      imageAlt: "Industrial racking and storage systems installed across a manufacturing facility",
+      imageAlt: "Precision industrial storage and warehouse pallet racking solutions",
       primaryButtonText: "View Products",
       primaryButtonUrl: "/products",
       secondaryButtonText: "Request a Quote",
       secondaryButtonUrl: "/request-a-quote",
       tertiaryButtonText: "Talk to Us",
       tertiaryButtonUrl: "/contact",
-      trustPoints: ["Site-based planning", "Load-based configuration", "Installation included"],
+      trustPoints: ["MANUFACTURER", "SUPPLY", "INSTALLATION"],
       status: "PUBLISHED",
       sortOrder: 0,
-      overlayOpacity: 72,
+      overlayOpacity: 75,
       textAlignment: "left",
       autoplay: true,
-      duration: 3500,
+      duration: 7000,
       startAt: null,
       endAt: null,
     },
@@ -550,6 +550,10 @@ export async function bootstrapSliders(): Promise<StaticHomeSlider[]> {
   return slides.map((slide, index) => ({
     ...slide,
     id: index + 1,
+    headlineLines: [
+      ...(slide.title ? [{ text: slide.title, color: "#FFFFFF" }] : []),
+      ...(slide.highlightedText ? [{ text: slide.highlightedText, color: "#E31E24" }] : []),
+    ],
     imagePublicId: null,
     mobileImagePublicId: null,
     videoUrl: null,

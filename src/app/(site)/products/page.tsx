@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight, Download } from "lucide-react";
-import { SectionHeading } from "@/components/site/ui";
-import { SmartImage } from "@/components/site/smart-image";
+import { PageHero, SectionHeading } from "@/components/site/ui";
 import { CatalogueProductBrowser } from "@/components/site/catalogue-product-browser";
 import { CatalogueProductBrowserFallback } from "@/components/site/catalogue-product-browser-fallback";
 import { TrustedByStrip } from "@/components/site/trusted-by-strip";
@@ -45,21 +44,18 @@ export default async function ProductsPage() {
   ]);
   return (
     <main>
-      <section className="relative isolate overflow-hidden bg-zinc-950 text-white">
-        <div className="absolute inset-0 -z-20">
-          <SmartImage src={catalogueCategories[1].image} alt="Illustrative industrial storage environment" fill priority className="object-cover opacity-35" sizes="100vw" />
-        </div>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-zinc-950 via-zinc-950/90 to-zinc-950/30" />
-        <div className="container-shell flex min-h-[520px] flex-col justify-end py-16">
-          <p className="eyebrow text-red-400">32-product catalogue</p>
-          <h1 className="hero-heading mt-5 max-w-4xl text-balance">Storage and handling systems, clearly organised</h1>
-          <p className="hero-description mt-5 max-w-2xl text-zinc-300">Browse office storage, industrial storage and material-handling equipment by product, application, industry or product type.</p>
-          <div className="mt-9 flex flex-wrap gap-3">
+      <PageHero
+        eyebrow="32-product catalogue"
+        title="Storage and handling systems, clearly organised"
+        description="Browse office storage, industrial storage and material-handling equipment by product, application, industry or product type."
+        image={catalogueCategories[1].image}
+        actions={
+          <>
             <Link href="#catalogue" className="btn-primary">Explore Products <ArrowRight size={17} /></Link>
             <Link href="/rack-and-stack-brochure.pdf" download className="btn-light"><Download size={16} /> Download Catalog</Link>
-          </div>
-        </div>
-      </section>
+          </>
+        }
+      />
 
       <section className="bg-[#f4f4f1] py-20 lg:py-24">
         <div className="container-shell">

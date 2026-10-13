@@ -100,9 +100,16 @@ export function AdminShell({ children, user }: { children: React.ReactNode; user
         {sidebar}
       </aside>
       {open && (
-        <aside className="fixed inset-y-0 left-0 z-50 w-[280px] bg-zinc-950 lg:hidden">
-          {sidebar}
-        </aside>
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+          />
+          <aside className="fixed inset-y-0 left-0 z-50 w-[280px] bg-zinc-950 shadow-2xl lg:hidden">
+            {sidebar}
+          </aside>
+        </>
       )}
       <div className={`transition-all ${collapsed ? "lg:pl-[76px]" : "lg:pl-[248px]"}`}>
         <header className="sticky top-0 z-40 flex h-[72px] items-center justify-between border-b border-zinc-200 bg-white/95 px-4 backdrop-blur lg:px-7">

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
-import { ArrowDown, ChevronLeft, ChevronRight, MoveUpRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, MoveUpRight } from "lucide-react";
 import { getImageProps } from "next/image";
 import { preload } from "react-dom";
 import { usePrefersReducedMotion } from "./use-reduced-motion";
@@ -61,11 +61,14 @@ function HeroArtImage({ desktopSrc, mobileSrc, alt, priority }: { desktopSrc: st
   );
 }
 
+export type HeroHeadlineLine = { text: string; color: string | null };
+
 export type HeroSlide = {
   id: number;
   eyebrow: string | null;
   title: string | null;
   highlightedText: string | null;
+  headlineLines: HeroHeadlineLine[] | null;
   description: string | null;
   imageUrl: string | null;
   mobileImageUrl: string | null;
@@ -84,11 +87,41 @@ export type HeroSlide = {
   duration: number;
 };
 
+/**
+ * Column widths for the hero copy.
+ *
+ * Desktop is a two-column composition: the photograph stays full-bleed but a
+ * left-to-right scrim darkens only the left, so the copy reads as a left column
+ * and the industrial image as a right one. Capping the copy at just over half
+ * the content width (`lg:max-w-[52%]`) is what keeps that balance and stops a
+ * long headline from running the full width of the screen.
+ */
 const alignClass: Record<"left" | "center" | "right", { section: string; block: string; buttons: string }> = {
-  left: { section: "items-start text-left", block: "max-w-4xl", buttons: "justify-start" },
-  center: { section: "items-center text-center", block: "mx-auto max-w-3xl", buttons: "justify-center" },
-  right: { section: "items-end text-right", block: "ml-auto max-w-4xl", buttons: "justify-end" },
+  left: { section: "items-start text-left", block: "w-full lg:max-w-[52%]", buttons: "justify-start" },
+  center: { section: "items-center text-center", block: "mx-auto w-full max-w-2xl", buttons: "justify-center" },
+  right: { section: "items-end text-right", block: "ml-auto w-full lg:max-w-[52%]", buttons: "justify-end" },
 };
+
+/**
+ * Resolves a slide's headline into an ordered list of coloured lines.
+ *
+ * New slides store `headlineLines` directly. Slides saved before that column
+ * existed only carry `title` + `highlightedText`, so those are turned into a
+ * white line and a brand-red line, preserving the original look. Either way the
+ * result is a flat list so the renderer treats every line identically — same
+ * font family and weight, only the colour varies.
+ */
+function resolveHeadlineLines(slide: HeroSlide): HeroHeadlineLine[] {
+  if (Array.isArray(slide.headlineLines) && slide.headlineLines.length > 0) {
+    return slide.headlineLines.filter(
+      (line): line is HeroHeadlineLine => Boolean(line) && typeof line.text === "string" && line.text.trim().length > 0,
+    );
+  }
+  const derived: HeroHeadlineLine[] = [];
+  if (slide.title) derived.push({ text: slide.title, color: null });
+  if (slide.highlightedText) derived.push({ text: slide.highlightedText, color: "#E31E24" });
+  return derived;
+}
 
 export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   const count = slides.length;
@@ -182,15 +215,17 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   const goPrev = () => setActive((active - 1 + count) % count);
   const goNext = () => setActive((active + 1) % count);
   const activeSlide = slides[active];
+  const headlineLines = resolveHeadlineLines(activeSlide);
   const heroImageUrl = activeSlide.imageUrl || activeSlide.mobileImageUrl;
   const slideDuration = activeSlide.duration > 0 ? activeSlide.duration : 3500;
   // While the first slide is held so the LCP can settle, let the progress bar
   // count down across the full hold instead of finishing early and sitting full.
   const progressSeconds = active === 0 && !rotationStarted && pageReady && readyAt !== null ? Math.max(slideDuration, MIN_FIRST_HOLD_MS) : slideDuration;
+  const align = alignClass[activeSlide.textAlignment ?? "left"];
 
   return (
     <section
-      className="relative isolate min-h-[max(560px,calc(100svh-72px))] overflow-hidden bg-zinc-950 text-white"
+      className="hero-carousel relative isolate overflow-hidden bg-zinc-950 text-white"
       aria-roledescription="carousel"
       aria-label="Featured storage systems"
       onMouseEnter={() => setPause(true)}
@@ -205,8 +240,9 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
           aria-label={activeSlide.eyebrow ?? activeSlide.title ?? `Slide ${active + 1}`}
           className="hero-slide absolute inset-0"
         >
+          {/* Background image */}
           {heroImageUrl ? (
-            <div className={`absolute inset-0 ${isReduced ? "" : "hero-kenburns"}`}>
+            <div className="absolute inset-0">
               <HeroArtImage
                 desktopSrc={heroImageUrl}
                 mobileSrc={activeSlide.mobileImageUrl || heroImageUrl}
@@ -215,6 +251,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
               />
             </div>
           ) : null}
+          {/* Background video */}
           {activeSlide.videoUrl ? (
             <video
               className="absolute inset-0 h-full w-full object-cover"
@@ -227,90 +264,169 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
               aria-hidden="true"
             />
           ) : null}
-          <div
-            className="absolute inset-0 bg-[linear-gradient(90deg,#07090b_0%,rgba(7,9,11,.78)_38%,rgba(7,9,11,.28)_78%,rgba(7,9,11,.12)_100%)]"
-            style={{ opacity: 0.55 + (Math.max(0, Math.min(100, activeSlide.overlayOpacity ?? 72)) / 100) * 0.45 }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/30" />
 
-          <div className={`container-shell relative z-10 flex h-full flex-col justify-center py-16 sm:py-20 ${alignClass[activeSlide.textAlignment ?? "left"].section}`}>
+          {/* Overlay gradients.
+              Desktop: a left-to-right scrim that is solid behind the copy column
+              and almost clear on the right, so the industrial photo stays bright.
+              Mobile: a top-to-bottom scrim so the stacked copy stays readable.
+              The per-slide `overlayOpacity` nudges the strength of each. */}
+          <div
+            className="absolute inset-0 hidden md:block"
+            style={{
+              background: "linear-gradient(90deg, rgba(6,7,9,0.96) 0%, rgba(6,7,9,0.9) 34%, rgba(6,7,9,0.62) 52%, rgba(6,7,9,0.2) 74%, rgba(6,7,9,0) 100%)",
+              opacity: 0.72 + (Math.max(0, Math.min(100, activeSlide.overlayOpacity ?? 72)) / 100) * 0.28,
+            }}
+          />
+          <div
+            className="absolute inset-0 md:hidden"
+            style={{
+              background: "linear-gradient(180deg, rgba(6,7,9,0.94) 0%, rgba(6,7,9,0.86) 52%, rgba(6,7,9,0.7) 100%)",
+              opacity: 0.85 + (Math.max(0, Math.min(100, activeSlide.overlayOpacity ?? 72)) / 100) * 0.15,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20 pointer-events-none" />
+        </div>
+
+      {/* Content — a sibling of the absolutely-positioned slide rather than a
+          child of it, so the section's height follows the copy. A tall stacked
+          mobile slide then grows the hero instead of the centred copy sliding
+          under the bottom dots. */}
+      <div
+          key={`content-${activeSlide.id}`}
+          className={`container-shell hero-shell relative z-10 flex flex-col justify-center px-5 sm:px-6 md:px-8 ${align.section}`}
+        >
             <div
-              className={`stagger is-visible ${alignClass[activeSlide.textAlignment ?? "left"].block}`}
+              className={`stagger is-visible ${align.block}`}
               style={{ "--stagger-delay": ".35s", "--stagger-step": ".13s" } as CSSProperties}
             >
-              {activeSlide.eyebrow ? <p className="eyebrow text-red-400">{activeSlide.eyebrow}</p> : null}
-              <h1 className="hero-heading hero-heading-home mt-5 text-balance sm:mt-7">
-                {activeSlide.title ? (
-                  <>
-                    {activeSlide.title}
-                  </>
-                ) : null}
-                {activeSlide.highlightedText ? <span className="hero-accent text-red-500">{activeSlide.highlightedText}</span> : null}
-              </h1>
-              {activeSlide.description ? (
-                <p className="hero-description hero-description-home mt-5 text-zinc-300">
-                  {activeSlide.description}
-                </p>
+              {/* Eyebrow badge */}
+              {activeSlide.eyebrow ? (
+                <div className="inline-flex max-w-full items-center relative mb-1.5 sm:mb-4 md:mb-5 select-none">
+                  <span className="relative z-10 bg-[#E31E24] text-white font-black uppercase text-[0.7rem] sm:text-[0.75rem] md:text-[0.8rem] tracking-[0.1em] sm:tracking-[0.14em] px-3 sm:px-4 py-1 sm:py-1.5 shadow-md hero-badge-angled pr-4 sm:pr-6">
+                    {activeSlide.eyebrow}
+                  </span>
+                  <span
+                    className="absolute -bottom-1 right-0.5 w-3 h-1.5 bg-[#8b0f14] [clip-path:polygon(0_0,100%_0,0_100%)] -z-0"
+                    aria-hidden="true"
+                  />
+                </div>
               ) : null}
-              <div className={`mt-7 flex flex-wrap items-center gap-3 sm:mt-9 sm:items-center ${alignClass[activeSlide.textAlignment ?? "left"].buttons}`}>
+
+              {/* Headline — one coloured block per line. The font family and
+                  weight are fixed by `.hero-industrial-title`; only the colour is
+                  per-line. `whitespace-pre-line` turns an Enter pressed in the
+                  admin textarea into a real line break inside a single entry. */}
+              {headlineLines.length > 0 ? (
+                <h1 className="hero-industrial-title text-balance">
+                  {headlineLines.map((line, index) => (
+                    <span
+                      key={`${index}-${line.text.slice(0, 24)}`}
+                      className="block whitespace-pre-line"
+                      style={line.color ? { color: line.color } : undefined}
+                    >
+                      {line.text}
+                    </span>
+                  ))}
+                </h1>
+              ) : null}
+
+              {/* Accent line */}
+              <div className="w-14 sm:w-16 md:w-20 h-1 bg-[#E31E24] mt-2 sm:mt-5 mb-1.5 sm:mb-4" aria-hidden="true" />
+
+              {/* Subheading & Description */}
+              {activeSlide.description ? (() => {
+                const parts = activeSlide.description.split(/\n\n+/);
+                const hasSubheading = parts.length > 1;
+                const subheading = hasSubheading ? parts[0] : null;
+                const bodyText = hasSubheading ? parts.slice(1).join("\n\n") : activeSlide.description;
+
+                return (
+                  <div className="space-y-2">
+                    {subheading ? (
+                      <h2 className="text-[0.8rem] sm:text-[0.85rem] md:text-[0.9rem] font-extrabold uppercase tracking-wider text-white/90">
+                        {subheading}
+                      </h2>
+                    ) : null}
+                    <p className="hero-description text-zinc-300 text-pretty font-normal">
+                      {bodyText}
+                    </p>
+                  </div>
+                );
+              })() : null}
+
+              {/* CTA Buttons — inside the fixed band, phones pair them up so
+                  three actions do not stack three rows deep: the primary takes
+                  the full width, and the secondary and the text link share the
+                  row beneath. From `sm` up they spread in a row as before. */}
+              <div className={`mt-3 grid grid-cols-2 gap-2 sm:mt-5 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 ${align.buttons}`}>
                 {activeSlide.primaryButtonText ? (
-                  <Link href={internalHref(activeSlide.primaryButtonUrl, "/products")} className="btn-primary group w-full sm:w-auto">
+                  <Link
+                    href={internalHref(activeSlide.primaryButtonUrl, "/products")}
+                    className="btn-primary group col-span-2 w-full justify-center whitespace-nowrap font-bold uppercase tracking-wider text-[0.66rem] sm:w-auto sm:px-6 sm:text-xs sm:col-span-1 px-5 py-3 shadow-lg shadow-red-950/30"
+                  >
                     {activeSlide.primaryButtonText}
-                    <MoveUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    <MoveUpRight size={15} className="shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </Link>
                 ) : null}
                 {activeSlide.secondaryButtonText ? (
-                  <Link href={internalHref(activeSlide.secondaryButtonUrl, "/request-a-quote")} className="btn-light w-full sm:w-auto">
+                  <Link
+                    href={internalHref(activeSlide.secondaryButtonUrl, "/request-a-quote")}
+                    className="btn-light group w-full justify-center whitespace-nowrap font-bold uppercase tracking-wider text-[0.66rem] sm:w-auto sm:px-6 sm:text-xs px-5 py-3 backdrop-blur-sm bg-white/5 hover:bg-white hover:text-zinc-950 transition-colors"
+                  >
                     {activeSlide.secondaryButtonText}
                   </Link>
                 ) : null}
                 {activeSlide.tertiaryButtonText ? (
                   <Link
                     href={internalHref(activeSlide.tertiaryButtonUrl, "/contact")}
-                    className="group inline-flex items-center gap-2 border-b border-white/25 px-1 pb-1 text-xs font-bold uppercase tracking-[.14em] text-zinc-200 transition-colors hover:border-red-500 hover:text-white"
+                    className="group inline-flex items-center justify-center self-center justify-self-center w-fit col-span-1 gap-1.5 border-b border-white/20 px-1 pb-1 pt-1 text-[0.62rem] sm:self-auto sm:text-xs sm:col-span-auto font-bold uppercase tracking-[.1em] sm:tracking-[.12em] text-zinc-300 transition-colors hover:border-[#E31E24] hover:text-white"
                   >
                     {activeSlide.tertiaryButtonText}
-                    <MoveUpRight size={14} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    <MoveUpRight size={12} className="shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </Link>
                 ) : null}
               </div>
+
+              {/* Trust Points */}
               {activeSlide.trustPoints && activeSlide.trustPoints.length > 0 ? (
-                <ul className={`mt-6 flex flex-wrap gap-x-7 gap-y-2.5 sm:mt-8 ${alignClass[activeSlide.textAlignment ?? "left"].buttons}`}>
+                <ul className={`mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 sm:mt-5 sm:gap-x-5 sm:gap-y-2 ${align.buttons}`}>
                   {activeSlide.trustPoints.map((point) => (
-                    <li key={point} className="flex items-center gap-2.5 text-[.68rem] font-bold uppercase tracking-[.14em] text-zinc-300">
-                      <span className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_4px_rgba(209,31,47,.18)]" />
-                      {point}
+                    <li key={point} className="flex min-w-0 items-center gap-2 text-[0.62rem] sm:text-[0.68rem] font-bold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-zinc-400">
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#E31E24] shadow-[0_0_6px_rgba(227,30,36,0.5)]" />
+                      <span className="min-w-0">{point}</span>
                     </li>
                   ))}
                 </ul>
               ) : null}
             </div>
           </div>
-        </div>
 
+      {/* Slider navigation — only for multi-slide */}
       {count > 1 ? (
         <>
+          {/* Desktop arrows — hidden below sm */}
           <button
             type="button"
             onClick={goPrev}
             aria-label="Previous slide"
-            className="absolute left-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/25 bg-white/5 text-white backdrop-blur transition hover:border-white/60 hover:bg-white/15 sm:grid"
+            className="absolute left-3 md:left-5 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/25 text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-black/45 sm:grid"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={18} />
           </button>
           <button
             type="button"
             onClick={goNext}
             aria-label="Next slide"
-            className="absolute right-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/25 bg-white/5 text-white backdrop-blur transition hover:border-white/60 hover:bg-white/15 sm:grid"
+            className="absolute right-3 md:right-5 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/25 text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-black/45 sm:grid"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={18} />
           </button>
 
-          <div className="absolute bottom-8 left-6 z-20 w-44">
+          {/* Progress bar + dots — desktop: bottom-left; mobile: bottom-center */}
+          <div className="absolute bottom-3 left-5 z-20 w-32 max-sm:left-1/2 max-sm:-translate-x-1/2 sm:bottom-6 sm:left-6 sm:w-36">
             {!isReduced && activeSlide.autoplay ? (
               <div
-                className="mb-3 h-0.5 w-full overflow-hidden rounded-full bg-white/20"
+                className="mb-1.5 h-[2px] w-full overflow-hidden rounded-full bg-white/15"
                 role="presentation"
                 aria-hidden="true"
               >
@@ -323,36 +439,36 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
                 />
               </div>
             ) : null}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                {slides.map((slide, index) => (
-                  <button
-                    type="button"
-                    key={slide.id}
-                    onClick={() => setActive(index)}
-                    aria-label={`Go to slide ${index + 1}`}
-                    aria-current={index === active}
-                    className={`flex h-6 min-w-6 items-center justify-center rounded-full transition-colors ${
-                      index === active ? "text-red-500" : "text-white/40 hover:text-white/70"
+            <div className="flex items-center gap-1.5">
+              {slides.map((slide, index) => (
+                <button
+                  type="button"
+                  key={slide.id}
+                  onClick={() => setActive(index)}
+                  aria-label={`Go to slide ${index + 1}`}
+                  aria-current={index === active}
+                  className={`flex h-9 min-w-9 items-center justify-center rounded-full transition-colors sm:h-7 sm:min-w-7 ${
+                    index === active ? "text-red-500" : "text-white/40 hover:text-white/70"
+                  }`}
+                >
+                  <span
+                    className={`block h-1 rounded-full bg-current transition-all duration-300 ${
+                      index === active ? "w-5" : "w-1"
                     }`}
-                  >
-                    <span
-                      className={`block h-1.5 rounded-full bg-current transition-all duration-300 ${
-                        index === active ? "w-6" : "w-1.5"
-                      }`}
-                    />
-                  </button>
-                ))}
-              </div>
+                  />
+                </button>
+              ))}
             </div>
           </div>
         </>
       ) : null}
 
-      <a href="#capabilities" aria-label="Scroll to capabilities" className="absolute bottom-8 right-6 z-20 hidden items-center gap-3 text-[.62rem] font-bold uppercase tracking-[.16em] text-zinc-400 md:flex">
+      {/* Discover scroll indicator — desktop only, lifted clear of the WhatsApp
+          button that floats in the same bottom-right corner. */}
+      <a href="#capabilities" aria-label="Scroll to capabilities" className="absolute bottom-24 right-6 z-20 hidden items-center gap-2.5 text-[.6rem] font-bold uppercase tracking-[.14em] text-zinc-400 transition-colors hover:text-white lg:flex">
         Discover{" "}
-        <span className="grid h-10 w-10 place-items-center rounded-full border border-white/25 transition-colors hover:border-white/60">
-          <ArrowDown size={15} />
+        <span className="grid h-9 w-9 place-items-center rounded-full border border-white/20 transition-colors hover:border-white/50">
+          <ChevronDown size={14} />
         </span>
       </a>
     </section>

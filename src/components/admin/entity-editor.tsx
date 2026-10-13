@@ -9,6 +9,7 @@ import { ProductGalleryEditor, type GalleryRow } from "@/components/admin/produc
 import { ContentSectionsEditor, type SectionRow } from "@/components/admin/content-sections-editor";
 import { RepeatableList, type ListColumn, type Row } from "@/components/admin/repeatable-list";
 import { HomepageAboutEditor, HomepageOffersEditor } from "@/components/admin/homepage-section-editor";
+import { HomeSliderEditor } from "@/components/admin/home-slider-editor";
 import { slugify } from "@/lib/utils";
 import { catalogueCategoryNames } from "@/lib/catalogue-shared";
 import { RECOMMENDED_DESCRIPTION, RECOMMENDED_HEADING } from "@/lib/recommendations";
@@ -1487,6 +1488,7 @@ export function EntityEditor({
     // the section it appears in. Linking straight to the homepage anchor saves
     // the editor from hunting for it after every edit.
     if (entity === "testimonials") return "/#client-feedback";
+    if (entity === "home-slider" || entity === "homepage" || entity === "home-offer-cards") return "/";
     const slug = String(data.slug || initialData.slug || "");
     if (!slug) return null;
     const base = entity === "blog" ? "blog" : entity;
@@ -1663,6 +1665,25 @@ export function EntityEditor({
           error={error}
           options={{ products: relationOptions.products, services: relationOptions.services ?? [] }}
         />
+      </EditorFrame>
+    );
+  }
+
+  if (entity === "home-slider") {
+    return (
+      <EditorFrame entity={entity} title={title} preview="/">
+        <div className="p-4 sm:p-7">
+          <HomeSliderEditor
+            initialData={initialData}
+            onSave={save}
+            onPublish={saveAndPublish}
+            saving={saving}
+            publishing={publishing}
+            uploading={uploading > 0}
+            error={error}
+            onUploadBusy={markUpload}
+          />
+        </div>
       </EditorFrame>
     );
   }

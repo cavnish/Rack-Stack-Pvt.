@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { ArrowRight, Check, Download } from "lucide-react";
 import { SmartImage } from "./smart-image";
 import { useFitHeading } from "./use-fit-heading";
@@ -55,25 +55,53 @@ export function SectionHeading({ eyebrow, title, description, light = false, ali
 }
 
 /**
- * The site hero.
+ * The site hero — compact band shared by the About, Contact, Projects, Services
+ * and Products pages.
  *
- * It used to take an `eyebrow` and a `breadcrumb` trail. Both are gone: the
- * eyebrow repeated the section or the brand name that the H1 already carries,
- * and a visible trail above a page title only restates the URL bar. Page-level
- * hierarchy is now just the H1, its description and the media. A visible
- * breadcrumb trail is gone, and `BreadcrumbList` structured data is emitted only
- * on the product detail routes (see `product-page-view.tsx`), which is where a
- * genuine multi-level hierarchy exists.
+ * A short vertical band rather than a full-screen banner: 240–340px depending on
+ * the viewport, growing only when the copy itself is taller. One shared scale
+ * (`.page-hero`) keeps all five pages at the same height, heading size, spacing
+ * and scrim so the top of every section page reads identically, while the
+ * homepage keeps its own full-screen carousel hero.
+ *
+ * It used to take a `breadcrumb` trail. That is gone: a visible trail above a
+ * page title only restates the URL bar, and `BreadcrumbList` structured data is
+ * emitted only on the product detail routes (see `product-page-view.tsx`),
+ * which is where a genuine multi-level hierarchy exists.
  */
-export function PageHero({ title, description, image }: { title: string; description?: string | null; image?: string | null }) {
+export function PageHero({
+  eyebrow,
+  title,
+  description,
+  image,
+  imageClassName,
+  actions,
+}: {
+  eyebrow?: string;
+  title: string;
+  description?: string | null;
+  image?: string | null;
+  /** Extra classes for the image wrapper (e.g. the About page's load-in scale). */
+  imageClassName?: string;
+  /** Optional south row of CTA buttons, right-aligned with the copy. */
+  actions?: ReactNode;
+}) {
   return (
-    <section className="relative isolate min-h-[460px] overflow-hidden bg-zinc-950 text-white">
-      <div className="absolute inset-0 -z-20">{image && <SmartImage src={image} alt="" fill priority className="object-cover opacity-40" sizes="100vw" />}</div>
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-zinc-950 via-zinc-950/85 to-zinc-950/25" />
-      <div className="container-shell flex min-h-[460px] flex-col justify-end py-16">
-        <div className="max-w-4xl">
-          <h1 className="hero-heading hero-enter hero-enter-late text-balance">{title}</h1>
-          {description && <p className="hero-description hero-enter hero-enter-later mt-5 text-zinc-300">{description}</p>}
+    <section className="page-hero relative isolate flex overflow-hidden bg-zinc-950 text-white">
+      <div className={`absolute inset-0 -z-20 ${imageClassName ?? ""}`}>{image && <SmartImage src={image} alt="" fill priority className="object-cover object-center opacity-45" sizes="100vw" />}</div>
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(9,9,11,.88)_0%,rgba(9,9,11,.6)_52%,rgba(9,9,11,.22)_100%)]" />
+      <div className="container-shell flex w-full flex-col justify-center py-12 sm:py-14">
+        <div className="max-w-3xl">
+          {eyebrow ? (
+            <p className="eyebrow hero-enter text-red-400">{eyebrow}</p>
+          ) : null}
+          <h1 className={`hero-heading hero-enter ${eyebrow ? "mt-4" : ""} text-balance`}>{title}</h1>
+          {description && (
+            <p className="hero-description hero-enter hero-enter-late mt-4 text-zinc-300">{description}</p>
+          )}
+          {actions ? (
+            <div className="hero-enter hero-enter-later mt-7 flex flex-wrap items-center gap-3">{actions}</div>
+          ) : null}
         </div>
       </div>
     </section>

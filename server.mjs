@@ -222,11 +222,32 @@ function attachCompression(req, res, encoding) {
   };
 }
 
+/**
+ * React Server Component payloads are streamed to the App Router client during
+ * client-side navigation and prefetch. This wrapper's push-based compression
+ * (pause the stream on socket backpressure, resume on `drain`) is safe for a
+ * one-shot HTML document but not for the RSC stream, which Next reads
+ * incrementally: routing the RSC response through it leaves the navigation
+ * request answered but never committed, so links appear dead.
+ *
+ * They are therefore passed straight through, uncompressed. HTML, JS, CSS and
+ * the other text types below — where the payload win actually is — still
+ * compress. Detected by the header the App Router client sends (`RSC: 1`) and
+ * its `Accept: text/x-component`.
+ */
+function isRscRequest(req) {
+  if (req.headers.rsc) return true;
+  return String(req.headers.accept ?? "").includes("text/x-component");
+}
+
 const compressionMiddleware = dev
   ? () => false
   : (req, res) => {
       if (req.method === "HEAD" || req.headers.range) {
         return false; // no body to compress / partial content
+      }
+      if (isRscRequest(req)) {
+        return false; // streaming RSC payload; see isRscRequest above
       }
       const encoding = negotiateEncoding(req.headers["accept-encoding"]);
       if (!encoding) return false;

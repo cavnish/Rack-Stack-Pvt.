@@ -9,6 +9,7 @@ import {
   type FieldErrors,
   type FieldName,
 } from "@/lib/form-validation";
+import { trackLead } from "@/lib/analytics";
 
 type ProductOption = {
   id?: number | string;
@@ -225,6 +226,11 @@ export function InquiryForm({
         // Only now is it safe to discard what the visitor typed.
         setValues(emptyValues(resolvedProduct, resolvedService));
         setSucceeded(true);
+        trackLead({
+          form_name: "inquiry",
+          lead_type: "enquiry",
+          product_slug: selectedProduct?.slug,
+        });
         return;
       }
 
@@ -318,6 +324,7 @@ export function InquiryForm({
       className={`grid gap-x-3 gap-y-3 ${compact ? "" : "min-[380px]:grid-cols-2"}`}
       noValidate
       aria-busy={loading}
+      data-analytics-form="inquiry"
     >
       <div>
         <label className="form-label form-label-compact" htmlFor={controlId("name")}>Name *</label>

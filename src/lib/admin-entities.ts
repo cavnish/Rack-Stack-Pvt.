@@ -25,6 +25,39 @@ const text = (v: unknown) => typeof v === "string" ? v.trim() : "";
 const nullable = (v: unknown) => text(v) || null;
 const status = (v: unknown): "DRAFT" | "PUBLISHED" | "ARCHIVED" => ["DRAFT", "PUBLISHED", "ARCHIVED"].includes(String(v)) ? v as "DRAFT" | "PUBLISHED" | "ARCHIVED" : "DRAFT";
 
+const HEADLINE_HEX = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+/** Accepts `#RGB`/`#RRGGBB` (with or without `#`) and returns canonical `#RRGGBB`, or `null`. */
+function normalizeHeadlineColor(value: string): string | null {
+  const match = HEADLINE_HEX.exec(value.trim());
+  if (!match) return null;
+  const hex = match[1];
+  const full = hex.length === 3 ? hex.split("").map((char) => char + char).join("") : hex;
+  return `#${full.toUpperCase()}`;
+}
+
+/**
+ * Normalises the per-line hero headline list for storage.
+ *
+ * Each editor entry is `{ text, color }`. Text is trimmed but newlines are
+ * preserved, so an Enter inside the textarea becomes a real line break in the
+ * same entry. Blank entries are dropped and only a valid hex survives as a
+ * colour (`null` inherits the hero's white), which keeps arbitrary strings out
+ * of the JSON column.
+ */
+function headlineLineValues(input: Record<string, unknown>): { text: string; color: string | null }[] {
+  const raw = Array.isArray(input.headlineLines) ? input.headlineLines : [];
+  const out: { text: string; color: string | null }[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const record = item as Record<string, unknown>;
+    const lineText = typeof record.text === "string" ? record.text.replace(/\r\n/g, "\n").trim() : "";
+    if (!lineText) continue;
+    out.push({ text: lineText, color: typeof record.color === "string" ? normalizeHeadlineColor(record.color) : null });
+  }
+  return out;
+}
+
 /**
  * The "Recommended systems" rows to write for a product, in editor order.
  *
@@ -655,7 +688,7 @@ export async function createEntity(entity: AdminEntity, input: Record<string, un
       const { id: _ignored, createdAt: _igna, updatedAt: _ignb, startAt: _ignc, endAt: _ignd, ...rest } = source;
       input = { ...rest, title: rest.title ? `${rest.title} (Copy)` : rest.title, status: "DRAFT", startAt: null, endAt: null, sortOrder: num(input.sortOrder, source.sortOrder + 1) as unknown };
     }
-    return (await db.insert(homeSliders).values({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), description: nullable(input.description), ...managedImagePair(input.imageUrl, input.imagePublicId), ...managedMobileImagePair(input.mobileImageUrl, input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: slideDuration(input.duration), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null }).returning())[0];
+    return (await db.insert(homeSliders).values({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), headlineLines: headlineLineValues(input), description: nullable(input.description), ...managedImagePair(input.imageUrl, input.imagePublicId), ...managedMobileImagePair(input.mobileImageUrl, input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: slideDuration(input.duration), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null }).returning())[0];
   }
   if (entity === "users") { const password = text(input.password); if (password.length < 12) throw new Error("Password must be at least 12 characters"); return (await db.insert(users).values({ name: text(input.name), email: text(input.email).toLowerCase(), passwordHash: await hash(password, 12), role: ["SUPER_ADMIN", "ADMIN", "EDITOR"].includes(String(input.role)) ? input.role as "SUPER_ADMIN" | "ADMIN" | "EDITOR" : "EDITOR", isActive: true }).returning({ id: users.id, name: users.name, email: users.email }))[0]; }
   if (entity === "videos") {
@@ -800,7 +833,7 @@ export async function updateEntity(entity: AdminEntity, id: number, input: Recor
     if (clash) throw new UserFacingError(`Another section already uses the key "${text(input.sectionKey)}".`);
     return (await db.update(aboutSections).set({ ...aboutSectionValues(input), updatedAt: new Date() }).where(eq(aboutSections.id, id)).returning())[0];
   }
-  if (entity === "home-slider") return (await db.update(homeSliders).set({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), description: nullable(input.description), ...managedImagePair(input.imageUrl, input.imagePublicId), ...managedMobileImagePair(input.mobileImageUrl, input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: slideDuration(input.duration), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null, updatedAt: new Date() }).where(eq(homeSliders.id, id)).returning())[0];
+  if (entity === "home-slider") return (await db.update(homeSliders).set({ eyebrow: nullable(input.eyebrow), title: nullable(input.title), highlightedText: nullable(input.highlightedText), headlineLines: headlineLineValues(input), description: nullable(input.description), ...managedImagePair(input.imageUrl, input.imagePublicId), ...managedMobileImagePair(input.mobileImageUrl, input.mobileImagePublicId), videoUrl: nullable(input.videoUrl), imageAlt: nullable(input.imageAlt), primaryButtonText: nullable(input.primaryButtonText) ?? "Explore Solutions", primaryButtonUrl: nullable(input.primaryButtonUrl), secondaryButtonText: nullable(input.secondaryButtonText) ?? "Request a Quote", secondaryButtonUrl: nullable(input.secondaryButtonUrl), tertiaryButtonText: nullable(input.tertiaryButtonText), tertiaryButtonUrl: nullable(input.tertiaryButtonUrl), trustPoints: Array.isArray(input.trustPoints) ? input.trustPoints.map((point) => String(point).trim()).filter(Boolean) : [], status: status(input.status), sortOrder: num(input.sortOrder), overlayOpacity: Math.max(0, Math.min(100, num(input.overlayOpacity, 72))), textAlignment: ["left", "center", "right"].includes(String(input.textAlignment)) ? input.textAlignment as "left" | "center" | "right" : "left", autoplay: bool(input.autoplay), duration: slideDuration(input.duration), startAt: input.startAt ? new Date(String(input.startAt)) : null, endAt: input.endAt ? new Date(String(input.endAt)) : null, updatedAt: new Date() }).where(eq(homeSliders.id, id)).returning())[0];
   if (entity === "inquiries") return (await db.update(inquiries).set({ status: ["NEW", "CONTACTED", "QUALIFIED", "QUOTATION_SENT", "WON", "LOST", "SPAM"].includes(String(input.status)) ? input.status as "NEW" | "CONTACTED" | "QUALIFIED" | "QUOTATION_SENT" | "WON" | "LOST" | "SPAM" : "NEW", notes: nullable(input.notes), assignedTo: input.assignedTo ? num(input.assignedTo) : null, updatedAt: new Date() }).where(eq(inquiries.id, id)).returning())[0];
   if (entity === "contact-messages") return (await db.update(contactMessages).set({ status: ["NEW", "READ", "REPLIED", "ARCHIVED", "SPAM"].includes(String(input.status)) ? input.status as "NEW" | "READ" | "REPLIED" | "ARCHIVED" | "SPAM" : "NEW", updatedAt: new Date() }).where(eq(contactMessages.id, id)).returning())[0];
   if (entity === "seo") return (await db.update(seoSettings).set({ siteTitle: text(input.siteTitle), defaultMetaDescription: text(input.defaultMetaDescription), keywords: nullable(input.keywords), ogImage: nullable(input.ogImage), twitterImage: nullable(input.twitterImage), robotsSettings: nullable(input.robotsSettings), googleVerification: nullable(input.googleVerification), canonicalBaseUrl: nullable(input.canonicalBaseUrl), organizationSchema: typeof input.organizationSchema === "object" ? input.organizationSchema as Record<string, unknown> : {}, socialLinks: typeof input.socialLinks === "object" ? input.socialLinks as Record<string, string> : {}, updatedAt: new Date() }).where(eq(seoSettings.id, id)).returning())[0];

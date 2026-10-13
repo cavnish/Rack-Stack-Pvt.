@@ -6,6 +6,8 @@ import { SiteLoader } from "@/components/site/site-loader";
 import { CookieConsent } from "@/components/site/cookie-consent";
 import { FloatingActions } from "@/components/site/floating-actions";
 import { OrganizationSchema } from "@/components/site/organization-schema";
+import { AnalyticsProvider } from "@/components/site/analytics-provider";
+import { ConsentAwareTags } from "@/components/site/consent-aware-tags";
 import { getSiteSettings } from "@/lib/data";
 import { getCatalogueNavGroups } from "@/lib/published-catalogue";
 
@@ -50,6 +52,8 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
 
   return (
     <>
+      <AnalyticsProvider />
+      <ConsentAwareTags />
       <SiteLoader />
       <OrganizationSchema settings={settings} />
       <Header phone={settings.primaryPhone} whatsapp={settings.whatsapp} groups={groups} />

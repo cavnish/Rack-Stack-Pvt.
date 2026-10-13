@@ -38,6 +38,7 @@ import { Suspense } from "react";
 import { SectionHeading } from "@/components/site/ui";
 import { MobileProductActions } from "@/components/site/product-experience";
 import { EventTracker } from "@/components/site/event-tracker";
+import { ProductViewTracker } from "@/components/site/product-view-tracker";
 import { Reveal } from "@/components/site/reveal";
 import { WorkflowSteps } from "@/components/site/workflow-steps";
 import { TrustedByStrip } from "@/components/site/trusted-by-strip";
@@ -989,6 +990,7 @@ export function ProductSectionsLayout({
   return (
     <>
       <EventTracker eventName="product_view" entityType={entityType} entityId={product.id} />
+      <ProductViewTracker id={product.id} name={product.name} category={product.category} slug={product.slug} />
       <MobileProductActions slug={product.slug} />
       <ProductHero product={product} />
       {product.showSpecifications && product.specifications.length > 0 ? <Reveal><TechnicalSpecificationsSection product={product} /></Reveal> : null}

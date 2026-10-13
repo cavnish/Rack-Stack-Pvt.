@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 
 import { createPortal } from "react-dom";
 import { AlertCircle, CheckCircle2, FileText, Loader2, X } from "lucide-react";
 import { catalogueCategoryNames, titleCaseSlug, type CatalogueProductOption } from "@/lib/catalogue-shared";
+import { trackLead } from "@/lib/analytics";
 
 const focusableSelector =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -266,6 +267,8 @@ export function QuoteButton({ options, product, label = "Request a Quote", class
       }
 
       setSucceeded(true);
+      // Confirmed success only: the server answered OK, so this is a real lead.
+      trackLead({ form_name: "quote_request", lead_type: "quote", product_slug: selectedProduct.slug });
     } catch (requestError) {
       if (requestError instanceof DOMException && requestError.name === "AbortError") return;
       setError(requestError instanceof Error ? requestError.message : "Please check the form and try again.");
@@ -285,6 +288,7 @@ export function QuoteButton({ options, product, label = "Request a Quote", class
         className={className}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
+        data-analytics-event="quote_cta_click"
       >
         <FileText size={16} aria-hidden="true" /> {label}
       </button>
@@ -344,6 +348,7 @@ export function QuoteButton({ options, product, label = "Request a Quote", class
                     onSubmit={handleSubmit}
                     className="grid gap-5 px-5 py-6 sm:grid-cols-2 sm:px-8 sm:py-8"
                     aria-busy={loading}
+                    data-analytics-form="quote_request"
                   >
                       <div>
                         <label className="form-label" htmlFor={`${formId}-name`}>

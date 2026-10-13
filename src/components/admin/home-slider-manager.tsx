@@ -26,6 +26,7 @@ export type HomeSliderItem = {
   title: string | null;
   highlightedText: string | null;
   headlineLines?: { text: string; color: string | null }[] | null;
+  mobileHeadlineLines?: { text: string; color: string | null }[] | null;
   description: string | null;
   imageUrl: string | null;
   imagePublicId?: string | null;
@@ -46,6 +47,7 @@ export type HomeSliderItem = {
   textAlignment: "left" | "center" | "right";
   autoplay: boolean;
   duration: number;
+  titleScale?: number;
   updatedAt?: string | null;
   createdAt?: string | null;
 };

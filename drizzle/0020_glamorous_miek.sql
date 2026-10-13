@@ -1,0 +1,1 @@
+ALTER TABLE "home_sliders" ADD COLUMN "title_scale" double precision DEFAULT 1 NOT NULL;

@@ -69,6 +69,7 @@ export type HeroSlide = {
   title: string | null;
   highlightedText: string | null;
   headlineLines: HeroHeadlineLine[] | null;
+  mobileHeadlineLines?: HeroHeadlineLine[] | null;
   description: string | null;
   imageUrl: string | null;
   mobileImageUrl: string | null;
@@ -85,6 +86,7 @@ export type HeroSlide = {
   textAlignment: "left" | "center" | "right";
   autoplay: boolean;
   duration: number;
+  titleScale?: number | null;
 };
 
 /**
@@ -123,6 +125,24 @@ function resolveHeadlineLines(slide: HeroSlide): HeroHeadlineLine[] {
   return derived;
 }
 
+/**
+ * Resolves the headline to render on phones (<768px).
+ *
+ * Slides store an optional `mobileHeadlineLines` split, authored separately in
+ * the CMS so admins can control where the copy breaks per device. When a slide
+ * has no mobile split — or it is blank — the desktop lines are used unchanged,
+ * so the feature is purely additive and existing slides never change look.
+ */
+function resolveMobileHeadlineLines(slide: HeroSlide, desktopLines: HeroHeadlineLine[]): HeroHeadlineLine[] {
+  if (Array.isArray(slide.mobileHeadlineLines) && slide.mobileHeadlineLines.length > 0) {
+    const filtered = slide.mobileHeadlineLines.filter(
+      (line): line is HeroHeadlineLine => Boolean(line) && typeof line.text === "string" && line.text.trim().length > 0,
+    );
+    if (filtered.length > 0) return filtered;
+  }
+  return desktopLines;
+}
+
 export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   const count = slides.length;
   const [active, setActive] = useState(0);
@@ -132,6 +152,19 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   const [pageReady, setPageReady] = useState(false);
   const [readyAt, setReadyAt] = useState<number | null>(null);
   const [rotationStarted, setRotationStarted] = useState(false);
+  // Phones and small tablets render the CMS-authored mobile headline split
+  // (`mobileHeadlineLines`); everything wider shows the desktop lines. SSR
+  // renders the desktop lines so HTML and hydration agree, then the effect
+  // corrects to the real viewport after mount — same pattern as the art-
+  // directed `<picture>` crop, which switches at the same 768px boundary.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   /**
    * Hold the first visible slide longer than the autoplay interval.
@@ -148,6 +181,17 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
    * per-slide `duration`.
    */
   const MIN_FIRST_HOLD_MS = 12000;
+
+  /**
+   * Floor for how long any single slide stays on screen.
+   *
+   * A slide whose `duration` is set very low (the seeded slides ship 3.5s) does
+   * not give a visitor time to read the headline and description before the
+   * photo swaps, which reads as an intrusive, twitchy carousel. The floor keeps
+   * auto-rotation calm without overriding a deliberately longer per-slide
+   * duration, and it is skipped entirely for reduced-motion visitors.
+   */
+  const MIN_SLIDE_MS = 6000;
 
   const setPause = (value: boolean) => {
     pausedRef.current = value;
@@ -185,7 +229,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
     if (count < 2 || isReduced || !pageReady) return;
     const slide = slides[active];
     if (!slide?.autoplay) return;
-    const duration = slide.duration > 0 ? slide.duration : 3500;
+    const duration = Math.max(slide.duration > 0 ? slide.duration : 3500, MIN_SLIDE_MS);
     let accumulated = 0;
     let last = performance.now();
     let raf: number;
@@ -215,9 +259,10 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
   const goPrev = () => setActive((active - 1 + count) % count);
   const goNext = () => setActive((active + 1) % count);
   const activeSlide = slides[active];
-  const headlineLines = resolveHeadlineLines(activeSlide);
+  const desktopHeadlineLines = resolveHeadlineLines(activeSlide);
+  const headlineLines = isMobile ? resolveMobileHeadlineLines(activeSlide, desktopHeadlineLines) : desktopHeadlineLines;
   const heroImageUrl = activeSlide.imageUrl || activeSlide.mobileImageUrl;
-  const slideDuration = activeSlide.duration > 0 ? activeSlide.duration : 3500;
+  const slideDuration = Math.max(activeSlide.duration > 0 ? activeSlide.duration : 3500, MIN_SLIDE_MS);
   // While the first slide is held so the LCP can settle, let the progress bar
   // count down across the full hold instead of finishing early and sitting full.
   const progressSeconds = active === 0 && !rotationStarted && pageReady && readyAt !== null ? Math.max(slideDuration, MIN_FIRST_HOLD_MS) : slideDuration;
@@ -280,7 +325,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
           <div
             className="absolute inset-0 md:hidden"
             style={{
-              background: "linear-gradient(180deg, rgba(6,7,9,0.94) 0%, rgba(6,7,9,0.86) 52%, rgba(6,7,9,0.7) 100%)",
+              background: "linear-gradient(180deg, rgba(6,7,9,0.97) 0%, rgba(6,7,9,0.88) 46%, rgba(6,7,9,0.72) 100%)",
               opacity: 0.85 + (Math.max(0, Math.min(100, activeSlide.overlayOpacity ?? 72)) / 100) * 0.15,
             }}
           />
@@ -301,7 +346,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
             >
               {/* Eyebrow badge */}
               {activeSlide.eyebrow ? (
-                <div className="inline-flex max-w-full items-center relative mb-1.5 sm:mb-4 md:mb-5 select-none">
+                <div className="inline-flex max-w-full items-center relative mb-4 sm:mb-4 md:mb-5 select-none">
                   <span className="relative z-10 bg-[#E31E24] text-white font-black uppercase text-[0.7rem] sm:text-[0.75rem] md:text-[0.8rem] tracking-[0.1em] sm:tracking-[0.14em] px-3 sm:px-4 py-1 sm:py-1.5 shadow-md hero-badge-angled pr-4 sm:pr-6">
                     {activeSlide.eyebrow}
                   </span>
@@ -317,7 +362,10 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
                   per-line. `whitespace-pre-line` turns an Enter pressed in the
                   admin textarea into a real line break inside a single entry. */}
               {headlineLines.length > 0 ? (
-                <h1 className="hero-industrial-title text-balance">
+                <h1
+                  className="hero-industrial-title text-balance"
+                  style={{ "--headline-scale": activeSlide.titleScale ?? 1 } as CSSProperties}
+                >
                   {headlineLines.map((line, index) => (
                     <span
                       key={`${index}-${line.text.slice(0, 24)}`}
@@ -331,7 +379,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
               ) : null}
 
               {/* Accent line */}
-              <div className="w-14 sm:w-16 md:w-20 h-1 bg-[#E31E24] mt-2 sm:mt-5 mb-1.5 sm:mb-4" aria-hidden="true" />
+              <div className="w-14 sm:w-16 md:w-20 h-1 bg-[#E31E24] mt-4 sm:mt-5 mb-4 sm:mb-4" aria-hidden="true" />
 
               {/* Subheading & Description */}
               {activeSlide.description ? (() => {
@@ -354,15 +402,14 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
                 );
               })() : null}
 
-              {/* CTA Buttons — inside the fixed band, phones pair them up so
-                  three actions do not stack three rows deep: the primary takes
-                  the full width, and the secondary and the text link share the
-                  row beneath. From `sm` up they spread in a row as before. */}
-              <div className={`mt-3 grid grid-cols-2 gap-2 sm:mt-5 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 ${align.buttons}`}>
+              {/* CTA Buttons — on a phone each action takes its own full-width
+                  row so the two primary actions are never cramped side by side;
+                  from `sm` up they spread into a horizontal row. */}
+              <div className={`mt-6 grid grid-cols-1 gap-2.5 sm:mt-6 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 ${align.buttons}`}>
                 {activeSlide.primaryButtonText ? (
                   <Link
                     href={internalHref(activeSlide.primaryButtonUrl, "/products")}
-                    className="btn-primary group col-span-2 w-full justify-center whitespace-nowrap font-bold uppercase tracking-wider text-[0.66rem] sm:w-auto sm:px-6 sm:text-xs sm:col-span-1 px-5 py-3 shadow-lg shadow-red-950/30"
+                    className="btn-primary group w-full justify-center whitespace-nowrap font-bold uppercase tracking-wider text-[0.72rem] sm:w-auto sm:px-6 sm:text-xs px-5 shadow-lg shadow-red-950/30"
                   >
                     {activeSlide.primaryButtonText}
                     <MoveUpRight size={15} className="shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -371,7 +418,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
                 {activeSlide.secondaryButtonText ? (
                   <Link
                     href={internalHref(activeSlide.secondaryButtonUrl, "/request-a-quote")}
-                    className="btn-light group w-full justify-center whitespace-nowrap font-bold uppercase tracking-wider text-[0.66rem] sm:w-auto sm:px-6 sm:text-xs px-5 py-3 backdrop-blur-sm bg-white/5 hover:bg-white hover:text-zinc-950 transition-colors"
+                    className="btn-light group w-full justify-center whitespace-nowrap font-bold uppercase tracking-wider text-[0.72rem] sm:w-auto sm:px-6 sm:text-xs px-5 backdrop-blur-sm bg-white/5 hover:bg-white hover:text-zinc-950 transition-colors"
                   >
                     {activeSlide.secondaryButtonText}
                   </Link>
@@ -379,7 +426,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
                 {activeSlide.tertiaryButtonText ? (
                   <Link
                     href={internalHref(activeSlide.tertiaryButtonUrl, "/contact")}
-                    className="group inline-flex items-center justify-center self-center justify-self-center w-fit col-span-1 gap-1.5 border-b border-white/20 px-1 pb-1 pt-1 text-[0.62rem] sm:self-auto sm:text-xs sm:col-span-auto font-bold uppercase tracking-[.1em] sm:tracking-[.12em] text-zinc-300 transition-colors hover:border-[#E31E24] hover:text-white"
+                    className="group inline-flex items-center justify-center self-center justify-self-center w-fit gap-1.5 border-b border-white/20 px-1 pb-1 pt-1 text-[0.62rem] sm:text-xs font-bold uppercase tracking-[.1em] sm:tracking-[.12em] text-zinc-300 transition-colors hover:border-[#E31E24] hover:text-white"
                   >
                     {activeSlide.tertiaryButtonText}
                     <MoveUpRight size={12} className="shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -389,7 +436,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
 
               {/* Trust Points */}
               {activeSlide.trustPoints && activeSlide.trustPoints.length > 0 ? (
-                <ul className={`mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 sm:mt-5 sm:gap-x-5 sm:gap-y-2 ${align.buttons}`}>
+                <ul className={`mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 sm:mt-6 sm:gap-x-5 sm:gap-y-2 ${align.buttons}`}>
                   {activeSlide.trustPoints.map((point) => (
                     <li key={point} className="flex min-w-0 items-center gap-2 text-[0.62rem] sm:text-[0.68rem] font-bold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-zinc-400">
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#E31E24] shadow-[0_0_6px_rgba(227,30,36,0.5)]" />

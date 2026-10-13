@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-12T15:31:59.699Z",
+  "generatedAt": "2026-10-13T10:52:58.542Z",
   "collections": {
     "blogPosts": {
       "hash": "97d170e1550eee4a",
@@ -33,8 +33,8 @@
       "count": 8
     },
     "products": {
-      "hash": "8172483792fd7a72",
-      "generatedAt": "2026-10-12T11:40:52.982Z",
+      "hash": "e3e4d1058896c7c8",
+      "generatedAt": "2026-10-13T10:52:58.542Z",
       "count": 37
     },
     "industries": {
@@ -43,8 +43,8 @@
       "count": 12
     },
     "sliders": {
-      "hash": "81fa0a92a03cedcb",
-      "generatedAt": "2026-10-12T15:31:59.699Z",
+      "hash": "836adc370d78ba9f",
+      "generatedAt": "2026-10-13T10:25:42.956Z",
       "count": 3
     },
     "pages": {

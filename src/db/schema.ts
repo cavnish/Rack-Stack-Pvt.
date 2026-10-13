@@ -1,5 +1,6 @@
 import {
   boolean,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -805,6 +806,14 @@ export const homeSliders = pgTable(
      * (admin lists, previews) keep working.
      */
     headlineLines: jsonb("headline_lines").$type<HeadlineLine[]>(),
+    /**
+     * Optional per-line headline copy for phones (<768px), same shape as
+     * `headlineLines` and edited from the same admin control. Admins can split
+     * the copy differently per device — 4 words per line on desktop, short
+     * lines that wrap cleanly near the top on mobile. `null`/empty falls back
+     * to `headlineLines` on every screen.
+     */
+    mobileHeadlineLines: jsonb("mobile_headline_lines").$type<HeadlineLine[]>(),
     description: text("description"),
     imageUrl: text("image_url"),
     imagePublicId: text("image_public_id"),
@@ -825,6 +834,15 @@ export const homeSliders = pgTable(
     textAlignment: sliderTextAlignEnum("text_alignment").default("left").notNull(),
     autoplay: boolean("autoplay").default(true).notNull(),
     duration: integer("duration").default(7000).notNull(),
+    /**
+     * Headline size multiplier — applies to the hero title lines on both
+     * desktop and mobile. `1` is the curated default scale; admins can enlarge
+     * (e.g. `1.25`) or shrink (`0.8`) titles like "Heavy Duty Racking Built" /
+     * "BUILT FOR YOUR OPERATION." so a slide's display weight matches its copy.
+     * Applied via `--headline-scale` so the size stays responsive (clamped
+     * against the copy column) at every breakpoint.
+     */
+    titleScale: doublePrecision("title_scale").default(1).notNull(),
     startAt: timestamp("start_at", { withTimezone: true }),
     endAt: timestamp("end_at", { withTimezone: true }),
     ...timestamps,

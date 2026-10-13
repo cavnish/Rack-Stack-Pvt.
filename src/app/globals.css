@@ -52,7 +52,7 @@ img,video,svg { max-width:100%; }
    never clipped) and balances its lines so the white and red halves stay even. */
 .hero-industrial-title {
   font-family: var(--font-industrial);
-  font-size: clamp(1.5rem, 5.6vw, 2.15rem);
+  font-size: calc(clamp(1.5rem, 5.6vw, 2.15rem) * var(--headline-scale, 1));
   line-height: 1.04;
   letter-spacing: 0.01em;
   font-weight: 900;
@@ -63,13 +63,13 @@ img,video,svg { max-width:100%; }
 }
 @media (min-width: 640px) {
   .hero-industrial-title {
-    font-size: clamp(2rem, 4.2vw, 2.9rem);
+    font-size: calc(clamp(2rem, 4.2vw, 2.9rem) * var(--headline-scale, 1));
     line-height: 1.03;
   }
 }
 @media (min-width: 1024px) {
   .hero-industrial-title {
-    font-size: clamp(2.25rem, 3.4vw, 3.8rem);
+    font-size: calc(clamp(2.25rem, 3.4vw, 3.8rem) * var(--headline-scale, 1));
     line-height: 1;
     letter-spacing: 0em;
   }
@@ -82,92 +82,148 @@ img,video,svg { max-width:100%; }
 :root { --site-header-h: 73px; }
 @media (min-width: 1024px) { :root { --site-header-h: 106px; } }
 
-/* Home hero height — one fixed, device-appropriate band:
-     700px on desktop, 550px on tablet, 420px on mobile.
-   `min()` against the viewport caps the band on short screens (a 768px-tall
-   laptop, a phone in landscape) while the target height applies whenever there is
-   room. `min-height` rather than a fixed `height` means an unusually long slide
-   grows the section instead of clipping; the copy is scaled below so every
-   current slide sits inside the target. `svh` is used where supported (so mobile
-   browser chrome cannot overstate the available height); `vh` is the fallback. */
-:root { --hero-h: 420px; }
-@media (min-width: 640px) { :root { --hero-h: 550px; } }
-@media (min-width: 1024px) { :root { --hero-h: 700px; } }
-
-.hero-carousel { min-height: min(var(--hero-h), calc(100vh - var(--site-header-h) - 12px)); }
+/* Home hero height — the whole remaining first screen, on every device.
+   The header occupies normal document flow (it is `sticky`, not `fixed`), so the
+   hero fills exactly `100svh - header` and the next section — the client-logo
+   strip — stays below the fold until the visitor scrolls. A fixed pixel band
+   could do neither: 420px left the logo strip poking into the first screen on a
+   phone, while 700px wasted a quarter of a tall desktop display.
+   `min-height`, never `height`, so an unusually long slide grows the section
+   instead of clipping its buttons; `svh` keeps mobile browser chrome from
+   overstating the available height, with `vh` as the fallback. The header
+   component writes the measured value back onto :root, so the two can never
+   drift apart. */
+.hero-carousel { min-height: calc(100vh - var(--site-header-h)); }
 @supports (height: 100svh) {
-  .hero-carousel { min-height: min(var(--hero-h), calc(100svh - var(--site-header-h) - 12px)); }
+  .hero-carousel { min-height: calc(100svh - var(--site-header-h)); }
 }
 /* The copy column carries the same band and is centred inside it, so the slide
    reads as one balanced composition. The asymmetric padding lifts the copy clear
-   of the progress bar and dots at the foot: on a phone that band is 56px tall
-   (12px inset + 2px bar + 6px gap + 36px dots), so the bottom padding is a full
-   64px and the top stays light — which keeps the whole copy block inside 420px
-   while leaving the slider controls their own clear lane. */
+   of the progress bar and dots at the foot (12px inset + 2px bar + 6px gap +
+   36px dots) and honours the device safe areas, while the top stays light so the
+   eyebrow sits near the top of the content block. */
 .hero-shell {
-  min-height: min(var(--hero-h), calc(100vh - var(--site-header-h) - 12px));
-  padding-block: 1rem 4rem;
+  min-height: calc(100vh - var(--site-header-h));
+  /* Phone: the copy starts at the top of the band — ~28px in, honouring the
+     notch — rather than centred, so the art stays on show below the copy and
+     the composition reads as one focused, executive block. `sm` and up return
+     to vertical centring. */
+  justify-content: flex-start;
+  padding-top: max(1.75rem, env(safe-area-inset-top));
+  padding-bottom: 5.25rem;
+  padding-bottom: max(5.25rem, calc(4rem + env(safe-area-inset-bottom)));
+  /* The headline below sizes itself against this column with `cqw`, so its
+     line count holds at every phone width. */
+  container-type: inline-size;
+}
+/* Phone fill: the copy column stretches across the whole band (top padding to
+   the dot/progress clearance at the foot) and distributes its blocks evenly
+   top-to-bottom — eyebrow at the notch, headline + description in the middle,
+   CTAs and trust points finishing just above the dots — so every slide fills
+   the screen instead of pooling a dead band under the copy. Independent of the
+   admin Headline Size multiplier, so any scale still fills the fold. `sm` and
+   up keep the vertically-centred desktop composition. */
+@media (max-width: 639px) {
+  .hero-carousel .hero-shell {
+    padding-top: max(1.5rem, env(safe-area-inset-top));
+    padding-bottom: max(4rem, calc(3.5rem + env(safe-area-inset-bottom)));
+  }
+  .hero-carousel .hero-shell > .stagger,
+  .hero-carousel .hero-shell > .stagger > * { min-width: 0; }
+  .hero-carousel .hero-shell > .stagger {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 }
 @supports (height: 100svh) {
-  .hero-shell { min-height: min(var(--hero-h), calc(100svh - var(--site-header-h) - 12px)); }
+  .hero-shell { min-height: calc(100svh - var(--site-header-h)); }
 }
 @media (min-width: 640px) {
-  .hero-shell { padding-block: 1.5rem 4.5rem; }
+  .hero-shell {
+    justify-content: center;
+    padding-top: 2.5rem;
+    padding-block: 2.5rem 5.5rem;
+    padding-bottom: max(5.5rem, calc(4.25rem + env(safe-area-inset-bottom)));
+  }
 }
 @media (min-width: 1024px) {
-  .hero-shell { padding-block: 3rem; }
+  .hero-shell { padding-block: 4rem 4.5rem; }
 }
-/* Home hero body copy — a touch tighter than the shared `.hero-description`
-   (which other pages keep) so the longest slide sits inside the 420px phone
-   band. Scoped so the base rule is untouched elsewhere. */
+
+/* Home hero art direction.
+   The photograph is full-bleed and covers the whole band. On a phone the desktop
+   crop would centre on the aisle floor, so the frame is nudged up to keep the
+   tall rack structure in view above the copy; desktop stays centred. */
+.hero-carousel img,
+.hero-carousel video { object-position: 50% 50%; }
+@media (max-width: 767px) {
+  .hero-carousel img,
+  .hero-carousel video { object-position: 50% 42%; }
+}
+/* Home hero body copy — comfortable on a phone, a touch larger on desktop.
+   Scoped so the shared `.hero-description` other pages use is untouched.
+   The copy is kept legible but dimmed (a warm mid grey) so it recedes behind
+   the headline and the action buttons, as an executive hero should. */
 .hero-carousel .hero-description {
-  font-size: clamp(0.8125rem, 0.78rem + 0.3vw, 1rem);
-  line-height: 1.5;
-  max-width: 34rem;
+  color: #d1d5db;
+  font-size: clamp(1rem, 0.95rem + 0.35vw, 1.125rem);
+  line-height: 1.6;
+  max-width: 33rem;
 }
-/* Hero display type, scaled to its band rather than to the viewport alone.
+/* Hero display type — large and confident, scaled to the full-screen band.
    Scoped to the carousel so the fallback hero and other pages keep the base
-   `.hero-industrial-title` scale. The line-height is tight because the family is
-   condensed and the headline is set in stacked colour lines, and the sizes step
-   at the same breakpoints as the band, so the ratio of headline to hero stays
-   constant from a phone to a wide monitor. */
+   `.hero-industrial-title` scale. The condensed family lets the headline run big
+   without ever filling the copy column edge to edge, and `overflow-wrap` means a
+   line wraps rather than pushing the page wider. The `--headline-scale` custom
+   property is set by the slide (admin Headline Size control) and multiplies
+   every breakpoint, so titles like "Heavy Duty Racking Built" / "BUILT FOR YOUR
+   OPERATION." can be enlarged or shrunk per slide on both devices. */
+/* Mobile: the headline is sized against the copy column (`cqw`) so every CMS
+   line holds its own line, sized to fill the phone screen comfortably — a
+   compact, powerful line block rather than a wall of text. Because the font
+   follows the column, the line count is the same on a 320px phone as on a
+   430px one. From `sm` the scale steps up to the display look. */
 .hero-carousel .hero-industrial-title {
-  font-size: clamp(1.05rem, 0.84rem + 1.9vw, 1.4rem);
-  line-height: 1.05;
+  font-size: calc(clamp(1.3rem, 8.2cqw, 2.9rem) * var(--headline-scale, 1));
+  line-height: 1.12;
+  letter-spacing: 0.005em;
 }
 @media (min-width: 640px) {
-  .hero-carousel .hero-industrial-title { font-size: clamp(1.5rem, 1rem + 2vw, 2.1rem); }
+  .hero-carousel .hero-industrial-title { font-size: calc(clamp(2.4rem, 5.2vw, 3.6rem) * var(--headline-scale, 1)); line-height: 1.07; }
 }
 @media (min-width: 1024px) {
-  .hero-carousel .hero-industrial-title { font-size: clamp(2.1rem, 1rem + 2.4vw, 3rem); letter-spacing: 0; }
+  .hero-carousel .hero-industrial-title { font-size: calc(clamp(2.2rem, 3.4cqw, 4rem) * var(--headline-scale, 1)); line-height: 1.02; letter-spacing: 0; }
 }
 @media (min-width: 1024px) {
-  .hero-carousel .hero-description { font-size: 1rem; line-height: 1.55; }
+  .hero-carousel .hero-description { font-size: 1.0625rem; line-height: 1.6; }
 }
-/* The hero CTAs live inside a fixed-height band, so on phones they drop to a
-   40px target (still comfortably above the 32px minimum and inside the thumb
-   zone) with tighter horizontal padding, which is what keeps a long label such
-   as "Explore Solutions" from spilling out of its column. */
+/* The hero CTAs are full-width and comfortably tappable on phones — a 48px
+   target, the same height the rest of the site's buttons use, rather than the
+   40px the old fixed band forced. */
 @media (max-width: 639px) {
   .hero-carousel .btn-primary,
   .hero-carousel .btn-light {
-    min-height: 2.5rem;
-    padding: 0.6rem 0.85rem;
-    font-size: 0.66rem;
-    letter-spacing: 0.05em;
+    min-height: 3.25rem;
+    padding: 0.8125rem 1.25rem;
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
   }
 }
-/* Narrow phones (≤359px): one step down so the longest headline keeps its line
-   count, the paragraph runs a little tighter, and the CTA row shaves a couple of
-   pixels — together that keeps the tallest slide inside the 420px band instead
-   of pushing the section past it. Declared after the rule above so it wins at
-   equal specificity. */
+/* Narrow phones (≤359px): one step down so the longest headline keeps its 2-line
+   count and the CTA row shaves a couple of pixels, while every control stays a
+   comfortable tap target. Declared after the rule above so it wins at equal
+   specificity. */
 @media (max-width: 359px) {
-  .hero-carousel .hero-industrial-title { font-size: clamp(0.95rem, 0.8rem + 1.6vw, 1.15rem); }
-  .hero-carousel .hero-description { font-size: 0.8125rem; line-height: 1.4; }
+  .hero-carousel .hero-description { font-size: 0.875rem; line-height: 1.5; }
   .hero-carousel .btn-primary,
-  .hero-carousel .btn-light { min-height: 2.4rem; padding: 0.5rem 0.75rem; }
+  .hero-carousel .btn-light { min-height: 3rem; padding: 0.7rem 0.85rem; }
 }
+/* Rounded hero actions: a soft 5px executive radius on the two buttons, scoped
+   to the hero so every other surface keeps its existing squared style. */
+.hero-carousel .btn-primary,
+.hero-carousel .btn-light { border-radius: 5px; }
 .hero-badge-angled {
   clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 0 100%);
 }

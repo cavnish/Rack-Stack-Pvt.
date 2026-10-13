@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronDown, Download, Mail, Menu, MessageCircle, Phone, Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Logo } from "./logo";
 
 /**
@@ -71,12 +71,36 @@ export function Header({
   const [mega, setMega] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const updateScroll = () => setScrolled(window.scrollY > 20);
     updateScroll();
     window.addEventListener("scroll", updateScroll, { passive: true });
     return () => window.removeEventListener("scroll", updateScroll);
+  }, []);
+
+  /**
+   * Publish the header's real height as `--site-header-h`.
+   *
+   * The home hero fills `100svh - var(--site-header-h)` so the header and hero
+   * together occupy exactly the first screen. The stylesheet ships measured
+   * defaults (73px / 106px), but the announcement strip's height depends on the
+   * rendered font, so the live value is written back here. A ResizeObserver
+   * keeps it correct across breakpoints, zoom and text-size changes; the CSS
+   * value remains the no-JS fallback.
+   */
+  useEffect(() => {
+    const element = headerRef.current;
+    if (!element) return;
+    const sync = () => {
+      const height = element.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--site-header-h", `${Math.round(height * 100) / 100}px`);
+    };
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(element);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -88,7 +112,7 @@ export function Header({
 
   return (
     <>
-    <header className={`sticky top-0 z-50 border-b bg-white/95 backdrop-blur-xl transition-shadow ${scrolled ? "border-zinc-200 shadow-[0_8px_30px_rgba(0,0,0,.06)]" : "border-zinc-200"}`}>
+    <header ref={headerRef} className={`sticky top-0 z-50 border-b bg-white/95 backdrop-blur-xl transition-shadow ${scrolled ? "border-zinc-200 shadow-[0_8px_30px_rgba(0,0,0,.06)]" : "border-zinc-200"}`}>
       <div className="hidden bg-zinc-950 py-2 text-[.7rem] font-medium text-zinc-300 lg:block">
         <div className="container-shell flex justify-between">
           <span className="flex min-w-0 items-center gap-2">

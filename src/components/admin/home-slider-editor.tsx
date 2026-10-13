@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -73,12 +73,38 @@ function initialStateLines(data: Record<string, unknown>): HeadlineLineState[] {
   return derived.length ? derived : [{ text: "", color: HEADLINE_WHITE }, { text: "", color: HEADLINE_RED }];
 }
 
+/**
+ * Seeds the mobile headline-lines editor from a slide.
+ *
+ * Preference order: the stored `mobileHeadlineLines`, then a copy of the
+ * desktop lines so a fresh slide inherits a usable mobile split that the admin
+ * can tighten per breakpoint (empty mobile lines make the hero reuse the
+ * desktop lines, so leaving the field blank is always safe).
+ */
+function initialStateMobileLines(data: Record<string, unknown>): HeadlineLineState[] {
+  const raw = data.mobileHeadlineLines;
+  if (Array.isArray(raw) && raw.length) {
+    const parsed = raw
+      .map((entry) => {
+        if (!entry || typeof entry !== "object") return null;
+        const record = entry as Record<string, unknown>;
+        const text = typeof record.text === "string" ? record.text : "";
+        const color = typeof record.color === "string" && record.color ? normalizeHex(record.color) || null : null;
+        return { text, color } as HeadlineLineState;
+      })
+      .filter((entry): entry is HeadlineLineState => entry !== null);
+    if (parsed.length) return parsed;
+  }
+  return initialStateLines(data).map((line) => ({ ...line }));
+}
+
 export type SliderFormData = {
   id?: number;
   eyebrow?: string | null;
   title?: string | null;
   highlightedText?: string | null;
   headlineLines?: { text: string; color: string | null }[] | null;
+  mobileHeadlineLines?: { text: string; color: string | null }[] | null;
   subheading?: string | null;
   description?: string | null;
   imageUrl?: string | null;
@@ -100,7 +126,146 @@ export type SliderFormData = {
   textAlignment?: "left" | "center" | "right";
   autoplay?: boolean;
   duration?: number;
+  titleScale?: number;
 };
+
+/**
+ * Editor for one set of per-line headline blocks (desktop or mobile).
+ *
+ * Both sets share the same authoring model — each box is one headline line, an
+ * Enter inside a box adds a hard line break within it, and colour is chosen per
+ * line — so the two controls render through one field and can never drift apart.
+ */
+function HeadlineLinesField({
+  title,
+  lines,
+  onChange,
+  helper,
+  addLabel = "Add headline line",
+  extraActions,
+}: {
+  title: string;
+  lines: HeadlineLineState[];
+  onChange: (next: HeadlineLineState[]) => void;
+  helper?: ReactNode;
+  addLabel?: string;
+  extraActions?: ReactNode;
+}) {
+  function update(index: number, patch: Partial<HeadlineLineState>) {
+    onChange(lines.map((line, i) => (i === index ? { ...line, ...patch } : line)));
+  }
+  function add() {
+    onChange([...lines, { text: "", color: null }]);
+  }
+  function remove(index: number) {
+    if (lines.length <= 1) return;
+    onChange(lines.filter((_, i) => i !== index));
+  }
+
+  return (
+    <div className="sm:col-span-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <label className="block text-xs font-bold text-zinc-700">
+          {title} ({lines.length})
+        </label>
+        <span className="text-[0.62rem] font-semibold text-zinc-500">
+          Press Enter for a new line inside a box · font family &amp; weight stay identical · colour is per line
+        </span>
+      </div>
+      {helper ? <div className="mt-1 text-[0.68rem] text-zinc-500">{helper}</div> : null}
+
+      <div className="mt-3 space-y-3">
+        {lines.map((line, index) => {
+          const swatch = normalizeHex(line.color ?? "") || "#FFFFFF";
+          return (
+            <div key={index} className="rounded-lg border border-zinc-200 bg-zinc-50/60 p-3">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-2 text-xs font-bold text-zinc-700">
+                  Headline Line {index + 1}
+                  <span className="rounded-full bg-zinc-200/80 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-zinc-600">
+                    {headlineLineLabel(line.color)}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => remove(index)}
+                  disabled={lines.length <= 1}
+                  title="Remove this headline line"
+                  className="inline-flex items-center gap-1 text-[0.62rem] font-bold text-zinc-400 transition hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Trash2 size={11} /> Remove
+                </button>
+              </div>
+
+              <textarea
+                rows={2}
+                value={line.text}
+                onChange={(e) => update(index, { text: e.target.value })}
+                onKeyDown={(e) => {
+                  // Enter must insert a line break here, never submit the form.
+                  if (e.key === "Enter") e.stopPropagation();
+                }}
+                placeholder={
+                  index === 0 ? "PRECISION STORAGE" : index === 1 ? "RACKING SOLUTIONS" : "ANOTHER HEADLINE LINE"
+                }
+                className="admin-field w-full font-black uppercase leading-tight"
+                style={{ color: swatch === "#FFFFFF" ? "#18181b" : swatch }}
+              />
+
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <label className="inline-flex cursor-pointer items-center gap-2 text-[0.62rem] font-bold text-zinc-600">
+                  <input
+                    type="color"
+                    value={swatch}
+                    onChange={(e) => update(index, { color: normalizeHex(e.target.value) || null })}
+                    aria-label={`Colour for headline line ${index + 1}`}
+                    className="h-7 w-9 cursor-pointer rounded border border-zinc-300 bg-white p-0.5"
+                  />
+                  Colour
+                </label>
+                <input
+                  type="text"
+                  value={line.color ?? ""}
+                  onChange={(e) => update(index, { color: e.target.value.toUpperCase() })}
+                  onBlur={(e) => update(index, { color: normalizeHex(e.target.value) || null })}
+                  placeholder="#FFFFFF"
+                  className="admin-field w-28 text-xs uppercase"
+                />
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => update(index, { color: HEADLINE_WHITE })}
+                    className="rounded border border-zinc-300 bg-white px-2 py-1 text-[0.6rem] font-bold text-zinc-700 hover:bg-zinc-50"
+                  >
+                    White
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => update(index, { color: HEADLINE_RED })}
+                    className="rounded border border-zinc-300 bg-white px-2 py-1 text-[0.6rem] font-bold text-red-600 hover:bg-red-50"
+                  >
+                    Red
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={add}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+        >
+          <Plus size={13} /> {addLabel}
+        </button>
+        {extraActions}
+      </div>
+    </div>
+  );
+}
 
 export function HomeSliderEditor({
   initialData = {},
@@ -135,6 +300,9 @@ export function HomeSliderEditor({
 
   const [eyebrow, setEyebrow] = useState(String(initialData.eyebrow || "RACK & STACK STORAGE SYSTEMS"));
   const [headlineLines, setHeadlineLines] = useState<HeadlineLineState[]>(() => initialStateLines(initialData));
+  const [mobileHeadlineLines, setMobileHeadlineLines] = useState<HeadlineLineState[]>(() =>
+    initialStateMobileLines(initialData),
+  );
   const [subheading, setSubheading] = useState(initialSubheading);
   const [bodyDescription, setBodyDescription] = useState(initialBody);
 
@@ -169,6 +337,8 @@ export function HomeSliderEditor({
   );
   const [autoplay, setAutoplay] = useState<boolean>(initialData.autoplay !== false);
   const [duration, setDuration] = useState<number>(Number(initialData.duration || 7000));
+  const [titleScale, setTitleScale] = useState<number>(Number(initialData.titleScale ?? 1));
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
 
   function buildPayload(explicitStatus?: "PUBLISHED" | "DRAFT") {
     // Combine subheading and body into description
@@ -185,10 +355,20 @@ export function HomeSliderEditor({
       }))
       .filter((line) => line.text.length > 0);
 
+    // The optional mobile split follows the same shape. Empty is meaningful:
+    // an empty array makes the hero fall back to the desktop lines on phones.
+    const mobileLines = mobileHeadlineLines
+      .map((line) => ({
+        text: line.text.replace(/\r\n/g, "\n").trim(),
+        color: line.color ? normalizeHex(line.color) || null : null,
+      }))
+      .filter((line) => line.text.length > 0);
+
     return {
       ...initialData,
       eyebrow: eyebrow.trim() || null,
       headlineLines: lines,
+      mobileHeadlineLines: mobileLines,
       // Mirror into the legacy pair so list previews and any older consumer keep
       // the same copy. The hero itself renders `headlineLines`.
       title: lines[0]?.text ?? null,
@@ -213,19 +393,8 @@ export function HomeSliderEditor({
       textAlignment,
       autoplay,
       duration: Math.max(2000, Number(duration)),
+      titleScale: Math.max(0.5, Number(titleScale) || 1),
     };
-  }
-
-  function updateHeadlineLine(index: number, patch: Partial<HeadlineLineState>) {
-    setHeadlineLines((prev) => prev.map((line, i) => (i === index ? { ...line, ...patch } : line)));
-  }
-
-  function addHeadlineLine() {
-    setHeadlineLines((prev) => [...prev, { text: "", color: null }]);
-  }
-
-  function removeHeadlineLine(index: number) {
-    setHeadlineLines((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
   }
 
   function handleAddTrustPoint() {
@@ -240,22 +409,62 @@ export function HomeSliderEditor({
 
   const busy = saving || (publishing ?? false) || uploading;
 
+  // The preview mirrors the public hero: mobile lines below 768px, desktop
+  // lines above. The admin can force either side with the toggle, and an empty
+  // mobile block always falls back to the desktop lines (exactly as the site).
+  const previewLines =
+    (previewDevice === "mobile" && mobileHeadlineLines.some((line) => line.text.trim())
+      ? mobileHeadlineLines
+      : headlineLines).filter((line) => line.text.trim());
+
   return (
     <div className="space-y-8">
       {/* Top Banner Live Preview Container */}
       <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-950 shadow-md">
-        <div className="flex items-center justify-between border-b border-white/10 bg-zinc-900/80 px-5 py-3">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-zinc-900/80 px-5 py-3">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-200">
               Live Preview (Exact Hero Presentation)
             </span>
           </div>
-          <span className="text-[0.68rem] text-zinc-400">Updates live as you edit</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 rounded-lg bg-zinc-950/80 p-0.5 text-[0.62rem] font-bold">
+              <button
+                type="button"
+                onClick={() => setPreviewDevice("desktop")}
+                aria-pressed={previewDevice === "desktop"}
+                className={`rounded-md px-2.5 py-1 uppercase tracking-wider transition ${
+                  previewDevice === "desktop" ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Desktop
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewDevice("mobile")}
+                aria-pressed={previewDevice === "mobile"}
+                className={`rounded-md px-2.5 py-1 uppercase tracking-wider transition ${
+                  previewDevice === "mobile" ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Mobile
+              </button>
+            </div>
+            <span className="hidden text-[0.68rem] text-zinc-400 sm:inline">Updates live as you edit</span>
+          </div>
         </div>
 
-        {/* The Live Hero Visual Container */}
-        <div className="relative isolate flex min-h-[420px] flex-col justify-center overflow-hidden bg-zinc-950 p-6 sm:p-10 md:p-14 text-white">
+        {/* The Live Hero Visual Container — constrained to a phone column while the
+              Mobile toggle is active, so the mobile line split wraps exactly as
+              it will on a handset. */}
+        <div
+          className={`relative isolate flex min-h-[420px] flex-col overflow-hidden bg-zinc-950 text-white transition-all ${
+            previewDevice === "mobile"
+              ? "mx-auto w-full max-w-[400px] justify-start p-5 pt-7 sm:p-6 sm:pt-9"
+              : "justify-center p-6 sm:p-10 md:p-14"
+          }`}
+        >
           {imageUrl ? (
             <div className="absolute inset-0">
               <SmartImage
@@ -300,19 +509,20 @@ export function HomeSliderEditor({
 
             {/* Massive Bold Headline — one coloured block per line, matching the
                 public hero exactly (same font family/weight, colour per line). */}
-            {headlineLines.some((line) => line.text.trim()) ? (
-              <h1 className="hero-industrial-title text-balance">
-                {headlineLines
-                  .filter((line) => line.text.trim())
-                  .map((line, index) => (
-                    <span
-                      key={index}
-                      className="block whitespace-pre-line drop-shadow-md"
-                      style={line.color ? { color: normalizeHex(line.color) || line.color } : undefined}
-                    >
-                      {line.text}
-                    </span>
-                  ))}
+            {previewLines.length > 0 ? (
+              <h1
+                className="hero-industrial-title text-balance"
+                style={{ "--headline-scale": titleScale } as CSSProperties}
+              >
+                {previewLines.map((line, index) => (
+                  <span
+                    key={index}
+                    className="block whitespace-pre-line drop-shadow-md"
+                    style={line.color ? { color: normalizeHex(line.color) || line.color } : undefined}
+                  >
+                    {line.text}
+                  </span>
+                ))}
               </h1>
             ) : null}
 
@@ -433,106 +643,93 @@ export function HomeSliderEditor({
               </p>
             </div>
 
+            <HeadlineLinesField
+              title="Headline Lines — Desktop"
+              lines={headlineLines}
+              onChange={setHeadlineLines}
+              helper={
+                <>
+                  Each box is one headline line shown on desktop and tablet. The
+                  colour picker (or a hex such as <code className="rounded bg-zinc-100 px-1">#E31E24</code>) sets
+                  that line&apos;s colour — white lines first, then brand-red lines.
+                </>
+              }
+            />
+
+            <div className="sm:col-span-2 rounded-lg border border-red-100 bg-red-50/40 p-3">
+              <HeadlineLinesField
+                title="Headline Lines — Mobile (optional)"
+                lines={mobileHeadlineLines}
+                onChange={setMobileHeadlineLines}
+                addLabel="Add mobile line"
+                helper={
+                  <>
+                    Phones (<span className="font-semibold">&lt;768px</span>) wrap this copy dynamically near the
+                    top of the hero. Keep lines short (2&ndash;4 words) so the headline stays one or two tight
+                    rows. <span className="font-semibold">Keep this empty to reuse the desktop lines</span>.
+                  </>
+                }
+                extraActions={
+                  mobileHeadlineLines.length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => setMobileHeadlineLines([])}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-zinc-300 bg-white px-3 py-2 text-xs font-bold text-zinc-500 transition hover:bg-zinc-50 hover:text-zinc-700"
+                      title="Clear the mobile split so phones fall back to the desktop headline"
+                    >
+                      Use desktop lines instead
+                    </button>
+                  ) : null
+                }
+              />
+            </div>
+
             <div className="sm:col-span-2">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <label className="block text-xs font-bold text-zinc-700">
-                  Headline Lines ({headlineLines.length})
+                  Headline Size (desktop &amp; mobile)
                 </label>
                 <span className="text-[0.62rem] font-semibold text-zinc-500">
-                  Press Enter for a new line inside a box · font family &amp; weight stay identical · colour is per line
+                  {Math.round(titleScale * 100)}% of default
                 </span>
               </div>
-              <p className="mt-1 text-[0.68rem] text-zinc-500">
-                Each box is one headline line. Use the colour picker (or type a hex such as{" "}
-                <code className="rounded bg-zinc-100 px-1">#E31E24</code>) to set that line&apos;s colour independently.
-              </p>
-
-              <div className="mt-3 space-y-3">
-                {headlineLines.map((line, index) => {
-                  const swatch = normalizeHex(line.color ?? "") || "#FFFFFF";
-                  return (
-                    <div key={index} className="rounded-lg border border-zinc-200 bg-zinc-50/60 p-3">
-                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <span className="inline-flex items-center gap-2 text-xs font-bold text-zinc-700">
-                          Headline Line {index + 1}
-                          <span className="rounded-full bg-zinc-200/80 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-zinc-600">
-                            {headlineLineLabel(line.color)}
-                          </span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => removeHeadlineLine(index)}
-                          disabled={headlineLines.length <= 1}
-                          title="Remove this headline line"
-                          className="inline-flex items-center gap-1 text-[0.62rem] font-bold text-zinc-400 transition hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          <Trash2 size={11} /> Remove
-                        </button>
-                      </div>
-
-                      <textarea
-                        rows={2}
-                        value={line.text}
-                        onChange={(e) => updateHeadlineLine(index, { text: e.target.value })}
-                        onKeyDown={(e) => {
-                          // Enter must insert a line break here, never submit the form.
-                          if (e.key === "Enter") e.stopPropagation();
-                        }}
-                        placeholder={
-                          index === 0 ? "PRECISION STORAGE" : index === 1 ? "RACKING SOLUTIONS" : "ANOTHER HEADLINE LINE"
-                        }
-                        className="admin-field w-full font-black uppercase leading-tight"
-                        style={{ color: swatch === "#FFFFFF" ? "#18181b" : swatch }}
-                      />
-
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <label className="inline-flex cursor-pointer items-center gap-2 text-[0.62rem] font-bold text-zinc-600">
-                          <input
-                            type="color"
-                            value={swatch}
-                            onChange={(e) => updateHeadlineLine(index, { color: normalizeHex(e.target.value) || null })}
-                            aria-label={`Colour for headline line ${index + 1}`}
-                            className="h-7 w-9 cursor-pointer rounded border border-zinc-300 bg-white p-0.5"
-                          />
-                          Colour
-                        </label>
-                        <input
-                          type="text"
-                          value={line.color ?? ""}
-                          onChange={(e) => updateHeadlineLine(index, { color: e.target.value.toUpperCase() })}
-                          onBlur={(e) => updateHeadlineLine(index, { color: normalizeHex(e.target.value) || null })}
-                          placeholder="#FFFFFF"
-                          className="admin-field w-28 text-xs uppercase"
-                        />
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => updateHeadlineLine(index, { color: HEADLINE_WHITE })}
-                            className="rounded border border-zinc-300 bg-white px-2 py-1 text-[0.6rem] font-bold text-zinc-700 hover:bg-zinc-50"
-                          >
-                            White
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => updateHeadlineLine(index, { color: HEADLINE_RED })}
-                            className="rounded border border-zinc-300 bg-white px-2 py-1 text-[0.6rem] font-bold text-red-600 hover:bg-red-50"
-                          >
-                            Red
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {[
+                  { label: "Small", value: 0.8 },
+                  { label: "Normal", value: 1 },
+                  { label: "Large", value: 1.15 },
+                  { label: "X-Large", value: 1.3 },
+                ].map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => setTitleScale(preset.value)}
+                    aria-pressed={Math.abs(titleScale - preset.value) < 0.001}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                      Math.abs(titleScale - preset.value) < 0.001
+                        ? "bg-red-600 text-white shadow-sm"
+                        : "border border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:text-zinc-900"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
-
-              <button
-                type="button"
-                onClick={addHeadlineLine}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
-              >
-                <Plus size={13} /> Add headline line
-              </button>
+              <input
+                type="range"
+                min="0.5"
+                max="1.6"
+                step="0.05"
+                value={titleScale}
+                onChange={(e) => setTitleScale(Number(e.target.value))}
+                aria-label="Headline size scale"
+                className="mt-3 w-full accent-red-600"
+              />
+              <p className="mt-1 text-[0.68rem] text-zinc-500">
+                Scales the title block — e.g. &ldquo;Heavy Duty Racking Built&rdquo; / &ldquo;BUILT FOR YOUR
+                OPERATION.&rdquo; — on desktop and mobile, and updates the preview above live. 1 keeps the
+                curated default size.
+              </p>
             </div>
 
             <div className="sm:col-span-2">

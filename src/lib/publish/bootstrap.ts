@@ -452,14 +452,6 @@ export async function bootstrapHomeSections(): Promise<StaticHomeSection[]> {
       displayOrder: 8,
     },
     {
-      sectionKey: "manufacturing",
-      title: "Built for Your Needs",
-      subtitle: "Materials, build and finish all match the design we agree with you.",
-      content: { image: images.installation, cta: "Discuss Your Requirement" },
-      enabled: true,
-      displayOrder: 9,
-    },
-    {
       sectionKey: "cta",
       title: "Setting Up a New Warehouse or Improving an Old One?",
       subtitle: "Tell us about your space and storage needs. We'll help you take the next step.",

@@ -882,7 +882,7 @@ export async function deleteEntity(entity: AdminEntity, id: number) {
      *
      * This is the difference between the two kinds of homepage row. A *band* —
      `hero`, `about`, `trust`, `services`, `why`, `offers`, `process`,
-     `manufacturing`, `cta` — is a fixed part of the front page: the renderer
+     `cta` — is a fixed part of the front page: the renderer
      looks each key up by name, so deleting one removes that band entirely and no
      editor can put it back without writing the row again by hand. A *custom* row
      is a key the renderer has no case for, so its content is not on the page at

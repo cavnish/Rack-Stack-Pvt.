@@ -265,14 +265,13 @@ async function generateSeo() {
 /**
  * The asset group a band's photographs belong to.
  *
- * Keyed by section rather than decided per branch, so the hero, the About band
- * and the manufacturing band cannot drift onto the wrong group — which matters
- * because the group decides the local path, and a band re-pointing at another
- * band's file would render the wrong picture after a republish.
+ * Keyed by section rather than decided per branch, so the hero band and the About
+ * band cannot drift onto the wrong group — which matters because the group decides
+ * the local path, and a band re-pointing at another band's file would render the
+ * wrong picture after a republish.
  */
 function homepageAssetGroup(sectionKey: string): AssetGroup {
   if (sectionKey === "hero") return "hero";
-  if (sectionKey === "manufacturing") return "services";
   return "about";
 }
 

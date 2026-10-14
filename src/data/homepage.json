@@ -189,26 +189,6 @@
     "updatedAt": "2026-09-28T08:58:46.069Z"
   },
   {
-    "id": 8,
-    "sectionKey": "manufacturing",
-    "title": "Built for Your Needs",
-    "subtitle": "Materials, build and finish all match the design we agree with you.",
-    "content": {
-      "cta": "Discuss Your Requirement",
-      "cards": [],
-      "image": "/assets/images/services/homepage-manufacturing-image-b4ade58537.webp",
-      "items": [],
-      "stats": [],
-      "steps": [],
-      "gallery": [],
-      "features": []
-    },
-    "enabled": true,
-    "displayOrder": 9,
-    "createdAt": "2026-09-28T08:58:46.128Z",
-    "updatedAt": "2026-10-13T13:31:31.272Z"
-  },
-  {
     "id": 9,
     "sectionKey": "cta",
     "title": "Setting Up a New Warehouse or Improving an Old One?",

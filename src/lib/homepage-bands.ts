@@ -24,7 +24,6 @@ export const HOMEPAGE_BAND_KEYS = [
   "why",
   "offers",
   "process",
-  "manufacturing",
   "cta",
 ] as const;
 
@@ -46,7 +45,6 @@ export const HOMEPAGE_BAND_LABELS: Record<HomepageBandKey, string> = {
   why: "Why Rack & Stack",
   offers: "What We Offer",
   process: "How we work",
-  manufacturing: "Manufacturing",
   cta: "Closing call to action",
 };
 
@@ -59,7 +57,6 @@ export const HOMEPAGE_BAND_BLURBS: Record<HomepageBandKey, string> = {
   why: "The dark 'why industry leaders' band: differentiators and headline figures.",
   offers: "Heading for the product card grid. The cards live in Home Products.",
   process: "The numbered process row: discover, survey, design, deliver.",
-  manufacturing: "The split dark band: installation photograph and a button.",
   cta: "The red band above the footer: heading, copy and up to two buttons.",
 };
 
@@ -72,7 +69,6 @@ export const HOMEPAGE_BAND_ORDERS: Record<HomepageBandKey, number> = {
   why: 4,
   offers: 5,
   process: 8,
-  manufacturing: 9,
   cta: 14,
 };
 

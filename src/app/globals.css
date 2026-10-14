@@ -370,10 +370,16 @@ textarea.admin-field { color:#18181b; }
 /* Hero Ken Burns: a slow one-shot push-in on the artwork. Driven by CSS rather
    than a JS animation loop so the browser composites it on the compositor and
    the main thread stays free while the page loads. Runs once and settles. */
-.hero-kenburns { animation:hero-kenburns 12s cubic-bezier(.22,1,.36,1) both; will-change:transform; }
-@keyframes hero-kenburns { from { transform:scale(1.12); } to { transform:scale(1.02); } }
+.hero-kenburns { animation:none; will-change:transform; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-kenburns { animation: hero-kenburns 14s cubic-bezier(.22,1,.36,1) both; }
+}
+@keyframes hero-kenburns { from { transform:scale(1.14); } to { transform:scale(1.02); } }
 @media (prefers-reduced-motion:reduce){
-  .hero-kenburns { animation:none; }
+  .hero-kenburns { animation:none !important; }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .hero-kenburns { animation-duration: 18s; }
 }
 /* Why Rack & Stack centre illustration: the India map scales in and the label fades up.
    The wrapper itself is never transformed or faded â€” that would make it a stacking context

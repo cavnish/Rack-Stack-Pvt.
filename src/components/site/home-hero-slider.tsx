@@ -48,7 +48,7 @@ function HeroArtImage({ desktopSrc, mobileSrc, alt, priority }: { desktopSrc: st
         {...desktop}
         alt={alt}
         fetchPriority={priority ? "high" : undefined}
-        className="object-cover"
+        className="object-cover hero-kenburns"
         onError={(event) => {
           const img = event.currentTarget;
           if (img.dataset.fallback) return;
@@ -342,7 +342,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
         >
             <div
               className={`stagger is-visible ${align.block}`}
-              style={{ "--stagger-delay": ".35s", "--stagger-step": ".13s" } as CSSProperties}
+              style={{ "--stagger-delay": ".25s", "--stagger-step": ".08s" } as CSSProperties}
             >
               {/* Eyebrow badge */}
               {activeSlide.eyebrow ? (

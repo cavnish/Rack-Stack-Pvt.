@@ -44,13 +44,13 @@ export function CatalogueProductCard({ product }: CatalogueProductCardProps) {
           </Link>
         </h2>
         <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-600">{product.shortDescription}</p>
-        <div className="mt-4 flex flex-col gap-2 border-t border-zinc-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
-          <QuoteButton product={product} label="Request Quote" className="btn-primary w-full sm:w-auto" />
+        <div className="mt-auto flex flex-col gap-2 border-t border-zinc-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <QuoteButton product={product} label="Request Quote" className="btn-primary btn-compact w-full shrink-0 rounded-[5px] font-bold uppercase tracking-wider sm:w-auto" />
           <Link
             href={href}
             className="inline-flex min-h-11 items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:text-red-600"
           >
-            View details <ArrowRight size={14} aria-hidden="true" />
+            View details <ArrowRight size={14} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>

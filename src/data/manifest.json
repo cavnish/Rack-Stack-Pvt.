@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-13T10:52:58.542Z",
+  "generatedAt": "2026-10-14T05:53:37.628Z",
   "collections": {
     "blogPosts": {
-      "hash": "97d170e1550eee4a",
-      "generatedAt": "2026-10-02T13:22:21.684Z",
-      "count": 0
+      "hash": "a814d1cff4a567af",
+      "generatedAt": "2026-10-14T05:53:37.628Z",
+      "count": 1
     },
     "blogCategories": {
       "hash": "ec8a73d45d9fef73",
@@ -23,28 +23,28 @@
       "count": 1
     },
     "homepage": {
-      "hash": "154112f29b147120",
-      "generatedAt": "2026-10-02T13:22:17.319Z",
+      "hash": "2922f259750be021",
+      "generatedAt": "2026-10-14T05:47:19.982Z",
       "count": 8
     },
     "services": {
-      "hash": "47f50ce17d3fa7b1",
-      "generatedAt": "2026-10-02T13:22:20.113Z",
+      "hash": "5fe0a52fabfccdb9",
+      "generatedAt": "2026-10-14T05:48:12.109Z",
       "count": 8
     },
     "products": {
-      "hash": "e3e4d1058896c7c8",
-      "generatedAt": "2026-10-13T10:52:58.542Z",
+      "hash": "843704f9cbd42c08",
+      "generatedAt": "2026-10-14T05:48:07.158Z",
       "count": 37
     },
     "industries": {
-      "hash": "b345c91484b01b6b",
-      "generatedAt": "2026-10-12T14:54:26.812Z",
+      "hash": "923c62a1ef084ab6",
+      "generatedAt": "2026-10-14T05:48:22.816Z",
       "count": 12
     },
     "sliders": {
-      "hash": "836adc370d78ba9f",
-      "generatedAt": "2026-10-13T10:25:42.956Z",
+      "hash": "86afb2a89133da9f",
+      "generatedAt": "2026-10-14T05:47:17.117Z",
       "count": 3
     },
     "pages": {

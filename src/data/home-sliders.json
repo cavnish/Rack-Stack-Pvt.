@@ -2,25 +2,29 @@
   {
     "id": 1,
     "eyebrow": "Industrial storage systems",
-    "title": "Industrial Storage Systems,",
-    "highlightedText": null,
+    "title": "INDUSTRIAL STORAGE SYSTEMS DESIGNED FOR",
+    "highlightedText": "HIGH-LOAD FACTORY FLOORS",
     "headlineLines": [
       {
-        "text": "Industrial Storage Systems,",
+        "text": "INDUSTRIAL STORAGE SYSTEMS DESIGNED FOR",
         "color": "#FFFFFF"
+      },
+      {
+        "text": "HIGH-LOAD FACTORY FLOORS",
+        "color": "#E31E24"
       }
     ],
     "mobileHeadlineLines": [
       {
-        "text": "Industrial Storage",
+        "text": "INDUSTRIAL STORAGE SYSTEMS DESIGNED FOR",
         "color": "#FFFFFF"
       },
       {
-        "text": "Systems",
+        "text": "HIGH-LOAD FACTORY FLOORS",
         "color": "#E31E24"
       }
     ],
-    "description": "Manufacturing-grade pallet racking, heavy duty shelving and mezzanine floors engineered for heavy loads, tight floorspace and continuous production output.",
+    "description": "Heavy-duty pallet racking, structural mezzanine floors, and industrial shelving engineered to withstand heavy loads, maximize floor density, and optimize plant logistics.",
     "imageUrl": "/assets/images/hero/home-sliders-ru52wu50zrtrbxojusqc-9c45bfb9fe.webp",
     "imagePublicId": "rack-stack/home-sliders/ru52wu50zrtrbxojusqc",
     "mobileImageUrl": "/Hero.jpeg",
@@ -40,28 +44,28 @@
     ],
     "status": "PUBLISHED",
     "sortOrder": 0,
-    "overlayOpacity": 7,
+    "overlayOpacity": 0,
     "textAlignment": "left",
     "autoplay": true,
-    "duration": 3500,
+    "duration": 2000,
     "titleScale": 1.15,
     "startAt": null,
     "endAt": null,
     "createdAt": "2026-09-28T08:58:50.431Z",
-    "updatedAt": "2026-10-13T10:25:42.538Z"
+    "updatedAt": "2026-10-14T05:47:15.783Z"
   },
   {
     "id": 2,
-    "eyebrow": "Space optimization",
-    "title": "Maximize Manufacturing Floor",
-    "highlightedText": "FROM FLOOR TO FULL.",
+    "eyebrow": "FACTORY SPACE OPTIMIZATION",
+    "title": "MAXIMIZE MANUFACTURING CAPACITY",
+    "highlightedText": "FROM FLOOR TO CEILING.",
     "headlineLines": [
       {
-        "text": "Maximize Manufacturing Floor",
+        "text": "MAXIMIZE MANUFACTURING CAPACITY",
         "color": "#FFFFFF"
       },
       {
-        "text": "FROM FLOOR TO FULL.",
+        "text": "FROM FLOOR TO CEILING.",
         "color": "#E31E24"
       }
     ],
@@ -75,7 +79,7 @@
         "color": "#E31E24"
       }
     ],
-    "description": "Racking, mezzanines and material handling systems that turn wasted ceiling height and floor area into organised, high-density manufacturing storage.",
+    "description": "Custom mezzanines and high-density material handling systems that turn unused overhead vertical space into productive manufacturing and inventory storage areas",
     "imageUrl": "/assets/images/hero/slide-1-162390a737.webp",
     "imagePublicId": "rack-stack/home-sliders/l98yyfaxjol4jr4zwmmr",
     "mobileImageUrl": "/assets/images/hero/home-sliders-g7fyor33cdvk9kp7qo0x-571137f185.webp",
@@ -95,7 +99,7 @@
     ],
     "status": "PUBLISHED",
     "sortOrder": 1,
-    "overlayOpacity": 7,
+    "overlayOpacity": 0,
     "textAlignment": "left",
     "autoplay": true,
     "duration": 3500,
@@ -103,20 +107,20 @@
     "startAt": null,
     "endAt": null,
     "createdAt": "2026-09-28T08:58:50.431Z",
-    "updatedAt": "2026-10-13T10:25:17.521Z"
+    "updatedAt": "2026-10-14T05:16:38.552Z"
   },
   {
     "id": 3,
-    "eyebrow": "Industrial racking & shelving",
-    "title": "Heavy Duty Racking Built",
-    "highlightedText": "BUILT FOR YOUR OPERATION.",
+    "eyebrow": "INDUSTRIAL RACKING & SHELVING",
+    "title": "HEAVY-DUTY RACKING BUILT",
+    "highlightedText": "FOR HIGH-THROUGHPUT OPERATIONS.",
     "headlineLines": [
       {
-        "text": "Heavy Duty Racking Built",
+        "text": "HEAVY-DUTY RACKING BUILT",
         "color": "#FFFFFF"
       },
       {
-        "text": "BUILT FOR YOUR OPERATION.",
+        "text": "FOR HIGH-THROUGHPUT OPERATIONS.",
         "color": "#E31E24"
       }
     ],
@@ -130,7 +134,7 @@
         "color": "#E31E24"
       }
     ],
-    "description": "Pallet racking, cantilever racks and reinforced shelving configured around your forklifts, loads and daily throughput for safe, efficient operation.",
+    "description": "Selective pallet racking, cantilever racks, and reinforced steel shelving engineered around your forklift operations, load profiles, and daily material flow",
     "imageUrl": "/assets/images/hero/home-sliders-ai1kuxp8xdkaldwtsajc-fb91187fe8.webp",
     "imagePublicId": "rack-stack/home-sliders/ai1kuxp8xdkaldwtsajc",
     "mobileImageUrl": "/assets/images/hero/slide-2-744a9f1204.webp",
@@ -150,7 +154,7 @@
     ],
     "status": "PUBLISHED",
     "sortOrder": 2,
-    "overlayOpacity": 5,
+    "overlayOpacity": 0,
     "textAlignment": "left",
     "autoplay": true,
     "duration": 3500,
@@ -158,6 +162,6 @@
     "startAt": null,
     "endAt": null,
     "createdAt": "2026-09-28T08:58:50.431Z",
-    "updatedAt": "2026-10-13T10:24:53.670Z"
+    "updatedAt": "2026-10-14T05:18:12.439Z"
   }
 ]

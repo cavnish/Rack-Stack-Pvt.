@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-12T14:54:13.284Z",
+  "updatedAt": "2026-10-14T05:52:34.951Z",
   "assets": {
     "hero:https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000": {
       "url": "/assets/images/hero/warehouse-pallet-storage-hero-374ec6e177.webp",
@@ -1264,6 +1264,149 @@
       "group": "hero",
       "name": "slide-1",
       "etag": "\"6bb756f0eef9ee07f7a15895cfaf1a91\""
+    },
+    "about:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791898169/rack-stack/home-about/pamgi7ggidwp5piyu3q7.jpg": {
+      "url": "/assets/images/about/homepage-about-gallery-1-cdc7795beb.webp",
+      "width": 640,
+      "height": 480,
+      "aspectRatio": 1.3333,
+      "bytes": 132800,
+      "hash": "cdc7795beb",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791898169/rack-stack/home-about/pamgi7ggidwp5piyu3q7.jpg",
+      "cached": false,
+      "group": "about",
+      "name": "homepage-about-gallery-1",
+      "etag": "\"18abee8daae74a4c865315ebc2486f21\""
+    },
+    "services:https://res.cloudinary.com/z3bxsfxu/image/upload/v1790859167/rack-stack/home-about/jkdqpdx5kxik5e9d2b3r.jpg": {
+      "url": "/assets/images/services/homepage-manufacturing-image-b4ade58537.webp",
+      "width": 625,
+      "height": 500,
+      "aspectRatio": 1.25,
+      "bytes": 97198,
+      "hash": "b4ade58537",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1790859167/rack-stack/home-about/jkdqpdx5kxik5e9d2b3r.jpg",
+      "cached": false,
+      "group": "services",
+      "name": "homepage-manufacturing-image",
+      "etag": "\"c05c178f3b32a78d1187f74e04612bae\""
+    },
+    "industries:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897637/rack-stack/industries/lm3wa9kqpgs2fs2rjwqq.jpg": {
+      "url": "/assets/images/industries/manufacturing-hero-543e1d63e3.webp",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5,
+      "bytes": 172048,
+      "hash": "543e1d63e3",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897637/rack-stack/industries/lm3wa9kqpgs2fs2rjwqq.jpg",
+      "cached": false,
+      "group": "industries",
+      "name": "manufacturing-hero",
+      "etag": "\"ecd3ff59a72341d6d8370d37ce637244\""
+    },
+    "industries:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897985/rack-stack/industries/usjwv6t4ru6tpvhoaqpu.jpg": {
+      "url": "/assets/images/industries/office-corporate-hero-73ac99d8b4.webp",
+      "width": 1200,
+      "height": 797,
+      "aspectRatio": 1.5056,
+      "bytes": 152888,
+      "hash": "73ac99d8b4",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897985/rack-stack/industries/usjwv6t4ru6tpvhoaqpu.jpg",
+      "cached": false,
+      "group": "industries",
+      "name": "office-corporate-hero",
+      "etag": "\"1ab47fe7cb70954816dcf2731415bd6d\""
+    },
+    "industries:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897828/rack-stack/industries/kfpo21odydzkawuqfpzx.jpg": {
+      "url": "/assets/images/industries/ecommerce-hero-812007e040.webp",
+      "width": 740,
+      "height": 740,
+      "aspectRatio": 1,
+      "bytes": 36190,
+      "hash": "812007e040",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897828/rack-stack/industries/kfpo21odydzkawuqfpzx.jpg",
+      "cached": false,
+      "group": "industries",
+      "name": "ecommerce-hero",
+      "etag": "\"18957583e63a254f4af8a708410f8baa\""
+    },
+    "industries:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897877/rack-stack/industries/vtocpzybhscv0gzb3gwa.jpg": {
+      "url": "/assets/images/industries/engineering-hero-601444895e.webp",
+      "width": 739,
+      "height": 415,
+      "aspectRatio": 1.7807,
+      "bytes": 97464,
+      "hash": "601444895e",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897877/rack-stack/industries/vtocpzybhscv0gzb3gwa.jpg",
+      "cached": false,
+      "group": "industries",
+      "name": "engineering-hero",
+      "etag": "\"ecca8f55f11e31a7dc3556b856d5230e\""
+    },
+    "industries:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791898068/rack-stack/industries/im0dqvdyqajpxbldjj9k.jpg": {
+      "url": "/assets/images/industries/retail-hero-0ab034718e.webp",
+      "width": 1116,
+      "height": 742,
+      "aspectRatio": 1.504,
+      "bytes": 173786,
+      "hash": "0ab034718e",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791898068/rack-stack/industries/im0dqvdyqajpxbldjj9k.jpg",
+      "cached": false,
+      "group": "industries",
+      "name": "retail-hero",
+      "etag": "\"e31464fefb64bbc3e16d83f6ccf71198\""
+    },
+    "industries:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897586/rack-stack/industries/rbik3l5ith85dhyyrc84.jpg": {
+      "url": "/assets/images/industries/automotive-hero-205a798fd3.webp",
+      "width": 387,
+      "height": 516,
+      "aspectRatio": 0.75,
+      "bytes": 48846,
+      "hash": "205a798fd3",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897586/rack-stack/industries/rbik3l5ith85dhyyrc84.jpg",
+      "cached": false,
+      "group": "industries",
+      "name": "automotive-hero",
+      "etag": "\"672079f450eed95c577bd0e63a35fb63\""
+    },
+    "industries:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897914/rack-stack/industries/lflclldbsfpqw6kpmgig.jpg": {
+      "url": "/assets/images/industries/fmcg-hero-e16efe2814.webp",
+      "width": 739,
+      "height": 415,
+      "aspectRatio": 1.7807,
+      "bytes": 97464,
+      "hash": "e16efe2814",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897914/rack-stack/industries/lflclldbsfpqw6kpmgig.jpg",
+      "cached": false,
+      "group": "industries",
+      "name": "fmcg-hero",
+      "etag": "\"ecca8f55f11e31a7dc3556b856d5230e\""
+    },
+    "industries:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897711/rack-stack/industries/gabtaf2zp6aa7r8ka5yr.jpg": {
+      "url": "/assets/images/industries/pharmaceuticals-hero-de4afda73d.webp",
+      "width": 960,
+      "height": 640,
+      "aspectRatio": 1.5,
+      "bytes": 143842,
+      "hash": "de4afda73d",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791897711/rack-stack/industries/gabtaf2zp6aa7r8ka5yr.jpg",
+      "cached": false,
+      "group": "industries",
+      "name": "pharmaceuticals-hero",
+      "etag": "\"ff11200a5f9b8eb801ab838bcf425733\""
+    },
+    "blog:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791957154/rack-stack/blog/uvaypnh0oxaosjenmt3a.jpg": {
+      "url": "/assets/images/blog/blog-uvaypnh0oxaosjenmt3a-3ead585f5c.webp",
+      "width": 384,
+      "height": 288,
+      "aspectRatio": 1.3333,
+      "bytes": 42528,
+      "hash": "3ead585f5c",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791957154/rack-stack/blog/uvaypnh0oxaosjenmt3a.jpg",
+      "cached": false,
+      "group": "blog",
+      "name": "blog-uvaypnh0oxaosjenmt3a",
+      "etag": "\"35f3eb943d67c157e8cffe43cbeb29dc\""
     }
   }
 }

@@ -165,7 +165,7 @@ export function Header({
               </div>
             ) : null}
           </div>
-          {[['Services', '/services'], ['Industries', '/industries'], ['Projects', '/projects'], ['About', '/about'], ['Contact', '/contact']].map(([label, href]) => (
+          {[['Services', '/services'], ['Industries', '/industries'], ['Gallery', '/gallery'], ['About', '/about'], ['Contact', '/contact']].map(([label, href]) => (
             <Link key={href} href={href} className="whitespace-nowrap text-sm font-bold text-zinc-700 hover:text-red-700">{label}</Link>
           ))}
         </nav>
@@ -215,7 +215,7 @@ export function Header({
               })}
             </div>
             <div className="mt-6 grid grid-cols-2 gap-px bg-white/10">
-              {[['Services', '/services'], ['Industries', '/industries'], ['Projects', '/projects'], ['About', '/about'], ['Resources', '/blog'], ['Contact', '/contact']].map(([label, href]) => (
+              {[['Services', '/services'], ['Industries', '/industries'], ['Gallery', '/gallery'], ['About', '/about'], ['Resources', '/blog'], ['Contact', '/contact']].map(([label, href]) => (
                 <Link onClick={() => setMobile(false)} href={href} key={href} className="bg-zinc-950 p-4 text-sm font-semibold">{label}</Link>
               ))}
             </div>

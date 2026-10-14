@@ -642,84 +642,6 @@
     ],
     "industries": [
       {
-        "id": 2,
-        "name": "Manufacturing",
-        "slug": "manufacturing",
-        "shortDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-        "description": "Manufacturing businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
-        "challenges": [
-          "Getting enough storage without losing easy access",
-          "Keeping stock moving smoothly",
-          "Adjusting to changing inventory"
-        ],
-        "benefits": [
-          "Everything has its place",
-          "Better use of your space",
-          "Layouts that match how you work"
-        ],
-        "heroImage": "/assets/images/industries/manufacturing-hero-fec7419d7c.webp",
-        "icon": "Factory",
-        "status": "PUBLISHED",
-        "featured": true,
-        "displayOrder": 1,
-        "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
-        "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-        "createdAt": "2026-09-28T08:58:40.287Z",
-        "updatedAt": "2026-09-28T08:58:40.287Z"
-      },
-      {
-        "id": 5,
-        "name": "E-commerce",
-        "slug": "ecommerce",
-        "shortDescription": "Easy picking storage for large product ranges and changing orders.",
-        "description": "E-commerce businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
-        "challenges": [
-          "Getting enough storage without losing easy access",
-          "Keeping stock moving smoothly",
-          "Adjusting to changing inventory"
-        ],
-        "benefits": [
-          "Everything has its place",
-          "Better use of your space",
-          "Layouts that match how you work"
-        ],
-        "heroImage": "/assets/images/industries/warehousing-hero-7fba3738e1.webp",
-        "icon": "Factory",
-        "status": "PUBLISHED",
-        "featured": true,
-        "displayOrder": 4,
-        "metaTitle": "Storage Solutions for E-commerce | Rack & Stack",
-        "metaDescription": "Easy picking storage for large product ranges and changing orders.",
-        "createdAt": "2026-09-28T08:58:40.287Z",
-        "updatedAt": "2026-09-28T08:58:40.287Z"
-      },
-      {
-        "id": 9,
-        "name": "Engineering",
-        "slug": "engineering",
-        "shortDescription": "Storage for tools, parts, consumables and odd-sized items.",
-        "description": "Engineering businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
-        "challenges": [
-          "Getting enough storage without losing easy access",
-          "Keeping stock moving smoothly",
-          "Adjusting to changing inventory"
-        ],
-        "benefits": [
-          "Everything has its place",
-          "Better use of your space",
-          "Layouts that match how you work"
-        ],
-        "heroImage": "/assets/images/industries/warehousing-hero-7fba3738e1.webp",
-        "icon": "Factory",
-        "status": "PUBLISHED",
-        "featured": false,
-        "displayOrder": 8,
-        "metaTitle": "Storage Solutions for Engineering | Rack & Stack",
-        "metaDescription": "Storage for tools, parts, consumables and odd-sized items.",
-        "createdAt": "2026-09-28T08:58:40.287Z",
-        "updatedAt": "2026-09-28T08:58:40.287Z"
-      },
-      {
         "id": 8,
         "name": "Logistics",
         "slug": "logistics",
@@ -744,6 +666,84 @@
         "metaDescription": "Flexible storage for receiving, staging, picking and dispatch.",
         "createdAt": "2026-09-28T08:58:40.287Z",
         "updatedAt": "2026-09-30T11:16:26.638Z"
+      },
+      {
+        "id": 2,
+        "name": "Manufacturing",
+        "slug": "manufacturing",
+        "shortDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
+        "description": "Manufacturing businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
+        "challenges": [
+          "Getting enough storage without losing easy access",
+          "Keeping stock moving smoothly",
+          "Adjusting to changing inventory"
+        ],
+        "benefits": [
+          "Everything has its place",
+          "Better use of your space",
+          "Layouts that match how you work"
+        ],
+        "heroImage": "/assets/images/industries/manufacturing-hero-543e1d63e3.webp",
+        "icon": "Factory",
+        "status": "PUBLISHED",
+        "featured": true,
+        "displayOrder": 1,
+        "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
+        "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-10-13T13:20:42.200Z"
+      },
+      {
+        "id": 5,
+        "name": "E-commerce",
+        "slug": "ecommerce",
+        "shortDescription": "Easy picking storage for large product ranges and changing orders.",
+        "description": "E-commerce businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
+        "challenges": [
+          "Getting enough storage without losing easy access",
+          "Keeping stock moving smoothly",
+          "Adjusting to changing inventory"
+        ],
+        "benefits": [
+          "Everything has its place",
+          "Better use of your space",
+          "Layouts that match how you work"
+        ],
+        "heroImage": "/assets/images/industries/ecommerce-hero-812007e040.webp",
+        "icon": "Factory",
+        "status": "PUBLISHED",
+        "featured": true,
+        "displayOrder": 4,
+        "metaTitle": "Storage Solutions for E-commerce | Rack & Stack",
+        "metaDescription": "Easy picking storage for large product ranges and changing orders.",
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-10-13T13:23:51.725Z"
+      },
+      {
+        "id": 9,
+        "name": "Engineering",
+        "slug": "engineering",
+        "shortDescription": "Storage for tools, parts, consumables and odd-sized items.",
+        "description": "Engineering businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
+        "challenges": [
+          "Getting enough storage without losing easy access",
+          "Keeping stock moving smoothly",
+          "Adjusting to changing inventory"
+        ],
+        "benefits": [
+          "Everything has its place",
+          "Better use of your space",
+          "Layouts that match how you work"
+        ],
+        "heroImage": "/assets/images/industries/engineering-hero-601444895e.webp",
+        "icon": "Factory",
+        "status": "PUBLISHED",
+        "featured": false,
+        "displayOrder": 8,
+        "metaTitle": "Storage Solutions for Engineering | Rack & Stack",
+        "metaDescription": "Storage for tools, parts, consumables and odd-sized items.",
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-10-13T13:24:40.972Z"
       },
       {
         "id": 1,
@@ -901,84 +901,6 @@
     ],
     "industries": [
       {
-        "id": 2,
-        "name": "Manufacturing",
-        "slug": "manufacturing",
-        "shortDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-        "description": "Manufacturing businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
-        "challenges": [
-          "Getting enough storage without losing easy access",
-          "Keeping stock moving smoothly",
-          "Adjusting to changing inventory"
-        ],
-        "benefits": [
-          "Everything has its place",
-          "Better use of your space",
-          "Layouts that match how you work"
-        ],
-        "heroImage": "/assets/images/industries/manufacturing-hero-fec7419d7c.webp",
-        "icon": "Factory",
-        "status": "PUBLISHED",
-        "featured": true,
-        "displayOrder": 1,
-        "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
-        "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
-        "createdAt": "2026-09-28T08:58:40.287Z",
-        "updatedAt": "2026-09-28T08:58:40.287Z"
-      },
-      {
-        "id": 5,
-        "name": "E-commerce",
-        "slug": "ecommerce",
-        "shortDescription": "Easy picking storage for large product ranges and changing orders.",
-        "description": "E-commerce businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
-        "challenges": [
-          "Getting enough storage without losing easy access",
-          "Keeping stock moving smoothly",
-          "Adjusting to changing inventory"
-        ],
-        "benefits": [
-          "Everything has its place",
-          "Better use of your space",
-          "Layouts that match how you work"
-        ],
-        "heroImage": "/assets/images/industries/warehousing-hero-7fba3738e1.webp",
-        "icon": "Factory",
-        "status": "PUBLISHED",
-        "featured": true,
-        "displayOrder": 4,
-        "metaTitle": "Storage Solutions for E-commerce | Rack & Stack",
-        "metaDescription": "Easy picking storage for large product ranges and changing orders.",
-        "createdAt": "2026-09-28T08:58:40.287Z",
-        "updatedAt": "2026-09-28T08:58:40.287Z"
-      },
-      {
-        "id": 9,
-        "name": "Engineering",
-        "slug": "engineering",
-        "shortDescription": "Storage for tools, parts, consumables and odd-sized items.",
-        "description": "Engineering businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
-        "challenges": [
-          "Getting enough storage without losing easy access",
-          "Keeping stock moving smoothly",
-          "Adjusting to changing inventory"
-        ],
-        "benefits": [
-          "Everything has its place",
-          "Better use of your space",
-          "Layouts that match how you work"
-        ],
-        "heroImage": "/assets/images/industries/warehousing-hero-7fba3738e1.webp",
-        "icon": "Factory",
-        "status": "PUBLISHED",
-        "featured": false,
-        "displayOrder": 8,
-        "metaTitle": "Storage Solutions for Engineering | Rack & Stack",
-        "metaDescription": "Storage for tools, parts, consumables and odd-sized items.",
-        "createdAt": "2026-09-28T08:58:40.287Z",
-        "updatedAt": "2026-09-28T08:58:40.287Z"
-      },
-      {
         "id": 8,
         "name": "Logistics",
         "slug": "logistics",
@@ -1003,6 +925,84 @@
         "metaDescription": "Flexible storage for receiving, staging, picking and dispatch.",
         "createdAt": "2026-09-28T08:58:40.287Z",
         "updatedAt": "2026-09-30T11:16:26.638Z"
+      },
+      {
+        "id": 2,
+        "name": "Manufacturing",
+        "slug": "manufacturing",
+        "shortDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
+        "description": "Manufacturing businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
+        "challenges": [
+          "Getting enough storage without losing easy access",
+          "Keeping stock moving smoothly",
+          "Adjusting to changing inventory"
+        ],
+        "benefits": [
+          "Everything has its place",
+          "Better use of your space",
+          "Layouts that match how you work"
+        ],
+        "heroImage": "/assets/images/industries/manufacturing-hero-543e1d63e3.webp",
+        "icon": "Factory",
+        "status": "PUBLISHED",
+        "featured": true,
+        "displayOrder": 1,
+        "metaTitle": "Storage Solutions for Manufacturing | Rack & Stack",
+        "metaDescription": "Organized storage for raw materials, tools, work in progress and finished goods.",
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-10-13T13:20:42.200Z"
+      },
+      {
+        "id": 5,
+        "name": "E-commerce",
+        "slug": "ecommerce",
+        "shortDescription": "Easy picking storage for large product ranges and changing orders.",
+        "description": "E-commerce businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
+        "challenges": [
+          "Getting enough storage without losing easy access",
+          "Keeping stock moving smoothly",
+          "Adjusting to changing inventory"
+        ],
+        "benefits": [
+          "Everything has its place",
+          "Better use of your space",
+          "Layouts that match how you work"
+        ],
+        "heroImage": "/assets/images/industries/ecommerce-hero-812007e040.webp",
+        "icon": "Factory",
+        "status": "PUBLISHED",
+        "featured": true,
+        "displayOrder": 4,
+        "metaTitle": "Storage Solutions for E-commerce | Rack & Stack",
+        "metaDescription": "Easy picking storage for large product ranges and changing orders.",
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-10-13T13:23:51.725Z"
+      },
+      {
+        "id": 9,
+        "name": "Engineering",
+        "slug": "engineering",
+        "shortDescription": "Storage for tools, parts, consumables and odd-sized items.",
+        "description": "Engineering businesses have unique storage needs. We plan around your stock, how often you access it, how you handle it and the space you have.",
+        "challenges": [
+          "Getting enough storage without losing easy access",
+          "Keeping stock moving smoothly",
+          "Adjusting to changing inventory"
+        ],
+        "benefits": [
+          "Everything has its place",
+          "Better use of your space",
+          "Layouts that match how you work"
+        ],
+        "heroImage": "/assets/images/industries/engineering-hero-601444895e.webp",
+        "icon": "Factory",
+        "status": "PUBLISHED",
+        "featured": false,
+        "displayOrder": 8,
+        "metaTitle": "Storage Solutions for Engineering | Rack & Stack",
+        "metaDescription": "Storage for tools, parts, consumables and odd-sized items.",
+        "createdAt": "2026-09-28T08:58:40.287Z",
+        "updatedAt": "2026-10-13T13:24:40.972Z"
       },
       {
         "id": 1,

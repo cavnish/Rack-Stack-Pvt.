@@ -37,7 +37,7 @@
         },
         {
           "alt": "Rack installation of industrial racking solutions inside a warehouse",
-          "image": "/assets/images/products/warehouse-team-working-with-heavy-duty-pallet-ra-3e49427d5a.webp"
+          "image": "/assets/images/about/homepage-about-gallery-1-cdc7795beb.webp"
         }
       ],
       "features": [
@@ -67,7 +67,7 @@
     "enabled": true,
     "displayOrder": 1,
     "createdAt": "2026-09-28T08:58:45.827Z",
-    "updatedAt": "2026-10-01T13:33:49.054Z"
+    "updatedAt": "2026-10-13T13:29:35.038Z"
   },
   {
     "id": 4,
@@ -195,12 +195,18 @@
     "subtitle": "Materials, build and finish all match the design we agree with you.",
     "content": {
       "cta": "Discuss Your Requirement",
-      "image": "/assets/images/services/storage-system-installation-a175992610.webp"
+      "cards": [],
+      "image": "/assets/images/services/homepage-manufacturing-image-b4ade58537.webp",
+      "items": [],
+      "stats": [],
+      "steps": [],
+      "gallery": [],
+      "features": []
     },
     "enabled": true,
     "displayOrder": 9,
     "createdAt": "2026-09-28T08:58:46.128Z",
-    "updatedAt": "2026-09-28T08:58:46.128Z"
+    "updatedAt": "2026-10-13T13:31:31.272Z"
   },
   {
     "id": 9,

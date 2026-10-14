@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-14T05:53:37.628Z",
+  "generatedAt": "2026-10-14T07:38:10.800Z",
   "collections": {
     "blogPosts": {
       "hash": "a814d1cff4a567af",
@@ -43,8 +43,8 @@
       "count": 12
     },
     "sliders": {
-      "hash": "86afb2a89133da9f",
-      "generatedAt": "2026-10-14T05:47:17.117Z",
+      "hash": "6e663f2de986cc2f",
+      "generatedAt": "2026-10-14T07:37:52.172Z",
       "count": 3
     },
     "pages": {
@@ -73,9 +73,9 @@
       "count": 4
     },
     "videos": {
-      "hash": "4f16ff61309fcc27",
-      "generatedAt": "2026-10-02T13:22:22.128Z",
-      "count": 2
+      "hash": "6821b7178a39be5c",
+      "generatedAt": "2026-10-14T07:38:10.800Z",
+      "count": 4
     },
     "homeOfferCards": {
       "hash": "ba53d31f67a9c984",

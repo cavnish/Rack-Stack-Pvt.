@@ -109,43 +109,45 @@ img,video,svg { max-width:100%; }
      the composition reads as one focused, executive block. `sm` and up return
      to vertical centring. */
   justify-content: flex-start;
-  padding-top: max(1.75rem, env(safe-area-inset-top));
+  padding-top: max(1.25rem, env(safe-area-inset-top));
   padding-bottom: 5.25rem;
   padding-bottom: max(5.25rem, calc(4rem + env(safe-area-inset-bottom)));
   /* The headline below sizes itself against this column with `cqw`, so its
      line count holds at every phone width. */
   container-type: inline-size;
 }
-/* Phone fill: the copy column stretches across the whole band (top padding to
-   the dot/progress clearance at the foot) and distributes its blocks evenly
-   top-to-bottom — eyebrow at the notch, headline + description in the middle,
-   CTAs and trust points finishing just above the dots — so every slide fills
-   the screen instead of pooling a dead band under the copy. Independent of the
-   admin Headline Size multiplier, so any scale still fills the fold. `sm` and
-   up keep the vertically-centred desktop composition. */
+/* Phone composition: content is top-anchored and compact so the eyebrow starts
+   closer to the header. Vertical rhythm is driven by a single flex `gap`
+   (per-block margins neutralised below `sm`); spacing is consistent and tight.
+   Desktop (`sm`+) keeps its existing vertically-centred composition untouched. */
 @media (max-width: 639px) {
   .hero-carousel .hero-shell {
-    padding-top: max(1.5rem, env(safe-area-inset-top));
-    padding-bottom: max(4rem, calc(3.5rem + env(safe-area-inset-bottom)));
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+    padding-bottom: max(2.25rem, calc(1.75rem + env(safe-area-inset-bottom)));
   }
-  .hero-carousel .hero-shell > .stagger,
-  .hero-carousel .hero-shell > .stagger > * { min-width: 0; }
   .hero-carousel .hero-shell > .stagger {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 0.625rem;
   }
+  .hero-carousel .hero-shell > .stagger > * { min-width: 0; margin-block: 0; }
+}
+@media (max-width: 639px) {
+  .hero-carousel { min-height: auto !important; }
 }
 @supports (height: 100svh) {
-  .hero-shell { min-height: calc(100svh - var(--site-header-h)); }
+  @media (max-width: 639px) {
+    .hero-carousel { min-height: auto !important; }
+  }
 }
-@media (min-width: 640px) {
-  .hero-shell {
-    justify-content: center;
-    padding-top: 2.5rem;
-    padding-block: 2.5rem 5.5rem;
-    padding-bottom: max(5.5rem, calc(4.25rem + env(safe-area-inset-bottom)));
+@media (max-width: 639px) {
+  .hero-shell { min-height: auto !important; }
+}
+@supports (height: 100svh) {
+  @media (max-width: 639px) {
+    .hero-shell { min-height: auto !important; }
   }
 }
 @media (min-width: 1024px) {
@@ -186,8 +188,8 @@ img,video,svg { max-width:100%; }
    follows the column, the line count is the same on a 320px phone as on a
    430px one. From `sm` the scale steps up to the display look. */
 .hero-carousel .hero-industrial-title {
-  font-size: calc(clamp(1.3rem, 8.2cqw, 2.9rem) * var(--headline-scale, 1));
-  line-height: 1.12;
+  font-size: calc(clamp(1.2rem, 7.8cqw, 2.75rem) * var(--headline-scale, 1));
+  line-height: 1.1;
   letter-spacing: 0.005em;
 }
 @media (min-width: 640px) {
@@ -199,26 +201,33 @@ img,video,svg { max-width:100%; }
 @media (min-width: 1024px) {
   .hero-carousel .hero-description { font-size: 1.0625rem; line-height: 1.6; }
 }
+/* Phone body copy sits a touch tighter than the shared hero description so the
+   whole block stays compact; still comfortably readable at ~15px. */
+@media (max-width: 639px) {
+  .hero-carousel .hero-description { font-size: 0.9375rem; line-height: 1.5; }
+}
 /* The hero CTAs are full-width and comfortably tappable on phones — a 48px
-   target, the same height the rest of the site's buttons use, rather than the
-   40px the old fixed band forced. */
+   target, the site-wide tap minimum, kept compact so the stacked pair (primary
+   red, secondary glass) does not dominate the fold. */
 @media (max-width: 639px) {
   .hero-carousel .btn-primary,
   .hero-carousel .btn-light {
-    min-height: 3.25rem;
-    padding: 0.8125rem 1.25rem;
-    font-size: 0.76rem;
+    min-height: 3rem;
+    padding: 0.7rem 1.15rem;
+    font-size: 0.75rem;
     letter-spacing: 0.06em;
   }
 }
-/* Narrow phones (≤359px): one step down so the longest headline keeps its 2-line
+/* Narrow phones (≤359px): one step down so the longest headline keeps its line
    count and the CTA row shaves a couple of pixels, while every control stays a
    comfortable tap target. Declared after the rule above so it wins at equal
    specificity. */
 @media (max-width: 359px) {
-  .hero-carousel .hero-description { font-size: 0.875rem; line-height: 1.5; }
-  .hero-carousel .btn-primary,
-  .hero-carousel .btn-light { min-height: 3rem; padding: 0.7rem 0.85rem; }
+  .hero-carousel .hero-shell {
+    padding-top: max(0.625rem, env(safe-area-inset-top));
+    padding-bottom: max(1.75rem, calc(1.5rem + env(safe-area-inset-bottom)));
+  }
+  .hero-carousel .hero-shell > .stagger { gap: 0.5rem; }
 }
 /* Rounded hero actions: a soft 5px executive radius on the two buttons, scoped
    to the hero so every other surface keeps its existing squared style. */
@@ -433,6 +442,14 @@ body.menu-open {
    All of it is scoped to `max-width: 767px`, the one breakpoint where the bar
    exists â€” everywhere else these elements keep their original `bottom-4`. */
 :root { --mp-action-bar-h: 67px; }
+/* Keep the floating WhatsApp button clear of the device's home indicator and
+   rounded screen corners, and never inside the safe edge, while it falls back to
+   the original 1rem inset on hardware without a notch. Declared unlayered so it
+   outranks the `bottom-4`/`right-4` utilities from Tailwind. */
+.mp-fab {
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  right: max(1rem, env(safe-area-inset-right));
+}
 @media (max-width: 767px) {
   html:has(.mp-action-bar) body { padding-bottom: var(--mp-action-bar-h); }
   html:has(.mp-action-bar) .mp-fab,

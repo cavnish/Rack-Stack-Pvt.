@@ -325,8 +325,8 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
           <div
             className="absolute inset-0 md:hidden"
             style={{
-              background: "linear-gradient(180deg, rgba(6,7,9,0.97) 0%, rgba(6,7,9,0.88) 46%, rgba(6,7,9,0.72) 100%)",
-              opacity: 0.85 + (Math.max(0, Math.min(100, activeSlide.overlayOpacity ?? 72)) / 100) * 0.15,
+              background: "linear-gradient(180deg, rgba(6,7,9,0.95) 0%, rgba(6,7,9,0.85) 44%, rgba(6,7,9,0.58) 100%)",
+              opacity: 0.8 + (Math.max(0, Math.min(100, activeSlide.overlayOpacity ?? 72)) / 100) * 0.2,
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20 pointer-events-none" />
@@ -346,7 +346,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
             >
               {/* Eyebrow badge */}
               {activeSlide.eyebrow ? (
-                <div className="inline-flex max-w-full items-center relative mb-4 sm:mb-4 md:mb-5 select-none">
+                <div className="inline-flex max-w-full items-center relative mb-3 sm:mb-4 md:mb-5 select-none">
                   <span className="relative z-10 bg-[#E31E24] text-white font-black uppercase text-[0.7rem] sm:text-[0.75rem] md:text-[0.8rem] tracking-[0.1em] sm:tracking-[0.14em] px-3 sm:px-4 py-1 sm:py-1.5 shadow-md hero-badge-angled pr-4 sm:pr-6">
                     {activeSlide.eyebrow}
                   </span>
@@ -379,7 +379,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
               ) : null}
 
               {/* Accent line */}
-              <div className="w-14 sm:w-16 md:w-20 h-1 bg-[#E31E24] mt-4 sm:mt-5 mb-4 sm:mb-4" aria-hidden="true" />
+              <div className="w-14 sm:w-16 md:w-20 h-1 bg-[#E31E24] mt-3 sm:mt-5 mb-3 sm:mb-4" aria-hidden="true" />
 
               {/* Subheading & Description */}
               {activeSlide.description ? (() => {
@@ -405,7 +405,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
               {/* CTA Buttons — on a phone each action takes its own full-width
                   row so the two primary actions are never cramped side by side;
                   from `sm` up they spread into a horizontal row. */}
-              <div className={`mt-6 grid grid-cols-1 gap-2.5 sm:mt-6 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 ${align.buttons}`}>
+              <div className={`mt-4 grid grid-cols-1 gap-2 sm:mt-6 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 ${align.buttons}`}>
                 {activeSlide.primaryButtonText ? (
                   <Link
                     href={internalHref(activeSlide.primaryButtonUrl, "/products")}
@@ -436,7 +436,7 @@ export function HomeHeroSlider({ slides }: { slides: HeroSlide[] }) {
 
               {/* Trust Points */}
               {activeSlide.trustPoints && activeSlide.trustPoints.length > 0 ? (
-                <ul className={`mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 sm:mt-6 sm:gap-x-5 sm:gap-y-2 ${align.buttons}`}>
+                <ul className={`mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 sm:mt-6 sm:gap-x-5 sm:gap-y-2 ${align.buttons}`}>
                   {activeSlide.trustPoints.map((point) => (
                     <li key={point} className="flex min-w-0 items-center gap-2 text-[0.62rem] sm:text-[0.68rem] font-bold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-zinc-400">
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#E31E24] shadow-[0_0_6px_rgba(227,30,36,0.5)]" />

@@ -1,0 +1,16 @@
+@media (max-width: 639px) {
+  .hero-carousel { min-height: auto !important; }
+}
+@supports (height: 100svh) {
+  @media (max-width: 639px) {
+    .hero-carousel { min-height: auto !important; }
+  }
+}
+@media (max-width: 639px) {
+  .hero-shell { min-height: auto !important; }
+}
+@supports (height: 100svh) {
+  @media (max-width: 639px) {
+    .hero-shell { min-height: auto !important; }
+  }
+}

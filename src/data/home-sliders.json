@@ -137,8 +137,8 @@
     "description": "Selective pallet racking, cantilever racks, and reinforced steel shelving engineered around your forklift operations, load profiles, and daily material flow",
     "imageUrl": "/assets/images/hero/home-sliders-ai1kuxp8xdkaldwtsajc-fb91187fe8.webp",
     "imagePublicId": "rack-stack/home-sliders/ai1kuxp8xdkaldwtsajc",
-    "mobileImageUrl": "/assets/images/hero/slide-2-744a9f1204.webp",
-    "mobileImagePublicId": null,
+    "mobileImageUrl": "/assets/images/hero/home-sliders-syido9aaczw9edhlgnmq-4eb7d8b588.webp",
+    "mobileImagePublicId": "rack-stack/home-sliders/syido9aaczw9edhlgnmq",
     "videoUrl": null,
     "imageAlt": "Forklift working alongside industrial pallet racking",
     "primaryButtonText": "See Our Products",
@@ -162,6 +162,6 @@
     "startAt": null,
     "endAt": null,
     "createdAt": "2026-09-28T08:58:50.431Z",
-    "updatedAt": "2026-10-14T05:18:12.439Z"
+    "updatedAt": "2026-10-14T07:37:45.652Z"
   }
 ]

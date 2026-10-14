@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-14T05:52:34.951Z",
+  "updatedAt": "2026-10-14T07:37:34.604Z",
   "assets": {
     "hero:https://images.pexels.com/photos/4487363/pexels-photo-4487363.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000": {
       "url": "/assets/images/hero/warehouse-pallet-storage-hero-374ec6e177.webp",
@@ -1407,6 +1407,19 @@
       "group": "blog",
       "name": "blog-uvaypnh0oxaosjenmt3a",
       "etag": "\"35f3eb943d67c157e8cffe43cbeb29dc\""
+    },
+    "hero:https://res.cloudinary.com/z3bxsfxu/image/upload/v1791963451/rack-stack/home-sliders/syido9aaczw9edhlgnmq.jpg": {
+      "url": "/assets/images/hero/home-sliders-syido9aaczw9edhlgnmq-4eb7d8b588.webp",
+      "width": 1024,
+      "height": 1536,
+      "aspectRatio": 0.6667,
+      "bytes": 321878,
+      "hash": "4eb7d8b588",
+      "source": "https://res.cloudinary.com/z3bxsfxu/image/upload/v1791963451/rack-stack/home-sliders/syido9aaczw9edhlgnmq.jpg",
+      "cached": false,
+      "group": "hero",
+      "name": "home-sliders-syido9aaczw9edhlgnmq",
+      "etag": "\"d5aa064bd29842987475affea503965c\""
     }
   }
 }

@@ -21,10 +21,26 @@ const BRAND = {
   white: "#FFFFFF",
 };
 
-// Rack & Stack logo.
-// Replace this URL with your actual Cloudinary/static logo URL.
-const LOGO_URL =
-  "https://res.cloudinary.com/YOUR_CLOUD_NAME/image/upload/vYOUR_VERSION/rack-stack/general/logo.png";
+/**
+ * The Rack & Stack logo, as an absolute HTTPS URL.
+ *
+ * Email clients fetch images from their own servers, not from the page the mail
+ * was composed on, so a relative path is worthless here. This is the same
+ * `/logo.png` the site header renders (`src/components/site/logo.tsx`), served
+ * from the public production origin, which is what makes it load in Gmail and
+ * everywhere else.
+ *
+ * It was previously a placeholder — `res.cloudinary.com/YOUR_CLOUD_NAME/...` —
+ * which resolved to nothing, so the header image was broken in every message.
+ * The asset is a transparent PNG whose artwork is dark, so it is drawn on a
+ * white tile below; without that backing it would be near-invisible against the
+ * dark header. It can be overridden per deployment with `RESEND_LOGO_URL`.
+ */
+const LOGO_URL = process.env.RESEND_LOGO_URL?.trim() || "https://www.rackandstack.in/logo.png";
+
+/** Natural aspect ratio of `public/logo.png` (547 x 456), so it is never stretched. */
+const LOGO_WIDTH = 48;
+const LOGO_HEIGHT = 40;
 
 const WEBSITE_URL = "https://rackandstack.in";
 
@@ -262,18 +278,46 @@ function brandHeaderHtml(title: string) {
                           padding-right:12px;
                         "
                       >
-                        <img
-                          src="${LOGO_URL}"
-                          alt="Rack & Stack"
-                          width="48"
-                          height="48"
-                          style="
-                            display:block;
-                            width:48px;
-                            height:48px;
-                            border-radius:8px;
-                          "
-                        />
+                        <!--
+                          The transparent logo is drawn on a white tile so its
+                          dark artwork stays visible against the dark header.
+                          Explicit width/height keep its aspect ratio and stop
+                          Gmail from collapsing or stretching it.
+                        -->
+                        <table
+                          role="presentation"
+                          cellpadding="0"
+                          cellspacing="0"
+                          border="0"
+                        >
+                          <tr>
+                            <td
+                              align="center"
+                              valign="middle"
+                              style="
+                                background:#FFFFFF;
+                                border-radius:10px;
+                                padding:7px;
+                                line-height:0;
+                              "
+                            >
+                              <img
+                                src="${LOGO_URL}"
+                                alt="Rack &amp; Stack Storage Systems"
+                                width="${LOGO_WIDTH}"
+                                height="${LOGO_HEIGHT}"
+                                style="
+                                  display:block;
+                                  width:${LOGO_WIDTH}px;
+                                  height:${LOGO_HEIGHT}px;
+                                  border:0;
+                                  outline:none;
+                                  text-decoration:none;
+                                "
+                              />
+                            </td>
+                          </tr>
+                        </table>
                       </td>
 
                       <td style="vertical-align:middle;">
@@ -990,61 +1034,6 @@ function buildClientHtml(lead: LeadRecord) {
             Our team will review your requirements and
             get back to you shortly.
           </p>
-
-          <table
-            role="presentation"
-            width="100%"
-            cellpadding="0"
-            cellspacing="0"
-            style="
-              margin-top:26px;
-              background:${BRAND.cream};
-              border:1px solid ${BRAND.border};
-              border-radius:12px;
-            "
-          >
-
-            <tr>
-
-              <td
-                style="
-                  padding:20px 20px 18px;
-                "
-              >
-
-                <div
-                  style="
-                    font-family:Arial, Helvetica, sans-serif;
-                    font-size:11px;
-                    font-weight:700;
-                    color:${BRAND.orange};
-                    letter-spacing:2px;
-                    text-transform:uppercase;
-                    margin-bottom:9px;
-                  "
-                >
-                  THANK YOU FOR CONTACTING US
-                </div>
-
-                <div
-                  style="
-                    font-family:Arial, Helvetica, sans-serif;
-                    font-size:14px;
-                    color:${BRAND.slate};
-                    line-height:1.65;
-                  "
-                >
-                  We appreciate your interest in our
-                  industrial storage and warehouse solutions.
-                  A member of our team will be in touch with
-                  you regarding your enquiry.
-                </div>
-
-              </td>
-
-            </tr>
-
-          </table>
 
           <p
             style="

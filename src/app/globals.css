@@ -327,13 +327,20 @@ textarea.admin-field { color:#18181b; }
    reserves, so the video fills the frame and every card is the same size.
    `!important` is required to beat Instagram's inline styles. Scoped to
    .rk-instagram-embed so nothing else on the site is affected. */
-.rk-instagram-embed { position:relative; isolation:isolate; background:#09090b; }
+.rk-instagram-embed { position:relative; isolation:isolate; overflow:hidden; background:#0b0d10; }
 /* Everything Instagram generates fills the frame. Our own chrome (the mute
    button and the fallback) opts out with .rk-embed-chrome so it is never
-   stretched by the rule below. */
-.rk-instagram-embed > :not(.rk-embed-chrome) { position:absolute!important; inset:0!important; width:100%!important; height:100%!important; max-width:none!important; margin:0!important; border:0!important; }
-.rk-instagram-embed .instagram-media { box-shadow:none!important; background:transparent!important; }
-.rk-instagram-embed iframe { position:absolute!important; inset:0!important; display:block!important; width:100%!important; height:100%!important; max-width:none!important; margin:0!important; border:0!important; }
+   stretched by the rule below.
+
+   `min-width:0!important` is the load-bearing declaration. When embeds.js
+   swaps the blockquote for its iframe it writes `min-width:326px` on it (the
+   width Instagram's own card is designed for). Every one of our cards is
+   narrower than 326px, so `width:100%` lost to that min-width and the 326px
+   iframe was clipped by the frame's `overflow:hidden` — the "cropped video".
+   Zeroing the min-width lets the embed take the card's real width instead. */
+.rk-instagram-embed > :not(.rk-embed-chrome) { position:absolute!important; inset:0!important; width:100%!important; height:100%!important; min-width:0!important; min-height:0!important; max-width:none!important; max-height:none!important; margin:0!important; border:0!important; }
+.rk-instagram-embed .instagram-media { box-shadow:none!important; background:transparent!important; min-width:0!important; }
+.rk-instagram-embed iframe { position:absolute!important; inset:0!important; display:block!important; width:100%!important; height:100%!important; min-width:0!important; min-height:0!important; max-width:none!important; margin:0!important; border:0!important; }
 
 /* ============ REEL SHELF ============
    A horizontal shelf of 9:16 cards. The card width is derived from the
@@ -345,9 +352,10 @@ textarea.admin-field { color:#18181b; }
    Lives here rather than as arbitrary values because Tailwind's extractor does
    not emit calc() widths, and because these rules are the same shape as the
    marquee and client-logo breakpoints above. */
-.reel-shelf > * { width:62vw; max-width:15rem; }
-@media (min-width:640px){ .reel-shelf > * { width:34vw; } }
-@media (min-width:1024px){ .reel-shelf > * { width:calc((100% - 3rem) / 4); max-width:none; } }
+.reel-shelf > * { width:70vw; max-width:15.5rem; }
+@media (min-width:640px){ .reel-shelf > * { width:38vw; max-width:16rem; } }
+@media (min-width:768px){ .reel-shelf > * { width:calc((100% - 2rem) / 3); max-width:none; } }
+@media (min-width:1024px){ .reel-shelf > * { width:calc((100% - 3rem) / 4); } }
 @media (min-width:1280px){ .reel-shelf > * { width:calc((100% - 4rem) / 5); } }
 @keyframes hero-progress { from { transform:scaleX(0); } to { transform:scaleX(1); } }
 /* Hero Ken Burns: a slow one-shot push-in on the artwork. Driven by CSS rather

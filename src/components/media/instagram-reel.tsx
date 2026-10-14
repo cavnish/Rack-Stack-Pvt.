@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX } from "lucide-react";
+import { Play, Volume2, VolumeX } from "lucide-react";
 import { parseInstagramUrl } from "@/lib/instagram";
 
 /**
@@ -17,10 +17,16 @@ import { parseInstagramUrl } from "@/lib/instagram";
  *    once, so one shared promise backs every mount on the page.
  * 2. `Embeds.process()` replaces the blockquote asynchronously, so the card
  *    has to wait for the iframe before it can claim to be ready — and fall
- *    back to a real "View Reel on Instagram" link if it never arrives.
+ *    back to a real "Watch on Instagram" control if it never arrives.
  * 3. The embed does not autoplay reliably while the card is far below the
  *    fold, so the markup is not even created until the card is near the
  *    viewport. That keeps Instagram's bundle off the critical path entirely.
+ *
+ * Sizing is the fourth problem, and it is fixed in CSS rather than here: the
+ * iframe Instagram generates carries `min-width:326px`, which is wider than any
+ * of our cards, so the frame's `overflow:hidden` used to crop the video. The
+ * `.rk-instagram-embed` rules in `globals.css` zero that min-width so the embed
+ * always takes the card's real width.
  */
 
 /** Instagram's official embed script. */
@@ -31,7 +37,7 @@ const SCRIPT_ID = "instagram-embeds-script";
 const EMBED_TIMEOUT_MS = 12000;
 
 /** How close to the viewport a card must be before Instagram is asked for it. */
-const ARM_MARGIN = "300px 0px";
+const ARM_MARGIN = "400px 0px";
 
 let scriptPromise: Promise<void> | null = null;
 
@@ -184,7 +190,7 @@ export function InstagramEmbed({ permalink, title, className }: InstagramEmbedPr
   return (
     <div
       ref={frameRef}
-      className={`rk-instagram-embed aspect-[9/16] w-full overflow-hidden ${className ?? ""}`}
+      className={`rk-instagram-embed aspect-[9/16] w-full ${className ?? ""}`}
     >
       {parsed.ok ? (
         <>
@@ -207,10 +213,7 @@ export function InstagramEmbed({ permalink, title, className }: InstagramEmbedPr
           </blockquote>
 
           {status === "ready" ? null : (
-            <>
-              <InstagramFallback title={title} permalink={parsed.ref.permalink} state={status} />
-              {status === "idle" || status === "loading" ? <span role="status" className="sr-only">Loading Reel</span> : null}
-            </>
+            <InstagramFallback title={title} permalink={parsed.ref.permalink} state={status} />
           )}
 
           {status === "ready" && canToggleSound ? (
@@ -265,11 +268,11 @@ function waitForEmbedFrame(frame: HTMLElement, timeoutMs: number, isCancelled: (
 /**
  * Shown until Instagram's iframe exists, and permanently if it never does.
  *
- * While it is only a placeholder the whole overlay is hidden from assistive
- * tech — Instagram's own iframe brings its own accessible player, and reading
- * the Reel name twice is worse than reading it once. Once the embed has failed
- * for good it becomes real content again, because the call to action is then the
- * only way to reach the Reel, and it doubles as the no-JavaScript path.
+ * Before the embed arrives it is a quiet branded placeholder — a soft shimmer
+ * over the Reel's title — so the card reads as loading rather than broken. Once
+ * the embed has failed for good it becomes real content: a play control that
+ * links straight to the Reel on Instagram, which is also the no-JavaScript
+ * path.
  */
 function InstagramFallback({
   title,
@@ -283,36 +286,50 @@ function InstagramFallback({
   invalid?: boolean;
 }) {
   const failed = state === "error";
+  const href = permalink ?? "https://www.instagram.com/";
 
   return (
     <div
-      className="rk-embed-chrome absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-zinc-950 p-6 text-center"
+      className={`rk-embed-chrome absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black p-5 text-center ${
+        failed ? "" : "pointer-events-none"
+      }`}
       aria-hidden={failed ? undefined : true}
     >
-      {/*
-        A quiet shimmer, not a play button. Instagram's own controls appear as
-        soon as its iframe does, and a fake control in front of them would be
-        worse than none at all.
-      */}
-      {failed ? null : <span aria-hidden className="h-9 w-9 animate-pulse rounded-full border border-white/15 bg-white/5" />}
-
-      <p className="line-clamp-3 text-sm font-semibold leading-snug text-white">{title}</p>
-
       {failed ? (
         <a
-          href={permalink ?? "https://www.instagram.com/"}
+          href={href}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`View ${title} on Instagram`}
-          className="mt-1 inline-flex items-center gap-1.5 text-[.65rem] font-bold uppercase tracking-[.14em] text-white underline decoration-white/40 underline-offset-4 transition hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          aria-label={invalid ? "Open Instagram" : `Watch ${title} on Instagram`}
+          className="group/play grid h-14 w-14 place-items-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-sm transition hover:scale-105 hover:border-white/60 hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
         >
-          {invalid ? "This Reel link is not valid" : "View Reel on Instagram"}
+          <Play size={20} className="translate-x-[1px] fill-current" aria-hidden />
         </a>
       ) : (
-        <span aria-hidden className="text-[.65rem] font-semibold uppercase tracking-[.14em] text-zinc-500">
+        <span
+          aria-hidden
+          className="h-12 w-12 animate-pulse rounded-full border border-white/15 bg-white/10"
+        />
+      )}
+
+      <p className="line-clamp-3 max-w-[16rem] text-[.82rem] font-semibold leading-snug text-white">
+        {title}
+      </p>
+
+      {failed ? (
+        <span className="text-[.62rem] font-bold uppercase tracking-[.16em] text-red-400">
+          {invalid ? "Reel link unavailable" : "Watch on Instagram"}
+        </span>
+      ) : (
+        <span
+          aria-hidden
+          className="text-[.62rem] font-semibold uppercase tracking-[.16em] text-zinc-500"
+        >
           Loading Reel
         </span>
       )}
+
+      {failed ? null : <span role="status" className="sr-only">Loading Reel</span>}
     </div>
   );
 }

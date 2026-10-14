@@ -1,4 +1,4 @@
-import { siteOrigin } from "@/lib/site-url";
+import { absoluteCanonical, siteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!item) return {};
   const title = item.metaTitle || item.name;
   const description = item.metaDescription || item.shortDescription;
-  const canonical = item.canonicalUrl || `/services/${item.slug}`;
+  const canonical = absoluteCanonical(item.canonicalUrl, `/services/${item.slug}`);
   return {
     title,
     description,

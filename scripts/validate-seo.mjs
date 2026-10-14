@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { request as httpRequest } from "node:http";
 import { setTimeout as delay } from "node:timers/promises";
 
 /**
@@ -152,8 +153,9 @@ function validateRobots(base) {
     check("robots advertises canonical sitemap", body.includes("Sitemap: " + CANONICAL_ORIGIN + "/sitemap.xml"));
     check("robots disallows /admin", /Disallow:\s*\/admin/i.test(body));
     check("robots disallows /api", /Disallow:\s*\/api/i.test(body));
-    check("robots allows public crawling", /User-Agent:/i.test(body) && /Allow:\<｜begin▁of▁sentence｜>#016/);
+    check("robots allows public crawling", /User-Agent:/i.test(body) && /^Allow:\s*\//im.test(body));
     check("robots has no preview/localhost host", !forbiddenHost(body));
+    check("robots has no apex host", !body.includes("https://rackandstack.in") && !body.includes("http://rackandstack.in"));
   });
 }
 
@@ -185,9 +187,53 @@ function validateSitemap(base) {
     });
     check("sitemap excludes private/unpublished URLs", privateHits.length === 0, privateHits.slice(0, 3).join(", "));
     check("sitemap has no localhost/preview host", !forbiddenHost(body));
+    check("sitemap has no apex host", !body.includes("https://rackandstack.in") && !body.includes("http://rackandstack.in"));
 
     return urls;
   });
+}
+
+/**
+ * A raw GET over `node:http`, used only for the redirect checks.
+ *
+ * `fetch` treats `Host` as a forbidden header, so it cannot be used to ask the
+ * local server for the apex host.
+ */
+function rawGet(port, path, headers) {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest({ host: "127.0.0.1", port, path, method: "GET", headers }, (res) => {
+      res.resume();
+      res.on("end", () => resolve({ status: res.statusCode, location: String(res.headers.location || "") }));
+    });
+    req.on("error", reject);
+    req.end();
+  });
+}
+
+/** The apex and plain-HTTP redirects, checked against the local server only. */
+async function validateRedirects(base) {
+  console.log("\ncanonical-host redirects");
+  if (BASE) {
+    check("redirect checks skipped for external SEO_BASE_URL", true, "external host");
+    return;
+  }
+  const port = Number(PORT);
+  // Next may emit the origin with or without its trailing slash for `/`.
+  const isCanonicalTarget = (location) =>
+    location === "https://www.rackandstack.in" || location.startsWith("https://www.rackandstack.in/");
+
+  const apex = await rawGet(port, "/", { host: "rackandstack.in" });
+  check("apex host redirects permanently", apex.status === 308, "status " + apex.status);
+  check("apex redirect targets https www", isCanonicalTarget(apex.location), apex.location || "missing");
+
+  const apexPath = await rawGet(port, "/services/rack-manufacturing", { host: "rackandstack.in" });
+  check("apex redirect preserves the path", apexPath.location === "https://www.rackandstack.in/services/rack-manufacturing", apexPath.location || "missing");
+
+  const plainHttp = await rawGet(port, "/", { host: "www.rackandstack.in", "x-forwarded-proto": "http" });
+  check("plain http redirects to https www", plainHttp.status === 308 && isCanonicalTarget(plainHttp.location), "status " + plainHttp.status + " -> " + (plainHttp.location || "missing"));
+
+  const httpsWww = await rawGet(port, "/robots.txt", { host: "www.rackandstack.in", "x-forwarded-proto": "https" });
+  check("https www is not redirected (no loop)", httpsWww.status === 200, "status " + httpsWww.status);
 }
 
 function samplePages(urls) {
@@ -240,6 +286,7 @@ async function main() {
 
   const urls = await validateSitemap(base);
   await validateRobots(base);
+  await validateRedirects(base);
   await validatePages(base, urls);
 
   const failed = results.filter((result) => !result.ok);

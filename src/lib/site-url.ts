@@ -77,7 +77,22 @@ export function siteOrigin(): string {
     return PRODUCTION_ORIGIN;
   }
 
-  if ((isLoopback(parsed.hostname) || isPreviewHost(parsed.hostname)) && process.env.NODE_ENV === "production") {
+  const host = parsed.hostname.toLowerCase();
+  /*
+   * The preferred public origin is the HTTPS `www` host.
+   *
+   * A configured apex host (`https://rackandstack.in`), a plain-HTTP value or a
+   * stray port is normalised to it here. This matters because the apex and `www`
+   * hosts serve the same site: if an environment variable published the apex as
+   * this site's origin, every canonical tag, the sitemap, `robots.txt` and the
+   * Organization JSON-LD would name the apex host while the site was submitted
+   * as `www` — exactly the "Duplicate, Google chose different canonical than
+   * user" report this change addresses. Normalising here means a misconfigured
+   * variable can no longer split the two hosts.
+   */
+  if (CANONICAL_HOSTS.has(host)) return PRODUCTION_ORIGIN;
+
+  if ((isLoopback(host) || isPreviewHost(host)) && process.env.NODE_ENV === "production") {
     warnOnce(
       `NEXT_PUBLIC_SITE_URL is "${configured}", which is not the public origin ` +
         `(localhost or a Vercel preview host). Canonical URLs, the sitemap and robots.txt would all ` +
@@ -129,6 +144,54 @@ export function siteUrl(): URL {
 export function absoluteUrl(path = "/"): string {
   const suffix = path.startsWith("/") ? path : `/${path}`;
   return `${siteOrigin()}${suffix}`;
+}
+
+/**
+ * A CMS canonical override resolved to a site-relative path.
+ *
+ * Returns `null` when the value is empty, malformed, or points at a host that is
+ * not this site, so a caller can fall back to the route's own self-referencing
+ * path rather than canonicalising one of this site's pages to a third party.
+ *
+ * Accepts the three shapes editors actually paste: a route (`/blog/post` or the
+ * slash-less `blog/post` a CMS sometimes stores), an absolute same-site URL
+ * (`https://rackandstack.in/blog/post`, `https://www.rackandstack.in/blog/post`
+ * or a stale `*.vercel.app` preview link).
+ */
+export function canonicalPath(value: string | null | undefined): string | null {
+  const raw = (value ?? "").trim();
+  if (!raw) return null;
+
+  if (raw.startsWith("//") || /^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) {
+    let url: URL;
+    try {
+      // A base is required so a protocol-relative value (`//host/path`) is
+      // parsed as a URL rather than treated as a path.
+      url = new URL(raw, `${PRODUCTION_ORIGIN}/`);
+    } catch {
+      return null;
+    }
+    if (!url.protocol.startsWith("http")) return null;
+    const host = url.hostname.toLowerCase();
+    if (!CANONICAL_HOSTS.has(host) && !isLoopback(host) && !isPreviewHost(host)) return null;
+    const path = `${url.pathname}${url.search}`;
+    return path === "" ? "/" : path;
+  }
+
+  return raw.startsWith("/") ? raw : `/${raw}`;
+}
+
+/**
+ * A CMS canonical override (or a route fallback) as an absolute URL on the
+ * canonical origin.
+ *
+ * Used by every `generateMetadata` that can be pointed at a stored canonical, so
+ * a page's `<link rel="canonical">` and `og:url` always name the one canonical
+ * HTTPS `www` address whatever the editor stored.
+ */
+export function absoluteCanonical(value: string | null | undefined, fallbackPath: string): string {
+  const fallback = fallbackPath.startsWith("/") ? fallbackPath : `/${fallbackPath}`;
+  return absoluteUrl(canonicalPath(value) ?? fallback);
 }
 
 function warnOnce(message: string) {

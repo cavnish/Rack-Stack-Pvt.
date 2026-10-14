@@ -42,7 +42,7 @@ const LOGO_URL = process.env.RESEND_LOGO_URL?.trim() || "https://www.rackandstac
 const LOGO_WIDTH = 48;
 const LOGO_HEIGHT = 40;
 
-const WEBSITE_URL = "https://rackandstack.in";
+const WEBSITE_URL = "https://www.rackandstack.in";
 
 const OFFICE_PHONE = "+91 97692 67792";
 const OFFICE_EMAIL = "info@rackandstack.in";

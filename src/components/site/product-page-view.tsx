@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getClientLogos, getProductBySlug, getProductReelVideos, getProducts, getRedirectPath, getServices, type ProductDetail } from "@/lib/data";
 import { JsonLd } from "@/components/site/ui";
 import { cleanTitle } from "@/lib/meta";
-import { absoluteUrl } from "@/lib/site-url";
+import { absoluteCanonical, absoluteUrl } from "@/lib/site-url";
 import { ProductSectionsLayout } from "@/components/site/product-sections";
 import { adaptDatabaseProduct, adaptDatabaseRelated, getProductOptions } from "@/lib/product-page";
 import { getProductFolderImages } from "@/lib/product-image-assets";
@@ -68,7 +68,7 @@ export async function ProductPageView({ slug, allowPreview }: { slug: string; al
     productSchema.additionalProperty = product.specifications.map((specification) => ({ "@type": "PropertyValue", name: specification.specificationName, value: specification.specificationValue }));
   }
   const faqSchema: Record<string, unknown> = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: product.faqs.map((faq) => ({ "@type": "Question", name: faq.question, acceptedAnswer: { "@type": "Answer", text: faq.answer } })) };
-  const breadcrumbSchema: Record<string, unknown> = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") }, { "@type": "ListItem", position: 2, name: "Products", item: absoluteUrl("/products") }, { "@type": "ListItem", position: 3, name: product.name }] };
+  const breadcrumbSchema: Record<string, unknown> = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") }, { "@type": "ListItem", position: 2, name: "Products", item: absoluteUrl("/products") }, { "@type": "ListItem", position: 3, name: product.name, item: absoluteCanonical(product.canonicalUrl, `/products/${product.slug}`) }] };
 
   return (
     <main>
@@ -102,7 +102,7 @@ export async function buildProductMetadata(slug: string, allowPreview: boolean):
   const ogImage = product.ogImage || product.heroImage || product.images[0]?.imageUrl || product.thumbnail || undefined;
   const title = cleanTitle(product.metaTitle || product.name);
   const description = product.metaDescription || product.shortDescription;
-  const canonical = product.canonicalUrl || `/products/${product.slug}`;
+  const canonical = absoluteCanonical(product.canonicalUrl, `/products/${product.slug}`);
 
   return {
     title,

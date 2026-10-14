@@ -58,6 +58,36 @@ const nextConfig: NextConfig = {
     ],
   },
   poweredByHeader: false,
+  /**
+   * Canonical-host redirects.
+   *
+   * The apex host (`rackandstack.in`) and the preferred host
+   * (`www.rackandstack.in`) serve the same site, which is what let Google pick
+   * the apex as canonical while the `www` URL was submitted. Both hosts must
+   * resolve to this deployment (see the deployment notes); when they do, this
+   * sends every apex request to its `www` equivalent with a permanent 308, so
+   * there is exactly one indexable host.
+   *
+   * The second rule covers plain HTTP for proxies that terminate TLS and report
+   * the original scheme in `x-forwarded-proto`. It only fires when the header is
+   * exactly `http`, so an HTTPS request cannot be redirected to itself.
+   */
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "rackandstack.in" }],
+        destination: "https://www.rackandstack.in/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "header", key: "x-forwarded-proto", value: "http" }],
+        destination: "https://www.rackandstack.in/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

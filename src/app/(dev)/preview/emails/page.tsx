@@ -130,7 +130,7 @@ export default async function EmailPreviewPage() {
             {siteUrl ? <code>{siteUrl}</code> : "unset"}
             {loopback ? " — a loopback origin is treated as unset so a dev build never ships dead localhost links." : "."}{" "}
             Restart the dev server with{" "}
-            <code className="text-amber-100">NEXT_PUBLIC_SITE_URL=https://rackandstack.in</code> to see the
+            <code className="text-amber-100">NEXT_PUBLIC_SITE_URL=https://www.rackandstack.in</code> to see the
             logo, the VIEW INQUIRY button and the website footer link.
           </div>
         ) : null}

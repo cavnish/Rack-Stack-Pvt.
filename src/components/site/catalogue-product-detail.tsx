@@ -1,4 +1,4 @@
-import { siteOrigin } from "@/lib/site-url";
+import { absoluteUrl, siteOrigin } from "@/lib/site-url";
 import type { Metadata } from "next";
 import { getClientLogos, getProductReelVideos, getProducts, getServices } from "@/lib/data";
 import { JsonLd } from "@/components/site/ui";
@@ -45,9 +45,9 @@ export async function CatalogueProductDetail({ product, relatedProducts }: Catal
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "/" },
-      { "@type": "ListItem", position: 2, name: "Products", item: "/products" },
-      { "@type": "ListItem", position: 3, name: categoryName, item: categoryHref },
+      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+      { "@type": "ListItem", position: 2, name: "Products", item: absoluteUrl("/products") },
+      { "@type": "ListItem", position: 3, name: categoryName, item: absoluteUrl(categoryHref) },
       { "@type": "ListItem", position: 4, name: product.name, item: productUrl },
     ],
   };
